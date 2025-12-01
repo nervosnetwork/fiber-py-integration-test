@@ -68,7 +68,9 @@ class TestSettleInvoice(FiberTest):
         payment = self.fiber2.get_client().send_payment(
             {"invoice": invoice["invoice_address"]}
         )
-        self.wait_invoice_state(self.fiber1, payment["payment_hash"], "Received", 120, 1)
+        self.wait_invoice_state(
+            self.fiber1, payment["payment_hash"], "Received", 120, 1
+        )
         self.fiber1.get_client().settle_invoice(
             {"payment_hash": payment["payment_hash"], "payment_preimage": preimage}
         )
@@ -258,9 +260,15 @@ class TestSettleInvoice(FiberTest):
 
     def test_settle_open_invoice_should_fail(self):
         self.fiber2.get_client().open_channel(
-            {"peer_id": self.fiber1.get_peer_id(), "funding_amount": hex(1000 * 100000000), "public": True}
+            {
+                "peer_id": self.fiber1.get_peer_id(),
+                "funding_amount": hex(1000 * 100000000),
+                "public": True,
+            }
         )
-        self.wait_for_channel_state(self.fiber2.get_client(), self.fiber1.get_peer_id(), "CHANNEL_READY", 120)
+        self.wait_for_channel_state(
+            self.fiber2.get_client(), self.fiber1.get_peer_id(), "CHANNEL_READY", 120
+        )
         preimage = self.generate_random_preimage()
         payment_hash = sha256_hex(preimage)
         self.fiber1.get_client().new_invoice(
@@ -275,15 +283,25 @@ class TestSettleInvoice(FiberTest):
             }
         )
         with pytest.raises(Exception) as exc_info:
-            self.fiber1.get_client().settle_invoice({"payment_hash": payment_hash, "payment_preimage": preimage})
-        assert "still open" in exc_info.value.args[0] or "Open" in exc_info.value.args[0]
+            self.fiber1.get_client().settle_invoice(
+                {"payment_hash": payment_hash, "payment_preimage": preimage}
+            )
+        assert (
+            "still open" in exc_info.value.args[0] or "Open" in exc_info.value.args[0]
+        )
 
     def test_settle_cancelled_invoice_should_fail(self):
         # 创建发票后直接取消，再尝试结算
         self.fiber2.get_client().open_channel(
-            {"peer_id": self.fiber1.get_peer_id(), "funding_amount": hex(1000 * 100000000), "public": True}
+            {
+                "peer_id": self.fiber1.get_peer_id(),
+                "funding_amount": hex(1000 * 100000000),
+                "public": True,
+            }
         )
-        self.wait_for_channel_state(self.fiber2.get_client(), self.fiber1.get_peer_id(), "CHANNEL_READY", 120)
+        self.wait_for_channel_state(
+            self.fiber2.get_client(), self.fiber1.get_peer_id(), "CHANNEL_READY", 120
+        )
 
         preimage = self.generate_random_preimage()
         payment_hash = sha256_hex(preimage)
@@ -298,17 +316,27 @@ class TestSettleInvoice(FiberTest):
                 "hash_algorithm": "sha256",
             }
         )
-        self.fiber1.get_client().cancel_invoice({"payment_hash": invoice["invoice"]["data"]["payment_hash"]})
+        self.fiber1.get_client().cancel_invoice(
+            {"payment_hash": invoice["invoice"]["data"]["payment_hash"]}
+        )
         with pytest.raises(Exception) as exc_info:
-            self.fiber1.get_client().settle_invoice({"payment_hash": payment_hash, "payment_preimage": preimage})
+            self.fiber1.get_client().settle_invoice(
+                {"payment_hash": payment_hash, "payment_preimage": preimage}
+            )
         assert "already cancelled" in exc_info.value.args[0]
 
     def test_settle_expired_invoice_should_fail(self):
         # 发票过期后尝试结算
         self.fiber2.get_client().open_channel(
-            {"peer_id": self.fiber1.get_peer_id(), "funding_amount": hex(1000 * 100000000), "public": True}
+            {
+                "peer_id": self.fiber1.get_peer_id(),
+                "funding_amount": hex(1000 * 100000000),
+                "public": True,
+            }
         )
-        self.wait_for_channel_state(self.fiber2.get_client(), self.fiber1.get_peer_id(), "CHANNEL_READY", 120)
+        self.wait_for_channel_state(
+            self.fiber2.get_client(), self.fiber1.get_peer_id(), "CHANNEL_READY", 120
+        )
 
         expiry_hex = "0x5"
         preimage = self.generate_random_preimage()
@@ -327,5 +355,7 @@ class TestSettleInvoice(FiberTest):
         # 为了确保状态明确，这里也可以选择不发送支付直接过期
         time.sleep(int(expiry_hex, 16) + 3)
         with pytest.raises(Exception) as exc_info:
-            self.fiber1.get_client().settle_invoice({"payment_hash": payment_hash, "payment_preimage": preimage})
+            self.fiber1.get_client().settle_invoice(
+                {"payment_hash": payment_hash, "payment_preimage": preimage}
+            )
         assert "already expired" in exc_info.value.args[0]
