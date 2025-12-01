@@ -622,7 +622,7 @@ class FiberTest(CkbTest):
                 #     f"{channel['channel_id']}-{peer_id_map[peer_id]}({int(channel["local_balance"], 16)},{int(channel["offered_tlc_balance"], 16)})-{peer_id_map[remote_peer_id]}({int(channel["remote_balance"], 16)},{int(channel["received_tlc_balance"], 16)}),udt_type_script:{channel.get("funding_udt_type_script", None)}")
                 # datas.append(f"{channel['channel_id']}-{peer_id_map[peer_id]}({int(channel["local_balance"], 16)},{int(channel["offered_tlc_balance"], 16)})-{peer_id_map[remote_peer_id]}({int(channel["remote_balance"], 16)},{int(channel["received_tlc_balance"], 16)}),udt_type_script:{channel.get("funding_udt_type_script", None)}")
                 datas[channel["channel_id"]] = (
-                    f"{channel['channel_id']}-{peer_id_map[peer_id]}({int(channel["local_balance"], 16) / 100000000},{int(channel["offered_tlc_balance"], 16) / 100000000})-{peer_id_map[remote_peer_id]}({int(channel["remote_balance"], 16) / 100000000},{int(channel["received_tlc_balance"], 16) / 100000000}),udt_type_script:{channel.get("funding_udt_type_script", None)}"
+                f"{channel['channel_id']}-{peer_id_map[peer_id]}({int(channel['local_balance'], 16) / 100000000},{int(channel['offered_tlc_balance'], 16) / 100000000})-{peer_id_map[remote_peer_id]}({int(channel['remote_balance'], 16) / 100000000},{int(channel['received_tlc_balance'], 16) / 100000000}),udt_type_script:{channel.get('funding_udt_type_script', None)}"
                 )
         for key in datas:
             self.logger.debug(f"{key}:{datas[key]}")
