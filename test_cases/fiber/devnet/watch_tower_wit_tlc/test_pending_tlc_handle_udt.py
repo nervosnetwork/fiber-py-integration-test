@@ -7,6 +7,7 @@ from framework.basic_fiber import FiberTest
 from framework.util import ckb_hash
 
 
+# @pytest.mark.skip("强制shutdown 后settle invoice  没用了")
 class TestPendingTlcHandleUdt(FiberTest):
     start_fiber_config = {"fiber_watchtower_check_interval_seconds": 5}
     """
@@ -292,28 +293,35 @@ class TestPendingTlcHandleUdt(FiberTest):
                 ),
             }
         )
-        self.fiber1.get_client().send_payment(
+        payment = self.fiber1.get_client().send_payment(
             {
                 "invoice": fiber2_invoice["invoice_address"],
             }
         )
+        self.wait_invoice_state(self.fiber2, payment["payment_hash"], "Received")
+
         fiber2_payment = self.fiber2.get_client().send_payment(
             {
                 "invoice": fiber1_invoice["invoice_address"],
             }
         )
+        self.wait_invoice_state(self.fiber1, fiber2_payment["payment_hash"], "Received")
         fiber2_payment_2_3 = self.fiber2.get_client().send_payment(
             {
                 "invoice": fiber1_invoice_2_3["invoice_address"],
             }
+        )
+        self.wait_invoice_state(
+            self.fiber1, fiber2_payment_2_3["payment_hash"], "Received"
         )
         fiber2_payment_after_delay_epoch = self.fiber2.get_client().send_payment(
             {
                 "invoice": fiber1_invoice_after_delay_epoch["invoice_address"],
             }
         )
-
-        time.sleep(3)
+        self.wait_invoice_state(
+            self.fiber1, fiber2_payment_after_delay_epoch["payment_hash"], "Received"
+        )
         list_channels = self.fiber1.get_client().list_channels({})
         print("list channels:", list_channels)
         self.fiber1.get_client().shutdown_channel(
@@ -468,18 +476,23 @@ class TestPendingTlcHandleUdt(FiberTest):
                 "invoice": fiber1_invoice["invoice_address"],
             }
         )
+        self.wait_invoice_state(self.fiber1, fiber2_payment["payment_hash"], "Received")
         fiber2_payment_2_3 = self.fiber2.get_client().send_payment(
             {
                 "invoice": fiber1_invoice_2_3["invoice_address"],
             }
+        )
+        self.wait_invoice_state(
+            self.fiber1, fiber2_payment_2_3["payment_hash"], "Received"
         )
         fiber2_payment_after_delay_epoch = self.fiber2.get_client().send_payment(
             {
                 "invoice": fiber1_invoice_after_delay_epoch["invoice_address"],
             }
         )
-
-        time.sleep(3)
+        self.wait_invoice_state(
+            self.fiber1, fiber2_payment_after_delay_epoch["payment_hash"], "Received"
+        )
         list_channels = self.fiber1.get_client().list_channels({})
         print("list channels:", list_channels)
         self.fiber1.get_client().shutdown_channel(
