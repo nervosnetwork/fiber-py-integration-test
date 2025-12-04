@@ -1024,6 +1024,44 @@ class FiberTest(CkbTest):
             return
         raise TimeoutError(f"{fiber_balance}")
 
+    def get_pending_tlc(self, fiber, payment_hash):
+        """
+        type:Inbound
+        Args:
+            fiber:
+            payment_hash:
+            type:
+
+        Returns:
+
+        """
+        channels = fiber.get_client().list_channels({})
+        tlc_message = {"Inbound": [], "Outbound": []}
+        for channel in channels["channels"]:
+            for tlc in channel["pending_tlcs"]:
+                if tlc["payment_hash"] == payment_hash:
+                    tlc_message[list(tlc["status"].keys())[0]].append(
+                        {
+                            "amount": int(tlc["amount"], 16),
+                            "expiry_seconds": (
+                                datetime.datetime.fromtimestamp(
+                                    int(tlc["expiry"], 16) / 1000
+                                )
+                                - datetime.datetime.now()
+                            ).total_seconds(),
+                            "tlc": tlc,
+                        }
+                    )
+        for inbounds in tlc_message["Inbound"]:
+            self.logger.info(
+                f"inbound tlc amount:{inbounds['amount']}, expiry:{datetime.datetime.fromtimestamp(int(inbounds['tlc']['expiry'],16)/1000)}"
+            )
+        for outbounds in tlc_message["Outbound"]:
+            self.logger.info(
+                f"outbound tlc amount:{outbounds['amount']}, expiry:{datetime.datetime.fromtimestamp(int(outbounds['tlc']['expiry'],16)/1000)}"
+            )
+        return tlc_message
+
     def wait_graph_channels_sync(self, fiber, channels_count, timeout=120):
         """
         等待图形通道同步
