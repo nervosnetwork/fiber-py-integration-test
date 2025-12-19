@@ -7,7 +7,6 @@ from framework.basic_fiber import FiberTest
 from framework.util import ckb_hash
 
 
-@pytest.mark.skip("强制shutdown 后settle invoice  没用了")
 class TestPendingTlcHandleUdt(FiberTest):
     start_fiber_config = {"fiber_watchtower_check_interval_seconds": 5}
     """
@@ -803,6 +802,7 @@ class TestPendingTlcHandleUdt(FiberTest):
         assert 600 < txs[2]["msg"]["block_number"] - txs[0]["msg"]["block_number"] < 700
         assert 600 < txs[3]["msg"]["block_number"] - txs[0]["msg"]["block_number"] < 700
 
+    @pytest.mark.skip("不确定什么时候过期")
     def test_tlc_expiry_2nodes_have_tlc_node1_shutdown_no_preimage(self):
         """
         2边都有tlc
@@ -906,6 +906,7 @@ class TestPendingTlcHandleUdt(FiberTest):
         # assert abs(result[1]['ckb'] + 1000 * 100000000) < 100000
         assert result[1]["udt"] == -1000 * 100000000
 
+    @pytest.mark.skip("不确定什么时候过期")
     def test_tlc_expiry_2nodes_have_tlc_node1_shutdown_node1_have_preimage_node2_stop(
         self,
     ):
@@ -1072,6 +1073,7 @@ class TestPendingTlcHandleUdt(FiberTest):
         assert result[1]["udt"] == -99799999999
 
     # todo
+    @pytest.mark.skip("不确定什么时候过期")
     def test_tlc_expiry_1nodes_have_tlc_node1_shutdown(self):
         self.faucet(
             self.fiber1.account_private,
@@ -1133,6 +1135,7 @@ class TestPendingTlcHandleUdt(FiberTest):
             print("tx:", tx)
 
     # todo
+    @pytest.mark.skip("不确定什么时候过期")
     def test_tlc_expiry_1nodes_have_tlc_node2_shutdown(self):
         self.faucet(
             self.fiber1.account_private,
@@ -1194,6 +1197,7 @@ class TestPendingTlcHandleUdt(FiberTest):
             print("tx:", tx)
 
     # todo
+    @pytest.mark.skip("不确定什么时候过期")
     def test_2nodes_have_tlc_node2_shutdown_expiry(self):
         self.faucet(
             self.fiber1.account_private,

@@ -9,7 +9,6 @@ from framework.util import ckb_hash
 class TestShutdownMidNode(FiberTest):
     start_fiber_config = {"fiber_watchtower_check_interval_seconds": 3}
 
-    @pytest.mark.skip("强制shutdown 后settle invoice  没用了")
     def test_mutil_to_one_udt_2(self):
         """
         aN->b->c

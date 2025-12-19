@@ -7,7 +7,6 @@ from framework.basic_fiber import FiberTest
 from framework.util import ckb_hash
 
 
-@pytest.mark.skip("强制shutdown 后settle invoice  没用了")
 class TestPendingTlcHandle(FiberTest):
     start_fiber_config = {"fiber_watchtower_check_interval_seconds": 3}
     """
@@ -743,6 +742,7 @@ class TestPendingTlcHandle(FiberTest):
         for tx in txs:
             print("tx:", tx)
 
+    @pytest.mark.skip("不确定什么时候过期")
     def test_tlc_expiry_2nodes_have_tlc_node1_shutdown_no_preimage(self):
         """
         2边都有tlc
@@ -831,6 +831,7 @@ class TestPendingTlcHandle(FiberTest):
         # 节点2 获得1000 ckb + 手续费
         assert abs(result[1]["ckb"] + 1000 * 100000000) < 100000
 
+    @pytest.mark.skip("不确定什么时候过期")
     def test_tlc_expiry_2nodes_have_tlc_node1_shutdown_node1_have_preimage_node2_stop(
         self,
     ):
@@ -969,6 +970,7 @@ class TestPendingTlcHandle(FiberTest):
             == 100000000
         )
 
+    @pytest.mark.skip("不确定什么时候过期")
     def test_tlc_expiry_1nodes_have_tlc_node1_shutdown(self):
         self.open_channel(self.fiber1, self.fiber2, 1000 * 100000000, 1000 * 100000000)
         tls_size = 2
@@ -1013,6 +1015,7 @@ class TestPendingTlcHandle(FiberTest):
         for tx in txs:
             print("tx:", tx)
 
+    @pytest.mark.skip("不确定什么时候过期")
     def test_tlc_expiry_1nodes_have_tlc_node2_shutdown(self):
         self.open_channel(self.fiber1, self.fiber2, 1000 * 100000000, 1000 * 100000000)
         tls_size = 2
@@ -1057,6 +1060,7 @@ class TestPendingTlcHandle(FiberTest):
         for tx in txs:
             print("tx:", tx)
 
+    @pytest.mark.skip("不确定什么时候过期")
     def test_2nodes_have_tlc_node2_shutdown_expiry(self):
         before_balance = self.get_fibers_balance()
         self.open_channel(self.fiber1, self.fiber2, 1000 * 100000000, 1000 * 100000000)
