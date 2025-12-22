@@ -144,7 +144,7 @@ class TestFinalTlcExpiryDelta(FiberTest):
         time.sleep(1)
         # todo check pending tlc
         pending_tlc_message = self.get_pending_tlc(self.fiber3, payment["payment_hash"])
-        assert abs(pending_tlc_message["Inbound"][0]["expiry"] - 60 * 60 * 16) < 60
+        assert abs(pending_tlc_message["Inbound"][0]["expiry_seconds"] - 60 * 60 * 16) < 60
 
         # new_invoice 的final_expiry_delta == send_payment.final_tlc_expiry_delta，预期成功
         invoice_payment_preimage = self.generate_random_preimage()
@@ -167,7 +167,7 @@ class TestFinalTlcExpiryDelta(FiberTest):
         time.sleep(1)
         pending_tlc_message = self.get_pending_tlc(self.fiber3, payment["payment_hash"])
         # todo assert tlc expiry ==   60 * 60 * 16
-        assert abs(pending_tlc_message["Inbound"][0]["expiry"] - 60 * 60 * 16) < 60
+        assert abs(pending_tlc_message["Inbound"][0]["expiry_seconds"] - 60 * 60 * 16) < 60
 
         # new_invoice 的final_expiry_delta < final_tlc_expiry_delta, 预期成功
         invoice_payment_preimage = self.generate_random_preimage()
@@ -192,4 +192,4 @@ class TestFinalTlcExpiryDelta(FiberTest):
         time.sleep(1)
         pending_tlc_message = self.get_pending_tlc(self.fiber3, payment["payment_hash"])
         # todo assert tlc expiry ==   60 * 60 * 16
-        assert abs(pending_tlc_message["Inbound"][0]["expiry"] - 60 * 60 * 16) < 60
+        assert abs(pending_tlc_message["Inbound"][0]["expiry_seconds"] - 60 * 60 * 16) < 60
