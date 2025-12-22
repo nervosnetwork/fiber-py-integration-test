@@ -325,6 +325,7 @@ class TestSettleInvoice(FiberTest):
             )
         assert "already cancelled" in exc_info.value.args[0]
 
+    @pytest.mark.skip("expiry_time限制的是发送,所以这个场景不存在")
     def test_settle_expired_invoice_should_fail(self):
         # 发票过期后尝试结算
         self.fiber2.get_client().open_channel(
