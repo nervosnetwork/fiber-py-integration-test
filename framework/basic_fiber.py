@@ -1094,25 +1094,30 @@ class FiberTest(CkbTest):
         Returns:
 
         """
-        channels = fiber.get_client().list_channels({"include_closed":True})
-        tlc_message = {
-            "Inbound":[],
-            "Outbound":[]
-        }
-        for channel in channels['channels']:
-            for tlc in channel['pending_tlcs']:
-                if tlc['payment_hash'] == payment_hash:
-                    tlc_message[list(tlc['status'].keys())[0]].append({
-                        "amount":int(tlc['amount'],16),
-                        "expiry_seconds":(datetime.fromtimestamp(int(tlc['expiry'],16)/1000) - datetime.now()).total_seconds(),
-                        "tlc": tlc
-                    })
-        for inbounds in tlc_message['Inbound']:
-            self.logger.info(f"inbound tlc amount:{inbounds['amount']}, expiry:{datetime.fromtimestamp(int(inbounds['tlc']['expiry'],16)/1000)}")
-        for outbounds in tlc_message['Outbound']:
-            self.logger.info(f"outbound tlc amount:{outbounds['amount']}, expiry:{datetime.fromtimestamp(int(outbounds['tlc']['expiry'],16)/1000)}")
+        channels = fiber.get_client().list_channels({"include_closed": True})
+        tlc_message = {"Inbound": [], "Outbound": []}
+        for channel in channels["channels"]:
+            for tlc in channel["pending_tlcs"]:
+                if tlc["payment_hash"] == payment_hash:
+                    tlc_message[list(tlc["status"].keys())[0]].append(
+                        {
+                            "amount": int(tlc["amount"], 16),
+                            "expiry_seconds": (
+                                datetime.fromtimestamp(int(tlc["expiry"], 16) / 1000)
+                                - datetime.now()
+                            ).total_seconds(),
+                            "tlc": tlc,
+                        }
+                    )
+        for inbounds in tlc_message["Inbound"]:
+            self.logger.info(
+                f"inbound tlc amount:{inbounds['amount']}, expiry:{datetime.fromtimestamp(int(inbounds['tlc']['expiry'],16)/1000)}"
+            )
+        for outbounds in tlc_message["Outbound"]:
+            self.logger.info(
+                f"outbound tlc amount:{outbounds['amount']}, expiry:{datetime.fromtimestamp(int(outbounds['tlc']['expiry'],16)/1000)}"
+            )
         return tlc_message
-
 
     def get_commit_cells(self):
         #         code_hash: 0x4d937548b31beb7e6919e05e3f5c8d6f46b13a7db49254e6867bfb0d4bc7c748
