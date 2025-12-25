@@ -212,7 +212,7 @@ class TestTlcTimeout(FiberTest):
         assert new_latest_commit_tx_number != latest_commit_tx_number
 
         # todo 等待
-        for i in range(100):
+        for i in range(10):
             if (
                 self.get_fiber_balance(self.fiber1)
                 .get("ckb", {"offered_tlc_balance": 0})
@@ -228,6 +228,7 @@ class TestTlcTimeout(FiberTest):
                     == 1
                 )
                 return
+            time.sleep(1)
         raise Exception("time out for wait")
 
     def test_mid_node_shutdown_when_d_expiry(self):
@@ -344,7 +345,7 @@ class TestTlcTimeout(FiberTest):
         assert new_latest_commit_tx_number != latest_commit_tx_number
 
         # todo 等待
-        for i in range(100):
+        for i in range(10):
             if (
                 self.get_fiber_balance(self.fiber1)
                 .get("ckb", {"offered_tlc_balance": 0})
@@ -360,6 +361,8 @@ class TestTlcTimeout(FiberTest):
                     == 1
                 )
                 return
+            time.sleep(1)
+        raise Exception("time out for wait")
 
     def test_remote_node_shutdown(self):
         """
