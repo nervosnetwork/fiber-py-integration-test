@@ -212,12 +212,24 @@ def generate_account_privakey():
     return f"{ACCOUNT_PRIVATE_KEY_INDEX}".zfill(64)
 
 
-def change_time(hour):
+def hex_timestamp_to_datetime(hex_str):
+    # 去除可能的前缀 0x 或空格
+    hex_str = hex_str.strip().lower().replace("0x", "")
+
+    # 十六进制转十进制（整数）
+    timestamp = int(hex_str, 16) / 1000
+
+    # 转换为 UTC 时间
+    time1 = datetime.fromtimestamp(timestamp)
+    return time1.strftime("%Y-%m-%d %H:%M:%S")
+
+
+def change_time(hour, minutes=0):
     # 修改系统时间,加速1h
     try:
         # 获取当前时间并加1小时
         current_time = datetime.now()
-        new_time = current_time + timedelta(hours=hour)
+        new_time = current_time + timedelta(hours=hour, minutes=minutes)
 
         # 格式化时间为系统命令需要的格式
         time_str = new_time.strftime("%m%d%H%M%Y")
