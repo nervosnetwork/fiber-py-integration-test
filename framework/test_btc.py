@@ -43,6 +43,11 @@ class BtcNode:
             f'{self.cli} -conf="{self.config}" -datadir="{self.tmp_path}" -generate {number} >/dev/null'
         )
 
+    def rpc(self, method):
+        return run_command(
+            f'{self.cli} -conf="{self.config}" -datadir="{self.tmp_path}" {method}'
+        )
+
     def connected(self, btcNode):
         pass
 

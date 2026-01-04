@@ -1,9 +1,10 @@
 import time
 
 from framework.basic_fiber_with_cch import FiberCchTest
-from framework.test_fiber import FiberConfigPath
 
 import hashlib
+
+from framework.test_fiber import FiberConfigPath
 
 
 class TestCch(FiberCchTest):
@@ -18,7 +19,6 @@ class TestCch(FiberCchTest):
                 "currency": "Fibd",
             }
         )
-
         self.faucet(
             self.fiber2.account_private,
             0,
@@ -61,8 +61,6 @@ class TestCch(FiberCchTest):
         )
         assert invoiceResponse["state"] == "SETTLED"
 
-    #
-    #
     # def test_Cch(self):
     #     for lnd in self.LNDs:
     #         info = lnd.ln_cli_with_cmd("getinfo")
