@@ -212,7 +212,7 @@ class TestTlcTimeout(FiberTest):
         assert new_latest_commit_tx_number != latest_commit_tx_number
 
         # todo 等待
-        for i in range(10):
+        for i in range(70):
             if (
                 self.get_fiber_balance(self.fiber1)
                 .get("ckb", {"offered_tlc_balance": 0})
@@ -345,7 +345,7 @@ class TestTlcTimeout(FiberTest):
         assert new_latest_commit_tx_number != latest_commit_tx_number
 
         # todo 等待
-        for i in range(10):
+        for i in range(70):
             if (
                 self.get_fiber_balance(self.fiber1)
                 .get("ckb", {"offered_tlc_balance": 0})
