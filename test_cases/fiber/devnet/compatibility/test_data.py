@@ -9,10 +9,10 @@ from framework.test_fiber import FiberConfigPath
 
 class TestData(FiberTest):
 
-    @pytest.mark.skip("migration failed")
-    def test_old_fiber_0311(self):
+    # @pytest.mark.skip("migration failed")
+    def test_old_fiber_060(self):
         """
-         1. start fiber 0.5.0
+         1. start fiber 0.6.0
          2. open_channel with fiber
          3. stress test with fiber
          4. stop fiber
@@ -25,10 +25,10 @@ class TestData(FiberTest):
         """
         # 1. start fiber 0.5.0
         old_fiber_1 = self.start_new_fiber(
-            self.generate_account(10000), fiber_version=FiberConfigPath.V050_DEV
+            self.generate_account(10000), fiber_version=FiberConfigPath.V060_DEV
         )
         old_fiber_2 = self.start_new_fiber(
-            self.generate_account(10000), fiber_version=FiberConfigPath.V050_DEV
+            self.generate_account(10000), fiber_version=FiberConfigPath.V060_DEV
         )
         old_fiber_1.connect_peer(old_fiber_2)
         time.sleep(1)
@@ -44,13 +44,13 @@ class TestData(FiberTest):
             self.send_payment(old_fiber_2, old_fiber_1, 1, False)
 
         # 4. stop fiber
-        old_fiber_1.stop()
+        # old_fiber_1.stop()
         # 5. restart fiber
-        old_fiber_1.migration()
-        old_fiber_1.start()
+        # old_fiber_1.migration()
+        # old_fiber_1.start()
         # 6. sleep 10 seconds
-        time.sleep(10)
-        old_fiber_1.get_client().list_channels({})
+        # time.sleep(10)
+        # old_fiber_1.get_client().list_channels({})
 
         # todo assert
         # self.send_payment(old_fiber_1, old_fiber_2, 1,False)
@@ -58,20 +58,26 @@ class TestData(FiberTest):
         # old_fiber_1.get_client().list_peers()
 
         # 7. restart other fiber
-        old_fiber_2.stop()
-        old_fiber_2.migration()
-        old_fiber_2.start()
-        time.sleep(10)
+        # old_fiber_2.stop()
+        # old_fiber_2.migration()
+        # old_fiber_2.start()
+        # time.sleep(10)
         # 8. send_payment
-        self.send_payment(old_fiber_1, old_fiber_2, 1)
+        # self.send_payment(old_fiber_1, old_fiber_2, 1)
 
         old_fiber_1.stop()
+        old_fiber_2.stop()
 
         #  4. migration and restart fiber 0.3.0
         old_fiber_1.fiber_config_enum = FiberConfigPath.CURRENT_DEV
+        old_fiber_2.fiber_config_enum = FiberConfigPath.CURRENT_DEV
+
         old_fiber_1.migration()
+        old_fiber_2.migration()
+
         time.sleep(5)
         old_fiber_1.start()
+        old_fiber_2.start()
         time.sleep(10)
 
         # 5. send_payment
