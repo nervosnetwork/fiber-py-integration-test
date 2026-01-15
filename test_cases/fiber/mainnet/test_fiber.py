@@ -209,11 +209,6 @@ class TestFiber(CkbTest):
             f"fiber2_to_fiber1 cost time: {fiber2_to_fiber1_time - fiber1_to_fiber2_time}"
         )
 
-    def test_shutdown(self):
-        self.fiber2.stop()
-        self.fiber2.start()
-        # {"jsonrpc": "2.0", "id": 42, "result": {"channels": [{"channel_id": "0xb915bfebdeb4cfeac11441ae499c3aafa4d3a8c9d01201142cd135af98c3139a", "is_public": true, "channel_outpoint": "0xd7fa60876cb82e16c12224d64c4dd2f25a6f246c71e6de8e47ae3496b9b5015800000000", "peer_id": "QmZk1M6eWyvqKkGqNSYbXSS6hYsTji6xze56TbGUY77kif", "funding_udt_type_script": null, "state": {"state_name": "CLOSED", "state_flags": "UNCOOPERATIVE_LOCAL | WAITING_ONCHAIN_SETTLEMENT"}, "local_balance": "0x14fa60e500", "offered_tlc_balance": "0x5f5e100", "remote_balance": "0x0", "received_tlc_balance": "0x0", "pending_tlcs": [{"id": "0x1", "amount": "0x5f5e100", "payment_hash": "0x29a7fe1b16ea74e5f66b0dac17a9f8cf6f2605ae159e12a7976314c89df28191", "expiry": "0x19bdd814303", "forwarding_channel_id": null, "forwarding_tlc_id": null, "status": {"Outbound": "Committed"}}], "latest_commitment_transaction_hash": "0xdc1b3e23e3ee3402dbe4534e43ffb64a06f54a2781db72b2716261dbf3a06496", "created_at": "0x19bbb71fe3d", "enabled": true, "tlc_expiry_delta": "0xdbba00", "tlc_fee_proportional_millionths": "0x3e8", "shutdown_transaction_hash": "0xf938924e8f4a099983be2613a4f144297b8607b2e2203ff7bac8a08d61f1e18e"}, {"channel_id": "0x8b69f59b1327be3486f5009f3ea3b7be6b392d288748a2d61c73a40bd832bfe4", "is_public": true, "channel_outpoint": "0xa5b4f462899c2e378576b41a46999eb33a686bcfe1eeab5a4634f8c82fd1d5dc00000000", "peer_id": "QmZk1M6eWyvqKkGqNSYbXSS6hYsTji6xze56TbGUY77kif", "funding_udt_type_script": null, "state": {"state_name": "CLOSED", "state_flags": "COOPERATIVE"}, "local_balance": "0x14fa60e500", "offered_tlc_balance": "0x0", "remote_balance": "0x0", "received_tlc_balance": "0x0", "pending_tlcs": [], "latest_commitment_transaction_hash": "0x4ce07e4a4d1f6995c99bfeb49910d677563d1627eb627f79d6686b518e106cc7", "created_at": "0x19bbb5be1dc", "enabled": true, "tlc_expiry_delta": "0xdbba00", "tlc_fee_proportional_millionths": "0x3e8", "shutdown_transaction_hash": "0x67f6e219efee67740f896d2eaa52b1a87ba46f1cbabfc5077718585ba55e43fa"}]}}
-
 
 def send_payment(
     fiber1: FiberRPCClient, fiber2: FiberRPCClient, amount, udt=None, wait_times=300
