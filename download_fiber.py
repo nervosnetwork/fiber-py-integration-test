@@ -13,7 +13,7 @@ from tqdm import tqdm
 
 versions = [
     "0.6.0",
-    "0.6.1-rc2",
+    "0.6.1",
 ]
 
 DOWNLOAD_DIR = "download/fiber"
