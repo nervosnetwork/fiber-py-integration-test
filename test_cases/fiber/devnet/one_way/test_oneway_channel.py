@@ -8,7 +8,7 @@ from framework.test_fiber import Fiber
 
 class TestOneWayChannel(FiberTest):
 
-    # debug = False
+    debug = True
 
     def _open_private_one_way_channel(self):
         open_channel_params = {
@@ -79,13 +79,19 @@ class TestOneWayChannel(FiberTest):
         )
         self.wait_payment_state(self.fiber1, payment["payment_hash"], "Success")
 
-        reverse_payment = self.fiber2.get_client().send_payment(
-            {
-                "target_pubkey": self.fiber1.get_client().node_info()["node_id"],
-                "amount": hex(10 * 100000000),
-                "keysend": True,
-            }
-        )
+        try:
+            reverse_payment = self.fiber2.get_client().send_payment(
+                {
+                    "target_pubkey": self.fiber1.get_client().node_info()["node_id"],
+                    "amount": hex(10 * 100000000),
+                    "keysend": True,
+                }
+            )
+        except Exception as e:
+            error_str = str(e).lower()
+            assert "no path found" in error_str or "failed to build route" in error_str, error_str
+            return
+
         result = self.wait_payment_finished(
             self.fiber2, reverse_payment["payment_hash"]
         )
