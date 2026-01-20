@@ -89,7 +89,9 @@ class TestOneWayChannel(FiberTest):
             )
         except Exception as e:
             error_str = str(e).lower()
-            assert "no path found" in error_str or "failed to build route" in error_str, error_str
+            assert (
+                "no path found" in error_str or "failed to build route" in error_str
+            ), error_str
             return
 
         result = self.wait_payment_finished(
