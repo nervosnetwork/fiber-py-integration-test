@@ -1,6 +1,7 @@
 from framework.basic import CkbTest
 import socket
 
+from framework.config import DEFAULT_MIN_DEPOSIT_CKB
 from framework.helper.udt_contract import UdtContract, issue_udt_tx
 from framework.test_fiber import Fiber, FiberConfigPath
 from framework.util import generate_account_privakey, get_project_root
@@ -16,6 +17,9 @@ import subprocess
 # FIBER_TAR_GZ = "ckb-py-integration-test/source/fiber/data.fiber.tar.gz"
 XUDT_TX_HASH = "0x03c4475655a46dc4984c49fce03316f80bf666236bd95118112731082758d686"
 XUDT_CODE_HASH = "0x102583443ba6cfe5a3ac268bbb4475fb63eb497dce077f126ad3b148d4f4f8f8"
+COMMIT_LOCK_CODE_HASH = (
+    "0xf3775d5328de71717f2c5614fa06b9b93c48b7d90c1e135c0812c74ee3126453"
+)
 
 
 class FiberTest(CkbTest):
@@ -30,6 +34,7 @@ class FiberTest(CkbTest):
     logger = logging.getLogger(__name__)
     start_fiber_config = {}
     fnn_log_level = "debug"
+    beginNum = "0x0"
 
     @classmethod
     def setup_class(cls):
@@ -64,7 +69,7 @@ class FiberTest(CkbTest):
 
         cls.node.prepare()
         tar_file(
-            f"{get_project_root()}/source/fiber/data.fiber.tar.gz", cls.node.ckb_dir
+            f"{get_project_root()}/source/fiber/data.1117.tar.gz", cls.node.ckb_dir
         )
         cls.node.start()
         cls.node.getClient().get_consensus()
@@ -81,6 +86,7 @@ class FiberTest(CkbTest):
 
         """
         cls.did_pass = None
+        cls.beginNum = hex(cls.node.getClient().get_tip_block_number())
         cls.fibers = []
         cls.new_fibers = []
         cls.fiber1 = Fiber.init_by_port(
@@ -342,7 +348,7 @@ class FiberTest(CkbTest):
         ):
             open_channel_config = {
                 "peer_id": fiber2.get_peer_id(),
-                "funding_amount": hex(fiber1_balance + 98 * 100000000),
+                "funding_amount": hex(fiber1_balance + DEFAULT_MIN_DEPOSIT_CKB),
                 "tlc_fee_proportional_millionths": hex(fiber1_fee),
                 "public": True,
             }
@@ -352,7 +358,7 @@ class FiberTest(CkbTest):
             fiber2.get_client().accept_channel(
                 {
                     "temporary_channel_id": temporary_channel["temporary_channel_id"],
-                    "funding_amount": hex(fiber2_balance + 62 * 100000000),
+                    "funding_amount": hex(fiber2_balance + DEFAULT_MIN_DEPOSIT_CKB),
                     "tlc_fee_proportional_millionths": hex(fiber2_fee),
                 }
             )
@@ -363,7 +369,9 @@ class FiberTest(CkbTest):
             return
         open_channel_config = {
             "peer_id": fiber2.get_peer_id(),
-            "funding_amount": hex(fiber1_balance + fiber2_balance + 62 * 100000000),
+            "funding_amount": hex(
+                fiber1_balance + fiber2_balance + DEFAULT_MIN_DEPOSIT_CKB
+            ),
             "tlc_fee_proportional_millionths": hex(fiber1_fee),
             "public": True,
             "funding_udt_type_script": udt,
@@ -431,7 +439,7 @@ class FiberTest(CkbTest):
                 send_payment_params = {
                     "invoice": invoice["invoice_address"],
                     "allow_self_payment": True,
-                    "max_parts": "0x40",
+                    "max_parts": hex(12),
                 }
                 if "allow_atomic_mpp" in invoice_params:
                     send_payment_params["amp"] = True
@@ -445,7 +453,7 @@ class FiberTest(CkbTest):
         send_payment_params = {
             "invoice": invoice["invoice_address"],
             "allow_self_payment": True,
-            "max_parts": "0x40",
+            "max_parts": hex(12),
         }
         if "allow_atomic_mpp" in invoice_params:
             send_payment_params["amp"] = True
@@ -522,6 +530,52 @@ class FiberTest(CkbTest):
             f"status did not reach state {expected_state} within timeout period."
         )
 
+    def get_ln_tx_trace(self, open_channel_tx_hash):
+        tx_trace = []
+        tx_trace.append(
+            {
+                "tx_hash": open_channel_tx_hash,
+                "msg": self.get_tx_message(open_channel_tx_hash),
+            }
+        )
+        print("open_channel_tx_hash:", open_channel_tx_hash)
+        tx, code_hash = self.get_ln_cell_death_hash(open_channel_tx_hash)
+        if tx is None:
+            return tx_trace
+        tx_trace.append({"tx_hash": tx, "msg": self.get_tx_message(tx)})
+        while tx is not None:
+            tx, new_code_hash = self.get_ln_cell_death_hash(tx)
+            print("tx,new_code_hash :", tx, new_code_hash)
+            if tx is None:
+                continue
+            tx_trace.append({"tx_hash": tx, "msg": self.get_tx_message(tx)})
+            if new_code_hash != COMMIT_LOCK_CODE_HASH:
+                # print("code_hash changed, stop trace")
+                # print("old code_hash:", code_hash, "new code_hash:", new_code_hash)
+                tx = None
+        # for i in range(len(tx_trace)):
+        # print(tx_trace[i])
+        return tx_trace
+
+    def get_ln_cell_death_hash(self, tx_hash):
+        ckbClient = self.node.getClient()
+        tx = ckbClient.get_transaction(tx_hash)
+        cellLock = tx["transaction"]["outputs"][0]["lock"]
+
+        txs = ckbClient.get_transactions(
+            {
+                "script": cellLock,
+                "script_type": "lock",
+                "script_search_mode": "exact",
+            },
+            "asc",
+            "0xff",
+            None,
+        )
+        if len(txs["objects"]) == 2:
+            return txs["objects"][1]["tx_hash"], cellLock["code_hash"]
+        return None, None
+
     def get_fibers_balance_message(self):
         messages = []
         for fiber in self.fibers:
@@ -568,11 +622,36 @@ class FiberTest(CkbTest):
                 #     f"{channel['channel_id']}-{peer_id_map[peer_id]}({int(channel["local_balance"], 16)},{int(channel["offered_tlc_balance"], 16)})-{peer_id_map[remote_peer_id]}({int(channel["remote_balance"], 16)},{int(channel["received_tlc_balance"], 16)}),udt_type_script:{channel.get("funding_udt_type_script", None)}")
                 # datas.append(f"{channel['channel_id']}-{peer_id_map[peer_id]}({int(channel["local_balance"], 16)},{int(channel["offered_tlc_balance"], 16)})-{peer_id_map[remote_peer_id]}({int(channel["remote_balance"], 16)},{int(channel["received_tlc_balance"], 16)}),udt_type_script:{channel.get("funding_udt_type_script", None)}")
                 datas[channel["channel_id"]] = (
-                    f"{channel['channel_id']}-{peer_id_map[peer_id]}({int(channel["local_balance"], 16) / 100000000},{int(channel["offered_tlc_balance"], 16) / 100000000})-{peer_id_map[remote_peer_id]}({int(channel["remote_balance"], 16) / 100000000},{int(channel["received_tlc_balance"], 16) / 100000000}),udt_type_script:{channel.get("funding_udt_type_script", None)}"
+                    f"{channel['channel_id']}-{peer_id_map[peer_id]}({int(channel['local_balance'], 16) / 100000000},{int(channel['offered_tlc_balance'], 16) / 100000000})-{peer_id_map[remote_peer_id]}({int(channel['remote_balance'], 16) / 100000000},{int(channel['received_tlc_balance'], 16) / 100000000}),udt_type_script:{channel.get('funding_udt_type_script', None)}"
                 )
         for key in datas:
             self.logger.debug(f"{key}:{datas[key]}")
             # self.logger.debug(datas[key])
+
+    def get_balance_change(self, before_balance, after_balance):
+        results = []
+        for i in range(len(before_balance)):
+            print(
+                f"[{i}]ckb:{before_balance[i]['chain']['ckb']} - {after_balance[i]['chain']['ckb']} = {before_balance[i]['chain']['ckb'] - after_balance[i]['chain']['ckb']}"
+            )
+            print(
+                f"[{i}]udt:{before_balance[i]['chain']['udt']} - {after_balance[i]['chain']['udt']} = {before_balance[i]['chain']['udt'] - after_balance[i]['chain']['udt']}"
+            )
+            results.append(
+                {
+                    "ckb": before_balance[i]["chain"]["ckb"]
+                    - after_balance[i]["chain"]["ckb"],
+                    "udt": before_balance[i]["chain"]["udt"]
+                    - after_balance[i]["chain"]["udt"],
+                }
+            )
+        return results
+
+    def get_fibers_balance(self):
+        balances = []
+        for fiber in self.fibers:
+            balances.append(self.get_fiber_balance(fiber))
+        return balances
 
     def get_fiber_balance(self, fiber):
         channels = fiber.get_client().list_channels({})
@@ -582,7 +661,7 @@ class FiberTest(CkbTest):
 
         chain_udt_balance = self.udtContract.balance(
             self.node.getClient(),
-            self.fiber1.account_private,
+            self.get_account_script(self.fiber1.account_private)["args"],
             lock_script["args"],
         )
 
@@ -688,7 +767,7 @@ class FiberTest(CkbTest):
                 return
             time.sleep(interval)
         raise TimeoutError(
-            f"status did not reach state {expected_state} within timeout period."
+            f"invoice:{payment_hash} status did not reach state: {result['status']}, expected:{status} , within timeout period."
         )
 
     def get_tx_message(self, tx_hash):
@@ -756,6 +835,12 @@ class FiberTest(CkbTest):
             "input_cells": input_cells,
             "output_cells": output_cells,
             "fee": input_cap,
+            # 'block_number':  int(tx['tx_status']['block_number'], 16)
+            "block_number": (
+                int(tx.get("tx_status", {}).get("block_number"), 16)
+                if tx.get("tx_status", {}).get("block_number") is not None
+                else 0
+            ),
         }
 
     def get_fiber_env(self, new_fiber_count=0):
@@ -989,26 +1074,75 @@ class FiberTest(CkbTest):
             "median_time datetime:", datetime.fromtimestamp(int(median_time, 16) / 1000)
         )
 
+    def get_latest_commit_tx_number(self):
+        cells = self.get_commit_cells()
+        if len(cells) == 0:
+            return -1
+        numbers1 = []
+        for cell in cells:
+            numbers1.append(int(cell["block_number"], 16))
+        return sorted(numbers1)[-1]
+
+    def get_pending_tlc(self, fiber, payment_hash):
+        """
+        type:Inbound
+        Args:
+            fiber:
+            payment_hash:
+            type:
+
+        Returns:
+
+        """
+        channels = fiber.get_client().list_channels({"include_closed": True})
+        tlc_message = {"Inbound": [], "Outbound": []}
+        for channel in channels["channels"]:
+            for tlc in channel["pending_tlcs"]:
+                if tlc["payment_hash"] == payment_hash:
+                    tlc_message[list(tlc["status"].keys())[0]].append(
+                        {
+                            "amount": int(tlc["amount"], 16),
+                            "expiry_seconds": (
+                                datetime.fromtimestamp(int(tlc["expiry"], 16) / 1000)
+                                - datetime.now()
+                            ).total_seconds(),
+                            "tlc": tlc,
+                        }
+                    )
+        for inbounds in tlc_message["Inbound"]:
+            self.logger.info(
+                f"inbound tlc amount:{inbounds['amount']}, expiry:{datetime.fromtimestamp(int(inbounds['tlc']['expiry'],16)/1000)}"
+            )
+        for outbounds in tlc_message["Outbound"]:
+            self.logger.info(
+                f"outbound tlc amount:{outbounds['amount']}, expiry:{datetime.fromtimestamp(int(outbounds['tlc']['expiry'],16)/1000)}"
+            )
+        return tlc_message
+
     def get_commit_cells(self):
-        #         code_hash: 0x2d7d93e3347ddf9f10f6690af75f1e24debaa6c4363f3b2c068f61c757253d38
+        #         code_hash: 0x4d937548b31beb7e6919e05e3f5c8d6f46b13a7db49254e6867bfb0d4bc7c748
         #         hash_type: type
         #         args: 0x
+        tip_number = hex(self.node.getClient().get_tip_block_number())
         return self.node.getClient().get_cells(
             {
                 "script": {
-                    "code_hash": "0x2d7d93e3347ddf9f10f6690af75f1e24debaa6c4363f3b2c068f61c757253d38",
+                    # "code_hash": "0x3ec6f6b1aa204ef33114476419746476e12dc46182d18a31589ea4f9fee862a9",
+                    "code_hash": COMMIT_LOCK_CODE_HASH,
                     "hash_type": "type",
                     "args": "0x",
                 },
                 "script_type": "lock",
                 "script_search_mode": "prefix",
+                "filter": {"block_range": [self.beginNum, "0xffffffffff"]},
             },
             "asc",
             "0xfff",
             None,
         )["objects"]
 
-    def restore_time(self):
+    @classmethod
+    def restore_time(cls):
         """恢复系统时间"""
         print("开始恢复系统时间...")
         print("current time:", time.time())

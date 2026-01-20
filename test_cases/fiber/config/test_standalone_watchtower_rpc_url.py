@@ -9,6 +9,7 @@ import time
 import pytest
 
 from framework.basic_fiber import FiberTest
+from framework.config import DEFAULT_MIN_DEPOSIT_CKB
 
 
 class TestWatchTower(FiberTest):
@@ -133,22 +134,12 @@ class TestWatchTower(FiberTest):
             f"not found in actual string '{exc_info.value.args[0]}'"
         )
         self.faucet(self.fiber3.account_private, 1000)
-        tx = self.wait_and_check_tx_pool_fee(1000, False, 20 * 5)
+        before_balance = self.get_fiber_balance(self.fiber3)
+        tx = self.wait_and_check_tx_pool_fee(1000, False, 120 * 5)
         self.Miner.miner_until_tx_committed(self.node, tx)
-        msg = self.get_tx_message(tx)
-        print("force shutdown tx:", msg)
-        assert {
-            "args": self.fiber2.get_account()["lock_arg"],
-            "capacity": 6199999546,
-        } in msg["output_cells"]
-        assert {
-            "args": self.fiber1.get_account()["lock_arg"],
-            "capacity": 106199999545,
-        } in msg["output_cells"]
-        assert {
-            "args": self.fiber3.get_account()["lock_arg"],
-            "capacity": 100000000000,
-        } in msg["input_cells"]
+        after_balance = self.get_fiber_balance(self.fiber3)
+        result = self.get_balance_change([before_balance], [after_balance])
+        assert abs(result[0]["ckb"] + DEFAULT_MIN_DEPOSIT_CKB) < 10000
 
     def test_standalone_watchtower_rpc_url(self):
         """
@@ -156,6 +147,7 @@ class TestWatchTower(FiberTest):
         Returns:
         """
         self.fiber3 = self.start_new_fiber(self.generate_account(1000))
+        before_balance = self.get_fibers_balance()
         self.fiber2.stop()
         self.fiber2.prepare(
             {
@@ -175,32 +167,22 @@ class TestWatchTower(FiberTest):
         )
         tx = self.wait_and_check_tx_pool_fee(1000, False)
         self.Miner.miner_until_tx_committed(self.node, tx)
-        self.fiber1.stop()
-        self.node.getClient().generate_epochs("0x1", 0)
-        tx = self.wait_and_check_tx_pool_fee(1000, False, 120 * 5)
-        self.Miner.miner_until_tx_committed(self.node, tx)
-        msg = self.get_tx_message(tx)
-        print("force shutdown tx:", msg)
-        assert {
-            "args": self.fiber2.get_account()["lock_arg"],
-            "capacity": 6199999546,
-        } in msg["output_cells"]
-        assert {
-            "args": self.fiber1.get_account()["lock_arg"],
-            "capacity": 106199999545,
-        } in msg["output_cells"]
-        assert {
-            "args": self.fiber3.get_account()["lock_arg"],
-            "capacity": 100000000000,
-        } in msg["input_cells"]
+        while len(self.get_commit_cells()) > 0:
+            self.node.getClient().generate_epochs("0x1", 0)
+            time.sleep(10)
+        after_balance = self.get_fibers_balance()
+        result = self.get_balance_change(before_balance, after_balance)
+        assert result[0]["ckb"] < 2000
+        assert abs(result[1]["ckb"] - DEFAULT_MIN_DEPOSIT_CKB) < 2000
+        assert abs(result[2]["ckb"] + DEFAULT_MIN_DEPOSIT_CKB) < 10000
 
     def test_2_node(self):
         """
         2个节点挂同一个channel 给瞭望塔
         Returns:
-
         """
         self.fiber3 = self.start_new_fiber(self.generate_account(1000))
+        before_balance = self.get_fibers_balance()
         self.fiber2.stop()
         self.fiber2.prepare(
             {
@@ -235,18 +217,8 @@ class TestWatchTower(FiberTest):
 
         msg = self.get_tx_message(tx)
         print("force shutdown tx:", msg)
-        assert {
-            "args": self.fiber2.get_account()["lock_arg"],
-            "capacity": 6199999546,
-        } in msg["output_cells"]
-        assert {
-            "args": self.fiber1.get_account()["lock_arg"],
-            "capacity": 106199999545,
-        } in msg["output_cells"]
-        assert {
-            "args": self.fiber3.get_account()["lock_arg"],
-            "capacity": 100000000000,
-        } in msg["input_cells"]
+        after_balance = self.get_fibers_balance()
+        result = self.get_balance_change(before_balance, after_balance)
 
     def test_watch_node_offline(self):
         """

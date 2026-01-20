@@ -10,20 +10,6 @@ prepare:
 	python3 -m download_fiber
 	sh prepare.sh
 
-prepare_fiber_testnet:
-	python3 -m venv venv
-	. venv/bin/activate
-	python3 -m pip install --upgrade pip
-	pip install -r requirements.txt
-	echo "install ckb"
-	python3 -m download
-
-	python3 -m download_ckb_light_client
-	echo "install ckb cli"
-	python3 -m download_fiber
-	cp download/0.201.0/ckb-cli ./source/ckb-cli
-	cp download/0.110.2/ckb-cli ./source/ckb-cli-old
-
 prepare_develop_testnet:
 	python3 -m venv venv
 	. venv/bin/activate
@@ -34,8 +20,7 @@ prepare_develop_testnet:
 
 	echo "install fiber"
 	python3 -m download_fiber
-	cp download/0.201.0/ckb-cli ./source/ckb-cli
-	cp download/0.110.2/ckb-cli ./source/ckb-cli-old
+	cp download/0.202.0/ckb-cli ./source/ckb-cli
 	bash develop_fiber.sh
 
 
@@ -92,6 +77,11 @@ fiber_testnet_cases := \
 	test_cases/fiber/testnet
 
 
+fiber_mainnet_cases := \
+	test_cases/fiber/mainnet
+
+
+
 test:
 	@failed_cases=; \
     for test_case in $(test_cases); do \
@@ -110,6 +100,20 @@ test:
 fiber_testnet_test:
 	@failed_cases=; \
     for test_case in $(fiber_testnet_cases); do \
+        echo "Running tests for $$test_case"; \
+        if ! bash test.sh "$$test_case"; then \
+            echo "$$test_case" >> failed_test_cases.txt; \
+        fi \
+    done; \
+    if [ -s failed_test_cases.txt ]; then \
+        echo "Some test cases failed: $$(cat failed_test_cases.txt)"; \
+        rm -f failed_test_cases.txt; \
+        exit 1; \
+    fi
+
+fiber_mainnet_test:
+	@failed_cases=; \
+    for test_case in $(fiber_mainnet_cases); do \
         echo "Running tests for $$test_case"; \
         if ! bash test.sh "$$test_case"; then \
             echo "$$test_case" >> failed_test_cases.txt; \
@@ -163,6 +167,7 @@ develop_test:
         rm -f failed_test_cases.txt; \
         exit 1; \
     fi
+
 
 
 clean:

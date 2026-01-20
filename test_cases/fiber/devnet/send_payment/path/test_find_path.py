@@ -206,5 +206,3 @@ class FindPath(FiberTest):
             channels_balance = self.get_fiber_balance(self.fibers[i])
             assert channels_balance["ckb"]["offered_tlc_balance"] == 0
             assert channels_balance["ckb"]["received_tlc_balance"] == 0
-
-    # FiberTest.debug = True

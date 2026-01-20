@@ -16,24 +16,28 @@ from framework.config import get_tmp_path
 
 class FiberConfigPath(Enum):
     CURRENT_DEV = (
-        "/source/fiber/dev_config.yml.j2",
-        # "download/fiber/0.5.0/fnn",
+        "/source/fiber/dev_config_3.yml.j2",
         "download/fiber/current/fnn",
     )
 
     CURRENT_DEV_DEBUG = (
-        "/source/fiber/dev_config.yml.j2",
+        "/source/fiber/dev_config_3.yml.j2",
         "download/fiber/current/fnn.debug",
     )
 
-    CURRENT_TESTNET = (
-        "/source/template/fiber/testnet_config_2.yml.j2",
-        "download/fiber/0.6.0/fnn",
+    CURRENT_MAINNET = (
+        "/source/template/fiber/mainnet_config_3.yml.j2",
+        "download/fiber/0.6.1/fnn",
     )
 
-    V050_DEV = (
-        "/source/template/fiber/dev_config_2.yml.j2",
-        "download/fiber/0.5.0/fnn",
+    CURRENT_TESTNET = (
+        "/source/template/fiber/testnet_config_3.yml.j2",
+        "download/fiber/0.6.1/fnn",
+    )
+
+    V060_DEV = (
+        "/source/fiber/dev_config_3.yml.j2",
+        "download/fiber/0.6.0/fnn",
     )
 
     def __init__(self, fiber_config_path, fiber_bin_path):
@@ -192,7 +196,7 @@ class Fiber:
             # env=env_map,
         )
         # wait rpc start
-        time.sleep(0.1)
+        time.sleep(0.5)
         print("start fiber client ")
 
     def stop(self):

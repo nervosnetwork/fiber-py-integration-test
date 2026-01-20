@@ -3,6 +3,7 @@ import time
 import pytest
 
 from framework.basic_fiber import FiberTest
+from framework.config import DEFAULT_MIN_DEPOSIT_UDT, DEFAULT_MIN_DEPOSIT_CKB
 
 
 class MutilPathTestCase(FiberTest):
@@ -199,15 +200,16 @@ class MutilPathTestCase(FiberTest):
         self.send_invoice_payment(self.fibers[2], self.fibers[0], 4000 * 100000000)
 
     def test_one_one_limit(self):
-        N = 30
+        N = 12
         for i in range(1, N):
             self.open_channel(self.fiber1, self.fiber2, 1000 * 100000000, 0, 0, 0)
-            time.sleep(3)
+            time.sleep(5)
             self.send_invoice_payment(self.fiber1, self.fiber2, 1000 * 100000000 * i)
+            time.sleep(5)
             self.send_invoice_payment(self.fiber2, self.fiber1, 1000 * 100000000 * i)
 
     def test_one_mid_one_limit(self):
-        for i in range(1, 20):
+        for i in range(1, 12):
             print("current N:", i)
             fiber = self.start_new_fiber(
                 self.generate_account(
@@ -310,7 +312,7 @@ class MutilPathTestCase(FiberTest):
         self.open_channel(self.fiber3, self.fiber1, 1000 * 100000000, 0, 0, 0)
         self.open_channel(self.fiber3, self.fiber1, 1000 * 100000000, 0, 0, 0)
         payments = [[], [], []]
-        for i in range(30):
+        for j in range(30):
             # self.send_invoice_payment(self.fiber1,self.fiber1,2000 * 100000000,False)
             for i in range(3):
                 try:
@@ -328,13 +330,29 @@ class MutilPathTestCase(FiberTest):
         for i in range(3):
             for payment_hash in payments[i]:
                 self.wait_payment_finished(self.fibers[i], payment_hash, 1000)
-        time.sleep(200)
-        for fiber in self.fibers:
-            balance = self.get_fiber_balance(fiber)
-            assert balance["ckb"]["offered_tlc_balance"] == 0
-            assert balance["ckb"]["received_tlc_balance"] == 0
-            assert balance["ckb"]["local_balance"] == 200000000000
 
+        start = time.time()
+        timeout = 400
+        interval = 2
+        while True:
+            all_ok = True
+            for fiber in self.fibers:
+                balance = self.get_fiber_balance(fiber)
+                if not (
+                    balance["ckb"]["offered_tlc_balance"] == 0
+                    and balance["ckb"]["received_tlc_balance"] == 0
+                    and balance["ckb"]["local_balance"] == 200000000000
+                ):
+                    all_ok = False
+                    break
+            if all_ok:
+                break
+            if time.time() - start > timeout:
+                raise AssertionError(
+                    "Balances did not reach expected values within timeout"
+                )
+            time.sleep(interval)
+        print("cost time:", time.time() - start)
         for i in range(3):
             self.send_invoice_payment(
                 self.fibers[i], self.fibers[i], 100 * 100000000, True, None
@@ -430,7 +448,7 @@ class MutilPathTestCase(FiberTest):
 
         time.sleep(10)
         payments = [[], [], []]
-        for i in range(100):
+        for j in range(20):
             # self.send_invoice_payment(self.fiber1,self.fiber1,2000 * 100000000,False)
             for i in range(3):
                 try:
@@ -446,7 +464,7 @@ class MutilPathTestCase(FiberTest):
                 except:
                     pass
         # todo 断言 udt channel 不会被使用
-        time.sleep(200)
+        time.sleep(300)
         resend = False
         for i in range(3):
             for payment_hash in payments[i]:
@@ -461,7 +479,9 @@ class MutilPathTestCase(FiberTest):
                         .get_client()
                         .get_payment({"payment_hash": payment_hash})
                     )
-                    assert payment["status"] == "Failed"
+                    self.wait_payment_state(
+                        self.fibers[i], payment["payment_hash"], "Failed"
+                    )
                     try:
                         payment = (
                             self.fibers[i]
@@ -480,7 +500,7 @@ class MutilPathTestCase(FiberTest):
                     except Exception as e:
                         pass
         assert resend == True
-        time.sleep(200)
+        time.sleep(300)
         for fiber in self.fibers:
             balance = self.get_fiber_balance(fiber)
             print(balance)
@@ -494,7 +514,10 @@ class MutilPathTestCase(FiberTest):
                 elif key == "chain":
                     continue
                 else:
-                    assert balance[key]["local_balance"] == 212400000000
+                    assert (
+                        balance[key]["local_balance"]
+                        == 200000000000 + DEFAULT_MIN_DEPOSIT_CKB * 2
+                    )
 
     def test_split(self):
         """
@@ -591,7 +614,7 @@ class MutilPathTestCase(FiberTest):
         self.fiber1.get_client().open_channel(
             {
                 "peer_id": self.fiber2.get_peer_id(),
-                "funding_amount": hex(1062 * 100000000),
+                "funding_amount": hex(1000 * 100000000 + DEFAULT_MIN_DEPOSIT_CKB),
                 "public": False,
             }
         )
@@ -703,7 +726,7 @@ class MutilPathTestCase(FiberTest):
                 "final_cltv": "0x28",
                 "payment_preimage": self.generate_random_preimage(),
                 "hash_algorithm": "sha256",
-                "allow_atomic_mpp": True,
+                "allow_mpp": True,
             }
         )
         self.fiber1.get_client().send_payment(

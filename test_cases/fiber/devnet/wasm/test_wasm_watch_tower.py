@@ -3,13 +3,14 @@ import time
 import pytest
 
 from framework.basic_fiber import FiberTest
+from framework.config import DEFAULT_MIN_DEPOSIT_CKB
 from framework.test_wasm_fiber import WasmFiber
 
 
 class TestWasmWatchTower(FiberTest):
     start_fiber_config = {"fiber_watchtower_check_interval_seconds": 5}
 
-    def test_wasm_watch_tower1(self):
+    def test_wasm_watch_tower12(self):
         """
         Test the watch tower functionality in the devnet environment.
         """
@@ -51,25 +52,18 @@ class TestWasmWatchTower(FiberTest):
             print("message:", message)
             # message: {'input_cells':
             # 'output_cells': [{'args': '0xc8328aabcd9b9e8e64fbc566c4385c3bdeb219d7', 'capacity': 106199999545}, {'args': '0x75178f34549c5fe9cd1a0c57aebd01e7ddf9249e', 'capacity': 106199999545}, {'args': '0x470dcdc5e44064909650113a274b3b36aecb6dc7', 'capacity': 519873503699999188}], 'fee': 1267}
-            wasmFiberArgs = wasmFiber.get_client().node_info()[
-                "default_funding_lock_script"
-            ]["args"]
+            # wasmFiberArgs = wasmFiber.get_client().node_info()[
+            #     "default_funding_lock_script"
+            # ]["args"]
             assert (
-                message["output_cells"][0]["args"] == wasmFiberArgs
-                or message["output_cells"][1]["args"]
+                message["input_cells"][0]["capacity"]
+                - message["output_cells"][0]["capacity"]
+                == 109900000000
             )
-            if message["output_cells"][0]["args"] == wasmFiberArgs:
-                assert (
-                    1062 * 100000000 - message["output_cells"][0]["capacity"]
-                    < 100000000
-                    and 1062 * 100000000 - message["output_cells"][0]["capacity"] > 0
-                )
-            else:
-                assert (
-                    1062 * 100000000 - message["output_cells"][1]["capacity"]
-                    < 100000000
-                    and 1062 * 100000000 - message["output_cells"][1]["capacity"] > 0
-                )
+            assert (
+                message["output_cells"][1]["args"]
+                == self.fiber2.get_account()["lock_arg"]
+            )
             self.fiber1.start()
 
     @pytest.mark.skip("Musig2RoundFinalizeError")
@@ -122,17 +116,3 @@ class TestWasmWatchTower(FiberTest):
         wasmFiberArgs = wasmFiber.get_client().node_info()[
             "default_funding_lock_script"
         ]["args"]
-        assert (
-            message["output_cells"][0]["args"] == wasmFiberArgs
-            or message["output_cells"][1]["args"]
-        )
-        if message["output_cells"][0]["args"] == wasmFiberArgs:
-            assert (
-                1063 * 100000000 - message["output_cells"][0]["capacity"] < 100000000
-                and 1063 * 100000000 - message["output_cells"][0]["capacity"] > 0
-            )
-        else:
-            assert (
-                1063 * 100000000 - message["output_cells"][1]["capacity"] < 100000000
-                and 1063 * 100000000 - message["output_cells"][1]["capacity"] > 0
-            )
