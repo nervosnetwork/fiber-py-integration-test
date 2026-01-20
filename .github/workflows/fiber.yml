@@ -470,7 +470,7 @@ jobs:
           name: jfoa-fiber_test_send_payment_debug_mixed-reports-${{ runner.os }}
           path: ./report
 
-  fiber_test_BiscuitAuth_config:
+  fiber_test_BiscuitAuth_config_tlc_timeout:
     needs: prepare
     runs-on: ubuntu-22.04
 
@@ -497,7 +497,7 @@ jobs:
           tar -xzf prepare-backup.tar.gz
 
       - name: Run fiber_test_demo
-        run: make fiber_test_demo FIBER_TEST_DEMO="test_cases/fiber/BiscuitAuth test_cases/fiber/config"
+        run: make fiber_test_demo FIBER_TEST_DEMO="test_cases/fiber/BiscuitAuth test_cases/fiber/config test_cases/fiber/devnet/tlc_timeout"
 
       - name: Publish reports
         if: failure()
