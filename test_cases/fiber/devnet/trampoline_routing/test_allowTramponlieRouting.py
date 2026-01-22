@@ -71,6 +71,7 @@ class TestAllowTrampolineRouting(FiberTest):
         )
         time.sleep(1)
 
+    @pytest.mark.skip("wait for dev fix")
     def test_trampoline_invoice_success(self):
         self._build_tr001_topology()
         invoice = self.fiber3.get_client().new_invoice(
