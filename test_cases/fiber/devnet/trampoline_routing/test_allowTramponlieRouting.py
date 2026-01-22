@@ -86,7 +86,7 @@ class TestAllowTrampolineRouting(FiberTest):
         payment = self.fiber1.get_client().send_payment(
             {
                 "invoice": invoice["invoice_address"],
-                "max_fee_amount": hex(3000000),
+                "max_fee_amount": hex(20000000),
                 "trampoline_hops": [
                     {"pubkey": self.fiber2.get_client().node_info()["node_id"]}
                 ],
@@ -101,7 +101,7 @@ class TestAllowTrampolineRouting(FiberTest):
                 "target_pubkey": self.fiber3.get_client().node_info()["node_id"],
                 "amount": hex(10 * 100000000),
                 "keysend": True,
-                "max_fee_amount": hex(10000000),
+                "max_fee_amount": hex(20000000),
                 "trampoline_hops": [
                     {"pubkey": self.fiber2.get_client().node_info()["node_id"]}
                 ],
@@ -159,7 +159,7 @@ class TestAllowTrampolineRouting(FiberTest):
                 "target_pubkey": self.fiber4.get_client().node_info()["node_id"],
                 "amount": hex(10 * 100000000),
                 "keysend": True,
-                "max_fee_amount": hex(10000000),
+                "max_fee_amount": hex(20000000),
                 "trampoline_hops": [
                     {"pubkey": self.fiber2.get_client().node_info()["node_id"]},
                     {"pubkey": self.fiber3.get_client().node_info()["node_id"]},
@@ -167,6 +167,116 @@ class TestAllowTrampolineRouting(FiberTest):
             }
         )
         self.wait_payment_state(self.fiber1, payment["payment_hash"], "Success")
+
+    @pytest.mark.skip("devnet RPC lacks node feature toggle; covered by Rust tests")
+    def test_trampoline_hop_not_support_feature_should_fail(self):
+        pass
+
+    def test_trampoline_max_fee_amount_too_low_should_fail(self):
+        self._wait_indexer_synced()
+        self.fiber3 = self.start_new_fiber(self._generate_account_with_retry(1000))
+        self.fiber3.connect_peer(self.fiber2)
+        self.fiber4 = self.start_new_fiber(self._generate_account_with_retry(1000))
+        self.fiber4.connect_peer(self.fiber3)
+
+        self.fiber1.get_client().open_channel(
+            {
+                "peer_id": self.fiber2.get_peer_id(),
+                "funding_amount": hex(500 * 100000000),
+                "public": True,
+            }
+        )
+        self.wait_for_channel_state(
+            self.fiber1.get_client(), self.fiber2.get_peer_id(), "CHANNEL_READY"
+        )
+        self.fiber2.get_client().open_channel(
+            {
+                "peer_id": self.fiber3.get_peer_id(),
+                "funding_amount": hex(500 * 100000000),
+                "public": True,
+            }
+        )
+        self.wait_for_channel_state(
+            self.fiber2.get_client(), self.fiber3.get_peer_id(), "CHANNEL_READY"
+        )
+        self.fiber3.get_client().open_channel(
+            {
+                "peer_id": self.fiber4.get_peer_id(),
+                "funding_amount": hex(500 * 100000000),
+                "public": False,
+            }
+        )
+        self.wait_for_channel_state(
+            self.fiber3.get_client(), self.fiber4.get_peer_id(), "CHANNEL_READY"
+        )
+        self._wait_node_in_graph(
+            self.fiber1, self.fiber2.get_client().node_info()["node_id"]
+        )
+        self._wait_node_in_graph(
+            self.fiber1, self.fiber3.get_client().node_info()["node_id"]
+        )
+        time.sleep(1)
+
+        with pytest.raises(Exception) as exc_info:
+            self.fiber1.get_client().send_payment(
+                {
+                    "target_pubkey": self.fiber4.get_client().node_info()["node_id"],
+                    "amount": hex(10 * 100000000),
+                    "keysend": True,
+                    "max_fee_amount": hex(1),
+                    "trampoline_hops": [
+                        {"pubkey": self.fiber2.get_client().node_info()["node_id"]},
+                        {"pubkey": self.fiber3.get_client().node_info()["node_id"]},
+                    ],
+                }
+            )
+        error_str = str(exc_info.value).lower()
+        assert (
+            "max_fee_amount too low for trampoline service fees" in error_str
+        ), error_str
+
+    def test_trampoline_tlc_expiry_limit_exceeded_should_fail(self):
+        self._build_tr001_topology()
+        with pytest.raises(Exception) as exc_info:
+            self.fiber1.get_client().send_payment(
+                {
+                    "target_pubkey": self.fiber3.get_client().node_info()["node_id"],
+                    "amount": hex(10 * 100000000),
+                    "keysend": True,
+                    "max_fee_amount": hex(10000000),
+                    "tlc_expiry_limit": hex(86400000 + 1000),
+                    "trampoline_hops": [
+                        {
+                            "pubkey": self.fiber2.get_client().node_info()["node_id"],
+                            "tlc_expiry_delta": hex(2000),
+                        }
+                    ],
+                }
+            )
+        error_str = str(exc_info.value).lower()
+        assert (
+            "trampoline tlc_expiry_delta exceeds tlc_expiry_limit" in error_str
+            or "tlc_expiry_limit is too small" in error_str
+        ), error_str
+
+    def test_trampoline_first_hop_source_or_target_should_fail(self):
+        self._build_tr001_topology()
+        with pytest.raises(Exception) as exc_info:
+            self.fiber1.get_client().send_payment(
+                {
+                    "target_pubkey": self.fiber3.get_client().node_info()["node_id"],
+                    "amount": hex(10 * 100000000),
+                    "keysend": True,
+                    "max_fee_amount": hex(10000000),
+                    "trampoline_hops": [
+                        {"pubkey": self.fiber1.get_client().node_info()["node_id"]}
+                    ],
+                }
+            )
+        error_str = str(exc_info.value).lower()
+        assert (
+            "invalid trampoline_hops: first hop must not be source/target" in error_str
+        ), error_str
 
     def test_trampoline_without_hops_should_fail(self):
         self._build_tr001_topology()
