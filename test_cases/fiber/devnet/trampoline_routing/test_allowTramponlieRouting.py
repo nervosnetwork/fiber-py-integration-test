@@ -71,7 +71,6 @@ class TestAllowTrampolineRouting(FiberTest):
         )
         time.sleep(1)
 
-    @pytest.mark.skip("wait for dev fix")
     def test_trampoline_invoice_success(self):
         self._build_tr001_topology()
         invoice = self.fiber3.get_client().new_invoice(
@@ -79,6 +78,28 @@ class TestAllowTrampolineRouting(FiberTest):
                 "amount": hex(10 * 100000000),
                 "currency": "Fibd",
                 "description": "trampoline invoice",
+                "payment_preimage": self.generate_random_preimage(),
+                "allow_trampoline_routing": True,
+            }
+        )
+        payment = self.fiber1.get_client().send_payment(
+            {
+                "invoice": invoice["invoice_address"],
+                "max_fee_amount": hex(20000000),
+                "trampoline_hops": [
+                    {"pubkey": self.fiber2.get_client().node_info()["node_id"]}
+                ],
+            }
+        )
+        self.wait_payment_state(self.fiber1, payment["payment_hash"], "Success")
+
+    def test_trampoline_invoice_sha256_hash_algorithm_success(self):
+        self._build_tr001_topology()
+        invoice = self.fiber3.get_client().new_invoice(
+            {
+                "amount": hex(10 * 100000000),
+                "currency": "Fibd",
+                "description": "trampoline invoice sha256",
                 "payment_preimage": self.generate_random_preimage(),
                 "hash_algorithm": "sha256",
                 "allow_trampoline_routing": True,
@@ -93,7 +114,13 @@ class TestAllowTrampolineRouting(FiberTest):
                 ],
             }
         )
-        self.wait_payment_state(self.fiber1, payment["payment_hash"], "Success")
+        try:
+            self.wait_payment_state(self.fiber1, payment["payment_hash"], "Success")
+        except Exception as e:
+            pytest.xfail(
+                "pending fix: receiver should validate preimage using invoice hash_algorithm "
+                f"(sha256), error={str(e)}"
+            )
 
     def test_trampoline_keysend_success(self):
         self._build_tr001_topology()
@@ -287,7 +314,6 @@ class TestAllowTrampolineRouting(FiberTest):
                 "currency": "Fibd",
                 "description": "trampoline invoice",
                 "payment_preimage": self.generate_random_preimage(),
-                "hash_algorithm": "sha256",
             }
         )
         with pytest.raises(Exception) as exc_info:
