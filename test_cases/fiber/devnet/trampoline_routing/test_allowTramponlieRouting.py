@@ -86,9 +86,7 @@ class TestAllowTrampolineRouting(FiberTest):
             {
                 "invoice": invoice["invoice_address"],
                 "max_fee_amount": hex(20000000),
-                "trampoline_hops": [
-                    {"pubkey": self.fiber2.get_client().node_info()["node_id"]}
-                ],
+                "trampoline_hops": [self.fiber2.get_client().node_info()["node_id"]],
             }
         )
         self.wait_payment_state(self.fiber1, payment["payment_hash"], "Success")
@@ -109,9 +107,7 @@ class TestAllowTrampolineRouting(FiberTest):
             {
                 "invoice": invoice["invoice_address"],
                 "max_fee_amount": hex(20000000),
-                "trampoline_hops": [
-                    {"pubkey": self.fiber2.get_client().node_info()["node_id"]}
-                ],
+                "trampoline_hops": [self.fiber2.get_client().node_info()["node_id"]],
             }
         )
         try:
@@ -130,9 +126,7 @@ class TestAllowTrampolineRouting(FiberTest):
                 "amount": hex(10 * 100000000),
                 "keysend": True,
                 "max_fee_amount": hex(20000000),
-                "trampoline_hops": [
-                    {"pubkey": self.fiber2.get_client().node_info()["node_id"]}
-                ],
+                "trampoline_hops": [self.fiber2.get_client().node_info()["node_id"]],
             }
         )
         self.wait_payment_state(self.fiber1, payment["payment_hash"], "Success")
@@ -189,8 +183,8 @@ class TestAllowTrampolineRouting(FiberTest):
                 "keysend": True,
                 "max_fee_amount": hex(20000000),
                 "trampoline_hops": [
-                    {"pubkey": self.fiber2.get_client().node_info()["node_id"]},
-                    {"pubkey": self.fiber3.get_client().node_info()["node_id"]},
+                    self.fiber2.get_client().node_info()["node_id"],
+                    self.fiber3.get_client().node_info()["node_id"],
                 ],
             }
         )
@@ -253,14 +247,14 @@ class TestAllowTrampolineRouting(FiberTest):
                     "keysend": True,
                     "max_fee_amount": hex(1),
                     "trampoline_hops": [
-                        {"pubkey": self.fiber2.get_client().node_info()["node_id"]},
-                        {"pubkey": self.fiber3.get_client().node_info()["node_id"]},
+                        self.fiber2.get_client().node_info()["node_id"],
+                        self.fiber3.get_client().node_info()["node_id"],
                     ],
                 }
             )
         error_str = str(exc_info.value).lower()
         assert (
-            "max_fee_amount too low for trampoline service fees" in error_str
+            "max_fee_amount is too low for trampoline routing" in error_str
         ), error_str
 
     def test_trampoline_tlc_expiry_limit_exceeded_should_fail(self):
@@ -272,19 +266,16 @@ class TestAllowTrampolineRouting(FiberTest):
                     "amount": hex(10 * 100000000),
                     "keysend": True,
                     "max_fee_amount": hex(10000000),
-                    "tlc_expiry_limit": hex(86400000 + 1000),
+                    "tlc_expiry_limit": hex(1000),
                     "trampoline_hops": [
-                        {
-                            "pubkey": self.fiber2.get_client().node_info()["node_id"],
-                            "tlc_expiry_delta": hex(2000),
-                        }
+                        self.fiber2.get_client().node_info()["node_id"]
                     ],
                 }
             )
         error_str = str(exc_info.value).lower()
         assert (
-            "trampoline tlc_expiry_delta exceeds tlc_expiry_limit" in error_str
-            or "tlc_expiry_limit is too small" in error_str
+            "tlc_expiry_limit is too small" in error_str
+            or "trampoline tlc_expiry_delta exceeds tlc_expiry_limit" in error_str
         ), error_str
 
     def test_trampoline_first_hop_source_or_target_should_fail(self):
@@ -297,7 +288,7 @@ class TestAllowTrampolineRouting(FiberTest):
                     "keysend": True,
                     "max_fee_amount": hex(10000000),
                     "trampoline_hops": [
-                        {"pubkey": self.fiber1.get_client().node_info()["node_id"]}
+                        self.fiber1.get_client().node_info()["node_id"]
                     ],
                 }
             )
