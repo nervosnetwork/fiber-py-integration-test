@@ -144,13 +144,21 @@ class TestWatchTower(FiberTest):
             }
         )
         # fiber1 send
+        payment = self.fiber1.get_client().send_payment(
+            {
+                "invoice": invoice["invoice_address"],
+                "dry_run": True,
+                "trampoline_hops": [
+                    self.fiber2.get_client().node_info()["node_id"],
+                ],
+            }
+        )
+        print("payment fee:", payment["fee"])
         self.fiber1.get_client().send_payment(
             {
                 "invoice": invoice["invoice_address"],
                 "trampoline_hops": [
-                    {
-                        "pubkey": self.fiber2.get_client().node_info()["node_id"],
-                    },
+                    self.fiber2.get_client().node_info()["node_id"],
                 ],
             }
         )
@@ -159,9 +167,7 @@ class TestWatchTower(FiberTest):
             {
                 "invoice": udt_invoice["invoice_address"],
                 "trampoline_hops": [
-                    {
-                        "pubkey": self.fiber2.get_client().node_info()["node_id"],
-                    },
+                    self.fiber2.get_client().node_info()["node_id"],
                 ],
             }
         )
@@ -198,6 +204,6 @@ class TestWatchTower(FiberTest):
         assert abs(result[0]["ckb"] - 1000000000) < 2 * 100000000
         assert abs(result[2]["ckb"] + 1000000000) < 2 * 100000000 + 200000
 
-        assert result[0]["udt"] == 100300200
-        assert result[1]["udt"] == -300200
+        assert result[0]["udt"] == 100500000
+        assert result[1]["udt"] == -500000
         assert result[2]["udt"] == -100000000

@@ -33,9 +33,7 @@ class TestComplexRouting(FiberTest):
                     "amount": hex(1 * 100000000),
                     "keysend": True,
                     "trampoline_hops": [
-                        {
-                            "pubkey": self.fiber2.get_client().node_info()["node_id"],
-                        },
+                        self.fiber2.get_client().node_info()["node_id"],
                     ],
                 }
             )
@@ -65,9 +63,7 @@ class TestComplexRouting(FiberTest):
                 "amount": hex(1 * 100000000),
                 "keysend": True,
                 "trampoline_hops": [
-                    {
-                        "pubkey": self.fiber2.get_client().node_info()["node_id"],
-                    },
+                    self.fiber2.get_client().node_info()["node_id"],
                 ],
             }
         )
@@ -81,9 +77,7 @@ class TestComplexRouting(FiberTest):
                 "amount": hex(1 * 100000000),
                 "keysend": True,
                 "trampoline_hops": [
-                    {
-                        "pubkey": self.fiber3.get_client().node_info()["node_id"],
-                    },
+                    self.fiber3.get_client().node_info()["node_id"],
                 ],
             }
         )
@@ -128,12 +122,8 @@ class TestComplexRouting(FiberTest):
                     "keysend": True,
                     "udt_type_script": udt_script,
                     "trampoline_hops": [
-                        {
-                            "pubkey": self.fiber2.get_client().node_info()["node_id"],
-                        },
-                        {
-                            "pubkey": self.fiber3.get_client().node_info()["node_id"],
-                        },
+                        self.fiber2.get_client().node_info()["node_id"],
+                        self.fiber3.get_client().node_info()["node_id"],
                     ],
                 }
             )
@@ -178,12 +168,8 @@ class TestComplexRouting(FiberTest):
                 "amount": hex(1 * 100000000),
                 "keysend": True,
                 "trampoline_hops": [
-                    {
-                        "pubkey": self.fiber2.get_client().node_info()["node_id"],
-                    },
-                    {
-                        "pubkey": self.fiber3.get_client().node_info()["node_id"],
-                    },
+                    self.fiber2.get_client().node_info()["node_id"],
+                    self.fiber3.get_client().node_info()["node_id"],
                 ],
             }
         )
@@ -216,9 +202,7 @@ class TestComplexRouting(FiberTest):
                 "amount": hex(1 * 100000000),
                 "keysend": True,
                 "trampoline_hops": [
-                    {
-                        "pubkey": self.fiber2.get_client().node_info()["node_id"],
-                    },
+                    self.fiber2.get_client().node_info()["node_id"],
                 ],
             }
         )
@@ -243,9 +227,7 @@ class TestComplexRouting(FiberTest):
                 "amount": hex(1 * 100000000),
                 "keysend": True,
                 "trampoline_hops": [
-                    {
-                        "pubkey": self.fiber2.get_client().node_info()["node_id"],
-                    },
+                    self.fiber2.get_client().node_info()["node_id"],
                 ],
             }
         )
@@ -259,9 +241,7 @@ class TestComplexRouting(FiberTest):
                 "amount": hex(1 * 100000000),
                 "keysend": True,
                 "trampoline_hops": [
-                    {
-                        "pubkey": self.fiber2.get_client().node_info()["node_id"],
-                    },
+                    self.fiber2.get_client().node_info()["node_id"],
                 ],
             }
         )

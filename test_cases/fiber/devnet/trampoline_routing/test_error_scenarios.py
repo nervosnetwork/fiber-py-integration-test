@@ -28,9 +28,7 @@ class TestErrorScenarios(FiberTest):
                     "amount": hex(2000 * 100000000),  # 超过通道容量
                     "keysend": True,
                     "trampoline_hops": [
-                        {
-                            "pubkey": self.fiber2.get_client().node_info()["node_id"],
-                        },
+                        self.fiber2.get_client().node_info()["node_id"],
                     ],
                 }
             )
@@ -59,12 +57,8 @@ class TestErrorScenarios(FiberTest):
                 "amount": hex(30 * 100000000),
                 "keysend": True,
                 "trampoline_hops": [
-                    {
-                        "pubkey": self.fiber2.get_client().node_info()["node_id"],
-                    },
-                    {
-                        "pubkey": self.fiber3.get_client().node_info()["node_id"],
-                    },
+                    self.fiber2.get_client().node_info()["node_id"],
+                    self.fiber3.get_client().node_info()["node_id"],
                 ],
             }
         )
@@ -79,12 +73,8 @@ class TestErrorScenarios(FiberTest):
                     "amount": hex(30 * 100000000),  # 可能超过剩余容量
                     "keysend": True,
                     "trampoline_hops": [
-                        {
-                            "pubkey": self.fiber2.get_client().node_info()["node_id"],
-                        },
-                        {
-                            "pubkey": self.fiber3.get_client().node_info()["node_id"],
-                        },
+                        self.fiber2.get_client().node_info()["node_id"],
+                        self.fiber3.get_client().node_info()["node_id"],
                     ],
                 }
             )
@@ -111,9 +101,7 @@ class TestErrorScenarios(FiberTest):
                     "amount": hex(1 * 100000000),
                     "keysend": True,
                     "trampoline_hops": [
-                        {
-                            "pubkey": self.fiber2.get_client().node_info()["node_id"],
-                        },
+                        self.fiber2.get_client().node_info()["node_id"],
                     ],
                 }
             )
@@ -142,9 +130,7 @@ class TestErrorScenarios(FiberTest):
                 "amount": hex(1 * 100000000),
                 "keysend": True,
                 "trampoline_hops": [
-                    {
-                        "pubkey": self.fiber2.get_client().node_info()["node_id"],
-                    },
+                    self.fiber2.get_client().node_info()["node_id"],
                 ],
             }
         )
@@ -169,7 +155,7 @@ class TestErrorScenarios(FiberTest):
                     "keysend": True,
                     "max_fee_amount": hex(1),  # 极低的费用预算
                     "trampoline_hops": [
-                        {"pubkey": self.fiber2.get_client().node_info()["node_id"]},
+                        self.fiber2.get_client().node_info()["node_id"]
                     ],
                 }
             )
@@ -197,14 +183,8 @@ class TestErrorScenarios(FiberTest):
                     "amount": hex(1 * 100000000),
                     "keysend": True,
                     "trampoline_hops": [
-                        {
-                            "pubkey": self.fiber2.get_client().node_info()["node_id"],
-                        },
-                        {
-                            "pubkey": self.fiber2.get_client().node_info()[
-                                "node_id"
-                            ],  # 重复
-                        },
+                        self.fiber2.get_client().node_info()["node_id"],
+                        self.fiber2.get_client().node_info()["node_id"],  # 重复
                     ],
                 }
             )
@@ -231,14 +211,8 @@ class TestErrorScenarios(FiberTest):
                     "amount": hex(1 * 100000000),
                     "keysend": True,
                     "trampoline_hops": [
-                        {
-                            "pubkey": self.fiber2.get_client().node_info()["node_id"],
-                        },
-                        {
-                            "pubkey": self.fiber3.get_client().node_info()[
-                                "node_id"
-                            ],  # 目标节点
-                        },
+                        self.fiber2.get_client().node_info()["node_id"],
+                        self.fiber3.get_client().node_info()["node_id"],  # 目标节点
                     ],
                 }
             )

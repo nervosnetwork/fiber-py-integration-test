@@ -124,6 +124,37 @@ class TestFee(SharedFiberTest):
             fiber2_fee=1000,
         )
 
+    def test_case1_only_set_max_fee_amount(self):
+        """
+        单独设置max_fee_amount  的话，如果max_fee_amount> 0.05% ,那取的值好像还是0.05%
+        Returns:
+        """
+        self.fiber1.get_client().send_payment(
+            {
+                "target_pubkey": self.fiber7.get_client().node_info()["node_id"],
+                "amount": hex(10 * 100000000),
+                "keysend": True,
+                "max_fee_amount": hex(10000000000),
+                "dry_run": True,
+            }
+        )
+
+    @pytest.mark.skip("todo")
+    def test_case1_only_set_max_fee_rate(self):
+        """
+        单独设置max_fee_rate  的话，如果max_fee_rate >  5 ,那取的值应该是99
+        Returns:
+        """
+        self.fiber1.get_client().send_payment(
+            {
+                "target_pubkey": self.fiber7.get_client().node_info()["node_id"],
+                "amount": hex(10 * 100000000),
+                "keysend": True,
+                "max_fee_rate": hex(99),
+                "dry_run": True,
+            }
+        )
+
     # --- Case 1: max_fee_amount 未提供时，FeeLimit = 0.5% × amount（默认 max_fee_rate=5）---
 
     def test_case1_default_max_fee_rate_when_max_fee_amount_omitted(self):

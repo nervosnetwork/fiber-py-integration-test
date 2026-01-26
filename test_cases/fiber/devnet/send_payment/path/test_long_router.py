@@ -14,8 +14,8 @@ class TestLongRouter(FiberTest):
             fiber = self.start_new_fiber(account_private)
             fiber.connect_peer(self.fiber1)
             fiber.connect_peer(self.fiber2)
-        for i in range(len(self.fibers) - 1):
-            linked_fiber = self.fibers[(i + 1) % len(self.fibers)]
+        for i in range(len(self.fibers) - 2):
+            linked_fiber = self.fibers[i + 1]
             current_fiber = self.fibers[i]
             linked_fiber.connect_peer(current_fiber)
             time.sleep(1)
@@ -53,6 +53,7 @@ class TestLongRouter(FiberTest):
                     "target_pubkey": pub_key,
                     "amount": hex(10 * 100000000),
                     "keysend": True,
+                    "max_fee_rate": hex(99),
                 }
             )
         )

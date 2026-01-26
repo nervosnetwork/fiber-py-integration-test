@@ -59,23 +59,13 @@ class TestBoundaryValues(SharedFiberTest):
                 "amount": hex(1 * 100000000),
                 "keysend": True,
                 "dry_run": True,
-                # "max_fee_amount": hex(1 * 100000000),
+                "max_fee_amount": hex(1 * 100000000),
                 "trampoline_hops": [
-                    {
-                        "pubkey": self.fiber2.get_client().node_info()["node_id"],
-                    },
-                    {
-                        "pubkey": self.fiber3.get_client().node_info()["node_id"],
-                    },
-                    {
-                        "pubkey": self.fiber4.get_client().node_info()["node_id"],
-                    },
-                    {
-                        "pubkey": self.fiber5.get_client().node_info()["node_id"],
-                    },
-                    {
-                        "pubkey": self.fiber6.get_client().node_info()["node_id"],
-                    },
+                    self.fiber2.get_client().node_info()["node_id"],
+                    self.fiber3.get_client().node_info()["node_id"],
+                    self.fiber4.get_client().node_info()["node_id"],
+                    self.fiber5.get_client().node_info()["node_id"],
+                    self.fiber6.get_client().node_info()["node_id"],
                 ],
             }
         )
@@ -87,24 +77,15 @@ class TestBoundaryValues(SharedFiberTest):
                 "keysend": True,
                 "max_fee_amount": payment["fee"],
                 "trampoline_hops": [
-                    {
-                        "pubkey": self.fiber2.get_client().node_info()["node_id"],
-                    },
-                    {
-                        "pubkey": self.fiber3.get_client().node_info()["node_id"],
-                    },
-                    {
-                        "pubkey": self.fiber4.get_client().node_info()["node_id"],
-                    },
-                    {
-                        "pubkey": self.fiber5.get_client().node_info()["node_id"],
-                    },
-                    {
-                        "pubkey": self.fiber6.get_client().node_info()["node_id"],
-                    },
+                    self.fiber2.get_client().node_info()["node_id"],
+                    self.fiber3.get_client().node_info()["node_id"],
+                    self.fiber4.get_client().node_info()["node_id"],
+                    self.fiber5.get_client().node_info()["node_id"],
+                    self.fiber6.get_client().node_info()["node_id"],
                 ],
             }
         )
+
         self.wait_payment_state(self.fiber1, payment["payment_hash"], "Success")
         after_balance = self.get_fibers_balance()
         result = self.get_channel_balance_change(before_balance, after_balance)
@@ -114,6 +95,7 @@ class TestBoundaryValues(SharedFiberTest):
                 "payment_hash": payment["payment_hash"],
             }
         )
+
         assert payment["fee"] == hex(1509034)
         # todo 函数 验证 trampoline routing 余额计算
 
@@ -166,26 +148,14 @@ class TestBoundaryValues(SharedFiberTest):
                     "amount": hex(1 * 100000000),
                     "keysend": True,
                     "trampoline_hops": [
-                        {
-                            "pubkey": self.fiber2.get_client().node_info()["node_id"],
-                        },
-                        {
-                            "pubkey": self.fiber3.get_client().node_info()["node_id"],
-                        },
-                        {
-                            "pubkey": self.fiber4.get_client().node_info()["node_id"],
-                        },
-                        {
-                            "pubkey": self.fiber5.get_client().node_info()["node_id"],
-                        },
-                        {
-                            "pubkey": self.fiber6.get_client().node_info()["node_id"],
-                        },
-                        {
-                            "pubkey": self.fiber7.get_client().node_info()[
-                                "node_id"
-                            ],  # 第6个，超过限制
-                        },
+                        self.fiber2.get_client().node_info()["node_id"],
+                        self.fiber3.get_client().node_info()["node_id"],
+                        self.fiber4.get_client().node_info()["node_id"],
+                        self.fiber5.get_client().node_info()["node_id"],
+                        self.fiber6.get_client().node_info()["node_id"],
+                        self.fiber7.get_client().node_info()[
+                            "node_id"
+                        ],  # 第6个，超过限制
                     ],
                 }
             )
@@ -204,9 +174,7 @@ class TestBoundaryValues(SharedFiberTest):
                 "amount": hex(1),  # 最小金额
                 "keysend": True,
                 "trampoline_hops": [
-                    {
-                        "pubkey": self.fiber2.get_client().node_info()["node_id"],
-                    },
+                    self.fiber2.get_client().node_info()["node_id"],
                 ],
             }
         )
@@ -224,9 +192,7 @@ class TestBoundaryValues(SharedFiberTest):
                 "amount": hex(50 * 100000000),  # 大金额
                 "keysend": True,
                 "trampoline_hops": [
-                    {
-                        "pubkey": self.fiber2.get_client().node_info()["node_id"],
-                    },
+                    self.fiber2.get_client().node_info()["node_id"],
                 ],
             }
         )
@@ -242,10 +208,7 @@ class TestBoundaryValues(SharedFiberTest):
                 "amount": hex(1 * 100000000),
                 "keysend": True,
                 "trampoline_hops": [
-                    {
-                        "pubkey": self.fiber2.get_client().node_info()["node_id"],
-                        "fee_rate": hex(0),  # 零费率
-                    },
+                    self.fiber2.get_client().node_info()["node_id"],
                 ],
             }
         )
@@ -263,10 +226,7 @@ class TestBoundaryValues(SharedFiberTest):
                 "amount": hex(1 * 100000000),
                 "keysend": True,
                 "trampoline_hops": [
-                    {
-                        "pubkey": self.fiber2.get_client().node_info()["node_id"],
-                        "fee_rate": hex(1000000),  # 高费率
-                    },
+                    self.fiber2.get_client().node_info()["node_id"],
                 ],
             }
         )
@@ -282,11 +242,28 @@ class TestBoundaryValues(SharedFiberTest):
                 "keysend": True,
                 "max_fee_amount": hex(200000),  # 最小费用预算
                 "trampoline_hops": [
-                    {
-                        "pubkey": self.fiber2.get_client().node_info()["node_id"],
-                        "fee_rate": hex(0),  # 零费率以确保费用最小
-                    },
+                    self.fiber2.get_client().node_info()["node_id"],
                 ],
             }
         )
         self.wait_payment_state(self.fiber1, payment["payment_hash"], "Success")
+
+    def test_trampoline_hops_contains_target_pubkey(self):
+        with pytest.raises(Exception) as exc_info:
+            self.fiber1.get_client().send_payment(
+                {
+                    "target_pubkey": self.fiber3.get_client().node_info()["node_id"],
+                    "currency": "Fibd",
+                    "amount": hex(1 * 100000000),
+                    "keysend": True,
+                    "trampoline_hops": [
+                        self.fiber2.get_client().node_info()["node_id"],
+                        self.fiber3.get_client().node_info()["node_id"],
+                    ],
+                }
+            )
+        expected_error_message = "trampoline_hops must not contain target_pubkey"
+        assert expected_error_message in exc_info.value.args[0], (
+            f"Expected substring '{expected_error_message}' "
+            f"not found in actual string '{exc_info.value.args[0]}'"
+        )

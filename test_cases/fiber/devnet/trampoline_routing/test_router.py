@@ -48,10 +48,7 @@ class TestRouter(FiberTest):
                     ),
                     "max_fee_amount": hex(2000001),
                     "trampoline_hops": [
-                        {
-                            "pubkey": self.fiber3.get_client().node_info()["node_id"],
-                            # "fee_rate": hex(1000),
-                        }
+                        self.fiber3.get_client().node_info()["node_id"],
                     ],
                 }
             )
@@ -84,13 +81,8 @@ class TestRouter(FiberTest):
                     self.fiber1.account_private
                 ),
                 "trampoline_hops": [
-                    {
-                        "pubkey": self.fiber2.get_client().node_info()["node_id"],
-                        # "fee_rate": hex(1000),
-                    }
+                    self.fiber2.get_client().node_info()["node_id"],
                 ],
             }
         )
         self.wait_payment_state(self.fiber3, payment["payment_hash"], "Success")
-
-

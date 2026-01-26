@@ -15,10 +15,8 @@ class TestHashAlgorithm(FiberTest):
                 "amount": hex(1 * 100000000),
                 "keysend": True,
                 "trampoline_hops": [
-                    {
-                        "pubkey": self.fiber2.get_client().node_info()["node_id"],
-                        # "fee_rate": hex((1 << 64) - 1),
-                    },
+                    self.fiber2.get_client().node_info()["node_id"],
+                    # "fee_rate": hex((1 << 64) - 1),
                 ],
                 "hash_algorithm": "ckbhash",
             }
@@ -36,10 +34,8 @@ class TestHashAlgorithm(FiberTest):
                 "amount": hex(1 * 100000000),
                 "keysend": True,
                 "trampoline_hops": [
-                    {
-                        "pubkey": self.fiber2.get_client().node_info()["node_id"],
-                        # "fee_rate": hex((1 << 64) - 1),
-                    },
+                    self.fiber2.get_client().node_info()["node_id"],
+                    # "fee_rate": hex((1 << 64) - 1),
                 ],
                 "hash_algorithm": "ckbhash",
             }

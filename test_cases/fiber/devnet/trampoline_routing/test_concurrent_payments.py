@@ -38,11 +38,7 @@ class TestConcurrentPayments(FiberTest):
                         "amount": hex(amount),
                         "keysend": True,
                         "trampoline_hops": [
-                            {
-                                "pubkey": self.fiber2.get_client().node_info()[
-                                    "node_id"
-                                ],
-                            },
+                            self.fiber2.get_client().node_info()["node_id"],
                         ],
                     }
                 )
@@ -99,11 +95,7 @@ class TestConcurrentPayments(FiberTest):
                         "amount": hex(amount),
                         "keysend": True,
                         "trampoline_hops": [
-                            {
-                                "pubkey": trampoline_fiber.get_client().node_info()[
-                                    "node_id"
-                                ],
-                            },
+                            trampoline_fiber.get_client().node_info()["node_id"],
                         ],
                     }
                 )
@@ -153,9 +145,7 @@ class TestConcurrentPayments(FiberTest):
                     "amount": hex(1 * 100000000),
                     "keysend": True,
                     "trampoline_hops": [
-                        {
-                            "pubkey": self.fiber2.get_client().node_info()["node_id"],
-                        },
+                        self.fiber2.get_client().node_info()["node_id"],
                     ],
                 }
             )
@@ -174,9 +164,7 @@ class TestConcurrentPayments(FiberTest):
                     "amount": hex(1 * 100000000),
                     "keysend": True,
                     "trampoline_hops": [
-                        {
-                            "pubkey": self.fiber2.get_client().node_info()["node_id"],
-                        },
+                        self.fiber2.get_client().node_info()["node_id"],
                     ],
                 }
             )

@@ -34,15 +34,9 @@ class TestMultiHopTrampoline(FiberTest):
                 "amount": hex(1 * 100000000),
                 "keysend": True,
                 "trampoline_hops": [
-                    {
-                        "pubkey": self.fiber2.get_client().node_info()["node_id"],
-                    },
-                    {
-                        "pubkey": self.fiber3.get_client().node_info()["node_id"],
-                    },
-                    {
-                        "pubkey": self.fiber4.get_client().node_info()["node_id"],
-                    },
+                    self.fiber2.get_client().node_info()["node_id"],
+                    self.fiber3.get_client().node_info()["node_id"],
+                    self.fiber4.get_client().node_info()["node_id"],
                 ],
             }
         )
@@ -73,18 +67,10 @@ class TestMultiHopTrampoline(FiberTest):
                 "amount": hex(1 * 100000000),
                 "keysend": True,
                 "trampoline_hops": [
-                    {
-                        "pubkey": self.fiber2.get_client().node_info()["node_id"],
-                    },
-                    {
-                        "pubkey": self.fiber3.get_client().node_info()["node_id"],
-                    },
-                    {
-                        "pubkey": self.fiber4.get_client().node_info()["node_id"],
-                    },
-                    {
-                        "pubkey": self.fiber5.get_client().node_info()["node_id"],
-                    },
+                    self.fiber2.get_client().node_info()["node_id"],
+                    self.fiber3.get_client().node_info()["node_id"],
+                    self.fiber4.get_client().node_info()["node_id"],
+                    self.fiber5.get_client().node_info()["node_id"],
                 ],
             }
         )
@@ -112,18 +98,9 @@ class TestMultiHopTrampoline(FiberTest):
                 "amount": hex(10 * 100000000),
                 "keysend": True,
                 "trampoline_hops": [
-                    {
-                        "pubkey": self.fiber2.get_client().node_info()["node_id"],
-                        "fee_rate": hex(1000),
-                    },
-                    {
-                        "pubkey": self.fiber3.get_client().node_info()["node_id"],
-                        "fee_rate": hex(2000),
-                    },
-                    {
-                        "pubkey": self.fiber4.get_client().node_info()["node_id"],
-                        "fee_rate": hex(3000),
-                    },
+                    self.fiber2.get_client().node_info()["node_id"],
+                    self.fiber3.get_client().node_info()["node_id"],
+                    self.fiber4.get_client().node_info()["node_id"],
                 ],
             }
         )
@@ -179,15 +156,9 @@ class TestMultiHopTrampoline(FiberTest):
                 "keysend": True,
                 "udt_type_script": udt_script,
                 "trampoline_hops": [
-                    {
-                        "pubkey": self.fiber2.get_client().node_info()["node_id"],
-                    },
-                    {
-                        "pubkey": self.fiber3.get_client().node_info()["node_id"],
-                    },
-                    {
-                        "pubkey": self.fiber4.get_client().node_info()["node_id"],
-                    },
+                    self.fiber2.get_client().node_info()["node_id"],
+                    self.fiber3.get_client().node_info()["node_id"],
+                    self.fiber4.get_client().node_info()["node_id"],
                 ],
             }
         )
@@ -235,15 +206,9 @@ class TestMultiHopTrampoline(FiberTest):
                     "keysend": True,
                     "udt_type_script": udt_script,
                     "trampoline_hops": [
-                        {
-                            "pubkey": self.fiber2.get_client().node_info()["node_id"],
-                        },
-                        {
-                            "pubkey": self.fiber3.get_client().node_info()["node_id"],
-                        },
-                        {
-                            "pubkey": self.fiber4.get_client().node_info()["node_id"],
-                        },
+                        self.fiber2.get_client().node_info()["node_id"],
+                        self.fiber3.get_client().node_info()["node_id"],
+                        self.fiber4.get_client().node_info()["node_id"],
                     ],
                 }
             )
