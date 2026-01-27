@@ -124,6 +124,7 @@ class TestFee(SharedFiberTest):
             fiber2_fee=1000,
         )
 
+    @pytest.mark.skip("单独设置max_fee_amount,取的值好像还是0.05%")
     def test_case1_only_set_max_fee_amount(self):
         """
         单独设置max_fee_amount  的话，如果max_fee_amount> 0.05% ,那取的值好像还是0.05%

@@ -60,6 +60,7 @@ class TestBoundaryValues(SharedFiberTest):
                 "keysend": True,
                 "dry_run": True,
                 "max_fee_amount": hex(1 * 100000000),
+                "max_fee_rate": hex(99),
                 "trampoline_hops": [
                     self.fiber2.get_client().node_info()["node_id"],
                     self.fiber3.get_client().node_info()["node_id"],
