@@ -215,9 +215,7 @@ class TestTlcFeeProportionalMillionths(FiberTest):
         self.fiber2.get_client().graph_channels()
         self.fiber2.get_client().graph_nodes()
         payment = self.fiber1.get_client().send_payment(
-            {
-                "invoice": invoice["invoice_address"],
-            }
+            {"invoice": invoice["invoice_address"], "max_fee_rate": hex(100)}
         )
         self.wait_payment_state(self.fiber1, payment["payment_hash"])
         after_channel_12 = self.fiber1.get_client().list_channels({})
@@ -553,9 +551,7 @@ class TestTlcFeeProportionalMillionths(FiberTest):
         self.fiber2.get_client().graph_channels()
         self.fiber2.get_client().graph_nodes()
         payment = self.fiber1.get_client().send_payment(
-            {
-                "invoice": invoice["invoice_address"],
-            }
+            {"invoice": invoice["invoice_address"], "max_fee_rate": hex(1000000)}
         )
         self.wait_payment_state(self.fiber1, payment["payment_hash"])
         after_channel_12 = self.fiber1.get_client().list_channels({})

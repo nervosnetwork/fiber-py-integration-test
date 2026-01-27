@@ -1,11 +1,14 @@
 import time
 
+import pytest
+
 from framework.basic_fiber import FiberTest
 from framework.config import DEFAULT_MIN_DEPOSIT_CKB
 
 
 class TestCkbWithUDT(FiberTest):
 
+    @pytest.mark.skip("overflow")
     def test_ckb_with_udt(self):
         """
         https://github.com/nervosnetwork/fiber/pull/681

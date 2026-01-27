@@ -14,7 +14,7 @@ class TestLongRouter(FiberTest):
             fiber = self.start_new_fiber(account_private)
             fiber.connect_peer(self.fiber1)
             fiber.connect_peer(self.fiber2)
-        for i in range(len(self.fibers) - 2):
+        for i in range(len(self.fibers) - 1):
             linked_fiber = self.fibers[i + 1]
             current_fiber = self.fibers[i]
             linked_fiber.connect_peer(current_fiber)
@@ -43,6 +43,8 @@ class TestLongRouter(FiberTest):
                 current_fiber.get_client(), linked_fiber.get_peer_id(), "CHANNEL_READY"
             )
 
+        before_balance = self.get_fibers_balance()
+
         time.sleep(1)
         pub_key = self.fibers[-1].get_client().node_info()["node_id"]
         payment = (
@@ -58,3 +60,83 @@ class TestLongRouter(FiberTest):
             )
         )
         self.wait_payment_state(self.fibers[0], payment["payment_hash"], "Success")
+        after_balance = self.get_fibers_balance()
+        result = self.get_channel_balance_change(before_balance, after_balance)
+        print(result)
+        assert result == [
+            {
+                "local_balance": 1013078296,
+                "offered_tlc_balance": 0,
+                "received_tlc_balance": 0,
+            },
+            {
+                "local_balance": -1012067,
+                "offered_tlc_balance": 0,
+                "received_tlc_balance": 0,
+            },
+            {
+                "local_balance": -1011056,
+                "offered_tlc_balance": 0,
+                "received_tlc_balance": 0,
+            },
+            {
+                "local_balance": -1010046,
+                "offered_tlc_balance": 0,
+                "received_tlc_balance": 0,
+            },
+            {
+                "local_balance": -1009037,
+                "offered_tlc_balance": 0,
+                "received_tlc_balance": 0,
+            },
+            {
+                "local_balance": -1008029,
+                "offered_tlc_balance": 0,
+                "received_tlc_balance": 0,
+            },
+            {
+                "local_balance": -1007022,
+                "offered_tlc_balance": 0,
+                "received_tlc_balance": 0,
+            },
+            {
+                "local_balance": -1006016,
+                "offered_tlc_balance": 0,
+                "received_tlc_balance": 0,
+            },
+            {
+                "local_balance": -1005011,
+                "offered_tlc_balance": 0,
+                "received_tlc_balance": 0,
+            },
+            {
+                "local_balance": -1004007,
+                "offered_tlc_balance": 0,
+                "received_tlc_balance": 0,
+            },
+            {
+                "local_balance": -1003004,
+                "offered_tlc_balance": 0,
+                "received_tlc_balance": 0,
+            },
+            {
+                "local_balance": -1002001,
+                "offered_tlc_balance": 0,
+                "received_tlc_balance": 0,
+            },
+            {
+                "local_balance": -1001000,
+                "offered_tlc_balance": 0,
+                "received_tlc_balance": 0,
+            },
+            {
+                "local_balance": -1000000,
+                "offered_tlc_balance": 0,
+                "received_tlc_balance": 0,
+            },
+            {
+                "local_balance": -1000000000,
+                "offered_tlc_balance": 0,
+                "received_tlc_balance": 0,
+            },
+        ]
