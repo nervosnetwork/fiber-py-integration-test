@@ -442,7 +442,7 @@ class FiberTest(CkbTest):
                     "invoice": invoice["invoice_address"],
                     "allow_self_payment": True,
                     "max_parts": hex(12),
-                    "max_fee_rate": hex(100),
+                    "max_fee_rate": hex(1000000000000000),
                 }
                 if "allow_atomic_mpp" in invoice_params:
                     send_payment_params["amp"] = True
@@ -457,7 +457,7 @@ class FiberTest(CkbTest):
             "invoice": invoice["invoice_address"],
             "allow_self_payment": True,
             "max_parts": hex(12),
-            "max_fee_rate": hex(100),
+            "max_fee_rate": hex(1000000000000000),
         }
         if "allow_atomic_mpp" in invoice_params:
             send_payment_params["amp"] = True

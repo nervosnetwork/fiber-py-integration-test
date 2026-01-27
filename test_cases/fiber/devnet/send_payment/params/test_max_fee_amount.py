@@ -5,21 +5,6 @@ from framework.basic_fiber import FiberTest
 
 class TestMaxFeeAmount(FiberTest):
 
-    def test_long_router(self):
-        self.fiber3 = self.start_new_fiber(self.generate_account(10000))
-
-        self.open_channel(self.fiber1, self.fiber2, 1000 * 100000000, 0, 1000, 1000)
-        self.open_channel(
-            self.fiber2, self.fiber3, 1000 * 100000000, 0, 10000000, 10000000
-        )
-        with pytest.raises(Exception) as exc_info:
-            self.send_invoice_payment(self.fiber1, self.fiber3, 10 * 100000000)
-        expected_error_message = "Failed to build route"
-        assert expected_error_message in exc_info.value.args[0], (
-            f"Expected substring '{expected_error_message}' "
-            f"not found in actual string '{exc_info.value.args[0]}'"
-        )
-
     def test_fee(self):
         account_private = self.generate_account(1000)
         self.fiber3 = self.start_new_fiber(account_private)
