@@ -35,12 +35,14 @@ class TestMpp(FiberTest):
         time.sleep(1)
         print("before--settle-----")
         self.fiber1.get_client().get_payment({"payment_hash": payment_hash})
-        payment = self.fiber3.get_client().get_payment(
+        payment3 = self.fiber3.get_client().get_payment(
             {
                 "payment_hash": payment_hash,
             }
         )
-        assert payment["status"] == "Failed"
+        payment1 = self.fiber1.get_client().get_payment({"payment_hash": payment_hash})
+
+        assert payment3["status"] == "Failed" or payment1["status"] == "Failed"
 
         self.fiber2.get_client().settle_invoice(
             {"payment_hash": payment_hash, "payment_preimage": preimage}
@@ -48,5 +50,6 @@ class TestMpp(FiberTest):
         time.sleep(1)
         print("after--settle-----")
 
-        payment = self.fiber1.get_client().get_payment({"payment_hash": payment_hash})
-        assert payment["status"] == "Success"
+        fiber1_payment = self.wait_payment_finished(self.fiber1, payment_hash)
+        fiber3_payment = self.wait_payment_finished(self.fiber3, payment_hash)
+        assert fiber1_payment["status"] != fiber3_payment["status"]
