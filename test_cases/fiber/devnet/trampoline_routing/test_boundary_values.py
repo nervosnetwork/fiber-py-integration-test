@@ -76,6 +76,7 @@ class TestBoundaryValues(SharedFiberTest):
                 "amount": hex(1 * 100000000),
                 "keysend": True,
                 "max_fee_amount": payment["fee"],
+                "max_fee_rate": hex(99),
                 "trampoline_hops": [
                     self.fiber2.get_client().node_info()["node_id"],
                     self.fiber3.get_client().node_info()["node_id"],

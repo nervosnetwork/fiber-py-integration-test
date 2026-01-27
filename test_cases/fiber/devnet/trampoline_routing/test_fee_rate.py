@@ -1,14 +1,10 @@
-import time
-
 import pytest
 
-from framework.basic_fiber import FiberTest
 from framework.basic_share_fiber import SharedFiberTest
 from framework.test_fiber import Fiber
 
 
 class TestFeeRate(SharedFiberTest):
-    debug = True
     # setup_method_only_once = True
     N = 2
     # 0-》1-》2-》3-》4
@@ -21,43 +17,38 @@ class TestFeeRate(SharedFiberTest):
     fiber5: Fiber
     fiber6: Fiber
 
-    def init(self):
-        pass
-
     def setUp(self):
         if getattr(TestFeeRate, "_channel_inited", False):
             return
         TestFeeRate._channel_inited = True
 
-        self.__class__.fiber3 = self.start_new_mock_fiber("")
-        self.__class__.fiber4 = self.start_new_mock_fiber("")
-        self.__class__.fiber5 = self.start_new_mock_fiber("")
-        self.__class__.fiber6 = self.start_new_mock_fiber("")
+        # self.__class__.fiber3 = self.start_new_mock_fiber("")
+        # self.__class__.fiber4 = self.start_new_mock_fiber("")
+        # self.__class__.fiber5 = self.start_new_mock_fiber("")
+        # self.__class__.fiber6 = self.start_new_mock_fiber("")
 
-        # self.__class__.fiber3 = self.start_new_fiber(self.generate_account(10000))
-        # self.__class__.fiber4 = self.start_new_fiber(self.generate_account(10000))
-        #
-        #
-        # self.__class__.fiber5 = self.start_new_fiber(self.generate_account(10000))
-        # self.__class__.fiber6 = self.start_new_fiber(self.generate_account(10000))
-        #
-        #
-        # for i in range(3):
-        #     self.open_channel(
-        #         self.fibers[i], self.fibers[(i + 1)], 1000 * 100000000, 1000 * 100000000
-        #     )
-        #     self.open_channel(
-        #         self.fibers[i],
-        #         self.fibers[(i + 1)],
-        #         1000 * 100000000,
-        #         1000 * 100000000,
-        #         other_config={
-        #             "public": False,
-        #             "one_way": True,
-        #         },
-        #     )
-        # self.open_channel(self.fiber1, self.fiber5, 1000 * 100000000, 0, 6000, 9000)
-        # self.open_channel(self.fiber5, self.fiber6, 1000 * 100000000, 0, 5001, 7000)
+        self.__class__.fiber3 = self.start_new_fiber(self.generate_account(10000))
+        self.__class__.fiber4 = self.start_new_fiber(self.generate_account(10000))
+
+        self.__class__.fiber5 = self.start_new_fiber(self.generate_account(10000))
+        self.__class__.fiber6 = self.start_new_fiber(self.generate_account(10000))
+
+        for i in range(3):
+            self.open_channel(
+                self.fibers[i], self.fibers[(i + 1)], 1000 * 100000000, 1000 * 100000000
+            )
+            self.open_channel(
+                self.fibers[i],
+                self.fibers[(i + 1)],
+                1000 * 100000000,
+                1000 * 100000000,
+                other_config={
+                    "public": False,
+                    "one_way": True,
+                },
+            )
+        self.open_channel(self.fiber1, self.fiber5, 1000 * 100000000, 0, 6000, 9000)
+        self.open_channel(self.fiber5, self.fiber6, 1000 * 100000000, 0, 5001, 7000)
 
     def test_dry_run(self):
         """fee 设置多少，就返回多少"""

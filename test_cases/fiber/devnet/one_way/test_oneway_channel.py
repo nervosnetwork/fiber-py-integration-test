@@ -79,22 +79,18 @@ class TestOneWayChannel(FiberTest):
         )
         self.wait_payment_state(self.fiber1, payment["payment_hash"], "Success")
 
-        reverse_payment = self.fiber2.get_client().send_payment(
-            {
-                "target_pubkey": self.fiber1.get_client().node_info()["node_id"],
-                "amount": hex(10 * 100000000),
-                "keysend": True,
-            }
+
+
+        with pytest.raises(Exception) as exc_info:
+            self.fiber2.get_client().send_payment(
+                {
+                    "target_pubkey": self.fiber1.get_client().node_info()["node_id"],
+                    "amount": hex(10 * 100000000),
+                    "keysend": True,
+                }
+            )
+        expected_error_message = "no path found"
+        assert expected_error_message in exc_info.value.args[0], (
+            f"Expected substring '{expected_error_message}' "
+            f"not found in actual string '{exc_info.value.args[0]}'"
         )
-        result = self.wait_payment_finished(
-            self.fiber2, reverse_payment["payment_hash"]
-        )
-        assert result["status"] == "Failed", result
-        failed_error = result.get("failed_error")
-        if failed_error is not None:
-            failed_error = failed_error.lower()
-            assert (
-                "reverse direction" in failed_error
-                or "incorrecttlcdirection" in failed_error
-                or "one way" in failed_error
-            ), result
