@@ -32,40 +32,40 @@
 
 ## 3. add_tlc (1 个文件)
 
-- [ ] `test_cases/fiber/devnet/add_tlc/test_add_tlc.py`
+- [x] `test_cases/fiber/devnet/add_tlc/test_add_tlc.py`
 
 ---
 
 ## 4. backup (1 个文件)
 
-- [ ] `test_cases/fiber/devnet/backup/test_backup.py`
+- [x] `test_cases/fiber/devnet/backup/test_backup.py`
 
 ---
 
 ## 5. build_router (1 个文件)
 
-- [ ] `test_cases/fiber/devnet/build_router/test_build_router.py`
+- [x] `test_cases/fiber/devnet/build_router/test_build_router.py`
 
 ---
 
 ## 6. cancel_invoice (1 个文件)
 
-- [ ] `test_cases/fiber/devnet/cancel_invoice/test_cancel_invoice.py`
+- [x] `test_cases/fiber/devnet/cancel_invoice/test_cancel_invoice.py`
 
 ---
 
 ## 7. ckb (3 个文件)
 
-- [ ] `test_cases/fiber/devnet/ckb/test_ckb_remove_tx.py`
-- [ ] `test_cases/fiber/devnet/ckb/test_ckb_send_cell.py`
-- [ ] `test_cases/fiber/devnet/ckb/test_ckb_stop.py`
+- [x] `test_cases/fiber/devnet/ckb/test_ckb_remove_tx.py`
+- [x] `test_cases/fiber/devnet/ckb/test_ckb_send_cell.py`
+- [x] `test_cases/fiber/devnet/ckb/test_ckb_stop.py`
 
 ---
 
 ## 8. compatibility (2 个文件)
 
-- [ ] `test_cases/fiber/devnet/compatibility/test_data.py`
-- [ ] `test_cases/fiber/devnet/compatibility/test_p2p.py`
+- [x] `test_cases/fiber/devnet/compatibility/test_data.py`
+- [x] `test_cases/fiber/devnet/compatibility/test_p2p.py`
 
 ---
 
