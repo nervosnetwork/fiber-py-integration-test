@@ -240,7 +240,7 @@ def deploy_apply_txs(tx_info_path, api_url="http://127.0.0.1:8114"):
     return json.loads(run_command(cmd))
 
 
-def util_key_info_by_private_key(account_private):
+def util_key_info_by_private_key(account_private, api_url="http://127.0.0.1:8114"):
     """
     MacBook-Pro-4 0.111.0 % echo 0xd00c06bfd800d27397002dca6fb0993d5ba6399b4238b2f29ee9deb97593d2bc >
     tmp.data && ./ckb-cli util key-info --privkey-path tmp.data --output-format json && rm tmp.data
@@ -273,7 +273,7 @@ def util_key_info_by_private_key(account_private):
     # echo 0xd00c06bfd800d27397002dca6fb0993d5ba6399b4238b2f29ee9deb97593d2bc > tmp.data && ./ckb-cli util key-info
     # --privkey-path tmp.data --output-format json && rm tmp.data
     cmd = (
-        f"echo {account_private} > /tmp/tmp.data && {cli_path} util key-info --privkey-path /tmp/tmp.data "
+        f"export API_URL={api_url}  && echo {account_private} > /tmp/tmp.data && {cli_path} util key-info --privkey-path /tmp/tmp.data "
         f"--output-format json"
     )
     return json.loads(run_command(cmd))
@@ -281,6 +281,7 @@ def util_key_info_by_private_key(account_private):
 
 def tx_init(tx_file, api_url="http://127.0.0.1:8114"):
     """
+
     ./ckb-cli tx init --tx-file tx.txt
     status: success
     MacBook-Pro-4 0.111.0 % cat tx.txt

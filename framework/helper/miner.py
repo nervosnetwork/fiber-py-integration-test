@@ -1,4 +1,12 @@
+"""
+挖矿相关辅助函数
+"""
 import time
+import logging
+
+from framework.constants import Timeout
+
+logger = logging.getLogger(__name__)
 
 
 def make_tip_height_number(node, number):
@@ -21,8 +29,23 @@ def make_tip_height_number(node, number):
     assert current_tip_number == number
 
 
-def miner_until_tx_committed(node, tx_hash, with_unknown=False):
-    for i in range(100):
+def miner_until_tx_committed(node, tx_hash, with_unknown=False, max_blocks=Timeout.TX_COMMITTED):
+    """
+    持续挖矿直到交易被确认
+    
+    Args:
+        node: CKB 节点实例
+        tx_hash: 交易哈希
+        with_unknown: 是否在 unknown 状态时继续挖矿
+        max_blocks: 最大挖矿区块数
+        
+    Returns:
+        交易响应
+        
+    Raises:
+        Exception: 交易被拒绝或超时
+    """
+    for i in range(max_blocks):
         tx_response = node.getClient().get_transaction(tx_hash)
         if tx_response["tx_status"]["status"] == "committed":
             return tx_response
@@ -31,11 +54,11 @@ def miner_until_tx_committed(node, tx_hash, with_unknown=False):
             or tx_response["tx_status"]["status"] == "proposed"
         ):
             miner_with_version(node, "0x0")
-            time.sleep(1)
+            time.sleep(Timeout.POLL_INTERVAL)
             continue
         if with_unknown and tx_response["tx_status"]["status"] == "unknown":
             miner_with_version(node, "0x0")
-            time.sleep(1)
+            time.sleep(Timeout.POLL_INTERVAL)
             continue
 
         if (
@@ -43,19 +66,28 @@ def miner_until_tx_committed(node, tx_hash, with_unknown=False):
             or tx_response["tx_status"]["status"] == "unknown"
         ):
             raise Exception(
-                f"status:{tx_response['tx_status']['status']},reason:{tx_response['tx_status']['reason']}"
+                f"Transaction {tx_hash[:16]}... status: {tx_response['tx_status']['status']}, "
+                f"reason: {tx_response['tx_status']['reason']}"
             )
 
     raise Exception(
-        f"miner 100 block ,but tx_response always pending:{tx_hash}，tx_response:{tx_response}"
+        f"Mined {max_blocks} blocks but tx {tx_hash[:16]}... still pending, "
+        f"status: {tx_response['tx_status']['status']}"
     )
 
 
 # https://github.com/nervosnetwork/rfcs/pull/416
 # support > 0x0 when ckb2023 active
-def miner_with_version(node, version):
-    # get_block_template
-    for i in range(10):
+def miner_with_version(node, version, max_retries=10):
+    """
+    使用指定版本挖矿
+    
+    Args:
+        node: CKB 节点实例
+        version: 区块版本
+        max_retries: 最大重试次数
+    """
+    for i in range(max_retries):
         try:
             block = node.getClient().get_block_template()
             node.getClient().submit_block(
@@ -64,27 +96,23 @@ def miner_with_version(node, version):
             )
             break
         except Exception as e:
-            time.sleep(1)
+            time.sleep(Timeout.POLL_INTERVAL)
     pool = node.getClient().tx_pool_info()
     header = node.getClient().get_tip_header()
-    print(
-        "miner block num:{number}".format(
-            number=int(block["number"].replace("0x", ""), 16)
-        )
+    logger.debug(
+        f"Mined block #{int(block['number'].replace('0x', ''), 16)}"
     )
-    print(
-        "pool num:{pool_number}, header num:{header_number}".format(
-            pool_number=int(pool["tip_number"].replace("0x", ""), 16),
-            header_number=int(header["number"].replace("0x", ""), 16),
-        )
+    logger.debug(
+        f"Pool tip: {int(pool['tip_number'].replace('0x', ''), 16)}, "
+        f"Header: {int(header['number'].replace('0x', ''), 16)}"
     )
-    for i in range(100):
+    for i in range(Timeout.TX_COMMITTED):
         pool_info = node.getClient().tx_pool_info()
         tip_number = node.getClient().get_tip_block_number()
         if int(pool_info["tip_number"], 16) == tip_number:
             return
-        time.sleep(1)
-    raise Exception("pool_info not eq tip number")
+        time.sleep(Timeout.POLL_INTERVAL)
+    raise Exception("Pool tip number does not match chain tip number")
 
 
 def block_template_transfer_to_submit_block(block, version="0x0"):
