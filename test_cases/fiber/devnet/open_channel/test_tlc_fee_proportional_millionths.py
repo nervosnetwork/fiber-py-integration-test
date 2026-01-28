@@ -377,7 +377,7 @@ class TestTlcFeeProportionalMillionths(FiberTest):
         payment = self.fiber1.get_client().send_payment(
             {
                 "invoice": invoice["invoice_address"],
-                "max_fee_rate":hex(100000000),
+                "max_fee_rate": hex(100000000),
             }
         )
         self.wait_payment_state(self.fiber1, payment["payment_hash"])
