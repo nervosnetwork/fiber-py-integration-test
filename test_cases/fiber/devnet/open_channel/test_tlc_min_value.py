@@ -1,33 +1,48 @@
+"""
+Test cases for open_channel tlc_min_value parameter.
+Covers: none (default 0), non-zero limit, gt funding_amount, CKB/UDT.
+"""
 import time
 
 import pytest
 
 from framework.basic_fiber import FiberTest
 from framework.config import DEFAULT_MIN_DEPOSIT_CKB, DEFAULT_MIN_DEPOSIT_UDT
+from framework.constants import (
+    Amount,
+    ChannelState,
+    FeeRate,
+    PaymentStatus,
+    Timeout,
+)
 
 
-class TlcMinValue(FiberTest):
+class TestTlcMinValue(FiberTest):
+    """
+    Test open_channel tlc_min_value: default (none), non-zero, gt funding_amount, CKB/UDT.
+    """
+
     def test_tlc_min_value_none(self):
         """
-        tlc_min_value = none
-        default is 0
-        Returns:
+        tlc_min_value = none (default 0); open channel, pay, shutdown, assert balance change.
+        Step 1: Open channel without tlc_min_value, wait CHANNEL_READY.
+        Step 2: Create invoice and send payment, wait and assert balance.
+        Step 3: Shutdown channel and assert on-chain balance.
         """
-
-        temporary_channel_id = self.fiber1.get_client().open_channel(
+        # Step 1: Open channel without tlc_min_value, wait CHANNEL_READY
+        self.fiber1.get_client().open_channel(
             {
                 "peer_id": self.fiber2.get_peer_id(),
-                "funding_amount": hex(200 * 100000000),
+                "funding_amount": hex(Amount.ckb(200)),
                 "public": True,
-                # "funding_fee_rate": "0xffff",
-                # "tlc_fee_proportional_millionths": "0x4B0",
             }
         )
         self.wait_for_channel_state(
-            self.fiber1.get_client(), self.fiber2.get_peer_id(), "CHANNEL_READY", 120
+            self.fiber1.get_client(), self.fiber2.get_peer_id(),
+            ChannelState.CHANNEL_READY, Timeout.CHANNEL_READY,
         )
+        # Step 2: Create invoice and send payment, wait and assert balance
         time.sleep(5)
-        # transfer
         self.fiber1.get_client().graph_channels()
         self.fiber1.get_client().graph_nodes()
         payment_preimage = self.generate_random_preimage()
@@ -48,9 +63,7 @@ class TlcMinValue(FiberTest):
         before_channel = self.fiber1.get_client().list_channels({})
 
         self.fiber1.get_client().send_payment(
-            {
-                "invoice": invoice["invoice_address"],
-            }
+            {"invoice": invoice["invoice_address"]}
         )
         time.sleep(10)
         after_channel = self.fiber1.get_client().list_channels({})
@@ -58,6 +71,7 @@ class TlcMinValue(FiberTest):
             after_channel["channels"][0]["local_balance"], 16
         ) == int(invoice_balance, 16)
 
+        # Step 3: Shutdown channel and assert on-chain balance
         channels = self.fiber1.get_client().list_channels(
             {"peer_id": self.fiber2.get_peer_id()}
         )
@@ -70,7 +84,6 @@ class TlcMinValue(FiberTest):
         before_balance2 = self.Ckb_cli.wallet_get_capacity(
             self.account2["address"]["testnet"]
         )
-        # shut down
         self.fiber1.get_client().shutdown_channel(
             {
                 "channel_id": N1N2_CHANNEL_ID,
@@ -79,11 +92,11 @@ class TlcMinValue(FiberTest):
                     "hash_type": "type",
                     "args": self.account1["lock_arg"],
                 },
-                "fee_rate": "0x3FC",
+                "fee_rate": FeeRate.to_hex(1020),
             }
         )
 
-        tx_hash = self.wait_and_check_tx_pool_fee(1000, False)
+        tx_hash = self.wait_and_check_tx_pool_fee(FeeRate.DEFAULT, False)
         self.Miner.miner_until_tx_committed(self.node, tx_hash)
 
         after_balance1 = self.Ckb_cli.wallet_get_capacity(
@@ -92,53 +105,48 @@ class TlcMinValue(FiberTest):
         after_balance2 = self.Ckb_cli.wallet_get_capacity(
             self.account2["address"]["testnet"]
         )
-        print("before_balance1:", before_balance1)
-        print("before_balance2:", before_balance2)
-        print("after_balance1:", after_balance1)
-        print("after_balance2:", after_balance2)
         assert after_balance2 - before_balance2 == 200
 
     def test_tlc_min_value_is_not_zero(self):
         """
-        tlc_min_value != 0
-        tlc_min_value limit: amount
-        Returns:
-
+        tlc_min_value != 0: amount below min fails route; at or above succeeds.
+        Step 1: Open channel with tlc_min_value=2 CKB, wait CHANNEL_READY.
+        Step 2: Send amount below min, expect Failed to build route; send 100 CKB, assert balance.
+        Step 3: node2 send 2 CKB via invoice, then node2 send 2 CKB - 1; shutdown and assert close output.
         """
-
-        temporary_channel_id = self.fiber1.get_client().open_channel(
+        # Step 1: Open channel with tlc_min_value=2 CKB
+        self.fiber1.get_client().open_channel(
             {
                 "peer_id": self.fiber2.get_peer_id(),
-                "funding_amount": hex(200 * 100000000),
+                "funding_amount": hex(Amount.ckb(200)),
                 "public": True,
-                "tlc_min_value": hex(2 * 100000000),
-                # "funding_fee_rate": "0xffff",
-                # "tlc_fee_proportional_millionths": "0x4B0",
+                "tlc_min_value": hex(Amount.ckb(2)),
             }
         )
-
         self.wait_for_channel_state(
-            self.fiber1.get_client(), self.fiber2.get_peer_id(), "CHANNEL_READY", 120
+            self.fiber1.get_client(), self.fiber2.get_peer_id(),
+            ChannelState.CHANNEL_READY, Timeout.CHANNEL_READY,
         )
-        # transfer
+
+        # Step 2: Amount below min fails; 100 CKB succeeds
         before_channel = self.fiber1.get_client().list_channels({})
         with pytest.raises(Exception) as exc_info:
-            self.send_payment(self.fiber1, self.fiber2, 2 * 100000000 - 1, 1)
+            self.send_payment(self.fiber1, self.fiber2, Amount.ckb(2) - 1, True)
         expected_error_message = "Failed to build route"
         assert expected_error_message in exc_info.value.args[0], (
             f"Expected substring '{expected_error_message}' "
             f"not found in actual string '{exc_info.value.args[0]}'"
         )
-        self.send_payment(self.fiber1, self.fiber2, 100 * 100000000)
+        self.send_payment(self.fiber1, self.fiber2, Amount.ckb(100), True)
         after_channel = self.fiber1.get_client().list_channels({})
         assert (
             int(before_channel["channels"][0]["local_balance"], 16)
             - int(after_channel["channels"][0]["local_balance"], 16)
-            == 100 * 100000000
+            == Amount.ckb(100)
         )
 
-        # node2 send 2 ckb
-        invoice_balance = hex(2 * 100000000)
+        # Step 3: node2 send 2 CKB via invoice
+        invoice_balance = hex(Amount.ckb(2))
         payment_preimage = self.generate_random_preimage()
         invoice = self.fiber1.get_client().new_invoice(
             {
@@ -153,27 +161,26 @@ class TlcMinValue(FiberTest):
         before_channel = self.fiber2.get_client().list_channels({})
 
         payment = self.fiber2.get_client().send_payment(
-            {
-                "invoice": invoice["invoice_address"],
-            }
+            {"invoice": invoice["invoice_address"]}
         )
-        self.wait_payment_state(self.fiber2, payment["payment_hash"], "Success")
+        self.wait_payment_state(
+            self.fiber2, payment["payment_hash"],
+            PaymentStatus.SUCCESS,
+            timeout=Timeout.PAYMENT_SUCCESS,
+        )
 
         after_channel = self.fiber2.get_client().list_channels({})
         assert int(before_channel["channels"][0]["local_balance"], 16) - int(
             after_channel["channels"][0]["local_balance"], 16
         ) == int(invoice_balance, 16)
 
-        # node2 send 1 ckb
+        # node2 send 2 CKB - 1 (below tlc_min_value for reverse direction)
         channels = self.fiber1.get_client().list_channels({})
-
-        self.send_payment(self.fiber2, self.fiber1, 2 * 100000000 - 1)
+        self.send_payment(self.fiber2, self.fiber1, Amount.ckb(2) - 1, True)
         channels = self.fiber1.get_client().list_channels(
             {"peer_id": self.fiber2.get_peer_id()}
         )
         N1N2_CHANNEL_ID = channels["channels"][0]["channel_id"]
-        channels = self.fiber1.get_client().list_channels({})
-        # shut down
         self.fiber1.get_client().shutdown_channel(
             {
                 "channel_id": N1N2_CHANNEL_ID,
@@ -182,15 +189,13 @@ class TlcMinValue(FiberTest):
                     "hash_type": "type",
                     "args": self.account1["lock_arg"],
                 },
-                "fee_rate": "0x3FC",
+                "fee_rate": FeeRate.to_hex(1020),
             }
         )
-        tx_hash = self.wait_and_check_tx_pool_fee(1000, False)
+        tx_hash = self.wait_and_check_tx_pool_fee(FeeRate.DEFAULT, False)
         tx_response = self.get_tx_message(tx_hash)
-        print("tx response:", tx_response)
-        print("channels:", channels)
         assert (
-            20000000000 + DEFAULT_MIN_DEPOSIT_CKB
+            Amount.ckb(200) + DEFAULT_MIN_DEPOSIT_CKB
             == tx_response["input_cells"][0]["capacity"]
         )
         assert {
@@ -200,25 +205,25 @@ class TlcMinValue(FiberTest):
 
     def test_tlc_min_value_gt_funding_amount(self):
         """
-        tlc_min_value > funding_amount
-        Returns:
+        tlc_min_value > funding_amount: open channel then send_payment should fail to build route.
+        Step 1: Open channel with tlc_min_value 210 CKB > funding 200 CKB, wait CHANNEL_READY.
+        Step 2: Try send_payment for full local balance, expect Failed to build route.
         """
-
-        temporary_channel_id = self.fiber1.get_client().open_channel(
+        # Step 1: Open channel with tlc_min_value > funding_amount
+        self.fiber1.get_client().open_channel(
             {
                 "peer_id": self.fiber2.get_peer_id(),
-                "funding_amount": hex(200 * 100000000),
+                "funding_amount": hex(Amount.ckb(200)),
                 "public": True,
-                "tlc_min_value": hex(210 * 100000000),
-                # "funding_fee_rate": "0xffff",
-                # "tlc_fee_proportional_millionths": "0x4B0",
+                "tlc_min_value": hex(Amount.ckb(210)),
             }
         )
         self.wait_for_channel_state(
-            self.fiber1.get_client(), self.fiber2.get_peer_id(), "CHANNEL_READY", 120
+            self.fiber1.get_client(), self.fiber2.get_peer_id(),
+            ChannelState.CHANNEL_READY, Timeout.CHANNEL_READY,
         )
+        # Step 2: Try send_payment for full local balance, expect Failed to build route
         time.sleep(3)
-        # transfer
         self.fiber1.get_client().graph_channels()
         self.fiber1.get_client().graph_nodes()
         payment_preimage = self.generate_random_preimage()
@@ -239,10 +244,8 @@ class TlcMinValue(FiberTest):
         before_channel = self.fiber1.get_client().list_channels({})
 
         with pytest.raises(Exception) as exc_info:
-            payment = self.fiber1.get_client().send_payment(
-                {
-                    "invoice": invoice["invoice_address"],
-                }
+            self.fiber1.get_client().send_payment(
+                {"invoice": invoice["invoice_address"]}
             )
         expected_error_message = "Failed to build route"
         assert expected_error_message in exc_info.value.args[0], (
@@ -252,23 +255,25 @@ class TlcMinValue(FiberTest):
 
     def test_ckb_tlc_min_value_not_eq_default(self):
         """
-        tlc_min_value != default
-        Returns:
+        CKB tlc_min_value != default: same as test_tlc_min_value_is_not_zero.
+        Step 1: Delegate to test_tlc_min_value_is_not_zero.
         """
         self.test_tlc_min_value_is_not_zero()
 
     def test_udt_tlc_min_value_not_eq_default(self):
         """
-        tlc_min_value != default
-        Returns:
+        UDT tlc_min_value != default: open UDT channel with tlc_min_value, pay >= min and < min.
+        Step 1: Open UDT channel with tlc_min_value 160 UDT, wait CHANNEL_READY.
+        Step 2: Send 160 UDT - 1, expect Failed to build route; send 500 UDT, assert balance.
+        Step 3: node2 send 160 UDT then 160 UDT - 16M; shutdown and assert output cells.
         """
-
+        # Step 1: Open UDT channel with tlc_min_value
         self.fiber1.get_client().open_channel(
             {
                 "peer_id": self.fiber2.get_peer_id(),
-                "funding_amount": hex(1000 * 100000000),
+                "funding_amount": hex(Amount.ckb(1000)),
                 "public": True,
-                "tlc_min_value": hex(160 * 100000000),
+                "tlc_min_value": hex(Amount.udt(160)),
                 "funding_udt_type_script": {
                     "code_hash": self.udtContract.get_code_hash(True, self.node.rpcUrl),
                     "hash_type": "type",
@@ -282,28 +287,29 @@ class TlcMinValue(FiberTest):
 
         time.sleep(1)
         self.wait_for_channel_state(
-            self.fiber1.get_client(), self.fiber2.get_peer_id(), "CHANNEL_READY", 120
+            self.fiber1.get_client(), self.fiber2.get_peer_id(),
+            ChannelState.CHANNEL_READY, Timeout.CHANNEL_READY,
         )
         time.sleep(5)
-        # transfer
         self.fiber1.get_client().graph_channels()
         self.fiber1.get_client().graph_nodes()
         payment_preimage = self.generate_random_preimage()
         channels = self.fiber1.get_client().list_channels({})
 
+        udt_script = {
+            "code_hash": self.udtContract.get_code_hash(True, self.node.rpcUrl),
+            "hash_type": "type",
+            "args": self.udtContract.get_owner_arg_by_lock_arg(
+                self.account1["lock_arg"]
+            ),
+        }
         with pytest.raises(Exception) as exc_info:
             self.send_payment(
                 self.fiber1,
                 self.fiber2,
-                160 * 100000000 - 1,
+                Amount.udt(160) - 1,
                 True,
-                {
-                    "code_hash": self.udtContract.get_code_hash(True, self.node.rpcUrl),
-                    "hash_type": "type",
-                    "args": self.udtContract.get_owner_arg_by_lock_arg(
-                        self.account1["lock_arg"]
-                    ),
-                },
+                udt=udt_script,
             )
         expected_error_message = "Failed to build route"
         assert expected_error_message in exc_info.value.args[0], (
@@ -311,7 +317,7 @@ class TlcMinValue(FiberTest):
             f"not found in actual string '{exc_info.value.args[0]}'"
         )
 
-        invoice_balance = hex(500 * 100000000)
+        invoice_balance = hex(Amount.udt(500))
 
         invoice = self.fiber2.get_client().new_invoice(
             {
@@ -334,18 +340,20 @@ class TlcMinValue(FiberTest):
         before_channel = self.fiber1.get_client().list_channels({})
 
         payment = self.fiber1.get_client().send_payment(
-            {
-                "invoice": invoice["invoice_address"],
-            }
+            {"invoice": invoice["invoice_address"]}
         )
-        self.wait_payment_state(self.fiber1, payment["payment_hash"], "Success")
+        self.wait_payment_state(
+            self.fiber1, payment["payment_hash"],
+            PaymentStatus.SUCCESS,
+            timeout=Timeout.PAYMENT_SUCCESS,
+        )
         after_channel = self.fiber1.get_client().list_channels({})
         assert int(before_channel["channels"][0]["local_balance"], 16) - int(
             after_channel["channels"][0]["local_balance"], 16
         ) == int(invoice_balance, 16)
 
-        # node2 send 160 udt
-        invoice_balance = hex(160 * 100000000)
+        # node2 send 160 UDT
+        invoice_balance = hex(Amount.udt(160))
         payment_preimage = self.generate_random_preimage()
         invoice = self.fiber1.get_client().new_invoice(
             {
@@ -368,20 +376,21 @@ class TlcMinValue(FiberTest):
         before_channel = self.fiber2.get_client().list_channels({})
 
         payment = self.fiber2.get_client().send_payment(
-            {
-                "invoice": invoice["invoice_address"],
-            }
+            {"invoice": invoice["invoice_address"]}
         )
-        self.wait_payment_state(self.fiber2, payment["payment_hash"], "Success")
+        self.wait_payment_state(
+            self.fiber2, payment["payment_hash"],
+            PaymentStatus.SUCCESS,
+            timeout=Timeout.PAYMENT_SUCCESS,
+        )
 
         after_channel = self.fiber2.get_client().list_channels({})
         assert int(before_channel["channels"][0]["local_balance"], 16) - int(
             after_channel["channels"][0]["local_balance"], 16
         ) == int(invoice_balance, 16)
 
-        # node2 send 1 ckb
-
-        invoice_balance = hex(160 * 100000000 - 16000000)
+        # node2 send 160 UDT - 16M
+        invoice_balance = hex(Amount.udt(160) - 16_000_000)
         payment_preimage = self.generate_random_preimage()
         invoice = self.fiber1.get_client().new_invoice(
             {
@@ -403,11 +412,13 @@ class TlcMinValue(FiberTest):
         )
         before_channel = self.fiber2.get_client().list_channels({})
         payment = self.fiber2.get_client().send_payment(
-            {
-                "invoice": invoice["invoice_address"],
-            }
+            {"invoice": invoice["invoice_address"]}
         )
-        self.wait_payment_state(self.fiber2, payment["payment_hash"], "Success")
+        self.wait_payment_state(
+            self.fiber2, payment["payment_hash"],
+            PaymentStatus.SUCCESS,
+            timeout=Timeout.PAYMENT_SUCCESS,
+        )
 
         channels = self.fiber1.get_client().list_channels(
             {"peer_id": self.fiber2.get_peer_id()}
@@ -415,7 +426,6 @@ class TlcMinValue(FiberTest):
         N1N2_CHANNEL_ID = channels["channels"][0]["channel_id"]
         self.fiber1.get_client().graph_channels()
 
-        # shut down
         self.fiber1.get_client().shutdown_channel(
             {
                 "channel_id": N1N2_CHANNEL_ID,
@@ -424,12 +434,11 @@ class TlcMinValue(FiberTest):
                     "hash_type": "type",
                     "args": self.account1["lock_arg"],
                 },
-                "fee_rate": "0x3FC",
+                "fee_rate": FeeRate.to_hex(1020),
             }
         )
-        tx_hash = self.wait_and_check_tx_pool_fee(1000, False)
+        tx_hash = self.wait_and_check_tx_pool_fee(FeeRate.DEFAULT, False)
         tx_response = self.get_tx_message(tx_hash)
-        print("tx_response:", tx_response)
         assert {
             "args": self.account2["lock_arg"],
             "capacity": DEFAULT_MIN_DEPOSIT_UDT,
