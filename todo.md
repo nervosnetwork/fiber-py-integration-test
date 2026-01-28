@@ -207,24 +207,24 @@
 
 - [x] `test_cases/fiber/devnet/send_payment/atomic_mpp/test_dup_invoice.py`
 - [x] `test_cases/fiber/devnet/send_payment/atomic_mpp/test_hash_algorithm.py`
-- [ ] `test_cases/fiber/devnet/send_payment/atomic_mpp/test_mutil_node_payment.py`
-- [ ] `test_cases/fiber/devnet/send_payment/atomic_mpp/test_mutil_path.py`
-- [ ] `test_cases/fiber/devnet/send_payment/atomic_mpp/test_new_invoice.py`
-- [ ] `test_cases/fiber/devnet/send_payment/atomic_mpp/test_watch_tower.py`
+- [x] `test_cases/fiber/devnet/send_payment/atomic_mpp/test_mutil_node_payment.py`
+- [x] `test_cases/fiber/devnet/send_payment/atomic_mpp/test_mutil_path.py`
+- [x] `test_cases/fiber/devnet/send_payment/atomic_mpp/test_new_invoice.py`
+- [x] `test_cases/fiber/devnet/send_payment/atomic_mpp/test_watch_tower.py`
 
 ### 25.2 send_payment/debug (1 个文件)
 
-- [ ] `test_cases/fiber/devnet/send_payment/debug/test_with_debug.py`
+- [x] `test_cases/fiber/devnet/send_payment/debug/test_with_debug.py`
 
 ### 25.3 send_payment/mixed (1 个文件)
 
-- [ ] `test_cases/fiber/devnet/send_payment/mixed/test_ckb_with_udt.py`
+- [x] `test_cases/fiber/devnet/send_payment/mixed/test_ckb_with_udt.py`
 
 ### 25.4 send_payment/module (3 个文件)
 
-- [ ] `test_cases/fiber/devnet/send_payment/module/test_send_payment.py`
-- [ ] `test_cases/fiber/devnet/send_payment/module/test_send_payment_with_shutdown.py`
-- [ ] `test_cases/fiber/devnet/send_payment/module/test_send_payment_with_update_channel.py`
+- [x] `test_cases/fiber/devnet/send_payment/module/test_send_payment.py`
+- [x] `test_cases/fiber/devnet/send_payment/module/test_send_payment_with_shutdown.py`
+- [x] `test_cases/fiber/devnet/send_payment/module/test_send_payment_with_update_channel.py`
 
 ### 25.5 send_payment/mpp (7 个文件)
 

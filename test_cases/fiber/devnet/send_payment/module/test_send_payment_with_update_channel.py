@@ -1,48 +1,63 @@
+"""
+Test send_payment with update_channel (e.g. tlc_fee_proportional_millionths) in between.
+"""
 from framework.basic_fiber import FiberTest
+from framework.constants import Amount, TLCFeeRate
 
 
 class TestSendPaymentWithUpdateChannel(FiberTest):
+    """
+    Test sending payments while updating channel params (e.g. tlc_fee) between rounds.
+    """
 
     def test_01(self):
         """
-        Test sending payments with updating channel.
-        Returns:
-            None
+        Linear topology 0->1->2->3; send payments; update tlc_fee on channel 1-2; repeat; wait all payments.
+        Step 1: Start fiber3, open channels 0-1, 1-2, 2-3.
+        Step 2: For 3 rounds: send payments 0->3, update channel 1-2 tlc_fee, send more payments; wait all.
+        Step 3: Send one final payment and assert success.
         """
-        # Start new fibers with initial accounts
-        self.start_new_fiber(self.generate_account(10000))
-        self.start_new_fiber(self.generate_account(10000))
+        # Step 1: Build linear topology
+        self.start_new_fiber(self.generate_account(Amount.ckb(10000)))
+        self.start_new_fiber(self.generate_account(Amount.ckb(10000)))
 
-        # Open channels between fibers
         self.open_channel(
-            self.fibers[0], self.fibers[1], 1000 * 100000000, 1000 * 100000000
+            self.fibers[0],
+            self.fibers[1],
+            Amount.ckb(1000),
+            Amount.ckb(1000),
         )
         self.open_channel(
-            self.fibers[1], self.fibers[2], 1000 * 100000000, 1000 * 100000000
+            self.fibers[1],
+            self.fibers[2],
+            Amount.ckb(1000),
+            Amount.ckb(1000),
         )
         self.open_channel(
-            self.fibers[2], self.fibers[3], 1000 * 100000000, 1000 * 100000000
+            self.fibers[2],
+            self.fibers[3],
+            Amount.ckb(1000),
+            Amount.ckb(1000),
         )
 
         payment_hashes = []
 
+        # Step 2: Rounds of payments and update_channel
         for j in range(3):
-            # Send initial payments
-            for i in range(30):
+            for _ in range(30):
                 try:
                     payment_hash = self.send_payment(
-                        self.fibers[0], self.fibers[3], 100000000, False, None, 0
+                        self.fibers[0],
+                        self.fibers[3],
+                        Amount.ckb(1),
+                        False,
+                        None,
+                        0,
                     )
                     payment_hashes.append(payment_hash)
-                except:
+                except Exception:
                     pass
 
-            # Get channel ID and update channel
-            N3N4_CHANNEL_ID = (
-                self.fibers[3]
-                .get_client()
-                .list_channels({})["channels"][0]["channel_id"]
-            )
             channels = (
                 self.fibers[1]
                 .get_client()
@@ -51,42 +66,30 @@ class TestSendPaymentWithUpdateChannel(FiberTest):
             self.fibers[1].get_client().update_channel(
                 {
                     "channel_id": channels["channels"][0]["channel_id"],
-                    "tlc_fee_proportional_millionths": hex(10000 + (1 + j) * 10000),
+                    "tlc_fee_proportional_millionths": hex(
+                        TLCFeeRate.MEDIUM + (1 + j) * 10000
+                    ),
                 }
             )
 
-            # Send additional payments
-            for i in range(30):
+            for _ in range(30):
                 try:
                     payment_hash = self.send_payment(
-                        self.fibers[0], self.fibers[3], 100000000, False, None, 0
+                        self.fibers[0],
+                        self.fibers[3],
+                        Amount.ckb(1),
+                        False,
+                        None,
+                        0,
                     )
                     payment_hashes.append(payment_hash)
-                except:
+                except Exception:
                     pass
 
-            payment_results = []
-
-            # Get payment results
             for payment_hash in payment_hashes:
-                payment = (
-                    self.fibers[0]
-                    .get_client()
-                    .get_payment({"payment_hash": payment_hash})
-                )
-                print("payment status:", payment["status"])
-                payment_results.append(payment)
-
-            # Print payment results
-            idx = 0
-            for payment in payment_results:
-                print(
-                    f'idx:{idx} status:{payment["status"]}, fee:{int(payment["fee"], 16)},hash:{payment["payment_hash"]}'
-                )
-                idx += 1
                 self.wait_payment_finished(
-                    self.fibers[0], payment["payment_hash"], 1200
+                    self.fibers[0], payment_hash, timeout=1200
                 )
 
-            # Check transaction success
-            self.send_payment(self.fibers[0], self.fibers[3], 1)
+        # Step 3: Final payment
+        self.send_payment(self.fibers[0], self.fibers[3], 1)
