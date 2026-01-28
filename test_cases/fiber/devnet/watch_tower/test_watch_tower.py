@@ -1,9 +1,15 @@
 import time
 
-import pytest
-
 from framework.basic_fiber import FiberTest
 from framework.config import DEFAULT_MIN_DEPOSIT_CKB
+from framework.constants import (
+    Amount,
+    ChannelState,
+    Currency,
+    HashAlgorithm,
+    InvoiceStatus,
+    PaymentStatus,
+)
 
 
 class TestWatchTower(FiberTest):
@@ -35,14 +41,14 @@ class TestWatchTower(FiberTest):
         self.fiber1.get_client().open_channel(
             {
                 "peer_id": self.fiber2.get_peer_id(),
-                "funding_amount": hex(200 * 100000000),
+                "funding_amount": hex(Amount.ckb(200)),
                 "public": True,
             }
         )
 
         # Step 2: Wait for the channel to be in the CHANNEL_READY state
         self.wait_for_channel_state(
-            self.fiber1.get_client(), self.fiber2.get_peer_id(), "CHANNEL_READY"
+            self.fiber1.get_client(), self.fiber2.get_peer_id(), ChannelState.CHANNEL_READY
         )
 
         # Step 3: Shutdown the channel from node1
@@ -92,17 +98,12 @@ class TestWatchTower(FiberTest):
         tx_hash = self.wait_and_check_tx_pool_fee(1000, False, 1000)
         self.Miner.miner_until_tx_committed(self.node, tx_hash)
         tx_message = self.get_tx_message(tx_hash)
-        print("tx_message:", tx_message)
-        # assert tx_message['fee'] < 10000
         after_udt_balances = []
         for fiber in self.fibers:
             after_udt_balances.append(self.get_fiber_balance(fiber))
 
         results = []
         for i in range(len(before_udt_balances)):
-            print(
-                f"ckb:{before_udt_balances[i]['chain']['ckb']} - {after_udt_balances[i]['chain']['ckb']} = {before_udt_balances[i]['chain']['ckb'] - after_udt_balances[i]['chain']['ckb']}"
-            )
             results.append(
                 {
                     "ckb": before_udt_balances[i]["chain"]["ckb"]
@@ -141,15 +142,15 @@ class TestWatchTower(FiberTest):
         self.fiber1.get_client().open_channel(
             {
                 "peer_id": self.fiber2.get_peer_id(),
-                "funding_amount": hex(200 * 100000000),
+                "funding_amount": hex(Amount.ckb(200)),
                 "public": True,
-                "commitment_fee_rate": hex(1000000),
+                "commitment_fee_rate": hex(1000000),  # high fee rate for testing
             }
         )
 
         # Step 2: Wait for the channel to be in the CHANNEL_READY state
         self.wait_for_channel_state(
-            self.fiber1.get_client(), self.fiber2.get_peer_id(), "CHANNEL_READY"
+            self.fiber1.get_client(), self.fiber2.get_peer_id(), ChannelState.CHANNEL_READY
         )
 
         # Step 3: Shutdown the channel from node2
@@ -199,17 +200,12 @@ class TestWatchTower(FiberTest):
         tx_hash = self.wait_and_check_tx_pool_fee(1000, False, 1000)
         self.Miner.miner_until_tx_committed(self.node, tx_hash)
         tx_message = self.get_tx_message(tx_hash)
-        print("tx_message:", tx_message)
-        # assert tx_message['fee'] < 10000
         after_udt_balances = []
         for fiber in self.fibers:
             after_udt_balances.append(self.get_fiber_balance(fiber))
 
         results = []
         for i in range(len(before_udt_balances)):
-            print(
-                f"ckb:{before_udt_balances[i]['chain']['ckb']} - {after_udt_balances[i]['chain']['ckb']} = {before_udt_balances[i]['chain']['ckb'] - after_udt_balances[i]['chain']['ckb']}"
-            )
             results.append(
                 {
                     "ckb": before_udt_balances[i]["chain"]["ckb"]
@@ -246,14 +242,14 @@ class TestWatchTower(FiberTest):
         self.fiber1.get_client().open_channel(
             {
                 "peer_id": self.fiber2.get_peer_id(),
-                "funding_amount": hex(200 * 100000000),
+                "funding_amount": hex(Amount.ckb(200)),
                 "public": True,
             }
         )
 
         # Step 2: Wait for the channel to be in the CHANNEL_READY state
         self.wait_for_channel_state(
-            self.fiber1.get_client(), self.fiber2.get_peer_id(), "CHANNEL_READY"
+            self.fiber1.get_client(), self.fiber2.get_peer_id(), ChannelState.CHANNEL_READY
         )
 
         # Step 3: Shutdown the channel from node2
@@ -302,25 +298,18 @@ class TestWatchTower(FiberTest):
         tx_hash = self.wait_and_check_tx_pool_fee(1000, False, 1000)
         self.Miner.miner_until_tx_committed(self.node, tx_hash)
         tx_message = self.get_tx_message(tx_hash)
-        print("tx_message:", tx_message)
-        # assert tx_message['fee'] < 10000
         after_udt_balances = []
         for fiber in self.fibers:
             after_udt_balances.append(self.get_fiber_balance(fiber))
 
         results = []
         for i in range(len(before_udt_balances)):
-            print(
-                f"ckb:{before_udt_balances[i]['chain']['ckb']} - {after_udt_balances[i]['chain']['ckb']} = {before_udt_balances[i]['chain']['ckb'] - after_udt_balances[i]['chain']['ckb']}"
-            )
             results.append(
                 {
                     "ckb": before_udt_balances[i]["chain"]["ckb"]
                     - after_udt_balances[i]["chain"]["ckb"]
                 }
             )
-        # assert results[0]['ckb'] > 4000000
-        # assert results[0]['ckb'] < 5000000
         assert results[0]["ckb"] < 10000
         assert results[1]["ckb"] < 10000
 
@@ -346,14 +335,14 @@ class TestWatchTower(FiberTest):
         self.fiber1.get_client().open_channel(
             {
                 "peer_id": self.fiber2.get_peer_id(),
-                "funding_amount": hex(200 * 100000000),
+                "funding_amount": hex(Amount.ckb(200)),
                 "public": True,
             }
         )
 
         # Step 2: Wait for the channel to be in the CHANNEL_READY state
         self.wait_for_channel_state(
-            self.fiber1.get_client(), self.fiber2.get_peer_id(), "CHANNEL_READY"
+            self.fiber1.get_client(), self.fiber2.get_peer_id(), ChannelState.CHANNEL_READY
         )
 
         # Step 3: Shutdown the channel from node1
@@ -401,7 +390,7 @@ class TestWatchTower(FiberTest):
         assert (
             first_tx_message["input_cells"][0]["capacity"]
             - first_tx_message["output_cells"][0]["capacity"]
-            == 200 * 100000000
+            == Amount.ckb(200)
         )
         assert (
             first_tx_message["input_cells"][1]["args"]
@@ -445,18 +434,18 @@ class TestWatchTower(FiberTest):
         self.fiber1.get_client().open_channel(
             {
                 "peer_id": self.fiber2.get_peer_id(),
-                "funding_amount": hex(200 * 100000000),
+                "funding_amount": hex(Amount.ckb(200)),
                 "public": True,
             }
         )
 
         # Step 2: Wait for the channel to be in the CHANNEL_READY state
         self.wait_for_channel_state(
-            self.fiber1.get_client(), self.fiber2.get_peer_id(), "CHANNEL_READY"
+            self.fiber1.get_client(), self.fiber2.get_peer_id(), ChannelState.CHANNEL_READY
         )
 
         # Step 3: Send a payment from node1 to node2
-        self.send_payment(self.fiber1, self.fiber2, 1 * 100000000, True)
+        self.send_payment(self.fiber1, self.fiber2, Amount.ckb(1), True)
 
         # Step 4: Shutdown the channel from node1
         self.fiber1.get_client().shutdown_channel(
@@ -508,7 +497,7 @@ class TestWatchTower(FiberTest):
         assert (
             tx_message["input_cells"][0]["capacity"]
             - tx_message["output_cells"][0]["capacity"]
-            == 199 * 100000000
+            == Amount.ckb(199)
         )
         self.fiber2.start()
         self.node.getClient().generate_epochs("0x1", 0)
@@ -544,18 +533,18 @@ class TestWatchTower(FiberTest):
         self.fiber1.get_client().open_channel(
             {
                 "peer_id": self.fiber2.get_peer_id(),
-                "funding_amount": hex(200 * 100000000),
+                "funding_amount": hex(Amount.ckb(200)),
                 "public": True,
             }
         )
 
         # Step 2: Wait for the channel to be in the CHANNEL_READY state
         self.wait_for_channel_state(
-            self.fiber1.get_client(), self.fiber2.get_peer_id(), "CHANNEL_READY"
+            self.fiber1.get_client(), self.fiber2.get_peer_id(), ChannelState.CHANNEL_READY
         )
 
         # Step 3: Send a payment from node1 to node2
-        self.send_payment(self.fiber1, self.fiber2, 1 * 100000000, True)
+        self.send_payment(self.fiber1, self.fiber2, Amount.ckb(1), True)
 
         # Step 4: Shutdown the channel from node1
         self.fiber1.get_client().shutdown_channel(
@@ -607,7 +596,7 @@ class TestWatchTower(FiberTest):
         assert (
             tx_message["input_cells"][0]["capacity"]
             - tx_message["output_cells"][0]["capacity"]
-            == DEFAULT_MIN_DEPOSIT_CKB + 1 * 100000000
+            == DEFAULT_MIN_DEPOSIT_CKB + Amount.ckb(1)
         )
         self.fiber1.start()
         self.node.getClient().generate_epochs("0x1", 0)
@@ -644,18 +633,18 @@ class TestWatchTower(FiberTest):
         self.fiber1.get_client().open_channel(
             {
                 "peer_id": self.fiber2.get_peer_id(),
-                "funding_amount": hex(200 * 100000000),
+                "funding_amount": hex(Amount.ckb(200)),
                 "public": True,
             }
         )
 
         # Step 2: Wait for the channel to be in the CHANNEL_READY state
         self.wait_for_channel_state(
-            self.fiber1.get_client(), self.fiber2.get_peer_id(), "CHANNEL_READY"
+            self.fiber1.get_client(), self.fiber2.get_peer_id(), ChannelState.CHANNEL_READY
         )
 
         # Step 3: Send a payment from node1 to node2
-        self.send_payment(self.fiber1, self.fiber2, 1 * 100000000, True)
+        self.send_payment(self.fiber1, self.fiber2, Amount.ckb(1), True)
         time.sleep(1)
 
         # Step 4: Shutdown the channel from node2
@@ -707,7 +696,7 @@ class TestWatchTower(FiberTest):
         assert (
             tx_message["input_cells"][0]["capacity"]
             - tx_message["output_cells"][0]["capacity"]
-            == 199 * 100000000
+            == Amount.ckb(199)
         )
         self.fiber2.start()
         self.node.getClient().generate_epochs("0x1", 0)
@@ -743,18 +732,18 @@ class TestWatchTower(FiberTest):
         self.fiber1.get_client().open_channel(
             {
                 "peer_id": self.fiber2.get_peer_id(),
-                "funding_amount": hex(200 * 100000000),
+                "funding_amount": hex(Amount.ckb(200)),
                 "public": True,
             }
         )
 
         # Step 2: Wait for the channel to be in the CHANNEL_READY state
         self.wait_for_channel_state(
-            self.fiber1.get_client(), self.fiber2.get_peer_id(), "CHANNEL_READY"
+            self.fiber1.get_client(), self.fiber2.get_peer_id(), ChannelState.CHANNEL_READY
         )
 
         # Step 3: Send a payment from node1 to node2
-        self.send_payment(self.fiber1, self.fiber2, 11 * 100000000, True)
+        self.send_payment(self.fiber1, self.fiber2, Amount.ckb(11), True)
         time.sleep(1)
         # Step 4: Shutdown the channel from node1
         self.fiber1.get_client().shutdown_channel(
@@ -795,7 +784,6 @@ class TestWatchTower(FiberTest):
         # Step 12: Wait for the transaction to be committed and check the transaction message
         tx_hash = self.wait_and_check_tx_pool_fee(1000, False)
         tx_message = self.get_tx_message(tx_hash)
-        print(tx_message)
         # Step 13: Assert the capacity and arguments of input and output cells in the transaction message
         assert tx_message["input_cells"][0]["capacity"] == 29899999544
         assert (
@@ -805,7 +793,7 @@ class TestWatchTower(FiberTest):
         assert (
             tx_message["input_cells"][0]["capacity"]
             - tx_message["output_cells"][0]["capacity"]
-            == DEFAULT_MIN_DEPOSIT_CKB + 11 * 100000000
+            == DEFAULT_MIN_DEPOSIT_CKB + Amount.ckb(11)
         )
         self.fiber1.start()
         self.node.getClient().generate_epochs("0x1", 0)
@@ -842,19 +830,19 @@ class TestWatchTower(FiberTest):
         self.fiber1.get_client().open_channel(
             {
                 "peer_id": self.fiber2.get_peer_id(),
-                "funding_amount": hex(200 * 100000000),
+                "funding_amount": hex(Amount.ckb(200)),
                 "public": True,
             }
         )
 
         # Step 2: Wait for the channel to be in the CHANNEL_READY state
         self.wait_for_channel_state(
-            self.fiber1.get_client(), self.fiber2.get_peer_id(), "CHANNEL_READY"
+            self.fiber1.get_client(), self.fiber2.get_peer_id(), ChannelState.CHANNEL_READY
         )
 
         # Step 3: Send payments between node1 and node2
-        self.send_payment(self.fiber1, self.fiber2, 10 * 100000000, True)
-        self.send_payment(self.fiber2, self.fiber1, 10 * 100000000, True)
+        self.send_payment(self.fiber1, self.fiber2, Amount.ckb(10), True)
+        self.send_payment(self.fiber2, self.fiber1, Amount.ckb(10), True)
         # todo check balance
 
         # Step 4: Shutdown the channel from node1
@@ -909,7 +897,7 @@ class TestWatchTower(FiberTest):
         assert (
             tx_message["input_cells"][0]["capacity"]
             - tx_message["output_cells"][0]["capacity"]
-            == 200 * 100000000
+            == Amount.ckb(200)
         )
         self.fiber2.start()
         self.node.getClient().generate_epochs("0x1", 0)
@@ -945,19 +933,19 @@ class TestWatchTower(FiberTest):
         self.fiber1.get_client().open_channel(
             {
                 "peer_id": self.fiber2.get_peer_id(),
-                "funding_amount": hex(200 * 100000000),
+                "funding_amount": hex(Amount.ckb(200)),
                 "public": True,
             }
         )
 
         # Step 2: Wait for the channel to be in the CHANNEL_READY state
         self.wait_for_channel_state(
-            self.fiber1.get_client(), self.fiber2.get_peer_id(), "CHANNEL_READY"
+            self.fiber1.get_client(), self.fiber2.get_peer_id(), ChannelState.CHANNEL_READY
         )
 
         # Step 3: Send payments between node1 and node2
-        self.send_payment(self.fiber1, self.fiber2, 1 * 100000000, True)
-        self.send_payment(self.fiber2, self.fiber1, 1 * 100000000, True)
+        self.send_payment(self.fiber1, self.fiber2, Amount.ckb(1), True)
+        self.send_payment(self.fiber2, self.fiber1, Amount.ckb(1), True)
 
         # Step 4: Shutdown the channel from node1
         self.fiber1.get_client().shutdown_channel(
@@ -1046,19 +1034,19 @@ class TestWatchTower(FiberTest):
         self.fiber1.get_client().open_channel(
             {
                 "peer_id": self.fiber2.get_peer_id(),
-                "funding_amount": hex(200 * 100000000),
+                "funding_amount": hex(Amount.ckb(200)),
                 "public": True,
             }
         )
 
         # Step 2: Wait for the channel to be in the CHANNEL_READY state
         self.wait_for_channel_state(
-            self.fiber1.get_client(), self.fiber2.get_peer_id(), "CHANNEL_READY"
+            self.fiber1.get_client(), self.fiber2.get_peer_id(), ChannelState.CHANNEL_READY
         )
 
         # Step 3: Send payments between node1 and node2
-        self.send_payment(self.fiber1, self.fiber2, 10 * 100000000, True)
-        self.send_payment(self.fiber2, self.fiber1, 10 * 100000000, True)
+        self.send_payment(self.fiber1, self.fiber2, Amount.ckb(10), True)
+        self.send_payment(self.fiber2, self.fiber1, Amount.ckb(10), True)
         # todo check balance
 
         # Step 4: Shutdown the channel from node2
@@ -1147,19 +1135,19 @@ class TestWatchTower(FiberTest):
         self.fiber1.get_client().open_channel(
             {
                 "peer_id": self.fiber2.get_peer_id(),
-                "funding_amount": hex(200 * 100000000),
+                "funding_amount": hex(Amount.ckb(200)),
                 "public": True,
             }
         )
 
         # Step 2: Wait for the channel to be in the CHANNEL_READY state
         self.wait_for_channel_state(
-            self.fiber1.get_client(), self.fiber2.get_peer_id(), "CHANNEL_READY"
+            self.fiber1.get_client(), self.fiber2.get_peer_id(), ChannelState.CHANNEL_READY
         )
 
         # Step 3: Send payments between node1 and node2
-        self.send_payment(self.fiber1, self.fiber2, 1 * 100000000, True)
-        self.send_payment(self.fiber2, self.fiber1, 1 * 100000000, True)
+        self.send_payment(self.fiber1, self.fiber2, Amount.ckb(1), True)
+        self.send_payment(self.fiber2, self.fiber1, Amount.ckb(1), True)
         time.sleep(1)
 
         # Step 4: Shutdown the channel from node1
@@ -1248,19 +1236,19 @@ class TestWatchTower(FiberTest):
         self.fiber1.get_client().open_channel(
             {
                 "peer_id": self.fiber2.get_peer_id(),
-                "funding_amount": hex(200 * 100000000),
+                "funding_amount": hex(Amount.ckb(200)),
                 "public": True,
             }
         )
 
         # Step 2: Wait for the channel to be in the CHANNEL_READY state
         self.wait_for_channel_state(
-            self.fiber1.get_client(), self.fiber2.get_peer_id(), "CHANNEL_READY"
+            self.fiber1.get_client(), self.fiber2.get_peer_id(), ChannelState.CHANNEL_READY
         )
 
         # Step 3: Send multiple payments from node1 to node2
         for i in range(10):
-            self.send_payment(self.fiber1, self.fiber2, 1 * 10000000, True)
+            self.send_payment(self.fiber1, self.fiber2, Amount.ckb(0.1), True)
 
         # Step 4: Shutdown the channel from node1
         self.fiber1.get_client().shutdown_channel(
@@ -1312,7 +1300,7 @@ class TestWatchTower(FiberTest):
         assert (
             tx_message["input_cells"][0]["capacity"]
             - tx_message["output_cells"][0]["capacity"]
-            == 199 * 100000000
+            == Amount.ckb(199)
         )
         self.fiber2.start()
         self.node.getClient().generate_epochs("0x1", 0)
@@ -1348,22 +1336,22 @@ class TestWatchTower(FiberTest):
         self.fiber1.get_client().open_channel(
             {
                 "peer_id": self.fiber2.get_peer_id(),
-                "funding_amount": hex(200 * 100000000),
+                "funding_amount": hex(Amount.ckb(200)),
                 "public": True,
             }
         )
 
         # Step 2: Wait for the channel to be in the CHANNEL_READY state
         self.wait_for_channel_state(
-            self.fiber1.get_client(), self.fiber2.get_peer_id(), "CHANNEL_READY"
+            self.fiber1.get_client(), self.fiber2.get_peer_id(), ChannelState.CHANNEL_READY
         )
 
         # Step 3: Send multiple payments between node1 and node2
         for i in range(10):
-            self.send_payment(self.fiber1, self.fiber2, 10 * 100000000, True)
-            self.send_payment(self.fiber2, self.fiber1, 10 * 100000000, True)
-        self.send_payment(self.fiber1, self.fiber2, 10 * 100000000, True)
-        self.send_payment(self.fiber2, self.fiber1, 5 * 100000000, True)
+            self.send_payment(self.fiber1, self.fiber2, Amount.ckb(10), True)
+            self.send_payment(self.fiber2, self.fiber1, Amount.ckb(10), True)
+        self.send_payment(self.fiber1, self.fiber2, Amount.ckb(10), True)
+        self.send_payment(self.fiber2, self.fiber1, Amount.ckb(5), True)
         # todo check balance
 
         # Step 4: Shutdown the channel from node2
@@ -1414,7 +1402,7 @@ class TestWatchTower(FiberTest):
         assert (
             tx_message["input_cells"][0]["capacity"]
             - tx_message["output_cells"][0]["capacity"]
-            == DEFAULT_MIN_DEPOSIT_CKB + 5 * 100000000
+            == DEFAULT_MIN_DEPOSIT_CKB + Amount.ckb(5)
         )
         self.fiber1.start()
         self.node.getClient().generate_epochs("0x1", 0)
@@ -1432,12 +1420,12 @@ class TestWatchTower(FiberTest):
             invoice_address = to_fiber.get_client().new_invoice(
                 {
                     "amount": hex(amount),
-                    "currency": "Fibd",
+                    "currency": Currency.FIBD,
                     "description": "test invoice generated by node2",
                     "expiry": "0xe10",
                     "final_cltv": "0x28",
                     "payment_preimage": self.generate_random_preimage(),
-                    "hash_algorithm": "sha256",
+                    "hash_algorithm": HashAlgorithm.SHA256,
                 }
             )["invoice_address"]
             payment = src_fiber.get_client().send_payment(
@@ -1451,8 +1439,8 @@ class TestWatchTower(FiberTest):
                     "invoice": invoice_address,
                 }
             )
-            self.wait_payment_state(src_fiber, payment["payment_hash"], "Success")
-            self.wait_invoice_state(to_fiber, payment["payment_hash"], "Paid")
+            self.wait_payment_state(src_fiber, payment["payment_hash"], PaymentStatus.SUCCESS)
+            self.wait_invoice_state(to_fiber, payment["payment_hash"], InvoiceStatus.PAID)
             return payment["payment_hash"]
         payment = src_fiber.get_client().send_payment(
             {
@@ -1461,5 +1449,5 @@ class TestWatchTower(FiberTest):
                 "keysend": True,
             }
         )
-        self.wait_payment_state(src_fiber, payment["payment_hash"], "Success")
+        self.wait_payment_state(src_fiber, payment["payment_hash"], PaymentStatus.SUCCESS)
         return payment["payment_hash"]

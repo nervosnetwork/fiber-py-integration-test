@@ -176,28 +176,28 @@
 - [x] `test_cases/fiber/devnet/open_channel/test_public.py`
 - [x] `test_cases/fiber/devnet/open_channel/test_restart.py`
 - [x] `test_cases/fiber/devnet/open_channel/test_shutdown_script.py`
-- [ ] `test_cases/fiber/devnet/open_channel/test_tlc_expiry_delta.py`
-- [ ] `test_cases/fiber/devnet/open_channel/test_tlc_fee_proportional_millionths.py`
-- [ ] `test_cases/fiber/devnet/open_channel/test_tlc_max_value.py`
-- [ ] `test_cases/fiber/devnet/open_channel/test_tlc_min_value.py`
+- [x] `test_cases/fiber/devnet/open_channel/test_tlc_expiry_delta.py`
+- [x] `test_cases/fiber/devnet/open_channel/test_tlc_fee_proportional_millionths.py`
+- [x] `test_cases/fiber/devnet/open_channel/test_tlc_max_value.py`
+- [x] `test_cases/fiber/devnet/open_channel/test_tlc_min_value.py`
 
 ---
 
 ## 22. open_channel_debug (1 个文件)
 
-- [ ] `test_cases/fiber/devnet/open_channel_debug/test_max_tlc_number_in_flight_debug.py`
+- [x] `test_cases/fiber/devnet/open_channel_debug/test_max_tlc_number_in_flight_debug.py`
 
 ---
 
 ## 23. password (1 个文件)
 
-- [ ] `test_cases/fiber/devnet/password/test_wrong_password.py`
+- [x] `test_cases/fiber/devnet/password/test_wrong_password.py`
 
 ---
 
 ## 24. remove_tlc (1 个文件)
 
-- [ ] `test_cases/fiber/devnet/remove_tlc/test_remove_tlc.py`
+- [x] `test_cases/fiber/devnet/remove_tlc/test_remove_tlc.py`
 
 ---
 
@@ -205,8 +205,8 @@
 
 ### 25.1 send_payment/atomic_mpp (6 个文件)
 
-- [ ] `test_cases/fiber/devnet/send_payment/atomic_mpp/test_dup_invoice.py`
-- [ ] `test_cases/fiber/devnet/send_payment/atomic_mpp/test_hash_algorithm.py`
+- [x] `test_cases/fiber/devnet/send_payment/atomic_mpp/test_dup_invoice.py`
+- [x] `test_cases/fiber/devnet/send_payment/atomic_mpp/test_hash_algorithm.py`
 - [ ] `test_cases/fiber/devnet/send_payment/atomic_mpp/test_mutil_node_payment.py`
 - [ ] `test_cases/fiber/devnet/send_payment/atomic_mpp/test_mutil_path.py`
 - [ ] `test_cases/fiber/devnet/send_payment/atomic_mpp/test_new_invoice.py`
@@ -371,12 +371,12 @@
 
 ## 35. watch_tower (6 个文件)
 
-- [ ] `test_cases/fiber/devnet/watch_tower/test_hash_algorithm.py`
-- [ ] `test_cases/fiber/devnet/watch_tower/test_htlc_mutil.py`
-- [ ] `test_cases/fiber/devnet/watch_tower/test_mutil_shutdown.py`
-- [ ] `test_cases/fiber/devnet/watch_tower/test_revert_tx.py`
-- [ ] `test_cases/fiber/devnet/watch_tower/test_watch_tower.py`
-- [ ] `test_cases/fiber/devnet/watch_tower/test_watch_tower_udt.py`
+- [x] `test_cases/fiber/devnet/watch_tower/test_hash_algorithm.py`
+- [x] `test_cases/fiber/devnet/watch_tower/test_htlc_mutil.py`
+- [x] `test_cases/fiber/devnet/watch_tower/test_mutil_shutdown.py`
+- [x] `test_cases/fiber/devnet/watch_tower/test_revert_tx.py`
+- [x] `test_cases/fiber/devnet/watch_tower/test_watch_tower.py`
+- [x] `test_cases/fiber/devnet/watch_tower/test_watch_tower_udt.py`
 
 ---
 

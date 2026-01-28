@@ -269,6 +269,7 @@ class HashAlgorithm:
     
     SHA256 = "sha256"
     BLAKE2B = "blake2b"
+    CKB_HASH = "ckb_hash"
 
 
 class Currency:
