@@ -153,20 +153,20 @@
 
 ## 20. one_way (3 个文件)
 
-- [ ] `test_cases/fiber/devnet/one_way/test_hash.py`
-- [ ] `test_cases/fiber/devnet/one_way/test_oneway_channel.py`
-- [ ] `test_cases/fiber/devnet/one_way/test_wath_tower.py`
+- [x] `test_cases/fiber/devnet/one_way/test_hash.py`
+- [x] `test_cases/fiber/devnet/one_way/test_oneway_channel.py`
+- [x] `test_cases/fiber/devnet/one_way/test_wath_tower.py`
 
 ---
 
 ## 21. open_channel (19 个文件)
 
-- [ ] `test_cases/fiber/devnet/open_channel/test_ckb_cell.py`
-- [ ] `test_cases/fiber/devnet/open_channel/test_commitment_delay_epoch.py`
-- [ ] `test_cases/fiber/devnet/open_channel/test_commitment_fee_rate.py`
-- [ ] `test_cases/fiber/devnet/open_channel/test_force_restart.py`
-- [ ] `test_cases/fiber/devnet/open_channel/test_funding_amount.py`
-- [ ] `test_cases/fiber/devnet/open_channel/test_funding_fee_rate.py`
+- [x] `test_cases/fiber/devnet/open_channel/test_ckb_cell.py`
+- [x] `test_cases/fiber/devnet/open_channel/test_commitment_delay_epoch.py`
+- [x] `test_cases/fiber/devnet/open_channel/test_commitment_fee_rate.py`
+- [x] `test_cases/fiber/devnet/open_channel/test_force_restart.py`
+- [x] `test_cases/fiber/devnet/open_channel/test_funding_amount.py`
+- [x] `test_cases/fiber/devnet/open_channel/test_funding_fee_rate.py`
 - [ ] `test_cases/fiber/devnet/open_channel/test_funding_timeout.py`
 - [ ] `test_cases/fiber/devnet/open_channel/test_funding_udt_type_script.py`
 - [ ] `test_cases/fiber/devnet/open_channel/test_linked.py`
