@@ -105,35 +105,35 @@
 - [x] `test_cases/fiber/devnet/issue/test_issue_1069.py`
 - [x] `test_cases/fiber/devnet/issue/test_issue_446.py`
 - [x] `test_cases/fiber/devnet/issue/test_issue_478.py`
-- [ ] `test_cases/fiber/devnet/issue/test_issue_484.py`
-- [ ] `test_cases/fiber/devnet/issue/test_issue_640.py`
-- [ ] `test_cases/fiber/devnet/issue/test_issue_670.py`
-- [ ] `test_cases/fiber/devnet/issue/test_issue_675.py`
+- [x] `test_cases/fiber/devnet/issue/test_issue_484.py`
+- [x] `test_cases/fiber/devnet/issue/test_issue_640.py`
+- [x] `test_cases/fiber/devnet/issue/test_issue_670.py`
+- [x] `test_cases/fiber/devnet/issue/test_issue_675.py`
 
 ---
 
 ## 15. list_channels (1 个文件)
 
-- [ ] `test_cases/fiber/devnet/list_channels/test_list_channels.py`
+- [x] `test_cases/fiber/devnet/list_channels/test_list_channels.py`
 
 ---
 
 ## 16. list_peers (1 个文件)
 
-- [ ] `test_cases/fiber/devnet/list_peers/test_list_peers.py`
+- [x] `test_cases/fiber/devnet/list_peers/test_list_peers.py`
 
 ---
 
 ## 17. mutil_sig (1 个文件)
 
-- [ ] `test_cases/fiber/devnet/mutil_sig/test_mutil_sig.py`
+- [x] `test_cases/fiber/devnet/mutil_sig/test_mutil_sig.py`
 
 ---
 
 ## 18. new_invoice (10 个文件)
 
-- [ ] `test_cases/fiber/devnet/new_invoice/test_amount.py`
-- [ ] `test_cases/fiber/devnet/new_invoice/test_currency.py`
+- [x] `test_cases/fiber/devnet/new_invoice/test_amount.py`
+- [x] `test_cases/fiber/devnet/new_invoice/test_currency.py`
 - [ ] `test_cases/fiber/devnet/new_invoice/test_description.py`
 - [ ] `test_cases/fiber/devnet/new_invoice/test_expiry.py`
 - [ ] `test_cases/fiber/devnet/new_invoice/test_fallback_address.py`
