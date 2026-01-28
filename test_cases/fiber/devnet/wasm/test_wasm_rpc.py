@@ -1,203 +1,209 @@
+"""
+Wasm RPC smoke tests: connect_peer, open_channel, abandon_channel, accept_channel, list_channels,
+update_channel, shutdown_channel, graph_nodes, graph_channels, node_info, new_invoice, parse_invoice,
+get_invoice, cancel_invoice, send_payment, build_router, send_payment_with_router, disconnect_peer, list_peers.
+Requires wasm fiber server; see README.md in this directory.
+"""
 import time
 
 import pytest
 
 from framework.basic_fiber import FiberTest
 from framework.config import DEFAULT_MIN_DEPOSIT_CKB
+from framework.constants import (
+    Amount,
+    Timeout,
+    ChannelState,
+    PaymentStatus,
+    InvoiceStatus,
+    FeeRate,
+    Currency,
+    HashAlgorithm,
+)
 from framework.test_wasm_fiber import WasmFiber
 
+WASM_PEER_ID = "0201010101010101010101010101010101010101010101010101010101010101"
 
-class WasmRpcTest(FiberTest):
+
+class TestWasmRpc(FiberTest):
     """
-    Test cases for the Wasm RPC interface.
+    Smoke-test Wasm RPC: connect, open/abandon/accept channel, list/update/shutdown channel,
+    graph, node_info, invoice (new/parse/get/cancel), send_payment, build_router, send_payment_with_router,
+    disconnect_peer, list_peers.
     """
 
     def test_wasm_rpc(self):
         """
-        Test the Wasm RPC interface.
+        Run Wasm RPC smoke: connect, open (abandon error), accept, list/update/shutdown, graph, invoice, payment, router, disconnect/list_peers.
+        Step 1: Generate WasmFiber account, reset, connect to Fiber1; open channel, wait AWAITING_TX_SIGNATURES.
+        Step 2: Abandon channel (expect error "our signature has been sent"); wait CHANNEL_READY.
+        Step 3: Fiber1 open channel to Wasm, Wasm accept_channel; wait CHANNEL_READY; assert list_channels channel_id match.
+        Step 4: Update channel tlc_fee_proportional_millionths; assert value. Shutdown channel; wait CLOSED.
+        Step 5: Call graph_nodes, graph_channels, node_info (no assert). Send invoice payments Wasm<->F1.
+        Step 6: Parse invoice (F1 new_invoice, Wasm parse_invoice). Wasm new_invoice, get_invoice, cancel_invoice; assert Cancelled.
+        Step 7: Send keysend Wasm->F1. Build router, send_payment_with_router; wait Success.
+        Step 8: Disconnect Wasm-F1, assert list_peers empty; connect again, assert list_peers length 1.
         """
+        # Step 1: Generate WasmFiber account, reset, connect to Fiber1; open channel, wait AWAITING_TX_SIGNATURES
         account_private = self.generate_account(
-            10000, self.Config.ACCOUNT_PRIVATE_1, 10000 * 100000000
+            10_000,
+            self.Config.ACCOUNT_PRIVATE_1,
+            Amount.ckb(10_000),
         )
         WasmFiber.reset()
-        wasmFiber = WasmFiber(
+        wasm_fiber = WasmFiber(
             account_private,
-            "0201010101010101010101010101010101010101010101010101010101010101",
+            WASM_PEER_ID,
             "devnet",
         )
-        time.sleep(1)
-        wasmFiber.connect_peer(self.fiber1)
-        time.sleep(1)
-        # abandon_channel
-        wasmFiber.get_client().open_channel(
+        time.sleep(Timeout.POLL_INTERVAL)
+        wasm_fiber.connect_peer(self.fiber1)
+        time.sleep(Timeout.POLL_INTERVAL)
+        wasm_fiber.get_client().open_channel(
             {
                 "peer_id": self.fiber1.get_peer_id(),
-                "funding_amount": hex(1000 * 100000000 + DEFAULT_MIN_DEPOSIT_CKB),
+                "funding_amount": hex(Amount.ckb(1000) + DEFAULT_MIN_DEPOSIT_CKB),
                 "public": True,
             }
         )
         self.wait_for_channel_state(
-            wasmFiber.get_client(), self.fiber1.get_peer_id(), "AWAITING_TX_SIGNATURES"
+            wasm_fiber.get_client(),
+            self.fiber1.get_peer_id(),
+            ChannelState.AWAITING_TX_SIGNATURES,
+            timeout=Timeout.CHANNEL_READY,
         )
-        pending_channel_id = wasmFiber.get_client().list_channels({})["channels"][0][
-            "channel_id"
-        ]
+        pending_channel_id = wasm_fiber.get_client().list_channels({})["channels"][0]["channel_id"]
+
+        # Step 2: Abandon channel (expect error "our signature has been sent"); wait CHANNEL_READY
         with pytest.raises(Exception) as exc_info:
-            wasmFiber.get_client().abandon_channel({"channel_id": pending_channel_id})
-        expected_error_message = " our signature has been sent. It cannot be abandoned"
-        assert expected_error_message in exc_info.value.args[0], (
-            f"Expected substring '{expected_error_message}' "
-            f"not found in actual string '{exc_info.value.args[0]}'"
+            wasm_fiber.get_client().abandon_channel({"channel_id": pending_channel_id})
+        expected = " our signature has been sent. It cannot be abandoned"
+        assert expected in exc_info.value.args[0], (
+            f"Expected substring '{expected}' not found in '{exc_info.value.args[0]}'"
         )
-        time.sleep(1)
+        time.sleep(Timeout.POLL_INTERVAL)
         self.wait_for_channel_state(
-            wasmFiber.get_client(), self.fiber1.get_peer_id(), "CHANNEL_READY"
+            wasm_fiber.get_client(),
+            self.fiber1.get_peer_id(),
+            ChannelState.CHANNEL_READY,
+            timeout=Timeout.CHANNEL_READY,
         )
 
-        # accept_channel
-        # get wasm fiber peer_id
+        # Step 3: Fiber1 open channel to Wasm, Wasm accept_channel; wait CHANNEL_READY; assert list_channels match
         list_peers = self.fiber1.get_client().list_peers()
-        wasm_node_id = wasmFiber.get_client().node_info()["node_id"]
+        wasm_node_id = wasm_fiber.get_client().node_info()["node_id"]
+        wasm_fiber_peer_id = None
         for peer in list_peers["peers"]:
             if peer["pubkey"] == wasm_node_id:
                 wasm_fiber_peer_id = peer["peer_id"]
                 break
+        assert wasm_fiber_peer_id is not None
+        accept_funding = Amount.ckb(100) + DEFAULT_MIN_DEPOSIT_CKB
         temporary_channel = self.fiber1.get_client().open_channel(
             {
                 "peer_id": wasm_fiber_peer_id,
-                "funding_amount": hex(100 + DEFAULT_MIN_DEPOSIT_CKB),
+                "funding_amount": hex(accept_funding),
                 "public": True,
             }
         )
-        time.sleep(2)
-        channel = wasmFiber.get_client().accept_channel(
+        time.sleep(Timeout.POLL_INTERVAL * 2)
+        wasm_fiber.get_client().accept_channel(
             {
                 "temporary_channel_id": temporary_channel["temporary_channel_id"],
-                "funding_amount": hex(100 + DEFAULT_MIN_DEPOSIT_CKB),
+                "funding_amount": hex(accept_funding),
             }
         )
         self.wait_for_channel_state(
-            wasmFiber.get_client(), self.fiber1.get_peer_id(), "CHANNEL_READY"
+            wasm_fiber.get_client(),
+            self.fiber1.get_peer_id(),
+            ChannelState.CHANNEL_READY,
+            timeout=Timeout.CHANNEL_READY,
         )
-        # list_channels
-        wasm_list_channel = wasmFiber.get_client().list_channels({})
-        fiber1_list_channel = self.fiber1.get_client().list_channels({})
-        print("wasm_list_channel:", wasm_list_channel)
-        print("fiber1_list_channel:", fiber1_list_channel)
-        assert (
-            wasm_list_channel["channels"][0]["channel_id"]
-            == fiber1_list_channel["channels"][0]["channel_id"]
-        )
+        wasm_chans = wasm_fiber.get_client().list_channels({})
+        f1_chans = self.fiber1.get_client().list_channels({})
+        assert wasm_chans["channels"][0]["channel_id"] == f1_chans["channels"][0]["channel_id"]
 
-        # update_channel
-        update_channel_id = wasmFiber.get_client().list_channels({})["channels"][0][
-            "channel_id"
-        ]
-        wasmFiber.get_client().update_channel(
+        # Step 4: Update channel tlc_fee_proportional_millionths; assert. Shutdown channel; wait CLOSED
+        update_channel_id = wasm_chans["channels"][0]["channel_id"]
+        tlc_fee = 2000  # 0.2% (millionths)
+        wasm_fiber.get_client().update_channel(
             {
                 "channel_id": update_channel_id,
-                "tlc_fee_proportional_millionths": hex(2000),
+                "tlc_fee_proportional_millionths": hex(tlc_fee),
             }
         )
-        time.sleep(1)
-        channels = wasmFiber.get_client().list_channels({})
-        assert channels["channels"][0]["tlc_fee_proportional_millionths"] == hex(2000)
+        time.sleep(Timeout.POLL_INTERVAL)
+        chans = wasm_fiber.get_client().list_channels({})
+        assert chans["channels"][0]["tlc_fee_proportional_millionths"] == hex(tlc_fee)
 
-        # shutdown_channel
-        shutdown_channel_id = wasmFiber.get_client().list_channels({})["channels"][0][
-            "channel_id"
-        ]
-        wasmFiber.get_client().shutdown_channel(
+        shutdown_channel_id = chans["channels"][0]["channel_id"]
+        wasm_fiber.get_client().shutdown_channel(
             {
                 "channel_id": shutdown_channel_id,
                 "close_script": self.get_account_script(account_private),
-                "fee_rate": "0x3FC",
+                "fee_rate": hex(FeeRate.DEFAULT),
             }
         )
-        tx_hash = self.wait_and_check_tx_pool_fee(1000, False, 120)
+        tx_hash = self.wait_and_check_tx_pool_fee(FeeRate.DEFAULT, False, Timeout.CHANNEL_READY)
         self.Miner.miner_until_tx_committed(self.node, tx_hash)
-        tx_message = self.get_tx_message(tx_hash)
-        print("tx_message:", tx_message)
         self.wait_for_channel_state(
-            wasmFiber.get_client(),
+            wasm_fiber.get_client(),
             self.fiber1.get_peer_id(),
-            "CLOSED",
+            ChannelState.CLOSED,
             include_closed=True,
             channel_id=shutdown_channel_id,
         )
-        # graph_nodes
-        wasm_fiber_graph_nodes = wasmFiber.get_client().graph_nodes({})
-        fiber1_graph_nodes = self.fiber1.get_client().graph_nodes({})
-        print("fiber1_graph_nodes:", fiber1_graph_nodes)
-        print("wasm_fiber_graph_nodes:", wasm_fiber_graph_nodes)
-        # graph_channels
-        wasm_fiber_graph_channels = wasmFiber.get_client().graph_channels({})
-        fiber1_graph_channels = self.fiber1.get_client().graph_channels({})
-        print("wasm_fiber_graph_channels:", wasm_fiber_graph_channels)
-        print("fiber1_graph_channels:", fiber1_graph_channels)
-        # node_info
-        node_info = wasmFiber.get_client().node_info()
-        print("node_info:", node_info)
-        # new_invoice
-        self.send_invoice_payment(wasmFiber, self.fiber1, 1 * 100000000, True)
 
-        self.send_invoice_payment(self.fiber1, wasmFiber, 1, True)
-        # parse_invoice
+        # Step 5: Call graph_nodes, graph_channels, node_info. Send invoice payments Wasm<->F1
+        wasm_fiber.get_client().graph_nodes({})
+        self.fiber1.get_client().graph_nodes({})
+        wasm_fiber.get_client().graph_channels({})
+        self.fiber1.get_client().graph_channels({})
+        wasm_fiber.get_client().node_info()
+
+        amt = Amount.ckb(1)
+        self.send_invoice_payment(wasm_fiber, self.fiber1, amt, wait=True)
+        self.send_invoice_payment(self.fiber1, wasm_fiber, amt, wait=True)
+
+        # Step 6: Parse invoice (F1 new_invoice, Wasm parse). Wasm new_invoice, get_invoice, cancel; assert Cancelled
         invoice = self.fiber1.get_client().new_invoice(
             {
                 "amount": hex(1),
-                "currency": "Fibd",
+                "currency": Currency.FIBD,
                 "description": "test invoice generated by node2",
                 "expiry": "0xe10",
                 "final_cltv": "0x28",
                 "payment_preimage": self.generate_random_preimage(),
-                "hash_algorithm": "sha256",
+                "hash_algorithm": HashAlgorithm.SHA256,
             }
         )
-        wasm_parse_invoice = wasmFiber.get_client().parse_invoice(
-            {
-                "invoice": invoice["invoice_address"],
-            }
-        )
-        print("invoice:", invoice)
-        print("wasm_parse_invoice:", wasm_parse_invoice)
-        # get_invoice
-        wasm_invoice = wasmFiber.get_client().new_invoice(
+        wasm_fiber.get_client().parse_invoice({"invoice": invoice["invoice_address"]})
+
+        wasm_inv = wasm_fiber.get_client().new_invoice(
             {
                 "amount": hex(1),
-                "currency": "Fibd",
+                "currency": Currency.FIBD,
                 "description": "test invoice generated by node2",
                 "expiry": "0xe10",
                 "final_cltv": "0x28",
                 "payment_preimage": self.generate_random_preimage(),
-                "hash_algorithm": "sha256",
+                "hash_algorithm": HashAlgorithm.SHA256,
             }
         )
-        wasm_get_invoice = wasmFiber.get_client().get_invoice(
-            {"payment_hash": wasm_invoice["invoice"]["data"]["payment_hash"]}
-        )
-        print("wasm_get_invoice:", wasm_get_invoice)
-        # cancel_invoice
-        wasmFiber.get_client().cancel_invoice(
-            {"payment_hash": wasm_get_invoice["invoice"]["data"]["payment_hash"]}
-        )
-        wasm_get_cancel_invoice = wasmFiber.get_client().get_invoice(
-            {"payment_hash": wasm_invoice["invoice"]["data"]["payment_hash"]}
-        )
-        print("wasm_get_cancel_invoice:", wasm_get_cancel_invoice)
-        assert wasm_get_cancel_invoice["status"] == "Cancelled"
-        # send_payment
-        self.send_payment(wasmFiber, self.fiber1, 1)
-        # get_payment
+        ph = wasm_inv["invoice"]["data"]["payment_hash"]
+        wasm_fiber.get_client().get_invoice({"payment_hash": ph})
+        wasm_fiber.get_client().cancel_invoice({"payment_hash": ph})
+        cancelled = wasm_fiber.get_client().get_invoice({"payment_hash": ph})
+        assert cancelled["status"] == InvoiceStatus.CANCELLED
 
-        # build_router
-        # wasmFiber.get_client().build_router({})
-        channel_outpoint = wasmFiber.get_client().list_channels({})["channels"][0][
-            "channel_outpoint"
-        ]
-        router = wasmFiber.get_client().build_router(
+        # Step 7: Send keysend Wasm->F1. Build router, send_payment_with_router; wait Success
+        self.send_payment(wasm_fiber, self.fiber1, Amount.ckb(1), wait=True)
+
+        chs = wasm_fiber.get_client().list_channels({})
+        channel_outpoint = chs["channels"][0]["channel_outpoint"]
+        router = wasm_fiber.get_client().build_router(
             {
-                "amount": hex(1 * 100000000),  # 超过通道余额
+                "amount": hex(Amount.ckb(1)),
                 "udt_type_script": None,
                 "hops_info": [
                     {
@@ -208,27 +214,26 @@ class WasmRpcTest(FiberTest):
                 "final_tlc_expiry_delta": None,
             }
         )
-        print("router:", router)
-        # send_payment_with_router
-        payment = wasmFiber.get_client().send_payment_with_router(
+        payment = wasm_fiber.get_client().send_payment_with_router(
             {
                 "keysend": True,
                 "dry_run": False,
                 "router": router["router_hops"],
             }
         )
-        self.wait_payment_state(wasmFiber, payment["payment_hash"], "Success")
-        # connect_peer
+        self.wait_payment_state(
+            wasm_fiber,
+            payment["payment_hash"],
+            status=PaymentStatus.SUCCESS,
+            timeout=Timeout.PAYMENT_SUCCESS,
+        )
 
-        # disconnect_peer
-        wasmFiber.get_client().disconnect_peer({"peer_id": self.fiber1.get_peer_id()})
-        # list_peers
-        time.sleep(1)
-        peers = wasmFiber.get_client().list_peers()
+        # Step 8: Disconnect Wasm-F1, assert list_peers empty; connect again, assert list_peers length 1
+        wasm_fiber.get_client().disconnect_peer({"peer_id": self.fiber1.get_peer_id()})
+        time.sleep(Timeout.POLL_INTERVAL)
+        peers = wasm_fiber.get_client().list_peers()
         assert len(peers["peers"]) == 0
-        wasmFiber.connect_peer(self.fiber1)
-        time.sleep(1)
-        peers = wasmFiber.get_client().list_peers()
+        wasm_fiber.connect_peer(self.fiber1)
+        time.sleep(Timeout.POLL_INTERVAL)
+        peers = wasm_fiber.get_client().list_peers()
         assert len(peers["peers"]) == 1
-        # Watchtower
-        # todo

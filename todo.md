@@ -358,14 +358,14 @@
 
 ## 34. wasm (8 个文件)
 
-- [ ] `test_cases/fiber/devnet/wasm/test_connect_peer.py`
-- [ ] `test_cases/fiber/devnet/wasm/test_one_way_and_trampoline_routing.py`
-- [ ] `test_cases/fiber/devnet/wasm/test_wasm.py`
-- [ ] `test_cases/fiber/devnet/wasm/test_wasm_bench.py`
-- [ ] `test_cases/fiber/devnet/wasm/test_wasm_demo.py`
-- [ ] `test_cases/fiber/devnet/wasm/test_wasm_mutil.py`
-- [ ] `test_cases/fiber/devnet/wasm/test_wasm_rpc.py`
-- [ ] `test_cases/fiber/devnet/wasm/test_wasm_watch_tower.py`
+- [x] `test_cases/fiber/devnet/wasm/test_connect_peer.py`
+- [x] `test_cases/fiber/devnet/wasm/test_one_way_and_trampoline_routing.py`
+- [x] `test_cases/fiber/devnet/wasm/test_wasm.py`
+- [x] `test_cases/fiber/devnet/wasm/test_wasm_bench.py`
+- [x] `test_cases/fiber/devnet/wasm/test_wasm_demo.py`
+- [x] `test_cases/fiber/devnet/wasm/test_wasm_mutil.py`
+- [x] `test_cases/fiber/devnet/wasm/test_wasm_rpc.py`
+- [x] `test_cases/fiber/devnet/wasm/test_wasm_watch_tower.py`
 
 ---
 
