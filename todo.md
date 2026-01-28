@@ -71,40 +71,40 @@
 
 ## 9. connect_peer (1 个文件)
 
-- [ ] `test_cases/fiber/devnet/connect_peer/test_connect_peer.py`
+- [x] `test_cases/fiber/devnet/connect_peer/test_connect_peer.py`
 
 ---
 
 ## 10. disconnect_peer (1 个文件)
 
-- [ ] `test_cases/fiber/devnet/disconnect_peer/test_disconnect_peer.py`
+- [x] `test_cases/fiber/devnet/disconnect_peer/test_disconnect_peer.py`
 
 ---
 
 ## 11. get_invoice (1 个文件)
 
-- [ ] `test_cases/fiber/devnet/get_invoice/test_get_invoice.py`
+- [x] `test_cases/fiber/devnet/get_invoice/test_get_invoice.py`
 
 ---
 
 ## 12. graph_channels (1 个文件)
 
-- [ ] `test_cases/fiber/devnet/graph_channels/test_graph_channels.py`
+- [x] `test_cases/fiber/devnet/graph_channels/test_graph_channels.py`
 
 ---
 
 ## 13. graph_nodes (1 个文件)
 
-- [ ] `test_cases/fiber/devnet/graph_nodes/test_graph_nodes.py`
+- [x] `test_cases/fiber/devnet/graph_nodes/test_graph_nodes.py`
 
 ---
 
 ## 14. issue (8 个文件)
 
-- [ ] `test_cases/fiber/devnet/issue/test_force_stop.py`
-- [ ] `test_cases/fiber/devnet/issue/test_issue_1069.py`
-- [ ] `test_cases/fiber/devnet/issue/test_issue_446.py`
-- [ ] `test_cases/fiber/devnet/issue/test_issue_478.py`
+- [x] `test_cases/fiber/devnet/issue/test_force_stop.py`
+- [x] `test_cases/fiber/devnet/issue/test_issue_1069.py`
+- [x] `test_cases/fiber/devnet/issue/test_issue_446.py`
+- [x] `test_cases/fiber/devnet/issue/test_issue_478.py`
 - [ ] `test_cases/fiber/devnet/issue/test_issue_484.py`
 - [ ] `test_cases/fiber/devnet/issue/test_issue_640.py`
 - [ ] `test_cases/fiber/devnet/issue/test_issue_670.py`
