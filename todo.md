@@ -167,15 +167,15 @@
 - [x] `test_cases/fiber/devnet/open_channel/test_force_restart.py`
 - [x] `test_cases/fiber/devnet/open_channel/test_funding_amount.py`
 - [x] `test_cases/fiber/devnet/open_channel/test_funding_fee_rate.py`
-- [ ] `test_cases/fiber/devnet/open_channel/test_funding_timeout.py`
-- [ ] `test_cases/fiber/devnet/open_channel/test_funding_udt_type_script.py`
-- [ ] `test_cases/fiber/devnet/open_channel/test_linked.py`
-- [ ] `test_cases/fiber/devnet/open_channel/test_max_tlc_number_in_flight.py`
-- [ ] `test_cases/fiber/devnet/open_channel/test_max_tlc_value_in_flight.py`
-- [ ] `test_cases/fiber/devnet/open_channel/test_n_user.py`
-- [ ] `test_cases/fiber/devnet/open_channel/test_public.py`
-- [ ] `test_cases/fiber/devnet/open_channel/test_restart.py`
-- [ ] `test_cases/fiber/devnet/open_channel/test_shutdown_script.py`
+- [x] `test_cases/fiber/devnet/open_channel/test_funding_timeout.py`
+- [x] `test_cases/fiber/devnet/open_channel/test_funding_udt_type_script.py`
+- [x] `test_cases/fiber/devnet/open_channel/test_linked.py`
+- [x] `test_cases/fiber/devnet/open_channel/test_max_tlc_number_in_flight.py`
+- [x] `test_cases/fiber/devnet/open_channel/test_max_tlc_value_in_flight.py`
+- [x] `test_cases/fiber/devnet/open_channel/test_n_user.py`
+- [x] `test_cases/fiber/devnet/open_channel/test_public.py`
+- [x] `test_cases/fiber/devnet/open_channel/test_restart.py`
+- [x] `test_cases/fiber/devnet/open_channel/test_shutdown_script.py`
 - [ ] `test_cases/fiber/devnet/open_channel/test_tlc_expiry_delta.py`
 - [ ] `test_cases/fiber/devnet/open_channel/test_tlc_fee_proportional_millionths.py`
 - [ ] `test_cases/fiber/devnet/open_channel/test_tlc_max_value.py`

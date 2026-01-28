@@ -1,38 +1,54 @@
+"""
+Test open_channel funding_udt_type_script: UDT script validation and UDT channel behavior.
+"""
 import time
 
 import pytest
 
 from framework.basic_fiber import FiberTest
 from framework.config import DEFAULT_MIN_DEPOSIT_CKB, DEFAULT_MIN_DEPOSIT_UDT
+from framework.constants import (
+    Amount,
+    ChannelState,
+    Currency,
+    FeeRate,
+    HashAlgorithm,
+    PaymentStatus,
+    Timeout,
+    TLCFeeRate,
+)
 
 
 class TestFundingUdtTypeScript(FiberTest):
+    """
+    Test open_channel with funding_udt_type_script: empty/default, not on node, whitelist, u128 bounds.
+    """
 
     @pytest.mark.skip("todo")
     def test_funding_udt_type_script_is_empty(self):
         """
-        1. funding_udt_type_script is none
-            默认为 ckb
-        Returns:
+        When funding_udt_type_script is none, default is CKB (skipped).
         """
         # LinkedTest().test_linked_peer()
 
     def test_funding_udt_type_script_not_exist(self):
         """
-        1. udt script 不在自己节点
-            will reject and channel length == 0
-        Returns:
+        When UDT script is not on acceptor node: opener gets no channel, acceptor open_channel rejects.
+        Step 1: Start fiber3, connect to fiber1; fiber1 opens channel with UDT script.
+        Step 2: Assert fiber3 has 0 channels.
+        Step 3: fiber3 open_channel with same UDT script; assert "Invalid UDT type script".
         """
+        # Step 1: Start fiber3, connect; fiber1 opens channel with UDT script
         account3_private = self.generate_account(1000)
         self.fiber3 = self.start_new_fiber(
             account3_private, {"ckb_rpc_url": self.node.getClient().url}
         )
         self.fiber3.connect_peer(self.fiber1)
-        time.sleep(1)
+        time.sleep(Timeout.POLL_INTERVAL)
         self.fiber1.get_client().open_channel(
             {
                 "peer_id": self.fiber3.get_peer_id(),
-                "funding_amount": hex(1000 * 100000000),
+                "funding_amount": hex(Amount.ckb(1000)),
                 "public": True,
                 "funding_udt_type_script": self.get_account_udt_script(
                     self.fiber1.account_private
@@ -40,14 +56,16 @@ class TestFundingUdtTypeScript(FiberTest):
             }
         )
         time.sleep(3)
+        # Step 2: Assert fiber3 has 0 channels
         channels = self.fiber3.get_client().list_channels({})
         assert len(channels["channels"]) == 0
 
+        # Step 3: fiber3 open_channel with same UDT script; expect "Invalid UDT type script"
         with pytest.raises(Exception) as exc_info:
             self.fiber3.get_client().open_channel(
                 {
                     "peer_id": self.fiber1.get_peer_id(),
-                    "funding_amount": hex(1000 * 100000000),
+                    "funding_amount": hex(Amount.ckb(1000)),
                     "public": True,
                     "funding_udt_type_script": self.get_account_udt_script(
                         self.fiber1.account_private
@@ -62,49 +80,51 @@ class TestFundingUdtTypeScript(FiberTest):
 
     def test_funding_udt_type_script_is_white(self):
         """
-        1. funding_udt_type_script 在节点上
-        Returns:
+        When funding_udt_type_script is on node: open UDT channel, pay, shutdown; assert UDT balances.
+        Step 1: Connect fiber1-fiber2, open channel with UDT script, wait CHANNEL_READY.
+        Step 2: Create invoice and send payment; assert balance change.
+        Step 3: Shutdown channel; assert UDT cells and balances.
         """
-        # open chanel for fiber
+        # Step 1: Connect and open UDT channel
         account = self.Ckb_cli.util_key_info_by_private_key(
             self.Config.ACCOUNT_PRIVATE_1
         )
         account2 = self.Ckb_cli.util_key_info_by_private_key(
             self.Config.ACCOUNT_PRIVATE_2
         )
-        # connect  2 fiber
         self.fiber1.connect_peer(self.fiber2)
-        time.sleep(1)
-        # open channel
+        time.sleep(Timeout.POLL_INTERVAL)
         temporary_channel_id = self.fiber1.get_client().open_channel(
             {
                 "peer_id": self.fiber2.get_peer_id(),
-                "funding_amount": hex(1000 * 100000000),
+                "funding_amount": hex(Amount.ckb(1000)),
                 "public": True,
                 "funding_udt_type_script": self.get_account_udt_script(
                     self.fiber1.account_private
                 ),
-                # "tlc_fee_proportional_millionths": "0x4B0",
             }
         )
-        time.sleep(1)
+        time.sleep(Timeout.POLL_INTERVAL)
         self.wait_for_channel_state(
-            self.fiber1.get_client(), self.fiber2.get_peer_id(), "CHANNEL_READY", 120
+            self.fiber1.get_client(),
+            self.fiber2.get_peer_id(),
+            ChannelState.CHANNEL_READY,
+            timeout=Timeout.CHANNEL_READY,
         )
-        # transfer
+        # Step 2: Transfer via invoice and send_payment
         self.fiber1.get_client().graph_channels()
         self.fiber1.get_client().graph_nodes()
         payment_preimage = self.generate_random_preimage()
-        invoice_balance = 100 * 100000000
+        invoice_balance = Amount.ckb(100)
         invoice = self.fiber2.get_client().new_invoice(
             {
                 "amount": hex(invoice_balance),
-                "currency": "Fibd",
+                "currency": Currency.FIBD,
                 "description": "test invoice generated by node2",
                 "expiry": "0xe10",
                 "final_cltv": "0x28",
                 "payment_preimage": payment_preimage,
-                "hash_algorithm": "sha256",
+                "hash_algorithm": HashAlgorithm.SHA256,
                 "udt_type_script": self.get_account_udt_script(
                     self.fiber1.account_private
                 ),
@@ -117,7 +137,9 @@ class TestFundingUdtTypeScript(FiberTest):
                 "invoice": invoice["invoice_address"],
             }
         )
-        self.wait_payment_state(self.fiber1, payment["payment_hash"], "Success")
+        self.wait_payment_state(
+            self.fiber1, payment["payment_hash"], PaymentStatus.SUCCESS
+        )
         after_channel = self.fiber1.get_client().list_channels({})
         assert (
             int(before_channel["channels"][0]["local_balance"], 16)
@@ -137,15 +159,15 @@ class TestFundingUdtTypeScript(FiberTest):
         before_account2 = self.udtContract.list_cell(
             self.node.getClient(), account["lock_arg"], account2["lock_arg"]
         )
-        # shut down
+        # Step 3: Shutdown channel; assert UDT balances
         self.fiber1.get_client().shutdown_channel(
             {
                 "channel_id": N1N2_CHANNEL_ID,
                 "close_script": self.get_account_script(self.fiber1.account_private),
-                "fee_rate": "0x3FC",
+                "fee_rate": hex(FeeRate.DEFAULT),
             }
         )
-        tx_hash = self.wait_and_check_tx_pool_fee(1000, False, 100)
+        tx_hash = self.wait_and_check_tx_pool_fee(FeeRate.DEFAULT, False, 100)
         self.Miner.miner_until_tx_committed(self.node, tx_hash)
 
         after_account1 = self.udtContract.list_cell(
@@ -183,23 +205,26 @@ class TestFundingUdtTypeScript(FiberTest):
 
     # @pytest.mark.skip("https://github.com/nervosnetwork/fiber/pull/720")
     def test_node1_2_udt_gt_u128_max(self):
+        """
+        When funding_amount exceeds u128 max, open_channel succeeds but no channel is created.
+        Step 1: Faucet UDT; open_channel with amount > u128 max.
+        Step 2: Assert channel list is empty.
+        """
+        U128_MAX = 340282366920938463463374607431768211455
         self.faucet(
             self.fiber1.account_private,
             0,
             self.fiber2.account_private,
-            340282366920938463463374607431768211400,
+            U128_MAX - 55,
         )
         self.faucet(
-            self.fiber1.account_private, 0, self.fiber2.account_private, 1 * 100000000
+            self.fiber1.account_private, 0, self.fiber2.account_private, Amount.ckb(1)
         )
-        # self.open_channel(self.fiber1, self.fiber2, 340282366920938463463374607431768211400 + 1 - 62 * 100000000, 1,
-        #                   1000, 1000,
-        #                   self.get_account_udt_script(self.fiber2.account_private))
         temporary_channel = self.fiber1.get_client().open_channel(
             {
                 "peer_id": self.fiber2.get_peer_id(),
-                "funding_amount": hex(340282366920938463463374607431768211400 + 1),
-                "tlc_fee_proportional_millionths": hex(1000),
+                "funding_amount": hex(U128_MAX + 1),
+                "tlc_fee_proportional_millionths": hex(TLCFeeRate.DEFAULT),
                 "public": True,
                 "funding_udt_type_script": self.get_account_udt_script(
                     self.fiber1.account_private
@@ -208,26 +233,31 @@ class TestFundingUdtTypeScript(FiberTest):
         )
         time.sleep(5)
         channel = self.fiber1.get_client().list_channels({})
-        print("channel:", channel)
         assert channel["channels"] == []
 
     def test_amount_eq_u128_max(self):
+        """
+        Open UDT channel with amount eq u128 max minus min deposit; shutdown and assert output cells.
+        Step 1: Faucet and open_channel with u128 max - 1 - min_deposit.
+        Step 2: Shutdown; assert tx output cells match expected UDT amounts.
+        """
+        U128_MAX = 340282366920938463463374607431768211455
         self.faucet(
             self.fiber1.account_private,
             0,
             self.fiber2.account_private,
-            340282366920938463463374607431768211455,
+            U128_MAX,
         )
         self.faucet(
-            self.fiber1.account_private, 0, self.fiber2.account_private, 1 * 100000000
+            self.fiber1.account_private, 0, self.fiber2.account_private, Amount.ckb(1)
         )
         self.open_channel(
             self.fiber1,
             self.fiber2,
-            340282366920938463463374607431768211455 - 1 - DEFAULT_MIN_DEPOSIT_CKB,
+            U128_MAX - 1 - DEFAULT_MIN_DEPOSIT_CKB,
             1,
-            1000,
-            1000,
+            TLCFeeRate.DEFAULT,
+            TLCFeeRate.DEFAULT,
             self.get_account_udt_script(self.fiber2.account_private),
         )
         self.fiber1.get_client().shutdown_channel(
@@ -236,10 +266,10 @@ class TestFundingUdtTypeScript(FiberTest):
                     "channel_id"
                 ],
                 "close_script": self.get_account_script(self.Config.ACCOUNT_PRIVATE_1),
-                "fee_rate": "0x3FC",
+                "fee_rate": hex(FeeRate.DEFAULT),
             }
         )
-        tx_hash = self.wait_and_check_tx_pool_fee(1000, False, 100)
+        tx_hash = self.wait_and_check_tx_pool_fee(FeeRate.DEFAULT, False, 100)
         self.Miner.miner_until_tx_committed(self.node, tx_hash)
         tx_msg = self.get_tx_message(tx_hash)
         print("msg:", tx_msg)
@@ -266,36 +296,39 @@ class TestFundingUdtTypeScript(FiberTest):
 
     def test_node1_add_node2_amount_gt_u128_max(self):
         """
-        Returns:
+        When acceptor funding_amount would exceed u128 max, accept_channel should reject.
+        Step 1: Faucet; fiber1 open_channel with small amount.
+        Step 2: fiber2 accept_channel with amount >= u128 max; assert error message.
         """
+        U128_MAX = 340282366920938463463374607431768211455
         self.faucet(
             self.fiber2.account_private,
             0,
             self.fiber1.account_private,
-            340282366920938463463374607431768211400,
+            U128_MAX - 55,
         )
         self.faucet(
-            self.fiber1.account_private, 0, self.fiber1.account_private, 1 * 100000000
+            self.fiber1.account_private, 0, self.fiber1.account_private, Amount.ckb(1)
         )
         temporary_channel = self.fiber1.get_client().open_channel(
             {
                 "peer_id": self.fiber2.get_peer_id(),
-                "funding_amount": hex(100000000 - 1),
-                "tlc_fee_proportional_millionths": hex(1000),
+                "funding_amount": hex(Amount.CKB - 1),
+                "tlc_fee_proportional_millionths": hex(TLCFeeRate.DEFAULT),
                 "public": True,
                 "funding_udt_type_script": self.get_account_udt_script(
                     self.fiber1.account_private
                 ),
             }
         )
-        time.sleep(1)
+        time.sleep(Timeout.POLL_INTERVAL)
 
         with pytest.raises(Exception) as exc_info:
             self.fiber2.get_client().accept_channel(
                 {
                     "temporary_channel_id": temporary_channel["temporary_channel_id"],
-                    "funding_amount": hex(340282366920938463463374607431768211400 - 1),
-                    "tlc_fee_proportional_millionths": hex(1000),
+                    "funding_amount": hex(U128_MAX - 56),
+                    "tlc_fee_proportional_millionths": hex(TLCFeeRate.DEFAULT),
                 }
             )
         expected_error_message = "The total UDT funding amount should be less than 340282366920938463463374607431768211455"
