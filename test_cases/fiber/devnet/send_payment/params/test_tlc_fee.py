@@ -22,7 +22,7 @@ class TestTlcFee(FiberTest):
             self.fibers[2],
             1000 * 100000000,
             1000 * 100000000,
-            2000,
+            1500,
             1000,
         )
         self.open_channel(
@@ -30,7 +30,7 @@ class TestTlcFee(FiberTest):
             self.fibers[3],
             1000 * 100000000,
             1000 * 100000000,
-            3000,
+            2000,
             1000,
         )
 
@@ -70,4 +70,4 @@ class TestTlcFee(FiberTest):
         self.wait_payment_state(
             self.fibers[0], payment["payment_hash"], "Success", 1200
         )
-        assert int(payment["fee"], 16) == self.calculate_tx_fee(amount, [2000, 3000])
+        assert int(payment["fee"], 16) == self.calculate_tx_fee(amount, [1500, 2000])

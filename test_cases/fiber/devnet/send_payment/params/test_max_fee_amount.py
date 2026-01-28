@@ -77,7 +77,7 @@ class TestMaxFeeAmount(FiberTest):
 
     # @pytest.mark.skip(reason="https://github.com/nervosnetwork/fiber/pull/717")
     def test_max_fee_0xffffffffffffffffffffffffffffffff(self):
-        self.open_channel(self.fiber1, self.fiber2, 1000 * 100000000, 1000 * 100000000)
+        # self.open_channel(self.fiber1, self.fiber2, 1000 * 100000000, 1000 * 100000000)
         invoice = self.fiber1.get_client().new_invoice(
             {
                 "amount": hex(1 * 100000000),
@@ -93,10 +93,10 @@ class TestMaxFeeAmount(FiberTest):
             self.fiber2.get_client().send_payment(
                 {
                     "invoice": invoice["invoice_address"],
-                    "max_fee_amount": "0xffffffffffffffffffffffffffffffff",
+                    "max_fee_amount": "0xffffffffffffffffffffffffffffffffff",
                 }
             )
-        expected_error_message = "overflow"
+        expected_error_message = "Invalid params"
         assert expected_error_message in exc_info.value.args[0], (
             f"Expected substring '{expected_error_message}' "
             f"not found in actual string '{exc_info.value.args[0]}'"

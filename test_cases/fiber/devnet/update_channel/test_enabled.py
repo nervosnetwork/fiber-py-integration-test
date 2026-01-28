@@ -165,5 +165,4 @@ class TestEnable(FiberTest):
             30000,
             30000,
         )
-
         self.send_payment(self.fibers[0], self.fibers[2], 1 * 100000000)

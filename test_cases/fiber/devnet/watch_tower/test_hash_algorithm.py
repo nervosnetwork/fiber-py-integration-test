@@ -16,7 +16,7 @@ class TestHashAlgorithm(FiberTest):
             self.fiber1,
             self.fiber2,
             1 * 100000000,
-            other_options={"hash_algorithm": "ckb_hash"},
+            other_options={"allow_mpp": True, "hash_algorithm": "ckb_hash"},
         )
         self.fiber1.get_client().shutdown_channel(
             {
@@ -71,7 +71,7 @@ class TestHashAlgorithm(FiberTest):
             self.fiber2,
             1,
             udt=self.get_account_udt_script(self.fiber1.account_private),
-            other_options={"hash_algorithm": "ckb_hash"},
+            other_options={"allow_mpp": True, "hash_algorithm": "ckb_hash"},
         )
         self.fiber1.get_client().shutdown_channel(
             {
