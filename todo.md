@@ -346,13 +346,13 @@
 
 ## 33. update_channel (7 个文件)
 
-- [ ] `test_cases/fiber/devnet/update_channel/test_chain_status.py`
-- [ ] `test_cases/fiber/devnet/update_channel/test_channel_id.py`
-- [ ] `test_cases/fiber/devnet/update_channel/test_enabled.py`
-- [ ] `test_cases/fiber/devnet/update_channel/test_tlc_expiry_delta.py`
-- [ ] `test_cases/fiber/devnet/update_channel/test_tlc_fee_proportional_millionths.py`
-- [ ] `test_cases/fiber/devnet/update_channel/test_tlc_minimum_value.py`
-- [ ] `test_cases/fiber/devnet/update_channel/test_update_channel.py`
+- [x] `test_cases/fiber/devnet/update_channel/test_chain_status.py`
+- [x] `test_cases/fiber/devnet/update_channel/test_channel_id.py`
+- [x] `test_cases/fiber/devnet/update_channel/test_enabled.py`
+- [x] `test_cases/fiber/devnet/update_channel/test_tlc_expiry_delta.py`
+- [x] `test_cases/fiber/devnet/update_channel/test_tlc_fee_proportional_millionths.py`
+- [x] `test_cases/fiber/devnet/update_channel/test_tlc_minimum_value.py`
+- [x] `test_cases/fiber/devnet/update_channel/test_update_channel.py`
 
 ---
 
