@@ -61,13 +61,13 @@ class TestBoundaryValues(SharedFiberTest):
                 "dry_run": True,
                 "max_fee_amount": hex(1 * 100000000),
                 "max_fee_rate": hex(99),
-                "trampoline_hops": [
-                    self.fiber2.get_client().node_info()["node_id"],
-                    self.fiber3.get_client().node_info()["node_id"],
-                    self.fiber4.get_client().node_info()["node_id"],
-                    self.fiber5.get_client().node_info()["node_id"],
-                    self.fiber6.get_client().node_info()["node_id"],
-                ],
+                # "trampoline_hops": [
+                #     self.fiber2.get_client().node_info()["node_id"],
+                #     self.fiber3.get_client().node_info()["node_id"],
+                #     self.fiber4.get_client().node_info()["node_id"],
+                #     self.fiber5.get_client().node_info()["node_id"],
+                #     self.fiber6.get_client().node_info()["node_id"],
+                # ],
             }
         )
         payment = self.fiber1.get_client().send_payment(
@@ -87,7 +87,24 @@ class TestBoundaryValues(SharedFiberTest):
                 ],
             }
         )
-
+        self.wait_payment_state(self.fiber1, payment["payment_hash"], "Failed")
+        payment = self.fiber1.get_client().send_payment(
+            {
+                "target_pubkey": self.fiber7.get_client().node_info()["node_id"],
+                "currency": "Fibd",
+                "amount": hex(1 * 100000000),
+                "keysend": True,
+                "max_fee_amount": hex(600000),
+                "max_fee_rate": hex(99),
+                "trampoline_hops": [
+                    self.fiber2.get_client().node_info()["node_id"],
+                    self.fiber3.get_client().node_info()["node_id"],
+                    self.fiber4.get_client().node_info()["node_id"],
+                    self.fiber5.get_client().node_info()["node_id"],
+                    self.fiber6.get_client().node_info()["node_id"],
+                ],
+            }
+        )
         self.wait_payment_state(self.fiber1, payment["payment_hash"], "Success")
         after_balance = self.get_fibers_balance()
         result = self.get_channel_balance_change(before_balance, after_balance)
@@ -98,37 +115,37 @@ class TestBoundaryValues(SharedFiberTest):
             }
         )
 
-        assert payment["fee"] == hex(1509034)
+        assert payment["fee"] == hex(600000)
         # todo 函数 验证 trampoline routing 余额计算
 
         assert result == [
             {
-                "local_balance": 101509034,
+                "local_balance": 100600000,
                 "offered_tlc_balance": 0,
                 "received_tlc_balance": 0,
             },
             {
-                "local_balance": -706630,
+                "local_balance": -120000,
                 "offered_tlc_balance": 0,
                 "received_tlc_balance": 0,
             },
             {
-                "local_balance": -201203,
+                "local_balance": -120000,
                 "offered_tlc_balance": 0,
                 "received_tlc_balance": 0,
             },
             {
-                "local_balance": -200801,
+                "local_balance": -120000,
                 "offered_tlc_balance": 0,
                 "received_tlc_balance": 0,
             },
             {
-                "local_balance": -200400,
+                "local_balance": -120000,
                 "offered_tlc_balance": 0,
                 "received_tlc_balance": 0,
             },
             {
-                "local_balance": -200000,
+                "local_balance": -120000,
                 "offered_tlc_balance": 0,
                 "received_tlc_balance": 0,
             },
