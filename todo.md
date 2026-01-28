@@ -18,15 +18,15 @@
 
 ## 2. accept_channel (9 个文件)
 
-- [ ] `test_cases/fiber/devnet/accept_channel/test_accepct_mutil_channels_same_time.py`
-- [ ] `test_cases/fiber/devnet/accept_channel/test_funding_amount.py`
-- [ ] `test_cases/fiber/devnet/accept_channel/test_max_tlc_number_in_flight_debug.py`
-- [ ] `test_cases/fiber/devnet/accept_channel/test_max_tlc_value_in_flight.py`
-- [ ] `test_cases/fiber/devnet/accept_channel/test_shutdown_script.py`
-- [ ] `test_cases/fiber/devnet/accept_channel/test_temporary_channel_id.py`
-- [ ] `test_cases/fiber/devnet/accept_channel/test_tlc_expiry_delta.py`
-- [ ] `test_cases/fiber/devnet/accept_channel/test_tlc_fee_proportional_millionths.py`
-- [ ] `test_cases/fiber/devnet/accept_channel/test_tlc_min_value.py`
+- [x] `test_cases/fiber/devnet/accept_channel/test_accepct_mutil_channels_same_time.py`
+- [x] `test_cases/fiber/devnet/accept_channel/test_funding_amount.py`
+- [x] `test_cases/fiber/devnet/accept_channel/test_max_tlc_number_in_flight_debug.py`
+- [x] `test_cases/fiber/devnet/accept_channel/test_max_tlc_value_in_flight.py`
+- [x] `test_cases/fiber/devnet/accept_channel/test_shutdown_script.py`
+- [x] `test_cases/fiber/devnet/accept_channel/test_temporary_channel_id.py`
+- [x] `test_cases/fiber/devnet/accept_channel/test_tlc_expiry_delta.py`
+- [x] `test_cases/fiber/devnet/accept_channel/test_tlc_fee_proportional_millionths.py`
+- [x] `test_cases/fiber/devnet/accept_channel/test_tlc_min_value.py`
 
 ---
 

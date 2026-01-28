@@ -1,44 +1,65 @@
+"""
+Test cases for accept_channel max_tlc_number_in_flight parameter.
+Verifies: channel acceptance with max_tlc_number_in_flight limit and payment behavior.
+"""
 import time
 
 import pytest
 
 from framework.basic_fiber import FiberTest
 from framework.config import DEFAULT_MIN_DEPOSIT_CKB
-from framework.test_fiber import FiberConfigPath
+from framework.constants import Amount, Timeout, ChannelState, PaymentStatus, FeeRate, Currency
 
 
 class TestMaxTlcNumberInFlightDebug(FiberTest):
+    """
+    Test accept_channel with max_tlc_number_in_flight parameter.
+    Verifies: channel can be accepted with max_tlc_number_in_flight limit, and payments exceeding the limit fail.
+    """
 
     def test_max_tlc_number_in_flight(self):
         """
-        Returns:
+        Test that max_tlc_number_in_flight limits the number of in-flight TLCs.
+        Step 1: Open a new channel with fiber1 as the client and fiber2 as the peer.
+        Step 2: Accept the channel with fiber2, setting max_tlc_number_in_flight to 1.
+        Step 3: Wait for the channel state to be CHANNEL_READY.
+        Step 4: Send first payment (should succeed).
+        Step 5: Send second payment (should fail due to max_tlc_number_in_flight limit).
         """
-        # 1. Open a new channel with fiber1 as the client and fiber2 as the peer
+        # Step 1: Open a new channel with fiber1 as the client and fiber2 as the peer
         temporary_channel = self.fiber1.get_client().open_channel(
             {
                 "peer_id": self.fiber2.get_peer_id(),
                 "funding_amount": hex(DEFAULT_MIN_DEPOSIT_CKB),
                 "public": True,
+                "commitment_fee_rate": hex(FeeRate.DEFAULT),
+                "funding_fee_rate": hex(FeeRate.DEFAULT),
             }
         )
-        time.sleep(1)
-        # 2. Accept the channel with fiber2 as the client
+        time.sleep(Timeout.POLL_INTERVAL)
+
+        # Step 2: Accept the channel with fiber2, setting max_tlc_number_in_flight to 1
         self.fiber2.get_client().accept_channel(
             {
                 "temporary_channel_id": temporary_channel["temporary_channel_id"],
-                "funding_amount": hex(1000 * 100000000),
+                "funding_amount": hex(Amount.ckb(1000)),
                 "max_tlc_number_in_flight": hex(1),
             }
         )
-        # 3. Wait for the channel state to be "CHANNEL_READY"
+
+        # Step 3: Wait for the channel state to be CHANNEL_READY
         self.wait_for_channel_state(
-            self.fiber2.get_client(), self.fiber1.get_peer_id(), "CHANNEL_READY"
+            self.fiber2.get_client(),
+            self.fiber1.get_peer_id(),
+            ChannelState.CHANNEL_READY,
+            timeout=Timeout.CHANNEL_READY,
         )
-        # node1 send_payment to node2
+
+        # Step 4: Send first payment (should succeed)
         fiber1_invoices = self.fiber1.get_client().new_invoice(
             {
-                "amount": hex(1),
-                "currency": "Fibd",
+                "amount": hex(Amount.ckb(1)),
+                "currency": Currency.FIBD,
                 "description": "test invoice",
                 "payment_hash": self.generate_random_preimage(),
             }
@@ -48,10 +69,12 @@ class TestMaxTlcNumberInFlightDebug(FiberTest):
                 "invoice": fiber1_invoices["invoice_address"],
             }
         )
+
+        # Step 5: Send second payment (should fail due to max_tlc_number_in_flight limit)
         fiber1_invoices = self.fiber1.get_client().new_invoice(
             {
-                "amount": hex(1),
-                "currency": "Fibd",
+                "amount": hex(Amount.ckb(1)),
+                "currency": Currency.FIBD,
                 "description": "test invoice",
                 "payment_hash": self.generate_random_preimage(),
             }
@@ -61,4 +84,6 @@ class TestMaxTlcNumberInFlightDebug(FiberTest):
                 "invoice": fiber1_invoices["invoice_address"],
             }
         )
-        self.wait_payment_state(self.fiber2, payment["payment_hash"], "Failed")
+        self.wait_payment_state(
+            self.fiber2, payment["payment_hash"], PaymentStatus.FAILED, timeout=Timeout.PAYMENT_SUCCESS
+        )
