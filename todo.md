@@ -228,18 +228,18 @@
 
 ### 25.5 send_payment/mpp (7 个文件)
 
-- [ ] `test_cases/fiber/devnet/send_payment/mpp/test_demo.py`
-- [ ] `test_cases/fiber/devnet/send_payment/mpp/test_hold_invoice_with_shutdown.py`
-- [ ] `test_cases/fiber/devnet/send_payment/mpp/test_mpp_bench.py`
-- [ ] `test_cases/fiber/devnet/send_payment/mpp/test_mpp_force_shutdown.py`
-- [ ] `test_cases/fiber/devnet/send_payment/mpp/test_mpp_with_hash_algorithm.py`
-- [ ] `test_cases/fiber/devnet/send_payment/mpp/test_mpp_with_watch_tower.py`
-- [ ] `test_cases/fiber/devnet/send_payment/mpp/test_mutil_path.py`
+- [x] `test_cases/fiber/devnet/send_payment/mpp/test_demo.py`
+- [x] `test_cases/fiber/devnet/send_payment/mpp/test_hold_invoice_with_shutdown.py`
+- [x] `test_cases/fiber/devnet/send_payment/mpp/test_mpp_bench.py`
+- [x] `test_cases/fiber/devnet/send_payment/mpp/test_mpp_force_shutdown.py`
+- [x] `test_cases/fiber/devnet/send_payment/mpp/test_mpp_with_hash_algorithm.py`
+- [x] `test_cases/fiber/devnet/send_payment/mpp/test_mpp_with_watch_tower.py`
+- [x] `test_cases/fiber/devnet/send_payment/mpp/test_mutil_path.py`
 
 ### 25.6 send_payment/offline (6 个文件)
 
-- [ ] `test_cases/fiber/devnet/send_payment/offline/test_disconnect.py`
-- [ ] `test_cases/fiber/devnet/send_payment/offline/test_disconnect1.py`
+- [x] `test_cases/fiber/devnet/send_payment/offline/test_disconnect.py`
+- [x] `test_cases/fiber/devnet/send_payment/offline/test_disconnect1.py`
 - [ ] `test_cases/fiber/devnet/send_payment/offline/test_force_restart.py`
 - [ ] `test_cases/fiber/devnet/send_payment/offline/test_restart.py`
 - [ ] `test_cases/fiber/devnet/send_payment/offline/test_send_payment_with_stop.py`
@@ -328,19 +328,19 @@
 
 ## 32. trampoline_routing (13 个文件)
 
-- [ ] `test_cases/fiber/devnet/trampoline_routing/test_allowTramponlieRouting.py`
-- [ ] `test_cases/fiber/devnet/trampoline_routing/test_boundary_values.py`
-- [ ] `test_cases/fiber/devnet/trampoline_routing/test_complex_routing.py`
-- [ ] `test_cases/fiber/devnet/trampoline_routing/test_concurrent_payments.py`
-- [ ] `test_cases/fiber/devnet/trampoline_routing/test_error_scenarios.py`
-- [ ] `test_cases/fiber/devnet/trampoline_routing/test_fee_rate.py`
-- [ ] `test_cases/fiber/devnet/trampoline_routing/test_hash_algorithm.py`
-- [ ] `test_cases/fiber/devnet/trampoline_routing/test_mid_node_one_way.py`
-- [ ] `test_cases/fiber/devnet/trampoline_routing/test_mpp.py`
-- [ ] `test_cases/fiber/devnet/trampoline_routing/test_multi_hop.py`
-- [ ] `test_cases/fiber/devnet/trampoline_routing/test_new_invoice.py`
-- [ ] `test_cases/fiber/devnet/trampoline_routing/test_private_channel.py`
-- [ ] `test_cases/fiber/devnet/trampoline_routing/test_router.py`
+- [x] `test_cases/fiber/devnet/trampoline_routing/test_allowTramponlieRouting.py`
+- [x] `test_cases/fiber/devnet/trampoline_routing/test_boundary_values.py`
+- [x] `test_cases/fiber/devnet/trampoline_routing/test_complex_routing.py`
+- [x] `test_cases/fiber/devnet/trampoline_routing/test_concurrent_payments.py`
+- [x] `test_cases/fiber/devnet/trampoline_routing/test_error_scenarios.py`
+- [x] `test_cases/fiber/devnet/trampoline_routing/test_fee_rate.py`
+- [x] `test_cases/fiber/devnet/trampoline_routing/test_hash_algorithm.py`
+- [x] `test_cases/fiber/devnet/trampoline_routing/test_mid_node_one_way.py`
+- [x] `test_cases/fiber/devnet/trampoline_routing/test_mpp.py`
+- [x] `test_cases/fiber/devnet/trampoline_routing/test_multi_hop.py`
+- [x] `test_cases/fiber/devnet/trampoline_routing/test_new_invoice.py`
+- [x] `test_cases/fiber/devnet/trampoline_routing/test_private_channel.py`
+- [x] `test_cases/fiber/devnet/trampoline_routing/test_router.py`
 
 ---
 
