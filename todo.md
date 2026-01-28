@@ -134,20 +134,20 @@
 
 - [x] `test_cases/fiber/devnet/new_invoice/test_amount.py`
 - [x] `test_cases/fiber/devnet/new_invoice/test_currency.py`
-- [ ] `test_cases/fiber/devnet/new_invoice/test_description.py`
-- [ ] `test_cases/fiber/devnet/new_invoice/test_expiry.py`
-- [ ] `test_cases/fiber/devnet/new_invoice/test_fallback_address.py`
-- [ ] `test_cases/fiber/devnet/new_invoice/test_final_expiry_delta.py`
-- [ ] `test_cases/fiber/devnet/new_invoice/test_hash_algorithm.py`
-- [ ] `test_cases/fiber/devnet/new_invoice/test_invoice_cost.py`
-- [ ] `test_cases/fiber/devnet/new_invoice/test_payment_preimage.py`
-- [ ] `test_cases/fiber/devnet/new_invoice/test_udt_type_script.py`
+- [x] `test_cases/fiber/devnet/new_invoice/test_description.py`
+- [x] `test_cases/fiber/devnet/new_invoice/test_expiry.py`
+- [x] `test_cases/fiber/devnet/new_invoice/test_fallback_address.py`
+- [x] `test_cases/fiber/devnet/new_invoice/test_final_expiry_delta.py`
+- [x] `test_cases/fiber/devnet/new_invoice/test_hash_algorithm.py`
+- [x] `test_cases/fiber/devnet/new_invoice/test_invoice_cost.py`
+- [x] `test_cases/fiber/devnet/new_invoice/test_payment_preimage.py`
+- [x] `test_cases/fiber/devnet/new_invoice/test_udt_type_script.py`
 
 ---
 
 ## 19. node_info (1 个文件)
 
-- [ ] `test_cases/fiber/devnet/node_info/test_node_info.py`
+- [x] `test_cases/fiber/devnet/node_info/test_node_info.py`
 
 ---
 
