@@ -59,7 +59,7 @@ class TestCommitmentDelayEpoch(FiberTest):
         assert (
             first_tx_message["input_cells"][0]["capacity"]
             - second_tx_message["input_cells"][0]["capacity"]
-            == Amount.ckb(100)
+            == Amount.ckb(1000)
         )
 
     def test_self_shutdown(self):

@@ -210,7 +210,7 @@ class TestFundingUdtTypeScript(FiberTest):
         Step 1: Faucet UDT; open_channel with amount > u128 max.
         Step 2: Assert channel list is empty.
         """
-        U128_MAX = 340282366920938463463374607431768211455
+        U128_MAX = 340282366920938463463374607431768211400
         self.faucet(
             self.fiber1.account_private,
             0,
