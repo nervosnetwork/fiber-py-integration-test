@@ -1,39 +1,41 @@
 """
 Test watch tower with one-to-one topology (a->b->c).
-Verifies settle_invoice after force shutdown with pending TLCs.
+When mid-node force shutdowns, verify settle_invoice and balance consistency.
 """
 import time
 
 from framework.basic_fiber import FiberTest
-from framework.constants import Amount
+from framework.constants import Amount, Currency
 from framework.util import ckb_hash
 
 
 class TestOneToOne(FiberTest):
     """
-    Test watch tower behavior when force shutdown with pending TLCs,
-    then settle_invoice to unlock TLCs (one-to-one topology).
+    Test watch tower with one-to-one topology (a->b->c).
+    Mid-node force shutdown, then settle invoices and verify balance.
     """
     start_fiber_config = {"fiber_watchtower_check_interval_seconds": 2}
 
     def test_one_to_one(self):
         """
-        Test settle_invoice after force shutdown with pending TLCs.
-        Step 1: Start fiber3 and open channels.
-        Step 2: Create invoices and send payments.
-        Step 3: Force shutdown both channels.
-        Step 4: Settle invoices with preimages.
-        Step 5: Wait for commitment cells to clear and assert balance changes.
+        Test one-to-one: a->b->c topology, mid-node shutdown then settle invoices.
+        Step 1: Build topology and create invoices.
+        Step 2: Send payments and force shutdown channels.
+        Step 3: Settle invoices and wait for commitment cells.
+        Step 4: Assert balance changes are correct.
         """
-        self.start_new_fiber(self.generate_account(10000))
+        # Step 1: Build topology and create invoices
+        self.start_new_fiber(self.generate_account(Amount.ckb(10000)))
         before_balance = self.get_fibers_balance()
         self.open_channel(
             self.fibers[0], self.fibers[1],
-            Amount.ckb(1000), 0
+            fiber1_balance=Amount.ckb(1000),
+            fiber2_balance=0,
         )
         self.open_channel(
             self.fibers[1], self.fibers[2],
-            Amount.ckb(1000), 0
+            fiber1_balance=Amount.ckb(1000),
+            fiber2_balance=0,
         )
         N = 8
         fiber3_preimages = []
@@ -47,7 +49,7 @@ class TestOneToOne(FiberTest):
                 .new_invoice(
                     {
                         "amount": hex(Amount.ckb(1)),
-                        "currency": "Fibd",
+                        "currency": Currency.FIBD,
                         "description": "test invoice",
                         "payment_hash": ckb_hash(fiber3_preimage),
                     }
@@ -88,10 +90,9 @@ class TestOneToOne(FiberTest):
             for i in range(600):
                 self.Miner.miner_with_version(self.node, "0x0")
             time.sleep(10)
+        # Step 4: Assert balance changes are correct
         after_balance = self.get_fibers_balance()
         result = self.get_balance_change(before_balance, after_balance)
-        # Tolerance for CKB fee (shannon)
-        tolerance = 20000
-        assert abs(result[0]["ckb"] - 800800000) < tolerance
-        assert abs(result[1]["ckb"] + 800000) < tolerance
-        assert abs(result[2]["ckb"] + 800000000) < tolerance
+        assert abs(result[0]["ckb"] - 800800000) < Amount.ckb(0.0002)
+        assert abs(result[1]["ckb"] + 800000) < Amount.ckb(0.0002)
+        assert abs(result[2]["ckb"] + 800000000) < Amount.ckb(0.0002)

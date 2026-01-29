@@ -1,3 +1,7 @@
+"""
+Test CKB contract deployment for Fiber.
+Deploys xudt, auth, commitment-lock, funding-lock contracts.
+"""
 import pytest
 
 from framework.basic import CkbTest
@@ -7,20 +11,30 @@ from test_cases.soft_fork.test_sync_again_with_other_node_when_sync_failed_tx im
 
 
 class TestDeploy(CkbTest):
+    """
+    Test CKB contract deployment for Fiber network.
+    Deploys xudt, auth, commitment-lock, funding-lock contracts to CKB devnet.
+    """
+
     @pytest.mark.skip("deploy")
     def test_deploy(self):
+        """
+        Deploy Fiber contracts (xudt, auth, commitment-lock, funding-lock) to CKB.
+        Step 1: Initialize CKB node and start.
+        Step 2: Deploy xudt contract and get code hash.
+        Step 3: Deploy auth contract and get code hash.
+        Step 4: Deploy commitment-lock and funding-lock contracts.
+        Step 5: Print deployed contract hashes for configuration.
+        """
+        # Step 1: Initialize CKB node and start
         self.node = self.CkbNode.init_dev_by_port(
             self.CkbNodeConfigPath.CURRENT_TEST, f"cluster/hardfork/node0", 8114, 8225
         )
         self.node.prepare()
-        self.node.prepare()
-        # tar_file(DATA_ERROR_TAT, node1.ckb_dir)
-
         self.node.start()
-
         self.Miner.make_tip_height_number(self.node, 1100)
 
-        # deploy contract  xudt
+        # Step 2: Deploy xudt contract and get code hash
         xudt_tx_hash = self.Contract.deploy_ckb_contract(
             self.Config.MINER_PRIVATE_1,
             "/Users/guopenglin/PycharmProjects/ckb-py-integration-test/source/contract/fiber/xudt",
@@ -33,6 +47,7 @@ class TestDeploy(CkbTest):
         )
         self.Miner.miner_until_tx_committed(self.node, xudt_tx_hash)
 
+        # Step 3: Deploy auth contract and get code hash
         auth_tx_hash = self.Contract.deploy_ckb_contract(
             self.Config.MINER_PRIVATE_1,
             "/Users/guopenglin/PycharmProjects/ckb-py-integration-test/source/contract/fiber/auth",
@@ -45,6 +60,7 @@ class TestDeploy(CkbTest):
         )
         self.Miner.miner_until_tx_committed(self.node, auth_tx_hash)
 
+        # Step 4: Deploy commitment-lock and funding-lock contracts
         commitment_lock_tx_hash = self.Contract.deploy_ckb_contract(
             self.Config.MINER_PRIVATE_1,
             "/Users/guopenglin/PycharmProjects/ckb-py-integration-test/source/contract/fiber/commitment-lock",
@@ -57,7 +73,6 @@ class TestDeploy(CkbTest):
         )
         self.Miner.miner_until_tx_committed(self.node, commitment_lock_tx_hash)
 
-        # funding-lock
         funding_lock_tx_hash = self.Contract.deploy_ckb_contract(
             self.Config.MINER_PRIVATE_1,
             "/Users/guopenglin/PycharmProjects/ckb-py-integration-test/source/contract/fiber/funding-lock",
@@ -70,6 +85,7 @@ class TestDeploy(CkbTest):
         )
         self.Miner.miner_until_tx_committed(self.node, funding_lock_tx_hash)
 
+        # Step 5: Print deployed contract hashes for configuration
         print("xudt_code_hash:", xudt_code_hash)
         print("xudt_tx_hash:", xudt_tx_hash)
         print("auth_code_hash:", auth_code_hash)
@@ -79,23 +95,15 @@ class TestDeploy(CkbTest):
         print("funding_lock_code_hash:", funding_lock_code_hash)
         print("funding_lock_tx_hash:", funding_lock_tx_hash)
 
-    # xudt_code_hash: 0x102583443ba6cfe5a3ac268bbb4475fb63eb497dce077f126ad3b148d4f4f8f8
-    # xudt_tx_hash: 0x03c4475655a46dc4984c49fce03316f80bf666236bd95118112731082758d686
-    # auth_code_hash: 0x97959f53d36b73e86acb5e8b925d9f58ef255fce05b78625a308349f2df01c8a
-    # auth_tx_hash: 0xecb1c1e3df6cd1e1ca16ca9bd392a3c030ece59cb5123bf156c51034e311a3ec
-    # commitment_lock_code_hash: 0x2d7d93e3347ddf9f10f6690af75f1e24debaa6c4363f3b2c068f61c757253d38
-    # commitment_lock_tx_hash: 0x79c3e55d7010755918f3d9b464425692eee8aa2e9ce89e4355cac0caa51d95bf
-    # funding_lock_code_hash: 0xd7302abe337c459b84c9da6d739d7736d6e8dbfd2326a509981c35943cfe0f56
-    # funding_lock_tx_hash: 0xa4b5c0c402797226ba4dadce21117811549de8b62f8acb3065dc49c23965f2a8
-
     def test_00000(self):
+        """
+        Placeholder test: verify CKB node is running.
+        Step 1: Initialize CKB node.
+        Step 2: Get tip block number to verify node is responsive.
+        """
+        # Step 1: Initialize CKB node
         self.node = self.CkbNode.init_dev_by_port(
             self.CkbNodeConfigPath.CURRENT_TEST, f"cluster/hardfork/node0", 8114, 8225
         )
-        # self.node.prepare()
-        # self.node.prepare()
-        # tar_file("/Users/guopenglin/PycharmProjects/ckb-py-integration-test/source/fiber/data.fiber.tar.gz", self.node.ckb_dir)
-        # self.node.start()
-        # self.node.getClient().get_tip_block_number()
-        # xudt_arg = self.node.getClient().get_live_cell(hex(0),"0x79c3e55d7010755918f3d9b464425692eee8aa2e9ce89e4355cac0caa51d95bf")
+        # Step 2: Get tip block number to verify node is responsive
         self.node.getClient().get_tip_block_number()

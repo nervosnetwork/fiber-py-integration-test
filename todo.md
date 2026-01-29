@@ -382,25 +382,25 @@
 
 ## 36. watch_tower_debug (1 个文件)
 
-- [ ] `test_cases/fiber/devnet/watch_tower_debug/test_htlc_expired.py`
+- [x] `test_cases/fiber/devnet/watch_tower_debug/test_htlc_expired.py`
 
 ---
 
 ## 37. watch_tower_wit_tlc (6 个文件)
 
-- [ ] `test_cases/fiber/devnet/watch_tower_wit_tlc/test_discard.py`
-- [ ] `test_cases/fiber/devnet/watch_tower_wit_tlc/test_mutil_to_one.py`
-- [ ] `test_cases/fiber/devnet/watch_tower_wit_tlc/test_one_to_one.py`
-- [ ] `test_cases/fiber/devnet/watch_tower_wit_tlc/test_pending_tlc_handle.py`
-- [ ] `test_cases/fiber/devnet/watch_tower_wit_tlc/test_pending_tlc_handle_udt.py`
-- [ ] `test_cases/fiber/devnet/watch_tower_wit_tlc/test_shutdown_mid_node.py`
+- [x] `test_cases/fiber/devnet/watch_tower_wit_tlc/test_discard.py`
+- [x] `test_cases/fiber/devnet/watch_tower_wit_tlc/test_mutil_to_one.py`
+- [x] `test_cases/fiber/devnet/watch_tower_wit_tlc/test_one_to_one.py`
+- [x] `test_cases/fiber/devnet/watch_tower_wit_tlc/test_pending_tlc_handle.py`
+- [x] `test_cases/fiber/devnet/watch_tower_wit_tlc/test_pending_tlc_handle_udt.py`
+- [x] `test_cases/fiber/devnet/watch_tower_wit_tlc/test_shutdown_mid_node.py`
 
 ---
 
 ## 38. 根目录文件 (2 个文件)
 
-- [ ] `test_cases/fiber/devnet/test_deploy.py`
-- [ ] `test_cases/fiber/devnet/test_fiber_demo.py`
+- [x] `test_cases/fiber/devnet/test_deploy.py`
+- [x] `test_cases/fiber/devnet/test_fiber_demo.py`
 
 ---
 

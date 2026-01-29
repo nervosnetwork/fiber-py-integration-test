@@ -1,36 +1,34 @@
 """
-Test watch tower when mid-node (fiber2) force shuts down with pending TLCs.
-Verifies settle_invoice and UDT balance changes in aN->b->c topology.
+Test watch tower when mid-node shutdowns with pending TLC.
+Multi-to-one UDT topology: aN->b->c, mid-node shutdown then settle invoices.
 """
 import time
 
-import pytest
-
 from framework.basic_fiber import FiberTest
-from framework.constants import Amount, FeeRate
+from framework.constants import Amount, Currency
 from framework.util import ckb_hash
 
 
 class TestShutdownMidNode(FiberTest):
     """
-    Test watch tower when mid-node (fiber2) force shuts down with pending TLCs.
-    Verifies settle_invoice unlocks TLCs and UDT balance changes (aN->b->c topology).
+    Test watch tower when mid-node shutdowns with pending TLC.
+    Multi-to-one UDT topology: aN->b->c.
     """
     start_fiber_config = {"fiber_watchtower_check_interval_seconds": 3}
 
     def test_mutil_to_one_udt_2(self):
         """
-        Test mid-node shutdown with pending TLCs, then settle_invoice (aN->b->c UDT).
-        Step 1: Start 8 fibers with UDT, open channels.
-        Step 2: Create invoices and send payments from new fibers to fiber2.
-        Step 3: Force shutdown fiber2 channel, settle invoices.
-        Step 4: Wait for commitment cells to clear.
-        Step 5: Shutdown remaining channels and assert UDT balance changes.
+        Test multi-to-one UDT: aN->b->c topology, mid-node shutdown then settle.
+        Step 1: Build UDT topology with multiple nodes connecting to fiber1.
+        Step 2: Send payments and shutdown mid-node, settle invoices.
+        Step 3: Wait for commitment cells and shutdown remaining channels.
+        Step 4: Assert UDT balance changes are correct.
         """
+        # Step 1: Build UDT topology with multiple nodes connecting to fiber1
         for i in range(8):
             self.start_new_fiber(
                 self.generate_account(
-                    10000,
+                    Amount.ckb(10000),
                     self.fiber1.account_private,
                     Amount.udt(10000),
                 )
@@ -67,7 +65,7 @@ class TestShutdownMidNode(FiberTest):
             fiber2_invoice = self.fiber2.get_client().new_invoice(
                 {
                     "amount": hex(Amount.ckb(1)),
-                    "currency": "Fibd",
+                    "currency": Currency.FIBD,
                     "description": "test invoice",
                     "payment_hash": ckb_hash(fiber2_preimage),
                     "udt_type_script": self.get_account_udt_script(
@@ -112,16 +110,17 @@ class TestShutdownMidNode(FiberTest):
                         "close_script": self.get_account_script(
                             self.Config.ACCOUNT_PRIVATE_1
                         ),
-                        "fee_rate": "0x3FC",  # 1020 shannons per KB
+                        "fee_rate": "0x3FC",
                     }
                 )
-                tx_hash = self.wait_and_check_tx_pool_fee(FeeRate.DEFAULT, False)
+                tx_hash = self.wait_and_check_tx_pool_fee(1000, False)
                 self.Miner.miner_until_tx_committed(self.node, tx_hash)
             except Exception as e:
                 pass
         after_balance = self.get_fibers_balance()
         result = self.get_balance_change(before_balance, after_balance)
-        assert result[0]["udt"] == -800000
-        assert result[1]["udt"] == -800000000
+        # Step 4: Assert UDT balance changes are correct
+        assert result[0]["udt"] == -Amount.udt(0.008)
+        assert result[1]["udt"] == -Amount.udt(8)
         for i in range(2, 10):
-            assert result[i]["udt"] == 100100000
+            assert result[i]["udt"] == Amount.udt(1.001)

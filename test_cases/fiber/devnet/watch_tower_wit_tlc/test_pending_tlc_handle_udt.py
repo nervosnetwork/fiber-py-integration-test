@@ -1,13 +1,16 @@
-import hashlib
+"""
+Test watch tower with pending TLC (UDT) when node force shutdowns.
+Covers UDT TLC unlock scenarios at different delay_epoch phases.
+"""
 import time
 
 import pytest
 
 from framework.basic_fiber import FiberTest
+from framework.constants import Amount, Currency, FeeRate
 from framework.util import ckb_hash
 
 
-# @pytest.mark.skip("强制shutdown 后settle invoice  没用了")
 class TestPendingTlcHandleUdt(FiberTest):
     start_fiber_config = {"fiber_watchtower_check_interval_seconds": 5}
     """
@@ -78,6 +81,7 @@ class TestPendingTlcHandleUdt(FiberTest):
     测试N的上限
     """
 
+    @classmethod
     def teardown_class(cls):
         cls.restore_time()
         super().teardown_class()
@@ -93,21 +97,21 @@ class TestPendingTlcHandleUdt(FiberTest):
             self.fiber1.account_private,
             0,
             self.fiber1.account_private,
-            10000 * 100000000,
+            Amount.udt(10000),
         )
         before_balance = self.get_fibers_balance()
         self.open_channel(
             self.fiber1,
             self.fiber2,
-            1000 * 100000000,
-            1000 * 100000000,
+            Amount.ckb(1000),
+            Amount.ckb(1000),
             udt=self.get_account_udt_script(self.fiber1.account_private),
         )
         fiber1_preimage = self.generate_random_preimage()
         fiber1_invoice = self.fiber1.get_client().new_invoice(
             {
-                "amount": hex(100000000),
-                "currency": "Fibd",
+                "amount": hex(Amount.ckb(1)),
+                "currency": Currency.FIBD,
                 "description": "test invoice",
                 "payment_hash": ckb_hash(fiber1_preimage),
                 "udt_type_script": self.get_account_udt_script(
@@ -131,7 +135,7 @@ class TestPendingTlcHandleUdt(FiberTest):
                 "force": True,
             }
         )
-        force_shutdown_tx_hash = self.wait_and_check_tx_pool_fee(1000, False)
+        force_shutdown_tx_hash = self.wait_and_check_tx_pool_fee(FeeRate.DEFAULT, False)
         self.Miner.miner_until_tx_committed(self.node, force_shutdown_tx_hash)
         self.node.getClient().generate_epochs("0x1")
         time.sleep(10)
@@ -148,22 +152,22 @@ class TestPendingTlcHandleUdt(FiberTest):
             self.fiber1.account_private,
             0,
             self.fiber1.account_private,
-            10000 * 100000000,
+            Amount.udt(10000),
         )
         before_balance = self.get_fibers_balance()
         self.open_channel(
             self.fiber1,
             self.fiber2,
-            1000 * 100000000,
-            1000 * 100000000,
+            Amount.ckb(1000),
+            Amount.ckb(1000),
             udt=self.get_account_udt_script(self.fiber1.account_private),
         )
         fiber2_preimage = self.generate_random_preimage()
         fiber1_preimage = self.generate_random_preimage()
         fiber2_invoice = self.fiber2.get_client().new_invoice(
             {
-                "amount": hex(10000000),
-                "currency": "Fibd",
+                "amount": hex(Amount.ckb(0.1)),
+                "currency": Currency.FIBD,
                 "description": "test invoice",
                 "payment_hash": ckb_hash(fiber2_preimage),
                 "udt_type_script": self.get_account_udt_script(
@@ -173,8 +177,8 @@ class TestPendingTlcHandleUdt(FiberTest):
         )
         fiber1_invoice = self.fiber1.get_client().new_invoice(
             {
-                "amount": hex(100000000),
-                "currency": "Fibd",
+                "amount": hex(Amount.ckb(1)),
+                "currency": Currency.FIBD,
                 "description": "test invoice",
                 "payment_hash": ckb_hash(fiber1_preimage),
                 "udt_type_script": self.get_account_udt_script(
@@ -203,7 +207,7 @@ class TestPendingTlcHandleUdt(FiberTest):
                 "force": True,
             }
         )
-        force_shutdown_tx_hash = self.wait_and_check_tx_pool_fee(1000, False)
+        force_shutdown_tx_hash = self.wait_and_check_tx_pool_fee(FeeRate.DEFAULT, False)
         self.Miner.miner_until_tx_committed(self.node, force_shutdown_tx_hash)
         self.node.getClient().generate_epochs("0x1")
         time.sleep(10)
@@ -233,21 +237,21 @@ class TestPendingTlcHandleUdt(FiberTest):
             self.fiber1.account_private,
             0,
             self.fiber1.account_private,
-            10000 * 100000000,
+            Amount.udt(10000),
         )
         before_balance = self.get_fibers_balance()
         self.open_channel(
             self.fiber1,
             self.fiber2,
-            1000 * 100000000,
-            1000 * 100000000,
+            Amount.ckb(1000),
+            Amount.ckb(1000),
             udt=self.get_account_udt_script(self.fiber1.account_private),
         )
         fiber2_preimage = self.generate_random_preimage()
         fiber2_invoice = self.fiber2.get_client().new_invoice(
             {
-                "amount": hex(10000000),
-                "currency": "Fibd",
+                "amount": hex(Amount.ckb(0.1)),
+                "currency": Currency.FIBD,
                 "description": "test invoice",
                 "payment_hash": ckb_hash(fiber2_preimage),
                 "udt_type_script": self.get_account_udt_script(
@@ -259,8 +263,8 @@ class TestPendingTlcHandleUdt(FiberTest):
         fiber1_preimage = self.generate_random_preimage()
         fiber1_invoice = self.fiber1.get_client().new_invoice(
             {
-                "amount": hex(100000000),
-                "currency": "Fibd",
+                "amount": hex(Amount.ckb(1)),
+                "currency": Currency.FIBD,
                 "description": "test invoice",
                 "payment_hash": ckb_hash(fiber1_preimage),
                 "udt_type_script": self.get_account_udt_script(
@@ -272,8 +276,8 @@ class TestPendingTlcHandleUdt(FiberTest):
         fiber1_preimage_2_3 = self.generate_random_preimage()
         fiber1_invoice_2_3 = self.fiber1.get_client().new_invoice(
             {
-                "amount": hex(100000000),
-                "currency": "Fibd",
+                "amount": hex(Amount.ckb(1)),
+                "currency": Currency.FIBD,
                 "description": "test invoice",
                 "payment_hash": ckb_hash(fiber1_preimage_2_3),
                 "udt_type_script": self.get_account_udt_script(
@@ -284,8 +288,8 @@ class TestPendingTlcHandleUdt(FiberTest):
         fiber1_preimage_after_delay_epoch = self.generate_random_preimage()
         fiber1_invoice_after_delay_epoch = self.fiber1.get_client().new_invoice(
             {
-                "amount": hex(100000000),
-                "currency": "Fibd",
+                "amount": hex(Amount.ckb(1)),
+                "currency": Currency.FIBD,
                 "description": "test invoice",
                 "payment_hash": ckb_hash(fiber1_preimage_after_delay_epoch),
                 "udt_type_script": self.get_account_udt_script(
@@ -332,7 +336,7 @@ class TestPendingTlcHandleUdt(FiberTest):
                 "force": True,
             }
         )
-        force_shutdown_tx_hash = self.wait_and_check_tx_pool_fee(1000, False)
+        force_shutdown_tx_hash = self.wait_and_check_tx_pool_fee(FeeRate.DEFAULT, False)
         self.Miner.miner_until_tx_committed(self.node, force_shutdown_tx_hash)
         # 时间过去 0～ 1/3 个 delay_epoch
         #                 node2 无法解锁
@@ -351,14 +355,14 @@ class TestPendingTlcHandleUdt(FiberTest):
                 "payment_preimage": fiber1_preimage,
             }
         )
-        tx_hash = self.wait_and_check_tx_pool_fee(1000, False)
+        tx_hash = self.wait_and_check_tx_pool_fee(FeeRate.DEFAULT, False)
         self.Miner.miner_until_tx_committed(self.node, tx_hash)
         msg = self.get_tx_message(tx_hash)
         print("msg:", msg)
         assert (
             msg["input_cells"][0]["udt_capacity"]
             - msg["output_cells"][0]["udt_capacity"]
-            == 100000000
+            == Amount.ckb(1)
         )
         # 2/3～1
         #     node1无法取回
@@ -372,14 +376,14 @@ class TestPendingTlcHandleUdt(FiberTest):
                 "payment_preimage": fiber1_preimage_2_3,
             }
         )
-        tx_hash = self.wait_and_check_tx_pool_fee(1000, False)
+        tx_hash = self.wait_and_check_tx_pool_fee(FeeRate.DEFAULT, False)
         self.Miner.miner_until_tx_committed(self.node, tx_hash)
         msg = self.get_tx_message(tx_hash)
         print("msg:", msg)
         assert (
             msg["input_cells"][0]["udt_capacity"]
             - msg["output_cells"][0]["udt_capacity"]
-            == 100000000
+            == Amount.ckb(1)
         )
 
         # 时间过去 delay_epoch
@@ -392,14 +396,14 @@ class TestPendingTlcHandleUdt(FiberTest):
                 "payment_preimage": fiber1_preimage_after_delay_epoch,
             }
         )
-        tx_hash = self.wait_and_check_tx_pool_fee(1000, False)
+        tx_hash = self.wait_and_check_tx_pool_fee(FeeRate.DEFAULT, False)
         self.Miner.miner_until_tx_committed(self.node, tx_hash)
         msg = self.get_tx_message(tx_hash)
         print("msg:", msg)
         assert (
             msg["input_cells"][0]["udt_capacity"]
             - msg["output_cells"][0]["udt_capacity"]
-            == 100000000
+            == Amount.ckb(1)
         )
 
     def test_1nodes_have_tlc_have_pre_image_node1_shutdown(self):
@@ -424,21 +428,21 @@ class TestPendingTlcHandleUdt(FiberTest):
             self.fiber1.account_private,
             0,
             self.fiber1.account_private,
-            10000 * 100000000,
+            Amount.udt(10000),
         )
         before_balance = self.get_fibers_balance()
         self.open_channel(
             self.fiber1,
             self.fiber2,
-            1000 * 100000000,
-            1000 * 100000000,
+            Amount.ckb(1000),
+            Amount.ckb(1000),
             udt=self.get_account_udt_script(self.fiber1.account_private),
         )
         fiber1_preimage = self.generate_random_preimage()
         fiber1_invoice = self.fiber1.get_client().new_invoice(
             {
-                "amount": hex(100000000),
-                "currency": "Fibd",
+                "amount": hex(Amount.ckb(1)),
+                "currency": Currency.FIBD,
                 "description": "test invoice",
                 "payment_hash": ckb_hash(fiber1_preimage),
                 "udt_type_script": self.get_account_udt_script(
@@ -450,8 +454,8 @@ class TestPendingTlcHandleUdt(FiberTest):
         fiber1_preimage_2_3 = self.generate_random_preimage()
         fiber1_invoice_2_3 = self.fiber1.get_client().new_invoice(
             {
-                "amount": hex(100000000),
-                "currency": "Fibd",
+                "amount": hex(Amount.ckb(1)),
+                "currency": Currency.FIBD,
                 "description": "test invoice",
                 "payment_hash": ckb_hash(fiber1_preimage_2_3),
                 "udt_type_script": self.get_account_udt_script(
@@ -462,8 +466,8 @@ class TestPendingTlcHandleUdt(FiberTest):
         fiber1_preimage_after_delay_epoch = self.generate_random_preimage()
         fiber1_invoice_after_delay_epoch = self.fiber1.get_client().new_invoice(
             {
-                "amount": hex(100000000),
-                "currency": "Fibd",
+                "amount": hex(Amount.ckb(1)),
+                "currency": Currency.FIBD,
                 "description": "test invoice",
                 "payment_hash": ckb_hash(fiber1_preimage_after_delay_epoch),
                 "udt_type_script": self.get_account_udt_script(
@@ -503,7 +507,7 @@ class TestPendingTlcHandleUdt(FiberTest):
                 "force": True,
             }
         )
-        force_shutdown_tx_hash = self.wait_and_check_tx_pool_fee(1000, False)
+        force_shutdown_tx_hash = self.wait_and_check_tx_pool_fee(FeeRate.DEFAULT, False)
         self.Miner.miner_until_tx_committed(self.node, force_shutdown_tx_hash)
         # 时间过去 0～ 1/3 个 delay_epoch
         #                 node2 无法解锁
@@ -523,14 +527,14 @@ class TestPendingTlcHandleUdt(FiberTest):
                 "payment_preimage": fiber1_preimage,
             }
         )
-        tx_hash = self.wait_and_check_tx_pool_fee(1000, False)
+        tx_hash = self.wait_and_check_tx_pool_fee(FeeRate.DEFAULT, False)
         self.Miner.miner_until_tx_committed(self.node, tx_hash)
         msg = self.get_tx_message(tx_hash)
         print("msg:", msg)
         assert (
             msg["input_cells"][0]["udt_capacity"]
             - msg["output_cells"][0]["udt_capacity"]
-            == 100000000
+            == Amount.ckb(1)
         )
         # 2/3 ～ 1
         #     node1无法取回
@@ -544,14 +548,14 @@ class TestPendingTlcHandleUdt(FiberTest):
                 "payment_preimage": fiber1_preimage_2_3,
             }
         )
-        tx_hash = self.wait_and_check_tx_pool_fee(1000, False)
+        tx_hash = self.wait_and_check_tx_pool_fee(FeeRate.DEFAULT, False)
         self.Miner.miner_until_tx_committed(self.node, tx_hash)
         msg = self.get_tx_message(tx_hash)
         print("msg:", msg)
         assert (
             msg["input_cells"][0]["udt_capacity"]
             - msg["output_cells"][0]["udt_capacity"]
-            == 100000000
+            == Amount.ckb(1)
         )
 
         # 时间过去 delay_epoch
@@ -564,14 +568,14 @@ class TestPendingTlcHandleUdt(FiberTest):
                 "payment_preimage": fiber1_preimage_after_delay_epoch,
             }
         )
-        tx_hash = self.wait_and_check_tx_pool_fee(1000, False)
+        tx_hash = self.wait_and_check_tx_pool_fee(FeeRate.DEFAULT, False)
         self.Miner.miner_until_tx_committed(self.node, tx_hash)
         msg = self.get_tx_message(tx_hash)
         print("msg:", msg)
         assert (
             msg["input_cells"][0]["udt_capacity"]
             - msg["output_cells"][0]["udt_capacity"]
-            == 100000000
+            == Amount.ckb(1)
         )
 
     def test_1nodes_have_tlc_have_pre_image_node2_shutdown(self):
@@ -596,21 +600,21 @@ class TestPendingTlcHandleUdt(FiberTest):
             self.fiber1.account_private,
             0,
             self.fiber1.account_private,
-            10000 * 100000000,
+            Amount.udt(10000),
         )
         before_balance = self.get_fibers_balance()
         self.open_channel(
             self.fiber1,
             self.fiber2,
-            1000 * 100000000,
-            1000 * 100000000,
+            Amount.ckb(1000),
+            Amount.ckb(1000),
             udt=self.get_account_udt_script(self.fiber1.account_private),
         )
         fiber1_preimage = self.generate_random_preimage()
         fiber1_invoice = self.fiber1.get_client().new_invoice(
             {
-                "amount": hex(100000000),
-                "currency": "Fibd",
+                "amount": hex(Amount.ckb(1)),
+                "currency": Currency.FIBD,
                 "description": "test invoice",
                 "payment_hash": ckb_hash(fiber1_preimage),
                 "udt_type_script": self.get_account_udt_script(
@@ -622,8 +626,8 @@ class TestPendingTlcHandleUdt(FiberTest):
         fiber1_preimage_2_3 = self.generate_random_preimage()
         fiber1_invoice_2_3 = self.fiber1.get_client().new_invoice(
             {
-                "amount": hex(100000000),
-                "currency": "Fibd",
+                "amount": hex(Amount.ckb(1)),
+                "currency": Currency.FIBD,
                 "description": "test invoice",
                 "payment_hash": ckb_hash(fiber1_preimage_2_3),
                 "udt_type_script": self.get_account_udt_script(
@@ -634,8 +638,8 @@ class TestPendingTlcHandleUdt(FiberTest):
         fiber1_preimage_after_delay_epoch = self.generate_random_preimage()
         fiber1_invoice_after_delay_epoch = self.fiber1.get_client().new_invoice(
             {
-                "amount": hex(100000000),
-                "currency": "Fibd",
+                "amount": hex(Amount.ckb(1)),
+                "currency": Currency.FIBD,
                 "description": "test invoice",
                 "payment_hash": ckb_hash(fiber1_preimage_after_delay_epoch),
                 "udt_type_script": self.get_account_udt_script(
@@ -670,7 +674,7 @@ class TestPendingTlcHandleUdt(FiberTest):
                 "force": True,
             }
         )
-        force_shutdown_tx_hash = self.wait_and_check_tx_pool_fee(1000, False)
+        force_shutdown_tx_hash = self.wait_and_check_tx_pool_fee(FeeRate.DEFAULT, False)
         self.Miner.miner_until_tx_committed(self.node, force_shutdown_tx_hash)
         # 时间过去 0～ 1/3 个 delay_epoch
         #                 node2 无法解锁
@@ -689,14 +693,14 @@ class TestPendingTlcHandleUdt(FiberTest):
                 "payment_preimage": fiber1_preimage,
             }
         )
-        tx_hash = self.wait_and_check_tx_pool_fee(1000, False)
+        tx_hash = self.wait_and_check_tx_pool_fee(FeeRate.DEFAULT, False)
         self.Miner.miner_until_tx_committed(self.node, tx_hash)
         msg = self.get_tx_message(tx_hash)
         print("msg:", msg)
         assert (
             msg["input_cells"][0]["udt_capacity"]
             - msg["output_cells"][0]["udt_capacity"]
-            == 100000000
+            == Amount.ckb(1)
         )
         # 2/3 ～ 1
         #     node1无法取回
@@ -710,14 +714,14 @@ class TestPendingTlcHandleUdt(FiberTest):
                 "payment_preimage": fiber1_preimage_2_3,
             }
         )
-        tx_hash = self.wait_and_check_tx_pool_fee(1000, False)
+        tx_hash = self.wait_and_check_tx_pool_fee(FeeRate.DEFAULT, False)
         self.Miner.miner_until_tx_committed(self.node, tx_hash)
         msg = self.get_tx_message(tx_hash)
         print("msg:", msg)
         assert (
             msg["input_cells"][0]["udt_capacity"]
             - msg["output_cells"][0]["udt_capacity"]
-            == 100000000
+            == Amount.ckb(1)
         )
 
         # 时间过去 delay_epoch
@@ -731,14 +735,14 @@ class TestPendingTlcHandleUdt(FiberTest):
                 "payment_preimage": fiber1_preimage_after_delay_epoch,
             }
         )
-        tx_hash = self.wait_and_check_tx_pool_fee(1000, False)
+        tx_hash = self.wait_and_check_tx_pool_fee(FeeRate.DEFAULT, False)
         self.Miner.miner_until_tx_committed(self.node, tx_hash)
         msg = self.get_tx_message(tx_hash)
         print("msg:", msg)
         assert (
             msg["input_cells"][0]["udt_capacity"]
             - msg["output_cells"][0]["udt_capacity"]
-            == 100000000
+            == Amount.ckb(1)
         )
 
     # todo
@@ -751,13 +755,13 @@ class TestPendingTlcHandleUdt(FiberTest):
             self.fiber1.account_private,
             0,
             self.fiber1.account_private,
-            10000 * 100000000,
+            Amount.udt(10000),
         )
         self.open_channel(
             self.fiber1,
             self.fiber2,
-            1000 * 100000000,
-            1000 * 100000000,
+            Amount.ckb(1000),
+            Amount.ckb(1000),
             udt=self.get_account_udt_script(self.fiber1.account_private),
         )
         tls_size = 2
@@ -769,8 +773,8 @@ class TestPendingTlcHandleUdt(FiberTest):
         for i in range(tls_size):
             fiber1_invoice = self.fiber1.get_client().new_invoice(
                 {
-                    "amount": hex(100000000),
-                    "currency": "Fibd",
+                    "amount": hex(Amount.ckb(1)),
+                    "currency": Currency.FIBD,
                     "description": "test invoice",
                     "payment_hash": ckb_hash(preimages[i]),
                     "udt_type_script": self.get_account_udt_script(
@@ -795,7 +799,7 @@ class TestPendingTlcHandleUdt(FiberTest):
                 "force": True,
             }
         )
-        force_shutdown_tx = self.wait_and_check_tx_pool_fee(1000, False)
+        force_shutdown_tx = self.wait_and_check_tx_pool_fee(FeeRate.DEFAULT, False)
         self.Miner.miner_until_tx_committed(self.node, force_shutdown_tx)
         for i in range(tls_size):
             self.fiber1.get_client().settle_invoice(
@@ -825,22 +829,22 @@ class TestPendingTlcHandleUdt(FiberTest):
             self.fiber1.account_private,
             0,
             self.fiber1.account_private,
-            10000 * 100000000,
+            Amount.udt(10000),
         )
         before_balance = self.get_fibers_balance()
         self.open_channel(
             self.fiber1,
             self.fiber2,
-            1000 * 100000000,
-            1000 * 100000000,
+            Amount.ckb(1000),
+            Amount.ckb(1000),
             udt=self.get_account_udt_script(self.fiber1.account_private),
         )
         fiber2_preimage = self.generate_random_preimage()
         fiber1_preimage = self.generate_random_preimage()
         fiber2_invoice = self.fiber2.get_client().new_invoice(
             {
-                "amount": hex(10000000),
-                "currency": "Fibd",
+                "amount": hex(Amount.ckb(0.1)),
+                "currency": Currency.FIBD,
                 "description": "test invoice",
                 "payment_hash": ckb_hash(fiber2_preimage),
                 "udt_type_script": self.get_account_udt_script(
@@ -850,8 +854,8 @@ class TestPendingTlcHandleUdt(FiberTest):
         )
         fiber1_invoice = self.fiber1.get_client().new_invoice(
             {
-                "amount": hex(100000000),
-                "currency": "Fibd",
+                "amount": hex(Amount.ckb(1)),
+                "currency": Currency.FIBD,
                 "description": "test invoice",
                 "payment_hash": ckb_hash(fiber1_preimage),
                 "udt_type_script": self.get_account_udt_script(
@@ -881,7 +885,7 @@ class TestPendingTlcHandleUdt(FiberTest):
                 "force": True,
             }
         )
-        force_shutdown_tx_hash = self.wait_and_check_tx_pool_fee(1000, False)
+        force_shutdown_tx_hash = self.wait_and_check_tx_pool_fee(FeeRate.DEFAULT, False)
         self.Miner.miner_until_tx_committed(self.node, force_shutdown_tx_hash)
         while len(self.get_commit_cells()) > 0:
             for i in range(600):
@@ -913,11 +917,11 @@ class TestPendingTlcHandleUdt(FiberTest):
         )
 
         # 节点1 消耗 1000 ckb+ 手续费
-        # assert abs(result[0]['ckb'] - 1000 * 100000000) < 100000
-        assert result[0]["udt"] == 1000 * 100000000
+        # assert abs(result[0]['ckb'] - Amount.ckb(1000)) < 100000
+        assert result[0]["udt"] == Amount.ckb(1000)
         # 节点2 获得1000 ckb + 手续费
-        # assert abs(result[1]['ckb'] + 1000 * 100000000) < 100000
-        assert result[1]["udt"] == -1000 * 100000000
+        # assert abs(result[1]['ckb'] + Amount.ckb(1000)) < 100000
+        assert result[1]["udt"] == -Amount.ckb(1000)
 
     @pytest.mark.skip("不确定什么时候过期")
     def test_tlc_expiry_2nodes_have_tlc_node1_shutdown_node1_have_preimage_node2_stop(
@@ -931,21 +935,21 @@ class TestPendingTlcHandleUdt(FiberTest):
             self.fiber1.account_private,
             0,
             self.fiber1.account_private,
-            10000 * 100000000,
+            Amount.udt(10000),
         )
         before_balance = self.get_fibers_balance()
         self.open_channel(
             self.fiber1,
             self.fiber2,
-            1000 * 100000000,
-            1000 * 100000000,
+            Amount.ckb(1000),
+            Amount.ckb(1000),
             udt=self.get_account_udt_script(self.fiber1.account_private),
         )
         fiber2_preimage = self.generate_random_preimage()
         fiber2_invoice = self.fiber2.get_client().new_invoice(
             {
-                "amount": hex(10000000),
-                "currency": "Fibd",
+                "amount": hex(Amount.ckb(0.1)),
+                "currency": Currency.FIBD,
                 "description": "test invoice",
                 "payment_hash": ckb_hash(fiber2_preimage),
                 "udt_type_script": self.get_account_udt_script(
@@ -957,8 +961,8 @@ class TestPendingTlcHandleUdt(FiberTest):
         fiber1_preimage = self.generate_random_preimage()
         fiber1_invoice = self.fiber1.get_client().new_invoice(
             {
-                "amount": hex(100000000),
-                "currency": "Fibd",
+                "amount": hex(Amount.ckb(1)),
+                "currency": Currency.FIBD,
                 "description": "test invoice",
                 "payment_hash": ckb_hash(fiber1_preimage),
                 "udt_type_script": self.get_account_udt_script(
@@ -970,8 +974,8 @@ class TestPendingTlcHandleUdt(FiberTest):
         fiber1_preimage_2_3 = self.generate_random_preimage()
         fiber1_invoice_2_3 = self.fiber1.get_client().new_invoice(
             {
-                "amount": hex(100000001),
-                "currency": "Fibd",
+                "amount": hex(Amount.ckb(1) + 1),
+                "currency": Currency.FIBD,
                 "description": "test invoice",
                 "payment_hash": ckb_hash(fiber1_preimage_2_3),
                 "udt_type_script": self.get_account_udt_script(
@@ -982,8 +986,8 @@ class TestPendingTlcHandleUdt(FiberTest):
         fiber1_preimage_after_delay_epoch = self.generate_random_preimage()
         fiber1_invoice_after_delay_epoch = self.fiber1.get_client().new_invoice(
             {
-                "amount": hex(100000000),
-                "currency": "Fibd",
+                "amount": hex(Amount.ckb(1)),
+                "currency": Currency.FIBD,
                 "description": "test invoice",
                 "payment_hash": ckb_hash(fiber1_preimage_after_delay_epoch),
                 "udt_type_script": self.get_account_udt_script(
@@ -1024,7 +1028,7 @@ class TestPendingTlcHandleUdt(FiberTest):
                 "force": True,
             }
         )
-        force_shutdown_tx_hash = self.wait_and_check_tx_pool_fee(1000, False)
+        force_shutdown_tx_hash = self.wait_and_check_tx_pool_fee(FeeRate.DEFAULT, False)
         self.Miner.miner_until_tx_committed(self.node, force_shutdown_tx_hash)
         self.fiber2.stop()
         # 时间过去 0～ 1/3 个 delay_epoch
@@ -1044,14 +1048,14 @@ class TestPendingTlcHandleUdt(FiberTest):
                 "payment_preimage": fiber1_preimage,
             }
         )
-        tx_hash = self.wait_and_check_tx_pool_fee(1000, False)
+        tx_hash = self.wait_and_check_tx_pool_fee(FeeRate.DEFAULT, False)
         self.Miner.miner_until_tx_committed(self.node, tx_hash)
         msg = self.get_tx_message(tx_hash)
         print("msg:", msg)
         assert (
             msg["input_cells"][0]["udt_capacity"]
             - msg["output_cells"][0]["udt_capacity"]
-            == 100000000
+            == Amount.ckb(1)
         )
         # 2/3～1
         #     node1可以取回
@@ -1063,11 +1067,11 @@ class TestPendingTlcHandleUdt(FiberTest):
                 "payment_preimage": fiber1_preimage_2_3,
             }
         )
-        tx_hash = self.wait_and_check_tx_pool_fee(1000, False)
+        tx_hash = self.wait_and_check_tx_pool_fee(FeeRate.DEFAULT, False)
         self.Miner.miner_until_tx_committed(self.node, tx_hash)
 
         # node2 可以通过pre_image 解锁部分tlc
-        tx_hash = self.wait_and_check_tx_pool_fee(1000, False)
+        tx_hash = self.wait_and_check_tx_pool_fee(FeeRate.DEFAULT, False)
         self.Miner.miner_until_tx_committed(self.node, tx_hash)
 
         # 时间过去 delay_epoch
@@ -1092,14 +1096,14 @@ class TestPendingTlcHandleUdt(FiberTest):
             self.fiber1.account_private,
             0,
             self.fiber1.account_private,
-            10000 * 100000000,
+            Amount.udt(10000),
         )
 
         self.open_channel(
             self.fiber1,
             self.fiber2,
-            1000 * 100000000,
-            1000 * 100000000,
+            Amount.ckb(1000),
+            Amount.ckb(1000),
             udt=self.get_account_udt_script(self.fiber1.account_private),
         )
         tls_size = 2
@@ -1111,8 +1115,8 @@ class TestPendingTlcHandleUdt(FiberTest):
         for i in range(tls_size):
             fiber1_invoice = self.fiber1.get_client().new_invoice(
                 {
-                    "amount": hex(100000000),
-                    "currency": "Fibd",
+                    "amount": hex(Amount.ckb(1)),
+                    "currency": Currency.FIBD,
                     "description": "test invoice",
                     "payment_hash": ckb_hash(preimages[i]),
                     "udt_type_script": self.get_account_udt_script(
@@ -1137,7 +1141,7 @@ class TestPendingTlcHandleUdt(FiberTest):
                 "force": True,
             }
         )
-        force_shutdown_tx_hash = self.wait_and_check_tx_pool_fee(1000, False)
+        force_shutdown_tx_hash = self.wait_and_check_tx_pool_fee(FeeRate.DEFAULT, False)
         self.Miner.miner_until_tx_committed(self.node, force_shutdown_tx_hash)
         while len(self.get_commit_cells()) > 0:
             for i in range(600):
@@ -1154,14 +1158,14 @@ class TestPendingTlcHandleUdt(FiberTest):
             self.fiber1.account_private,
             0,
             self.fiber1.account_private,
-            10000 * 100000000,
+            Amount.udt(10000),
         )
 
         self.open_channel(
             self.fiber1,
             self.fiber2,
-            1000 * 100000000,
-            1000 * 100000000,
+            Amount.ckb(1000),
+            Amount.ckb(1000),
             udt=self.get_account_udt_script(self.fiber1.account_private),
         )
         tls_size = 2
@@ -1173,8 +1177,8 @@ class TestPendingTlcHandleUdt(FiberTest):
         for i in range(tls_size):
             fiber1_invoice = self.fiber1.get_client().new_invoice(
                 {
-                    "amount": hex(100000000),
-                    "currency": "Fibd",
+                    "amount": hex(Amount.ckb(1)),
+                    "currency": Currency.FIBD,
                     "description": "test invoice",
                     "payment_hash": ckb_hash(preimages[i]),
                     "udt_type_script": self.get_account_udt_script(
@@ -1199,7 +1203,7 @@ class TestPendingTlcHandleUdt(FiberTest):
                 "force": True,
             }
         )
-        force_shutdown_tx_hash = self.wait_and_check_tx_pool_fee(1000, False)
+        force_shutdown_tx_hash = self.wait_and_check_tx_pool_fee(FeeRate.DEFAULT, False)
         self.Miner.miner_until_tx_committed(self.node, force_shutdown_tx_hash)
         while len(self.get_commit_cells()) > 0:
             for i in range(600):
@@ -1216,15 +1220,15 @@ class TestPendingTlcHandleUdt(FiberTest):
             self.fiber1.account_private,
             0,
             self.fiber1.account_private,
-            10000 * 100000000,
+            Amount.udt(10000),
         )
 
         before_balance = self.get_fibers_balance()
         self.open_channel(
             self.fiber1,
             self.fiber2,
-            1000 * 100000000,
-            1000 * 100000000,
+            Amount.ckb(1000),
+            Amount.ckb(1000),
             udt=self.get_account_udt_script(self.fiber1.account_private),
         )
         fiber2_preimage = self.generate_random_preimage()
@@ -1232,7 +1236,7 @@ class TestPendingTlcHandleUdt(FiberTest):
         fiber2_invoice = self.fiber2.get_client().new_invoice(
             {
                 "amount": hex(1000000),
-                "currency": "Fibd",
+                "currency": Currency.FIBD,
                 "description": "test invoice",
                 "payment_hash": ckb_hash(fiber2_preimage),
                 "udt_type_script": self.get_account_udt_script(
@@ -1243,7 +1247,7 @@ class TestPendingTlcHandleUdt(FiberTest):
         fiber1_invoice = self.fiber1.get_client().new_invoice(
             {
                 "amount": hex(1000000),
-                "currency": "Fibd",
+                "currency": Currency.FIBD,
                 "description": "test invoice",
                 "payment_hash": ckb_hash(fiber1_preimage),
                 "udt_type_script": self.get_account_udt_script(
@@ -1273,7 +1277,7 @@ class TestPendingTlcHandleUdt(FiberTest):
                 "force": True,
             }
         )
-        force_shutdown_tx_hash = self.wait_and_check_tx_pool_fee(1000, False)
+        force_shutdown_tx_hash = self.wait_and_check_tx_pool_fee(FeeRate.DEFAULT, False)
         self.Miner.miner_until_tx_committed(self.node, force_shutdown_tx_hash)
         while len(self.get_commit_cells()) > 0:
             for i in range(600):
@@ -1297,6 +1301,6 @@ class TestPendingTlcHandleUdt(FiberTest):
             < 1300
         )
         # 节点1 消耗 1000 ckb+ 手续费
-        assert result[0]["udt"] == 1000 * 100000000
+        assert result[0]["udt"] == Amount.ckb(1000)
         # 节点2 获得1000 ckb + 手续费
-        assert result[1]["udt"] == -1000 * 100000000
+        assert result[1]["udt"] == -Amount.ckb(1000)
