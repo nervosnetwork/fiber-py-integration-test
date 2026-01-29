@@ -264,31 +264,31 @@
 - [x] `test_cases/fiber/devnet/send_payment/params/test_timeout.py`
 - [x] `test_cases/fiber/devnet/send_payment/params/test_tlc_expiry_limit.py`
 - [x] `test_cases/fiber/devnet/send_payment/params/test_tlc_fee.py`
-- [ ] `test_cases/fiber/devnet/send_payment/params/test_used_preimage.py`
+- [x] `test_cases/fiber/devnet/send_payment/params/test_used_preimage.py`
 
 ### 25.9 send_payment/path (4 个文件)
 
-- [ ] `test_cases/fiber/devnet/send_payment/path/test_find_path.py`
-- [ ] `test_cases/fiber/devnet/send_payment/path/test_long_router.py`
-- [ ] `test_cases/fiber/devnet/send_payment/path/test_mutil_channel.py`
-- [ ] `test_cases/fiber/devnet/send_payment/path/test_private_channel.py`
+- [x] `test_cases/fiber/devnet/send_payment/path/test_find_path.py`
+- [x] `test_cases/fiber/devnet/send_payment/path/test_long_router.py`
+- [x] `test_cases/fiber/devnet/send_payment/path/test_mutil_channel.py`
+- [x] `test_cases/fiber/devnet/send_payment/path/test_private_channel.py`
 
 ### 25.10 send_payment (根目录, 1 个文件)
 
-- [ ] `test_cases/fiber/devnet/send_payment/test_01.py`
+- [x] `test_cases/fiber/devnet/send_payment/test_01.py`
 
 ---
 
 ## 26. send_payment_with_router (1 个文件)
 
-- [ ] `test_cases/fiber/devnet/send_payment_with_router/test_send_payment_with_router.py`
+- [x] `test_cases/fiber/devnet/send_payment_with_router/test_send_payment_with_router.py`
 
 ---
 
 ## 27. settle_invoice (3 个文件)
 
-- [ ] `test_cases/fiber/devnet/settle_invoice/test_batch_settle.py`
-- [ ] `test_cases/fiber/devnet/settle_invoice/test_mpp.py`
+- [x] `test_cases/fiber/devnet/settle_invoice/test_batch_settle.py`
+- [x] `test_cases/fiber/devnet/settle_invoice/test_mpp.py`
 - [ ] `test_cases/fiber/devnet/settle_invoice/test_settle_invoice.py`
 
 ---
