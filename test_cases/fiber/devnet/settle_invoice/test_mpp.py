@@ -2,6 +2,8 @@
 Test cases for settle_invoice with MPP (Multi-Path Payment).
 Verifies that when two nodes pay the same MPP invoice, only one succeeds after settle.
 """
+import time
+
 from framework.basic_fiber import FiberTest
 from framework.constants import Amount, Currency, HashAlgorithm, PaymentStatus, Timeout
 from test_cases.fiber.devnet.settle_invoice.test_settle_invoice import sha256_hex
@@ -12,7 +14,7 @@ class TestMpp(FiberTest):
     Test settle_invoice with MPP: fiber1 and fiber3 both pay the same MPP invoice.
     One payment fails, one succeeds. After settle, the successful payment completes.
     """
-
+    debug = True
     def test_mpp_2_cost(self):
         """
         Test MPP invoice with two payers: one succeeds, one fails.
@@ -63,7 +65,7 @@ class TestMpp(FiberTest):
         self.fiber3.get_client().send_payment(
             {"invoice": invoice["invoice_address"]}
         )
-
+        time.sleep(5)
         # Step 4: Assert one payment fails (both cannot succeed for full amount)
         payment1 = self.fiber1.get_client().get_payment({"payment_hash": payment_hash})
         payment3 = self.fiber3.get_client().get_payment({"payment_hash": payment_hash})
