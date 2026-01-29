@@ -255,15 +255,15 @@
 - [x] `test_cases/fiber/devnet/send_payment/params/test_amount.py`
 - [x] `test_cases/fiber/devnet/send_payment/params/test_custom_records.py`
 - [x] `test_cases/fiber/devnet/send_payment/params/test_dry_run.py`
-- [ ] `test_cases/fiber/devnet/send_payment/params/test_fee.py`
-- [ ] `test_cases/fiber/devnet/send_payment/params/test_final_tlc_expiry_delta.py`
-- [ ] `test_cases/fiber/devnet/send_payment/params/test_hophint.py`
-- [ ] `test_cases/fiber/devnet/send_payment/params/test_max_fee_amount.py`
-- [ ] `test_cases/fiber/devnet/send_payment/params/test_max_parts.py`
-- [ ] `test_cases/fiber/devnet/send_payment/params/test_payment_hash.py`
-- [ ] `test_cases/fiber/devnet/send_payment/params/test_timeout.py`
-- [ ] `test_cases/fiber/devnet/send_payment/params/test_tlc_expiry_limit.py`
-- [ ] `test_cases/fiber/devnet/send_payment/params/test_tlc_fee.py`
+- [x] `test_cases/fiber/devnet/send_payment/params/test_fee.py`
+- [x] `test_cases/fiber/devnet/send_payment/params/test_final_tlc_expiry_delta.py`
+- [x] `test_cases/fiber/devnet/send_payment/params/test_hophint.py`
+- [x] `test_cases/fiber/devnet/send_payment/params/test_max_fee_amount.py`
+- [x] `test_cases/fiber/devnet/send_payment/params/test_max_parts.py`
+- [x] `test_cases/fiber/devnet/send_payment/params/test_payment_hash.py`
+- [x] `test_cases/fiber/devnet/send_payment/params/test_timeout.py`
+- [x] `test_cases/fiber/devnet/send_payment/params/test_tlc_expiry_limit.py`
+- [x] `test_cases/fiber/devnet/send_payment/params/test_tlc_fee.py`
 - [ ] `test_cases/fiber/devnet/send_payment/params/test_used_preimage.py`
 
 ### 25.9 send_payment/path (4 个文件)
