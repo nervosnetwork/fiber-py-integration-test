@@ -1,36 +1,37 @@
+"""
+Test cases for send_payment custom_records parameter.
+"""
 import time
 
 import pytest
 
 from framework.basic_fiber import FiberTest
+from framework.constants import Amount, ChannelState, PaymentStatus
 
 
 class TestCustomRecords(FiberTest):
+    """
+    Test custom_records parameter: none, empty, multiple keys, min/max key, value size limit.
+    """
 
     def test_custom(self):
         """
-        {}
-            none
-            单独的key
-            重复的key
-                会过滤掉重复的key
-            key 最大值
-                0xffffffff
-            key 最小值
-                0x0
-            特别大
-                 OnionPacket(Sphinx(HopDataLenTooLarge))
-            查询
-                我方可以通过get_payment 查询
-                接受方可以通过get_payment 查询: 目前不可以
-                Returns:
-
+        Test custom_records: with records, empty dict, multiple keys, min/max key, oversized value.
+        Step 1: Open channel and send payment with custom_records; assert get_payment returns them.
+        Step 2: Send payment with empty custom_records; assert empty.
+        Step 3: Send payment with 20 custom keys; assert all returned.
+        Step 4: Send payment with min (0x0) and max (0xffff) keys; assert returned.
+        Step 5: Assert value > 2048 bytes rejected.
+        Step 6: Send payment without custom_records; assert None.
         """
-        self.open_channel(self.fiber1, self.fiber2, 1000 * 100000000, 1000 * 100000000)
+        # Step 1: Open channel and send payment with custom_records; assert get_payment returns them
+        self.open_channel(
+            self.fiber1, self.fiber2, Amount.ckb(1000), Amount.ckb(1000)
+        )
         payment = self.fiber1.get_client().send_payment(
             {
                 "target_pubkey": self.fiber2.get_client().node_info()["node_id"],
-                "amount": hex(100),
+                "amount": hex(Amount.ckb(100)),
                 "keysend": True,
                 "allow_self_payment": True,
                 "custom_records": {
@@ -39,71 +40,52 @@ class TestCustomRecords(FiberTest):
                 },
             }
         )
-        print("payment:", payment)
         time.sleep(1)
         payment = self.fiber1.get_client().get_payment(
-            {
-                "payment_hash": payment["payment_hash"],
-            }
+            {"payment_hash": payment["payment_hash"]}
         )
         assert {"0x1": "0x1234", "0x2": "0x5678"} == payment["custom_records"]
-        # todo
-        # self.fiber2.get_client().get_payment({
-        #     "payment_hash": payment["payment_hash"],
-        # })
 
-        # custom_records empty string
+        # Step 2: Send payment with empty custom_records; assert empty
         payment = self.fiber1.get_client().send_payment(
             {
                 "target_pubkey": self.fiber2.get_client().node_info()["node_id"],
-                "amount": hex(100),
+                "amount": hex(Amount.ckb(100)),
                 "keysend": True,
                 "allow_self_payment": True,
                 "custom_records": {},
             }
         )
-        print("payment:", payment)
         time.sleep(1)
         payment = self.fiber1.get_client().get_payment(
-            {
-                "payment_hash": payment["payment_hash"],
-            }
+            {"payment_hash": payment["payment_hash"]}
         )
         assert {} == payment["custom_records"]
 
-        payment = self.fiber1.get_client().get_payment(
-            {
-                "payment_hash": payment["payment_hash"],
-            }
-        )
-
-        # 单独的key
+        # Step 3: Send payment with 20 custom keys; assert all returned
         custom_records = {}
         for i in range(0, 20):
             custom_records.update({hex(i): self.generate_random_preimage()})
         payment = self.fiber1.get_client().send_payment(
             {
                 "target_pubkey": self.fiber2.get_client().node_info()["node_id"],
-                "amount": hex(100),
+                "amount": hex(Amount.ckb(100)),
                 "keysend": True,
                 "allow_self_payment": True,
                 "custom_records": custom_records,
             }
         )
-        print("payment:", payment)
         time.sleep(1)
         payment = self.fiber1.get_client().get_payment(
-            {
-                "payment_hash": payment["payment_hash"],
-            }
+            {"payment_hash": payment["payment_hash"]}
         )
         assert custom_records == payment["custom_records"]
 
-        # 最大值 和最小值
+        # Step 4: Send payment with min (0x0) and max (0xffff) keys; assert returned
         payment = self.fiber1.get_client().send_payment(
             {
                 "target_pubkey": self.fiber2.get_client().node_info()["node_id"],
-                "amount": hex(100),
+                "amount": hex(Amount.ckb(100)),
                 "keysend": True,
                 "allow_self_payment": True,
                 "custom_records": {
@@ -112,29 +94,22 @@ class TestCustomRecords(FiberTest):
                 },
             }
         )
-        print("payment:", payment)
         time.sleep(1)
         payment = self.fiber1.get_client().get_payment(
-            {
-                "payment_hash": payment["payment_hash"],
-            }
+            {"payment_hash": payment["payment_hash"]}
         )
-        assert {
-            "0xffff": "0x1234",
-            "0x0": "0x5678",
-        } == payment["custom_records"]
+        assert {"0xffff": "0x1234", "0x0": "0x5678"} == payment["custom_records"]
 
-        # 特别大 报错:  OnionPacket(Sphinx(HopDataLenTooLarge))
+        # Step 5: Assert value > 2048 bytes rejected
         with pytest.raises(Exception) as exc_info:
-            payment = self.fiber1.get_client().send_payment(
+            self.fiber1.get_client().send_payment(
                 {
                     "target_pubkey": self.fiber2.get_client().node_info()["node_id"],
-                    "amount": hex(100),
+                    "amount": hex(Amount.ckb(100)),
                     "keysend": True,
                     "allow_self_payment": True,
                     "custom_records": {
                         "0x12": self.generate_random_str(4096 + 2),
-                        # "0x0": "0x5678",
                     },
                 }
             )
@@ -144,20 +119,17 @@ class TestCustomRecords(FiberTest):
             f"not found in actual string '{exc_info.value.args[0]}'"
         )
 
-        # none
+        # Step 6: Send payment without custom_records; assert None
         payment = self.fiber1.get_client().send_payment(
             {
                 "target_pubkey": self.fiber2.get_client().node_info()["node_id"],
-                "amount": hex(100),
+                "amount": hex(Amount.ckb(100)),
                 "keysend": True,
                 "allow_self_payment": True,
             }
         )
-        print("payment:", payment)
         time.sleep(1)
         payment = self.fiber1.get_client().get_payment(
-            {
-                "payment_hash": payment["payment_hash"],
-            }
+            {"payment_hash": payment["payment_hash"]}
         )
-        assert None == payment["custom_records"]
+        assert payment["custom_records"] is None

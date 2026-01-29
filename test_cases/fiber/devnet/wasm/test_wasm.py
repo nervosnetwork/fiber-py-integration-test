@@ -1,94 +1,56 @@
-# import time
-#
-# from framework.basic_fiber import FiberTest
-# from framework.test_wasm_fiber import WasmFiber
-#
-#
-# class TestWasm(FiberTest):
-#     debug = True
-#
-#     def test_two_wasm(self):
-#         self.open_channel(self.fiber1, self.fiber2, 1000 * 100000000, 1000 * 100000000)
-#
-#     def test_0001234(self):
-#         self.fiber1.get_client().node_info()
-#         self.fiber2.get_client().node_info()
-#
-#     def test_facue1(self):
-#         # self.faucet("2db2219027d6c2a206856fed962214cfa47ab1b3da322ce051877c6567bac2c8", 10000)
-#         self.faucet("2db2219027d6c2a206856fed962214cfa47ab1b3da322ce051877c6567bac2c1", 10000)
-#
-#
-#     def test_wasm(self):
-#         """
-#         Test the wasm module.
-#         """
-#         wasmFiber = WasmFiber("2db2219027d6c2a206856fed962214cfa47ab1b3da322ce051877c6567bac2c8",
-#                               "0201010101010101010101010101010101010101010101010101010101010101", "devnet")
-#         self.fiber1.get_client().node_info()
-#         wasmFiber.connect_peer(self.fiber2)
-#
-#     def test_facue(self):
-#         self.faucet("2db2219027d6c2a206856fed962214cfa47ab1b3da322ce051877c6567bac2c8", 10000,
-#                     self.Config.ACCOUNT_PRIVATE_1, 1000 * 100000000)
-#
-#     def test_open_channel(self):
-#         """
-#         Open a channel with the wasm fiber.
-#         """
-#         wasmFiber = WasmFiber("2db2219027d6c2a206856fed962214cfa47ab1b3da322ce051877c6567bac2c8",
-#                               "0201010101010101010101010101010101010101010101010101010101010101", "devnet")
-#         self.open_channel(wasmFiber, self.fiber2, 1000 * 100000000, 1000 * 100000000)
-#         self.open_channel(wasmFiber, self.fiber1, 1000 * 100000000, 1000 * 100000000)
-#
-#         self.fiber1.get_client().node_info()
-#         self.fiber2.get_client().node_info()
-#
-#     def test_balala(self):
-#         wasmFiber = WasmFiber("2db2219027d6c2a206856fed962214cfa47ab1b3da322ce051877c6567bac2c8",
-#                               "0201010101010101010101010101010101010101010101010101010101010101", "devnet", True)
-#         channel_id = self.fiber1.get_client().list_channels({})["channels"][0][
-#             "channel_id"
-#         ]
-#         for i in range(10000):
-#             self.fiber1.get_client().update_channel(
-#                 {
-#                     "channel_id": channel_id,
-#                     "tlc_fee_proportional_millionths": hex(20000 + i),
-#                 }
-#             )
-#             wasmFiber.get_client().update_channel({
-#                 "channel_id": channel_id,
-#                 "tlc_fee_proportional_millionths": hex(2000 + i),
-#             })
-#             time.sleep(0.01)
-#
-#     def test_000(self):
-#         self.open_channel(self.fiber1, self.fiber2, 1000 * 100000000, 1000 * 100000000)
-#
-#     def test_send_payment(self):
-#         wasmFiber = WasmFiber("2db2219027d6c2a206856fed962214cfa47ab1b3da322ce051877c6567bac2c8",
-#                               "0201010101010101010101010101010101010101010101010101010101010101", "devnet")
-#         for i in range(100):
-#             self.send_payment(wasmFiber, self.fiber2, 1 * 100000000, False)
-#
-#     def test_false(self):
-#         wasmFiber = WasmFiber("2db2219027d6c2a206856fed962214cfa47ab1b3da322ce051877c6567bac2c8",
-#                               "0201010101010101010101010101010101010101010101010101010101010101",
-#                               "devnet",
-#                               True)
-#         for i in range(10000):
-#             self.send_payment(wasmFiber, wasmFiber, 1 * 100000000, True)
-#             self.send_payment(self.fiber1, self.fiber1, 1 * 100000000, True)
-#             self.send_payment(self.fiber2, self.fiber2, 1 * 100000000, True)
-#
-#     def test_00(self):
-#         # self.open_channel(self.fiber1, self.fiber2, 1000 * 100000000, 0)
-#         # self.send_payment(self.fiber1, self.fiber2, 100 * 100000000, True)
-#         # self.fiber1.start()
-#         wasmFiber = WasmFiber("2db2219027d6c2a206856fed962214cfa47ab1b3da322ce051877c6567bac2c8",
-#                               "0201010101010101010101010101010101010101010101010101010101010101", "devnet", True)
-#         # for i in range(100):
-#         #     self.send_payment(wasmFiber,self.fiber2,88,False)
-#         wasmFiber.get_client().node_info()
-#         # self.fiber1.stop()
+"""
+Wasm module placeholder tests.
+Originally contained multiple WasmFiber tests (two_wasm, open_channel, send_payment, etc.); kept minimal runnable subset.
+Requires wasm fiber server; see README.md in this directory.
+"""
+from framework.basic_fiber import FiberTest
+from framework.constants import Amount, Timeout, ChannelState
+from framework.test_wasm_fiber import WasmFiber
+
+WASM_PEER_ID = "0201010101010101010101010101010101010101010101010101010101010101"
+
+
+class TestWasm(FiberTest):
+    """
+    Minimal WasmFiber tests: open channel between WasmFiber and Fiber nodes.
+    Other historical cases (two_wasm, send_payment, update_channel, etc.) remain commented in git history.
+    """
+
+    def test_wasm_open_channel(self):
+        """
+        Open channels between WasmFiber and Fiber1, WasmFiber and Fiber2; wait for CHANNEL_READY.
+        Step 1: Generate WasmFiber account, reset WasmFiber.
+        Step 2: Open WasmFiber <-> Fiber2 and WasmFiber <-> Fiber1 channels.
+        Step 3: Wait for both channels to reach CHANNEL_READY.
+        """
+        # Step 1: Generate WasmFiber account and reset WasmFiber
+        account_private = self.generate_account(
+            10_000,
+            self.Config.ACCOUNT_PRIVATE_1,
+            Amount.ckb(10_000),
+        )
+        WasmFiber.reset()
+        wasm_fiber = WasmFiber(
+            account_private,
+            WASM_PEER_ID,
+            "devnet",
+        )
+
+        # Step 2: Open WasmFiber <-> Fiber2 and WasmFiber <-> Fiber1 channels
+        bal = Amount.ckb(1000)
+        self.open_channel(wasm_fiber, self.fiber2, bal, bal)
+        self.open_channel(wasm_fiber, self.fiber1, bal, bal)
+
+        # Step 3: Wait for both channels to reach CHANNEL_READY
+        self.wait_for_channel_state(
+            wasm_fiber.get_client(),
+            self.fiber2.get_peer_id(),
+            ChannelState.CHANNEL_READY,
+            timeout=Timeout.CHANNEL_READY,
+        )
+        self.wait_for_channel_state(
+            wasm_fiber.get_client(),
+            self.fiber1.get_peer_id(),
+            ChannelState.CHANNEL_READY,
+            timeout=Timeout.CHANNEL_READY,
+        )

@@ -1,51 +1,75 @@
+"""
+Test cases for send_payment max_fee_amount parameter.
+"""
 import pytest
 
 from framework.basic_fiber import FiberTest
+from framework.constants import (
+    Amount,
+    ChannelState,
+    Currency,
+    HashAlgorithm,
+    PaymentStatus,
+)
 
 
 class TestMaxFeeAmount(FiberTest):
+    """
+    Test max_fee_amount parameter: max_fee_amount=0 rejects when fee needed;
+    valid max_fee_amount allows payment; invalid hex rejected.
+    """
 
     def test_fee(self):
+        """
+        max_fee_amount=0: direct payment (no fee) succeeds; relay payment fails.
+        With valid max_fee_amount from dry_run, payment succeeds.
+        Step 1: Build fiber1->fiber2->fiber3 topology.
+        Step 2: Send dry_run node1->node2 with max_fee_amount=0 (no fee path).
+        Step 3: Assert node1->node3 with max_fee_amount=0 fails (needs fee).
+        Step 4: Get fee via dry_run; send with max_fee_amount=fee; assert success.
+        """
+        # Step 1: Build fiber1->fiber2->fiber3 topology
         account_private = self.generate_account(1000)
         self.fiber3 = self.start_new_fiber(account_private)
         self.fiber3.connect_peer(self.fiber2)
         self.fiber1.get_client().open_channel(
             {
                 "peer_id": self.fiber2.get_peer_id(),
-                "funding_amount": hex(100000000 * 100000000),
+                "funding_amount": hex(Amount.ckb(100000000)),
                 "public": True,
             }
         )
         self.wait_for_channel_state(
-            self.fiber1.get_client(), self.fiber2.get_peer_id(), "CHANNEL_READY"
+            self.fiber1.get_client(), self.fiber2.get_peer_id(), ChannelState.CHANNEL_READY
         )
         self.fiber2.get_client().open_channel(
             {
                 "peer_id": self.fiber3.get_peer_id(),
-                "funding_amount": hex(100000000 * 100000000),
+                "funding_amount": hex(Amount.ckb(100000000)),
                 "public": True,
             }
         )
         self.wait_for_channel_state(
-            self.fiber3.get_client(), self.fiber2.get_peer_id(), "CHANNEL_READY"
+            self.fiber3.get_client(), self.fiber2.get_peer_id(), ChannelState.CHANNEL_READY
         )
 
-        # send to node1 -> node2 no fee  max_fee = 0
+        # Step 2: Send dry_run node1->node2 with max_fee_amount=0
         payment1 = self.fiber1.get_client().send_payment(
             {
                 "target_pubkey": self.fiber2.get_client().node_info()["node_id"],
-                "amount": hex(1000000 * 100000000),
+                "amount": hex(Amount.ckb(1000000)),
                 "keysend": True,
                 "max_fee_amount": hex(0),
                 "dry_run": True,
             }
         )
-        # send to node1 - > node3 need fee 10000 but max_fee = 0
+
+        # Step 3: Assert node1->node3 with max_fee_amount=0 fails
         with pytest.raises(Exception) as exc_info:
-            payment1 = self.fiber1.get_client().send_payment(
+            self.fiber1.get_client().send_payment(
                 {
                     "target_pubkey": self.fiber3.get_client().node_info()["node_id"],
-                    "amount": hex(1000000 * 100000000),
+                    "amount": hex(Amount.ckb(1000000)),
                     "keysend": True,
                     "max_fee_amount": hex(0),
                     "dry_run": True,
@@ -57,10 +81,11 @@ class TestMaxFeeAmount(FiberTest):
             f"not found in actual string '{exc_info.value.args[0]}'"
         )
 
+        # Step 4: Get fee via dry_run; send with max_fee_amount=fee
         payment1 = self.fiber1.get_client().send_payment(
             {
                 "target_pubkey": self.fiber3.get_client().node_info()["node_id"],
-                "amount": hex(1000000 * 100000000),
+                "amount": hex(Amount.ckb(1000000)),
                 "keysend": True,
                 "dry_run": True,
             }
@@ -68,25 +93,28 @@ class TestMaxFeeAmount(FiberTest):
         payment1 = self.fiber1.get_client().send_payment(
             {
                 "target_pubkey": self.fiber3.get_client().node_info()["node_id"],
-                "amount": hex(1000000 * 100000000),
+                "amount": hex(Amount.ckb(1000000)),
                 "keysend": True,
                 "max_fee_amount": payment1["fee"],
             }
         )
-        self.wait_payment_state(self.fiber1, payment1["payment_hash"])
+        self.wait_payment_state(self.fiber1, payment1["payment_hash"], PaymentStatus.SUCCESS)
 
-    # @pytest.mark.skip(reason="https://github.com/nervosnetwork/fiber/pull/717")
     def test_max_fee_0xffffffffffffffffffffffffffffffff(self):
-        # self.open_channel(self.fiber1, self.fiber2, 1000 * 100000000, 1000 * 100000000)
+        """
+        max_fee_amount with invalid hex (0xff...ff) should be rejected.
+        Step 1: Create invoice.
+        Step 2: Send payment with invalid max_fee_amount; assert Invalid params.
+        """
         invoice = self.fiber1.get_client().new_invoice(
             {
-                "amount": hex(1 * 100000000),
-                "currency": "Fibd",
+                "amount": hex(Amount.ckb(1)),
+                "currency": Currency.FIBD,
                 "description": "test invoice generated by node2",
                 "expiry": "0xe10",
                 "final_cltv": "0x28",
                 "payment_preimage": self.generate_random_preimage(),
-                "hash_algorithm": "sha256",
+                "hash_algorithm": HashAlgorithm.SHA256,
             }
         )
         with pytest.raises(Exception) as exc_info:

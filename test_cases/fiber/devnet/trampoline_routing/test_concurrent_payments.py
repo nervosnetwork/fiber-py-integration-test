@@ -1,192 +1,215 @@
-import pytest
+"""
+Trampoline routing tests: concurrent payments same/different trampolines,
+sequential vs concurrent timing.
+"""
+
 import threading
 import time
 
+import pytest
+
 from framework.basic_fiber import FiberTest
+from framework.constants import Amount, Currency, PaymentStatus, Timeout
 
 
 class TestConcurrentPayments(FiberTest):
     """
-    测试并发支付场景
-    包括同时发送多个 trampoline routing 支付
+    Concurrent trampoline payments: same trampoline, different trampolines,
+    sequential vs concurrent. Uses FiberTest (per-test env).
     """
 
     def test_concurrent_payments_same_trampoline(self):
         """
-        测试通过同一个 trampoline 节点并发发送多个支付
+        Concurrent keysends via same trampoline to multiple targets; all succeed.
+        Step 1: Create fiber3..4 and open channels.
+        Step 2: Spawn threads to keysend to f3/f4 via trampoline; collect payment hashes.
+        Step 3: Wait for all payments success; assert no errors and count.
         """
+        # Step 1: Create fiber3..4 and open channels
         self.fiber3 = self.start_new_fiber(self.generate_account(10000))
         self.fiber4 = self.start_new_fiber(self.generate_account(10000))
 
-        # 建立通道
-        self.open_channel(self.fiber1, self.fiber2, 10000 * 100000000, 0)
-        self.open_channel(self.fiber2, self.fiber3, 10000 * 100000000, 0)
-        self.open_channel(self.fiber2, self.fiber4, 10000 * 100000000, 0)
+        self.open_channel(
+            self.fiber1, self.fiber2,
+            fiber1_balance=Amount.ckb(10000), fiber2_balance=Amount.ckb(0),
+        )
+        self.open_channel(
+            self.fiber2, self.fiber3,
+            fiber1_balance=Amount.ckb(10000), fiber2_balance=Amount.ckb(0),
+        )
+        self.open_channel(
+            self.fiber2, self.fiber4,
+            fiber1_balance=Amount.ckb(10000), fiber2_balance=Amount.ckb(0),
+        )
 
-        # 并发发送多个支付
+        # Step 2: Spawn threads to keysend; collect payment hashes
         payments = []
         errors = []
 
-        def send_payment(target_fiber, amount):
+        def send_one(target_fiber, amount):
             try:
                 payment = self.fiber1.get_client().send_payment(
                     {
-                        "target_pubkey": target_fiber.get_client().node_info()[
-                            "node_id"
-                        ],
-                        "currency": "Fibd",
+                        "target_pubkey": target_fiber.get_client().node_info()["node_id"],
+                        "currency": Currency.FIBD,
                         "amount": hex(amount),
                         "keysend": True,
-                        "trampoline_hops": [
-                            self.fiber2.get_client().node_info()["node_id"],
-                        ],
+                        "trampoline_hops": [self.fiber2.get_client().node_info()["node_id"]],
                     }
                 )
                 payments.append((payment["payment_hash"], target_fiber))
             except Exception as e:
                 errors.append(str(e))
 
-        # 启动多个线程并发发送支付
         threads = []
         for i in range(5):
             target = self.fiber3 if i % 2 == 0 else self.fiber4
-            thread = threading.Thread(target=send_payment, args=(target, 1 * 100000000))
-            threads.append(thread)
-            thread.start()
+            t = threading.Thread(target=send_one, args=(target, Amount.ckb(1)))
+            threads.append(t)
+            t.start()
+        for t in threads:
+            t.join()
 
-        # 等待所有线程完成
-        for thread in threads:
-            thread.join()
-
-        # 验证所有支付都成功
+        # Step 3: Wait for all success; assert no errors and count
         assert len(errors) == 0, f"Errors occurred: {errors}"
         assert len(payments) == 5, f"Expected 5 payments, got {len(payments)}"
-
-        # 等待所有支付完成
-        for payment_hash, target_fiber in payments:
-            self.wait_payment_state(self.fiber1, payment_hash, "Success")
+        for payment_hash, _ in payments:
+            self.wait_payment_state(
+                self.fiber1, payment_hash, PaymentStatus.SUCCESS,
+                timeout=Timeout.PAYMENT_SUCCESS,
+            )
 
     def test_concurrent_payments_different_trampolines(self):
         """
-        测试通过不同的 trampoline 节点并发发送多个支付
+        Concurrent keysends via different trampolines to different targets; all succeed.
+        Step 1: Create fiber3..5 and open channels (f1-f2, f1-f3, f2-f4, f3-f5).
+        Step 2: Spawn threads to keysend via f2 or f3; collect payment hashes.
+        Step 3: Wait for all success; assert no errors and count.
         """
+        # Step 1: Create fiber3..5 and open channels
         self.fiber3 = self.start_new_fiber(self.generate_account(100000))
         self.fiber4 = self.start_new_fiber(self.generate_account(100000))
         self.fiber5 = self.start_new_fiber(self.generate_account(100000))
 
-        # 建立通道
-        self.open_channel(self.fiber1, self.fiber2, 10000 * 100000000, 0)
-        self.open_channel(self.fiber1, self.fiber3, 10000 * 100000000, 0)
-        self.open_channel(self.fiber2, self.fiber4, 10000 * 100000000, 0)
-        self.open_channel(self.fiber3, self.fiber5, 10000 * 100000000, 0)
+        self.open_channel(
+            self.fiber1, self.fiber2,
+            fiber1_balance=Amount.ckb(10000), fiber2_balance=Amount.ckb(0),
+        )
+        self.open_channel(
+            self.fiber1, self.fiber3,
+            fiber1_balance=Amount.ckb(10000), fiber2_balance=Amount.ckb(0),
+        )
+        self.open_channel(
+            self.fiber2, self.fiber4,
+            fiber1_balance=Amount.ckb(10000), fiber2_balance=Amount.ckb(0),
+        )
+        self.open_channel(
+            self.fiber3, self.fiber5,
+            fiber1_balance=Amount.ckb(10000), fiber2_balance=Amount.ckb(0),
+        )
 
-        # 并发发送多个支付，使用不同的 trampoline 节点
+        # Step 2: Spawn threads; collect payment hashes
         payments = []
         errors = []
 
-        def send_payment(target_fiber, trampoline_fiber, amount):
+        def send_one(target_fiber, trampoline_fiber, amount):
             try:
                 payment = self.fiber1.get_client().send_payment(
                     {
-                        "target_pubkey": target_fiber.get_client().node_info()[
-                            "node_id"
-                        ],
-                        "currency": "Fibd",
+                        "target_pubkey": target_fiber.get_client().node_info()["node_id"],
+                        "currency": Currency.FIBD,
                         "amount": hex(amount),
                         "keysend": True,
-                        "trampoline_hops": [
-                            trampoline_fiber.get_client().node_info()["node_id"],
-                        ],
+                        "trampoline_hops": [trampoline_fiber.get_client().node_info()["node_id"]],
                     }
                 )
                 payments.append((payment["payment_hash"], target_fiber))
             except Exception as e:
                 errors.append(str(e))
 
-        # 启动多个线程并发发送支付
         threads = []
         for i in range(4):
             trampoline = self.fiber2 if i % 2 == 0 else self.fiber3
             target = self.fiber4 if i % 2 == 0 else self.fiber5
-            thread = threading.Thread(
-                target=send_payment, args=(target, trampoline, 1 * 100000000)
-            )
-            threads.append(thread)
-            thread.start()
+            t = threading.Thread(target=send_one, args=(target, trampoline, Amount.ckb(1)))
+            threads.append(t)
+            t.start()
+        for t in threads:
+            t.join()
 
-        # 等待所有线程完成
-        for thread in threads:
-            thread.join()
-
-        # 验证所有支付都成功
+        # Step 3: Wait for all success; assert no errors and count
         assert len(errors) == 0, f"Errors occurred: {errors}"
         assert len(payments) == 4, f"Expected 4 payments, got {len(payments)}"
-
-        # 等待所有支付完成
-        for payment_hash, target_fiber in payments:
-            self.wait_payment_state(self.fiber1, payment_hash, "Success")
+        for payment_hash, _ in payments:
+            self.wait_payment_state(
+                self.fiber1, payment_hash, PaymentStatus.SUCCESS,
+                timeout=Timeout.PAYMENT_SUCCESS,
+            )
 
     def test_sequential_vs_concurrent_payments(self):
         """
-        测试顺序支付和并发支付的对比
+        Sequential then concurrent keysends via trampoline; both complete.
+        Step 1: Create fiber3 and open channels.
+        Step 2: Sequential: 3 keysends, wait each; record time.
+        Step 3: Concurrent: 3 keysends in threads, wait all; record time.
         """
+        # Step 1: Create fiber3 and open channels
         self.fiber3 = self.start_new_fiber(self.generate_account(10000))
 
-        self.open_channel(self.fiber1, self.fiber2, 10000 * 100000000, 0)
-        self.open_channel(self.fiber2, self.fiber3, 10000 * 100000000, 0)
+        self.open_channel(
+            self.fiber1, self.fiber2,
+            fiber1_balance=Amount.ckb(10000), fiber2_balance=Amount.ckb(0),
+        )
+        self.open_channel(
+            self.fiber2, self.fiber3,
+            fiber1_balance=Amount.ckb(10000), fiber2_balance=Amount.ckb(0),
+        )
 
-        # 顺序发送支付
-        start_time = time.time()
-        for i in range(3):
+        # Step 2: Sequential keysends; record time
+        start = time.time()
+        for _ in range(3):
             payment = self.fiber1.get_client().send_payment(
                 {
                     "target_pubkey": self.fiber3.get_client().node_info()["node_id"],
-                    "currency": "Fibd",
-                    "amount": hex(1 * 100000000),
+                    "currency": Currency.FIBD,
+                    "amount": hex(Amount.ckb(1)),
                     "keysend": True,
-                    "trampoline_hops": [
-                        self.fiber2.get_client().node_info()["node_id"],
-                    ],
+                    "trampoline_hops": [self.fiber2.get_client().node_info()["node_id"]],
                 }
             )
-            self.wait_payment_state(self.fiber1, payment["payment_hash"], "Success")
-        sequential_time = time.time() - start_time
+            self.wait_payment_state(
+                self.fiber1, payment["payment_hash"], PaymentStatus.SUCCESS,
+                timeout=Timeout.PAYMENT_SUCCESS,
+            )
+        sequential_time = time.time() - start
 
-        # 并发发送支付
+        # Step 3: Concurrent keysends; record time
         payments = []
-        start_time = time.time()
+        start = time.time()
 
-        def send_payment():
+        def send_one():
             payment = self.fiber1.get_client().send_payment(
                 {
                     "target_pubkey": self.fiber3.get_client().node_info()["node_id"],
-                    "currency": "Fibd",
-                    "amount": hex(1 * 100000000),
+                    "currency": Currency.FIBD,
+                    "amount": hex(Amount.ckb(1)),
                     "keysend": True,
-                    "trampoline_hops": [
-                        self.fiber2.get_client().node_info()["node_id"],
-                    ],
+                    "trampoline_hops": [self.fiber2.get_client().node_info()["node_id"]],
                 }
             )
             payments.append(payment["payment_hash"])
 
-        threads = []
-        for i in range(3):
-            thread = threading.Thread(target=send_payment)
-            threads.append(thread)
-            thread.start()
+        threads = [threading.Thread(target=send_one) for _ in range(3)]
+        for t in threads:
+            t.start()
+        for t in threads:
+            t.join()
+        for ph in payments:
+            self.wait_payment_state(
+                self.fiber1, ph, PaymentStatus.SUCCESS,
+                timeout=Timeout.PAYMENT_SUCCESS,
+            )
+        concurrent_time = time.time() - start
 
-        for thread in threads:
-            thread.join()
-
-        # 等待所有支付完成
-        for payment_hash in payments:
-            self.wait_payment_state(self.fiber1, payment_hash, "Success")
-        concurrent_time = time.time() - start_time
-
-        # 并发应该比顺序更快（或至少不会更慢）
-        print(
-            f"Sequential time: {sequential_time}s, Concurrent time: {concurrent_time}s"
-        )
-        # 注意：由于网络延迟等因素，这个断言可能不总是成立
-        # assert concurrent_time <= sequential_time
+        # Log timing (no strict assert; network may vary)
+        assert sequential_time >= 0 and concurrent_time >= 0

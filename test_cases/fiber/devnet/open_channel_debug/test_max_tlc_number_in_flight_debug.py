@@ -1,43 +1,52 @@
+"""
+Test cases for open_channel max_tlc_number_in_flight (debug build).
+Verifies that add_tlc fails with TemporaryChannelFailure when exceeding max_tlc_number_in_flight.
+"""
 import time
 
 import pytest
 
 from framework.basic_fiber import FiberTest
+from framework.constants import Amount, ChannelState, PaymentStatus, Timeout
 from framework.test_fiber import FiberConfigPath
 
 
 class TestMaxTlcNumberInFlightDebug(FiberTest):
+    """
+    Test max_tlc_number_in_flight: default and custom; add_tlc beyond limit returns TemporaryChannelFailure.
+    Uses debug fiber build for add_tlc RPC.
+    """
     fiber_version = FiberConfigPath.CURRENT_DEV_DEBUG
 
     def test_max_tlc_number_in_flight_none(self):
         """
-        max_tlc_number_in_flight == none
-        Returns:
+        max_tlc_number_in_flight == none (default): add TLC until limit, next add_tlc fails.
+        Step 1: Connect peers, open channel, wait CHANNEL_READY.
+        Step 2: Send one payment to establish channel usage, then add_tlc in loop (invoice_count=125).
+        Step 3: Add one more TLC, expect TemporaryChannelFailure.
         """
+        # Step 1: Connect peers, open channel, wait CHANNEL_READY
         self.fiber1.connect_peer(self.fiber2)
         time.sleep(5)
-        temporary_channel_id = self.fiber1.get_client().open_channel(
+        self.fiber1.get_client().open_channel(
             {
                 "peer_id": self.fiber2.get_peer_id(),
-                "funding_amount": hex(200 * 100000000),
+                "funding_amount": hex(Amount.ckb(200)),
                 "public": True,
             }
         )
         time.sleep(1)
         self.wait_for_channel_state(
-            self.fiber1.get_client(), self.fiber2.get_peer_id(), "CHANNEL_READY", 120
+            self.fiber1.get_client(), self.fiber2.get_peer_id(),
+            ChannelState.CHANNEL_READY, Timeout.CHANNEL_READY,
         )
         time.sleep(5)
-        # transfer
         self.fiber1.get_client().graph_channels()
         self.fiber1.get_client().graph_nodes()
-        channel_id = self.fiber1.get_client().list_channels({})["channels"][0][
-            "channel_id"
-        ]
-        add_tlc_list = []
-        invoice_count = 125
-        # 获取当前时间戳
-        invoice_balance = 10 * 100000000
+        channel_id = self.fiber1.get_client().list_channels({})["channels"][0]["channel_id"]
+
+        # Step 2: Send one payment then add_tlc in loop
+        invoice_balance = Amount.ckb(10)
         invoice = self.fiber2.get_client().new_invoice(
             {
                 "amount": hex(invoice_balance),
@@ -51,20 +60,22 @@ class TestMaxTlcNumberInFlightDebug(FiberTest):
         )
         time.sleep(0.3)
         payment = self.fiber1.get_client().send_payment(
-            {
-                "invoice": invoice["invoice_address"],
-            }
+            {"invoice": invoice["invoice_address"]}
         )
-        self.wait_payment_state(self.fiber1, payment["payment_hash"], "Success")
+        self.wait_payment_state(
+            self.fiber1, payment["payment_hash"],
+            PaymentStatus.SUCCESS,
+            timeout=Timeout.PAYMENT_SUCCESS,
+        )
 
+        invoice_count = 125
+        add_tlc_list = []
         for i in range(invoice_count):
-            print("current :", i)
             payment_preimage = self.generate_random_preimage()
             add_tlc = self.fiber1.get_client().add_tlc(
                 {
                     "channel_id": channel_id,
                     "amount": hex(100),
-                    # "payment_hash": invoice_list[i]['invoice']['data']['payment_hash'],
                     "payment_hash": payment_preimage,
                     "expiry": hex((int(time.time()) + 1000) * 1000),
                     "hash_algorithm": "sha256",
@@ -73,13 +84,14 @@ class TestMaxTlcNumberInFlightDebug(FiberTest):
             add_tlc_list.append(add_tlc)
             time.sleep(1)
         time.sleep(10)
+
+        # Step 3: Add one more TLC, expect TemporaryChannelFailure
         with pytest.raises(Exception) as exc_info:
             payment_preimage = self.generate_random_preimage()
             self.fiber1.get_client().add_tlc(
                 {
                     "channel_id": channel_id,
                     "amount": hex(100),
-                    # "payment_hash": invoice_list[i]['invoice']['data']['payment_hash'],
                     "payment_hash": payment_preimage,
                     "expiry": hex((int(time.time()) + 40) * 1000),
                     "hash_algorithm": "sha256",
@@ -95,35 +107,34 @@ class TestMaxTlcNumberInFlightDebug(FiberTest):
 
     def test_max_tlc_number_in_flight_not_eq_default(self):
         """
-        max_tlc_number_in_flight != default
-        Returns:
+        max_tlc_number_in_flight = 16: add 16 TLCs then next add_tlc fails.
+        Step 1: Connect peers, open channel with max_tlc_number_in_flight=16, wait CHANNEL_READY.
+        Step 2: Send one payment, then add_tlc 16 times.
+        Step 3: Add one more TLC, expect TemporaryChannelFailure.
         """
-        # max_tlc_number_in_flight_num = 15
+        # Step 1: Open channel with max_tlc_number_in_flight=16
         self.fiber1.connect_peer(self.fiber2)
         time.sleep(5)
-        temporary_channel_id = self.fiber1.get_client().open_channel(
+        self.fiber1.get_client().open_channel(
             {
                 "peer_id": self.fiber2.get_peer_id(),
-                "funding_amount": hex(200 * 100000000),
+                "funding_amount": hex(Amount.ckb(200)),
                 "public": True,
                 "max_tlc_number_in_flight": hex(16),
             }
         )
         time.sleep(1)
         self.wait_for_channel_state(
-            self.fiber1.get_client(), self.fiber2.get_peer_id(), "CHANNEL_READY", 120
+            self.fiber1.get_client(), self.fiber2.get_peer_id(),
+            ChannelState.CHANNEL_READY, Timeout.CHANNEL_READY,
         )
         time.sleep(5)
-        # transfer
         self.fiber1.get_client().graph_channels()
         self.fiber1.get_client().graph_nodes()
-        channel_id = self.fiber1.get_client().list_channels({})["channels"][0][
-            "channel_id"
-        ]
-        add_tlc_list = []
-        invoice_count = 16
-        # 获取当前时间戳
-        invoice_balance = 10 * 100000000
+        channel_id = self.fiber1.get_client().list_channels({})["channels"][0]["channel_id"]
+
+        # Step 2: Send one payment then add_tlc 16 times
+        invoice_balance = Amount.ckb(10)
         invoice = self.fiber2.get_client().new_invoice(
             {
                 "amount": hex(invoice_balance),
@@ -137,20 +148,22 @@ class TestMaxTlcNumberInFlightDebug(FiberTest):
         )
         time.sleep(1)
         payment = self.fiber1.get_client().send_payment(
-            {
-                "invoice": invoice["invoice_address"],
-            }
+            {"invoice": invoice["invoice_address"]}
         )
-        self.wait_payment_state(self.fiber1, payment["payment_hash"], "Success")
+        self.wait_payment_state(
+            self.fiber1, payment["payment_hash"],
+            PaymentStatus.SUCCESS,
+            timeout=Timeout.PAYMENT_SUCCESS,
+        )
 
+        invoice_count = 16
+        add_tlc_list = []
         for i in range(invoice_count):
-            print("current :", i)
             payment_preimage = self.generate_random_preimage()
             add_tlc = self.fiber1.get_client().add_tlc(
                 {
                     "channel_id": channel_id,
                     "amount": hex(100),
-                    # "payment_hash": invoice_list[i]['invoice']['data']['payment_hash'],
                     "payment_hash": payment_preimage,
                     "expiry": hex((int(time.time()) + 40) * 1000),
                     "hash_algorithm": "sha256",
@@ -159,13 +172,14 @@ class TestMaxTlcNumberInFlightDebug(FiberTest):
             add_tlc_list.append(add_tlc)
             time.sleep(1)
         time.sleep(10)
+
+        # Step 3: Add one more TLC, expect TemporaryChannelFailure
         with pytest.raises(Exception) as exc_info:
             payment_preimage = self.generate_random_preimage()
             self.fiber1.get_client().add_tlc(
                 {
                     "channel_id": channel_id,
                     "amount": hex(100),
-                    # "payment_hash": invoice_list[i]['invoice']['data']['payment_hash'],
                     "payment_hash": payment_preimage,
                     "expiry": hex((int(time.time()) + 40) * 1000),
                     "hash_algorithm": "sha256",
@@ -179,33 +193,33 @@ class TestMaxTlcNumberInFlightDebug(FiberTest):
 
     def test_max_tlc_number_in_flight_not_eq_default_other_node(self):
         """
-        max_tlc_number_in_flight != default
-        Returns:
+        max_tlc_number_in_flight = 5 on opener; fiber2 adds TLCs (other node side).
+        Step 1: Connect peers, open channel with max_tlc_number_in_flight=5, wait CHANNEL_READY.
+        Step 2: Send one payment, then fiber2 add_tlc 10 times (no assertion on limit in this test).
         """
-        # max_tlc_number_in_flight_num = 15
+        # Step 1: Open channel with max_tlc_number_in_flight=5
         self.fiber1.connect_peer(self.fiber2)
         time.sleep(5)
-        temporary_channel_id = self.fiber1.get_client().open_channel(
+        self.fiber1.get_client().open_channel(
             {
                 "peer_id": self.fiber2.get_peer_id(),
-                "funding_amount": hex(200 * 100000000),
+                "funding_amount": hex(Amount.ckb(200)),
                 "public": True,
                 "max_tlc_number_in_flight": hex(5),
             }
         )
         time.sleep(1)
         self.wait_for_channel_state(
-            self.fiber1.get_client(), self.fiber2.get_peer_id(), "CHANNEL_READY", 120
+            self.fiber1.get_client(), self.fiber2.get_peer_id(),
+            ChannelState.CHANNEL_READY, Timeout.CHANNEL_READY,
         )
         time.sleep(5)
-        # transfer
         self.fiber1.get_client().graph_channels()
         self.fiber1.get_client().graph_nodes()
-        channel_id = self.fiber1.get_client().list_channels({})["channels"][0][
-            "channel_id"
-        ]
-        # 获取当前时间戳
-        invoice_balance = 10 * 100000000
+        channel_id = self.fiber1.get_client().list_channels({})["channels"][0]["channel_id"]
+
+        # Step 2: Send one payment then fiber2 add_tlc 10 times
+        invoice_balance = Amount.ckb(10)
         invoice = self.fiber2.get_client().new_invoice(
             {
                 "amount": hex(invoice_balance),
@@ -219,21 +233,21 @@ class TestMaxTlcNumberInFlightDebug(FiberTest):
         )
         time.sleep(1)
         payment = self.fiber1.get_client().send_payment(
-            {
-                "invoice": invoice["invoice_address"],
-            }
+            {"invoice": invoice["invoice_address"]}
         )
-        self.wait_payment_state(self.fiber1, payment["payment_hash"], "Success")
+        self.wait_payment_state(
+            self.fiber1, payment["payment_hash"],
+            PaymentStatus.SUCCESS,
+            timeout=Timeout.PAYMENT_SUCCESS,
+        )
 
         invoice_count = 10
         for i in range(invoice_count):
-            print("current :", i)
             payment_preimage = self.generate_random_preimage()
-            add_tlc = self.fiber2.get_client().add_tlc(
+            self.fiber2.get_client().add_tlc(
                 {
                     "channel_id": channel_id,
                     "amount": hex(100),
-                    # "payment_hash": invoice_list[i]['invoice']['data']['payment_hash'],
                     "payment_hash": payment_preimage,
                     "expiry": hex((int(time.time()) + 40) * 1000),
                     "hash_algorithm": "sha256",

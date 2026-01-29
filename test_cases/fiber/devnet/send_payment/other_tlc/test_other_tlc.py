@@ -1,58 +1,62 @@
+"""
+Test cases for add_tlc (other TLC) on channels.
+"""
 import time
 
 from framework.basic_fiber import FiberTest
-from framework.test_fiber import FiberConfigPath
+from framework.constants import Amount, TLCFeeRate
 
 
 class OtherTlcTest(FiberTest):
-
-    debug = True
-    fiber_version = FiberConfigPath.CURRENT_DEV_DEBUG
+    """
+    Test add_tlc RPC: open multiple channels between same pair, add TLC to channel.
+    """
 
     def test_other_tlc(self):
         """
-        1. open_channel fiber1-fiber2 N channels
-        2.
-        Returns:
+        Open multiple channels between fiber1 and fiber2, add TLC to first channel.
+        Step 1: Start fiber3 and open 4 channels between fiber1 and fiber2.
+        Step 2: Get first channel_id from list_channels.
+        Step 3: Call add_tlc on the channel with amount and expiry.
         """
+        # Step 1: Start fiber3 and open 4 channels between fiber1 and fiber2
         self.fiber3 = self.start_new_fiber(self.generate_account(10000))
-        #
-        self.open_channel(self.fiber1, self.fiber2, 1000 * 100000000, 0, 0, 0)
-        self.open_channel(self.fiber1, self.fiber2, 1000 * 100000000, 0, 0, 0)
-        self.open_channel(self.fiber1, self.fiber2, 1000 * 100000000, 0, 0, 0)
-        self.open_channel(self.fiber1, self.fiber2, 1000 * 100000000, 0, 0, 0)
-        CHANNEL_ID = self.fiber1.get_client().list_channels({})["channels"][0][
+        self.open_channel(
+            self.fiber1, self.fiber2,
+            Amount.ckb(1000), 0,
+            fiber1_fee=TLCFeeRate.ZERO,
+            fiber2_fee=TLCFeeRate.ZERO,
+        )
+        self.open_channel(
+            self.fiber1, self.fiber2,
+            Amount.ckb(1000), 0,
+            fiber1_fee=TLCFeeRate.ZERO,
+            fiber2_fee=TLCFeeRate.ZERO,
+        )
+        self.open_channel(
+            self.fiber1, self.fiber2,
+            Amount.ckb(1000), 0,
+            fiber1_fee=TLCFeeRate.ZERO,
+            fiber2_fee=TLCFeeRate.ZERO,
+        )
+        self.open_channel(
+            self.fiber1, self.fiber2,
+            Amount.ckb(1000), 0,
+            fiber1_fee=TLCFeeRate.ZERO,
+            fiber2_fee=TLCFeeRate.ZERO,
+        )
+
+        # Step 2: Get first channel_id from list_channels
+        channel_id = self.fiber1.get_client().list_channels({})["channels"][0][
             "channel_id"
         ]
 
-        tlc = self.fiber1.get_client().add_tlc(
+        # Step 3: Call add_tlc on the channel with amount and expiry
+        self.fiber1.get_client().add_tlc(
             {
-                "channel_id": CHANNEL_ID,
-                "amount": hex(1 * 100000001),
+                "channel_id": channel_id,
+                "amount": hex(Amount.ckb(1) + 1),
                 "payment_hash": self.generate_random_preimage(),
                 "expiry": hex((int(time.time()) + 10) * 1000),
             }
         )
-
-    def test_00011(self):
-        channels = self.fiber1.get_client().list_channels({})
-        for i in range(200):
-            for channel in channels["channels"][1:]:
-                CHANNEL_ID = channel["channel_id"]
-                tlc = self.fiber1.get_client().add_tlc(
-                    {
-                        "channel_id": CHANNEL_ID,
-                        "amount": hex(1 * 100000001),
-                        "payment_hash": self.generate_random_preimage(),
-                        "expiry": hex((int(time.time()) + 10000) * 1000),
-                    }
-                )
-                time.sleep(0.5)
-            self.get_fiber_graph_balance()
-
-    def test_000222(self):
-        for i in range(2000):
-            self.send_payment(self.fiber1, self.fiber2, 1)
-
-    def test_02231313(self):
-        self.get_fiber_graph_balance()

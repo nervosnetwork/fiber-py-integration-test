@@ -1,150 +1,103 @@
+"""
+update_channel tests: enabled flag - disable channel to exclude from routing; re-enable to restore path.
+"""
 import time
 
 import pytest
 
 from framework.basic_fiber import FiberTest
+from framework.constants import Amount, Timeout, TLCFeeRate
+
+# Error message when no path found
+NO_PATH_ERROR = "no path found"
 
 
-class TestEnable(FiberTest):
+class TestEnabled(FiberTest):
     """
-    1. 可用路径中存在禁用路径, 能够避开禁用路径
-    2. 可用路径中 全都被禁用, send_payment (dry_run = true) 返回错误 ，send_payment 返回错误
-    3.
+    Test update_channel enabled: (1) Disabled channel excluded from path; A->C and B->C fail, others ok.
+    (2) Re-enable; A->C and B->C succeed. (3) Multiple channels between B-C; disable low-fee channel.
     """
 
-    # FiberTest.debug = True
-
-    # @pytest.mark.skip("https://github.com/nervosnetwork/fiber/issues/499")
     def test_true(self):
         """
-        A-B-C
-        0. A->C 不会报错
-        1. B.update_channel(id:B-C,enable:False)
-        2. A->C 报错
-        3. B->C 报错
-        4.  B->A 不会报错 , C->B 不会报错
-        5. C->A 不会报错
-        6. B.update_channel(id:B-C,enable:True)
-        7. A->C 不会报错
-        8. B->C 不会报错
-        Returns:
+        A-B-C: disable B-C channel; A->C and B->C fail with 'no path found'; B->A, C->B, C->A succeed; re-enable B-C; A->C and B->C succeed.
+        Step 1: Start F3, open F1-F2 and F2-F3 channels; send F1->F3 payment.
+        Step 2: F2 update_channel F2-F3 enabled=False; assert graph_channels still 2; assert list_channels enabled False (F2) / True (F3).
+        Step 3: Assert F1->F3 and F2->F3 raise 'no path found'; F2->F1, F3->F2, F3->F1 succeed.
+        Step 4: F2 update_channel F2-F3 enabled=True; assert list_channels enabled True on both.
+        Step 5: F1->F3, F2->F3, F2->F1, F3->F2, F3->F1 succeed.
         """
-        self.start_new_fiber(self.generate_account(10000))
-        self.open_channel(
-            self.fibers[0], self.fibers[1], 1000 * 100000000, 1000 * 100000000
-        )
-        self.open_channel(
-            self.fibers[1], self.fibers[2], 1000 * 100000000, 1000 * 100000000
-        )
-        self.send_payment(self.fibers[0], self.fibers[2], 1 * 100000000)
+        # Step 1: Start F3, open F1-F2 and F2-F3 channels; send F1->F3 payment
+        self.start_new_fiber(self.generate_account(10_000))
+        bal = Amount.ckb(1000)
+        self.open_channel(self.fibers[0], self.fibers[1], bal, bal)
+        self.open_channel(self.fibers[1], self.fibers[2], bal, bal)
+        self.send_payment(self.fibers[0], self.fibers[2], Amount.ckb(1), wait=True)
 
-        # 1. B.update_channel(id:B-C,enable:False)
-        channel = (
-            self.fibers[1]
-            .get_client()
-            .list_channels({"peer_id": self.fibers[2].get_peer_id()})
-        )
-        channels = self.fibers[1].get_client().graph_channels({})
-        assert len(channels["channels"]) == 2
-        self.fibers[1].get_client().update_channel(
+        # Step 2: F2 update_channel F2-F3 enabled=False; assert graph_channels still 2; assert list_channels enabled
+        f1, f2, f3 = self.fibers[0], self.fibers[1], self.fibers[2]
+        channel = f2.get_client().list_channels({"peer_id": f3.get_peer_id()})
+        assert len(f2.get_client().graph_channels({})["channels"]) == 2
+        f2.get_client().update_channel(
             {"channel_id": channel["channels"][0]["channel_id"], "enabled": False}
         )
         time.sleep(3)
-        channels = self.fibers[1].get_client().graph_channels({})
-        assert len(channels["channels"]) == 2
+        assert len(f2.get_client().graph_channels({})["channels"]) == 2
+        channel = f2.get_client().list_channels({"peer_id": f3.get_peer_id()})
+        assert channel["channels"][0]["enabled"] is False
+        channel = f3.get_client().list_channels({"peer_id": f2.get_peer_id()})
+        assert channel["channels"][0]["enabled"] is True
 
-        channel = (
-            self.fibers[1]
-            .get_client()
-            .list_channels({"peer_id": self.fibers[2].get_peer_id()})
-        )
-        print("fiber1 channel:", channel)
-        assert channel["channels"][0]["enabled"] == False
-        channel = (
-            self.fibers[2]
-            .get_client()
-            .list_channels({"peer_id": self.fibers[1].get_peer_id()})
-        )
-        print("fiber2 channel:", channel)
-        assert channel["channels"][0]["enabled"] == True
-
-        # 2. A->C 报错
+        # Step 3: Assert F1->F3 and F2->F3 raise 'no path found'; F2->F1, F3->F2, F3->F1 succeed
         with pytest.raises(Exception) as exc_info:
-            self.send_payment(self.fibers[0], self.fibers[2], 1)
-        expected_error_message = "no path found"
-        assert expected_error_message in exc_info.value.args[0], (
-            f"Expected substring '{expected_error_message}' "
-            f"not found in actual string '{exc_info.value.args[0]}'"
+            self.send_payment(f1, f3, Amount.ckb(1), wait=True)
+        assert NO_PATH_ERROR in exc_info.value.args[0], (
+            f"Expected '{NO_PATH_ERROR}' not found in '{exc_info.value.args[0]}'"
         )
-        # 3. B->C 报错
         with pytest.raises(Exception) as exc_info:
-            self.send_payment(self.fibers[1], self.fibers[2], 1)
-        expected_error_message = "no path found"
-        assert expected_error_message in exc_info.value.args[0], (
-            f"Expected substring '{expected_error_message}' "
-            f"not found in actual string '{exc_info.value.args[0]}'"
+            self.send_payment(f2, f3, Amount.ckb(1), wait=True)
+        assert NO_PATH_ERROR in exc_info.value.args[0], (
+            f"Expected '{NO_PATH_ERROR}' not found in '{exc_info.value.args[0]}'"
         )
-        # 4. B->A 不会报错 , C->B 不会报错
-        self.send_payment(self.fibers[1], self.fibers[0], 1)
-        self.send_payment(self.fibers[2], self.fibers[1], 1)
+        self.send_payment(f2, f1, Amount.ckb(1), wait=True)
+        self.send_payment(f3, f2, Amount.ckb(1), wait=True)
+        self.send_payment(f3, f1, Amount.ckb(1), wait=True)
 
-        # 5. C->A 不会报错
-        self.send_payment(self.fibers[2], self.fibers[0], 1)
-
-        # 6. B.update_channel(id:B-C,enable:True)
-        channel = (
-            self.fibers[1]
-            .get_client()
-            .list_channels({"peer_id": self.fibers[2].get_peer_id()})
-        )
-        self.fibers[1].get_client().update_channel(
+        # Step 4: F2 update_channel F2-F3 enabled=True; assert list_channels enabled True on both
+        channel = f2.get_client().list_channels({"peer_id": f3.get_peer_id()})
+        f2.get_client().update_channel(
             {"channel_id": channel["channels"][0]["channel_id"], "enabled": True}
         )
-        time.sleep(1)
-        channels = self.fibers[1].get_client().graph_channels({})
-        print("after true graph_channels:", channels)
-        assert len(channels["channels"]) == 2
-        channel = (
-            self.fibers[1]
-            .get_client()
-            .list_channels({"peer_id": self.fibers[2].get_peer_id()})
-        )
-        print("fiber1 channel:", channel)
-        assert channel["channels"][0]["enabled"] == True
-        channel = (
-            self.fibers[2]
-            .get_client()
-            .list_channels({"peer_id": self.fibers[1].get_peer_id()})
-        )
-        print("fiber2 channel:", channel)
-        assert channel["channels"][0]["enabled"] == True
-        # 7. A->C 不会报错
-        # 8. B->C 不会报错
-        self.send_payment(self.fibers[0], self.fibers[2], 1)
-        self.send_payment(self.fibers[1], self.fibers[2], 1)
-        self.send_payment(self.fibers[1], self.fibers[0], 1)
-        self.send_payment(self.fibers[2], self.fibers[1], 1)
-        self.send_payment(self.fibers[2], self.fibers[0], 1)
+        time.sleep(Timeout.POLL_INTERVAL)
+        assert len(f2.get_client().graph_channels({})["channels"]) == 2
+        channel = f2.get_client().list_channels({"peer_id": f3.get_peer_id()})
+        assert channel["channels"][0]["enabled"] is True
+        channel = f3.get_client().list_channels({"peer_id": f2.get_peer_id()})
+        assert channel["channels"][0]["enabled"] is True
 
-    # 可用路径中 全都被禁用, send_payment (dry_run = true) 返回错误 ，send_payment 返回错误
+        # Step 5: F1->F3, F2->F3, F2->F1, F3->F2, F3->F1 succeed
+        self.send_payment(f1, f3, Amount.ckb(1), wait=True)
+        self.send_payment(f2, f3, Amount.ckb(1), wait=True)
+        self.send_payment(f2, f1, Amount.ckb(1), wait=True)
+        self.send_payment(f3, f2, Amount.ckb(1), wait=True)
+        self.send_payment(f3, f1, Amount.ckb(1), wait=True)
+
     def test_channels_enabled_fee_more(self):
         """
-        1. A-B-C
-        2. B-C 建立多个channel
-        3. 将fee 比较低的channel 都禁用掉
+        A-B-C: open B-C with two more channels (higher fees); disable the first B-C channel.
+        Step 1: Start F3; open F1-F2 and F2-F3.
+        Step 2: F2 disable first F2-F3 channel; open two more F2-F3 channels with fee 20000 and 30000 millionths.
+        Step 3: Send F1->F3 payment (uses remaining enabled channels).
         """
-        self.start_new_fiber(self.generate_account(10000))
-        self.open_channel(
-            self.fibers[0], self.fibers[1], 1000 * 100000000, 1000 * 100000000
-        )
-        self.open_channel(
-            self.fibers[1], self.fibers[2], 1000 * 100000000, 1000 * 100000000
-        )
+        # Step 1: Start F3; open F1-F2 and F2-F3
+        self.start_new_fiber(self.generate_account(10_000))
+        bal = Amount.ckb(1000)
+        self.open_channel(self.fibers[0], self.fibers[1], bal, bal)
+        self.open_channel(self.fibers[1], self.fibers[2], bal, bal)
 
-        channel = (
-            self.fibers[1]
-            .get_client()
-            .list_channels({"peer_id": self.fibers[2].get_peer_id()})
+        # Step 2: F2 disable first F2-F3 channel; open two more F2-F3 channels with fee 20000 and 30000
+        channel = self.fibers[1].get_client().list_channels(
+            {"peer_id": self.fibers[2].get_peer_id()}
         )
         self.fibers[1].get_client().update_channel(
             {"channel_id": channel["channels"][0]["channel_id"], "enabled": False}
@@ -152,17 +105,19 @@ class TestEnable(FiberTest):
         self.open_channel(
             self.fibers[1],
             self.fibers[2],
-            1000 * 100000000,
-            1000 * 100000000,
-            20000,
-            20000,
+            bal,
+            bal,
+            fiber1_fee=TLCFeeRate.MEDIUM * 2,  # 20000
+            fiber2_fee=TLCFeeRate.MEDIUM * 2,
         )
         self.open_channel(
             self.fibers[1],
             self.fibers[2],
-            1000 * 100000000,
-            1000 * 100000000,
-            30000,
-            30000,
+            bal,
+            bal,
+            fiber1_fee=TLCFeeRate.MEDIUM * 3,  # 30000
+            fiber2_fee=TLCFeeRate.MEDIUM * 3,
         )
-        self.send_payment(self.fibers[0], self.fibers[2], 1 * 100000000)
+
+        # Step 3: Send F1->F3 payment
+        self.send_payment(self.fibers[0], self.fibers[2], Amount.ckb(1), wait=True)

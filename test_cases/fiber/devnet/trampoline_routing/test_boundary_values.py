@@ -1,16 +1,19 @@
-import time
-from mimetypes import inited
+"""
+Trampoline routing boundary-value tests: max hops, min/large amount, fee rate, etc.
+"""
 
 import pytest
 
 from framework.basic_share_fiber import SharedFiberTest
+from framework.constants import Amount, Currency, PaymentStatus, Timeout
 from framework.test_fiber import Fiber
 
 
 class TestBoundaryValues(SharedFiberTest):
     """
-    测试 trampoline routing 的边界值场景
-    包括最大 hops、最小金额、最大金额等
+    Trampoline routing boundary scenarios: max hops, min/large amount,
+    zero/high fee rate, min max_fee_amount, trampoline_hops contains target.
+    Topology: linear chain fiber1->2->3->4->5->6->7->8.
     """
 
     fiber3: Fiber
@@ -21,62 +24,75 @@ class TestBoundaryValues(SharedFiberTest):
     fiber8: Fiber
 
     def setUp(self):
+        """Initialize linear topology once (fiber1->2->...->8)."""
         if getattr(TestBoundaryValues, "_channel_inited", False):
             return
         TestBoundaryValues._channel_inited = True
-        # 创建 7 个节点（1个发送者 + 6个trampoline，支持测试超过最大hops的场景）
-        # self.__class__.fiber3 = self.start_new_mock_fiber("")
-        # self.__class__.fiber4 = self.start_new_mock_fiber("")
-        # self.__class__.fiber5 = self.start_new_mock_fiber("")
-        # self.__class__.fiber6 = self.start_new_mock_fiber("")
-        # self.__class__.fiber7 = self.start_new_mock_fiber("")
-        # self.__class__.fiber8 = self.start_new_mock_fiber("")
-
         self.__class__.fiber3 = self.start_new_fiber(self.generate_account(10000))
         self.__class__.fiber4 = self.start_new_fiber(self.generate_account(10000))
         self.__class__.fiber5 = self.start_new_fiber(self.generate_account(10000))
         self.__class__.fiber6 = self.start_new_fiber(self.generate_account(10000))
         self.__class__.fiber7 = self.start_new_fiber(self.generate_account(10000))
         self.__class__.fiber8 = self.start_new_fiber(self.generate_account(10000))
-        # #
-        # # # 建立通道链（支持最多7个hops）
-        self.open_channel(self.fiber1, self.fiber2, 1000 * 100000000, 0)
-        self.open_channel(self.fiber2, self.fiber3, 1000 * 100000000, 0)
-        self.open_channel(self.fiber3, self.fiber4, 1000 * 100000000, 0)
-        self.open_channel(self.fiber4, self.fiber5, 1000 * 100000000, 0)
-        self.open_channel(self.fiber5, self.fiber6, 1000 * 100000000, 0)
-        self.open_channel(self.fiber6, self.fiber7, 1000 * 100000000, 0)
-        self.open_channel(self.fiber7, self.fiber8, 1000 * 100000000, 0)
+
+        self.open_channel(
+            self.fiber1, self.fiber2,
+            fiber1_balance=Amount.ckb(1000), fiber2_balance=Amount.ckb(0),
+        )
+        self.open_channel(
+            self.fiber2, self.fiber3,
+            fiber1_balance=Amount.ckb(1000), fiber2_balance=Amount.ckb(0),
+        )
+        self.open_channel(
+            self.fiber3, self.fiber4,
+            fiber1_balance=Amount.ckb(1000), fiber2_balance=Amount.ckb(0),
+        )
+        self.open_channel(
+            self.fiber4, self.fiber5,
+            fiber1_balance=Amount.ckb(1000), fiber2_balance=Amount.ckb(0),
+        )
+        self.open_channel(
+            self.fiber5, self.fiber6,
+            fiber1_balance=Amount.ckb(1000), fiber2_balance=Amount.ckb(0),
+        )
+        self.open_channel(
+            self.fiber6, self.fiber7,
+            fiber1_balance=Amount.ckb(1000), fiber2_balance=Amount.ckb(0),
+        )
+        self.open_channel(
+            self.fiber7, self.fiber8,
+            fiber1_balance=Amount.ckb(1000), fiber2_balance=Amount.ckb(0),
+        )
 
     def test_max_trampoline_hops(self):
-        # 测试1: 使用最大数量的 trampoline hops（5个）
+        """
+        Use max trampoline hops (5); dry_run then real pay; assert fee and balance change.
+        Step 1: Dry run without trampoline_hops; expect route fail.
+        Step 2: Dry run with 5 hops; get fee; send with that fee; expect Failed.
+        Step 3: Send with sufficient max_fee_amount; expect Success; assert fee and balance change.
+        """
+        # Step 1: Dry run without trampoline_hops; expect route fail
         before_balance = self.get_fibers_balance()
 
-        payment = self.fiber1.get_client().send_payment(
+        dry = self.fiber1.get_client().send_payment(
             {
                 "target_pubkey": self.fiber7.get_client().node_info()["node_id"],
-                "currency": "Fibd",
-                "amount": hex(1 * 100000000),
+                "currency": Currency.FIBD,
+                "amount": hex(Amount.ckb(1)),
                 "keysend": True,
                 "dry_run": True,
-                "max_fee_amount": hex(1 * 100000000),
+                "max_fee_amount": hex(Amount.ckb(1)),
                 "max_fee_rate": hex(99),
-                # "trampoline_hops": [
-                #     self.fiber2.get_client().node_info()["node_id"],
-                #     self.fiber3.get_client().node_info()["node_id"],
-                #     self.fiber4.get_client().node_info()["node_id"],
-                #     self.fiber5.get_client().node_info()["node_id"],
-                #     self.fiber6.get_client().node_info()["node_id"],
-                # ],
             }
         )
+        # Step 2: Send with trampoline_hops and fee from dry_run; expect Failed
         payment = self.fiber1.get_client().send_payment(
             {
                 "target_pubkey": self.fiber7.get_client().node_info()["node_id"],
-                "currency": "Fibd",
-                "amount": hex(1 * 100000000),
+                "currency": Currency.FIBD,
+                "amount": hex(Amount.ckb(1)),
                 "keysend": True,
-                "max_fee_amount": payment["fee"],
+                "max_fee_amount": dry["fee"],
                 "max_fee_rate": hex(99),
                 "trampoline_hops": [
                     self.fiber2.get_client().node_info()["node_id"],
@@ -87,14 +103,18 @@ class TestBoundaryValues(SharedFiberTest):
                 ],
             }
         )
-        self.wait_payment_state(self.fiber1, payment["payment_hash"], "Failed")
+        self.wait_payment_state(
+            self.fiber1, payment["payment_hash"], PaymentStatus.FAILED, timeout=Timeout.PAYMENT_SUCCESS
+        )
+
+        # Step 3: Send with sufficient max_fee_amount; expect Success; assert fee and balance change
         payment = self.fiber1.get_client().send_payment(
             {
                 "target_pubkey": self.fiber7.get_client().node_info()["node_id"],
-                "currency": "Fibd",
-                "amount": hex(1 * 100000000),
+                "currency": Currency.FIBD,
+                "amount": hex(Amount.ckb(1)),
                 "keysend": True,
-                "max_fee_amount": hex(600000),
+                "max_fee_amount": hex(Amount.ckb(0.006)),
                 "max_fee_rate": hex(99),
                 "trampoline_hops": [
                     self.fiber2.get_client().node_info()["node_id"],
@@ -105,66 +125,37 @@ class TestBoundaryValues(SharedFiberTest):
                 ],
             }
         )
-        self.wait_payment_state(self.fiber1, payment["payment_hash"], "Success")
+        self.wait_payment_state(
+            self.fiber1, payment["payment_hash"], PaymentStatus.SUCCESS, timeout=Timeout.PAYMENT_SUCCESS
+        )
         after_balance = self.get_fibers_balance()
         result = self.get_channel_balance_change(before_balance, after_balance)
-        print("get_channel_balance_change:", result)
-        payment = self.fiber1.get_client().get_payment(
-            {
-                "payment_hash": payment["payment_hash"],
-            }
-        )
+        payment_info = self.fiber1.get_client().get_payment({"payment_hash": payment["payment_hash"]})
 
-        assert payment["fee"] == hex(600000)
-        # todo 函数 验证 trampoline routing 余额计算
-
+        assert payment_info["fee"] == hex(600000)
         assert result == [
-            {
-                "local_balance": 100600000,
-                "offered_tlc_balance": 0,
-                "received_tlc_balance": 0,
-            },
-            {
-                "local_balance": -120000,
-                "offered_tlc_balance": 0,
-                "received_tlc_balance": 0,
-            },
-            {
-                "local_balance": -120000,
-                "offered_tlc_balance": 0,
-                "received_tlc_balance": 0,
-            },
-            {
-                "local_balance": -120000,
-                "offered_tlc_balance": 0,
-                "received_tlc_balance": 0,
-            },
-            {
-                "local_balance": -120000,
-                "offered_tlc_balance": 0,
-                "received_tlc_balance": 0,
-            },
-            {
-                "local_balance": -120000,
-                "offered_tlc_balance": 0,
-                "received_tlc_balance": 0,
-            },
-            {
-                "local_balance": -100000000,
-                "offered_tlc_balance": 0,
-                "received_tlc_balance": 0,
-            },
+            {"local_balance": 100600000, "offered_tlc_balance": 0, "received_tlc_balance": 0},
+            {"local_balance": -120000, "offered_tlc_balance": 0, "received_tlc_balance": 0},
+            {"local_balance": -120000, "offered_tlc_balance": 0, "received_tlc_balance": 0},
+            {"local_balance": -120000, "offered_tlc_balance": 0, "received_tlc_balance": 0},
+            {"local_balance": -120000, "offered_tlc_balance": 0, "received_tlc_balance": 0},
+            {"local_balance": -120000, "offered_tlc_balance": 0, "received_tlc_balance": 0},
+            {"local_balance": -Amount.CKB, "offered_tlc_balance": 0, "received_tlc_balance": 0},
             {"local_balance": 0, "offered_tlc_balance": 0, "received_tlc_balance": 0},
         ]
 
     def test_exceed_max_trampoline_hops(self):
-        # 测试2: 尝试使用超过最大数量的 trampoline hops（6个，超过限制5个）
+        """
+        Use 6 trampoline hops (over limit 5); expect error.
+        Step 1: Send payment with 6 trampoline_hops; assert error message.
+        """
+        # Step 1: Send with 6 trampoline_hops; assert error
         with pytest.raises(Exception) as exc_info:
-            payment = self.fiber1.get_client().send_payment(
+            self.fiber1.get_client().send_payment(
                 {
                     "target_pubkey": self.fiber8.get_client().node_info()["node_id"],
-                    "currency": "Fibd",
-                    "amount": hex(1 * 100000000),
+                    "currency": Currency.FIBD,
+                    "amount": hex(Amount.ckb(1)),
                     "keysend": True,
                     "trampoline_hops": [
                         self.fiber2.get_client().node_info()["node_id"],
@@ -172,108 +163,124 @@ class TestBoundaryValues(SharedFiberTest):
                         self.fiber4.get_client().node_info()["node_id"],
                         self.fiber5.get_client().node_info()["node_id"],
                         self.fiber6.get_client().node_info()["node_id"],
-                        self.fiber7.get_client().node_info()[
-                            "node_id"
-                        ],  # 第6个，超过限制
+                        self.fiber7.get_client().node_info()["node_id"],
                     ],
                 }
             )
-            self.wait_payment_state(self.fiber1, payment["payment_hash"], "Success")
-        # 应该因为超过最大 hops 而失败
-        assert "too many" in exc_info.value.args[0].lower() or "Failed" in str(
-            exc_info.value
-        )
+        err = exc_info.value.args[0] if exc_info.value.args else ""
+        assert "too many" in err.lower() or "Failed" in str(exc_info.value)
 
     def test_minimum_amount(self):
-        # 测试1: 最小金额支付（1 satoshi）
+        """
+        Minimum amount (1 shannon) keysend via trampoline; expect success.
+        Step 1: Send keysend with amount=1; wait success.
+        """
+        # Step 1: Send keysend with amount=1; wait success
         payment = self.fiber1.get_client().send_payment(
             {
                 "target_pubkey": self.fiber3.get_client().node_info()["node_id"],
-                "currency": "Fibd",
-                "amount": hex(1),  # 最小金额
+                "currency": Currency.FIBD,
+                "amount": hex(1),
                 "keysend": True,
-                "trampoline_hops": [
-                    self.fiber2.get_client().node_info()["node_id"],
-                ],
+                "trampoline_hops": [self.fiber2.get_client().node_info()["node_id"]],
             }
         )
-        self.wait_payment_state(self.fiber1, payment["payment_hash"], "Success")
+        self.wait_payment_state(
+            self.fiber1, payment["payment_hash"], PaymentStatus.SUCCESS, timeout=Timeout.PAYMENT_SUCCESS
+        )
 
     def test_large_amount(self):
         """
-        # 测试2: 大金额支付
+        Large amount (50 CKB) keysend via trampoline; expect success.
+        Step 1: Send keysend with 50 CKB; wait success.
         """
-
+        # Step 1: Send keysend with 50 CKB; wait success
         payment = self.fiber1.get_client().send_payment(
             {
                 "target_pubkey": self.fiber3.get_client().node_info()["node_id"],
-                "currency": "Fibd",
-                "amount": hex(50 * 100000000),  # 大金额
+                "currency": Currency.FIBD,
+                "amount": hex(Amount.ckb(50)),
                 "keysend": True,
-                "trampoline_hops": [
-                    self.fiber2.get_client().node_info()["node_id"],
-                ],
+                "trampoline_hops": [self.fiber2.get_client().node_info()["node_id"]],
             }
         )
-        self.wait_payment_state(self.fiber1, payment["payment_hash"], "Success")
+        self.wait_payment_state(
+            self.fiber1, payment["payment_hash"], PaymentStatus.SUCCESS, timeout=Timeout.PAYMENT_SUCCESS
+        )
 
     def test_zero_fee_rate(self):
-        # 测试3: fee_rate 为 0 的场景
+        """
+        Keysend with default fee rate (no explicit max_fee_rate); expect success.
+        Step 1: Send keysend; wait success; check balance change.
+        """
+        # Step 1: Send keysend; wait success; check balance change
         before_balance = self.get_fibers_balance()
         payment = self.fiber1.get_client().send_payment(
             {
                 "target_pubkey": self.fiber3.get_client().node_info()["node_id"],
-                "currency": "Fibd",
-                "amount": hex(1 * 100000000),
+                "currency": Currency.FIBD,
+                "amount": hex(Amount.ckb(1)),
                 "keysend": True,
-                "trampoline_hops": [
-                    self.fiber2.get_client().node_info()["node_id"],
-                ],
+                "trampoline_hops": [self.fiber2.get_client().node_info()["node_id"]],
             }
         )
-        self.wait_payment_state(self.fiber1, payment["payment_hash"], "Success")
+        self.wait_payment_state(
+            self.fiber1, payment["payment_hash"], PaymentStatus.SUCCESS, timeout=Timeout.PAYMENT_SUCCESS
+        )
         after_balance = self.get_fibers_balance()
-        result = self.get_channel_balance_change(before_balance, after_balance)
-        print(result)
+        _ = self.get_channel_balance_change(before_balance, after_balance)
 
     def test_very_high_fee_rate(self):
-        # 测试4: 极高的 fee_rate（接近上限）
+        """
+        Keysend with high fee budget; expect success.
+        Step 1: Send keysend; wait success.
+        """
+        # Step 1: Send keysend; wait success
         payment = self.fiber1.get_client().send_payment(
             {
                 "target_pubkey": self.fiber3.get_client().node_info()["node_id"],
-                "currency": "Fibd",
-                "amount": hex(1 * 100000000),
+                "currency": Currency.FIBD,
+                "amount": hex(Amount.ckb(1)),
                 "keysend": True,
-                "trampoline_hops": [
-                    self.fiber2.get_client().node_info()["node_id"],
-                ],
+                "trampoline_hops": [self.fiber2.get_client().node_info()["node_id"]],
             }
         )
-        self.wait_payment_state(self.fiber1, payment["payment_hash"], "Success")
+        self.wait_payment_state(
+            self.fiber1, payment["payment_hash"], PaymentStatus.SUCCESS, timeout=Timeout.PAYMENT_SUCCESS
+        )
 
     def test_minimum_max_fee_amount(self):
-        # 测试5: 最小 max_fee_amount
+        """
+        Keysend with minimal max_fee_amount that still succeeds; expect success.
+        Step 1: Send keysend with max_fee_amount=200000; wait success.
+        """
+        # Step 1: Send keysend with max_fee_amount=200000; wait success
         payment = self.fiber1.get_client().send_payment(
             {
                 "target_pubkey": self.fiber3.get_client().node_info()["node_id"],
-                "currency": "Fibd",
-                "amount": hex(1 * 100000000),
+                "currency": Currency.FIBD,
+                "amount": hex(Amount.ckb(1)),
                 "keysend": True,
-                "max_fee_amount": hex(200000),  # 最小费用预算
-                "trampoline_hops": [
-                    self.fiber2.get_client().node_info()["node_id"],
-                ],
+                "max_fee_amount": hex(200000),
+                "trampoline_hops": [self.fiber2.get_client().node_info()["node_id"]],
             }
         )
-        self.wait_payment_state(self.fiber1, payment["payment_hash"], "Success")
+        self.wait_payment_state(
+            self.fiber1, payment["payment_hash"], PaymentStatus.SUCCESS, timeout=Timeout.PAYMENT_SUCCESS
+        )
 
     def test_trampoline_hops_contains_target_pubkey(self):
+        """
+        trampoline_hops must not contain target; expect error.
+        Step 1: Send keysend with target in trampoline_hops; assert error.
+        """
+        # Step 1: Send with target in trampoline_hops; assert error
         with pytest.raises(Exception) as exc_info:
             self.fiber1.get_client().send_payment(
                 {
                     "target_pubkey": self.fiber3.get_client().node_info()["node_id"],
-                    "currency": "Fibd",
-                    "amount": hex(1 * 100000000),
+                    "currency": Currency.FIBD,
+                    "amount": hex(Amount.ckb(1)),
                     "keysend": True,
                     "trampoline_hops": [
                         self.fiber2.get_client().node_info()["node_id"],
@@ -281,8 +288,7 @@ class TestBoundaryValues(SharedFiberTest):
                     ],
                 }
             )
-        expected_error_message = "trampoline_hops must not contain target_pubkey"
-        assert expected_error_message in exc_info.value.args[0], (
-            f"Expected substring '{expected_error_message}' "
-            f"not found in actual string '{exc_info.value.args[0]}'"
+        expected = "trampoline_hops must not contain target_pubkey"
+        assert expected in (exc_info.value.args[0] if exc_info.value.args else ""), (
+            f"Expected substring '{expected}' not found in actual error."
         )

@@ -1,55 +1,46 @@
-import time
+import pytest
 from framework.basic_fiber import FiberTest
+from framework.constants import Amount, Timeout, ChannelState, TLCFeeRate
 from framework.config import DEFAULT_MIN_DEPOSIT_CKB
 
 
 class TestBuildRouter(FiberTest):
-    # FiberTest.debug = True
     """
-    测试 build_router RPC 的功能：
-    1. 基本路由构建
-       - 测试指定 amount 和不指定 amount 的情况
-       - 测试指定和不指定 final_tlc_expiry_delta 的情况
-
-    2. 通道指定测试
-       - 测试指定 channel_outpoint 的情况
-       - 测试不指定 channel_outpoint 的情况（让算法自动选择通道）
-       - 测试指定的 channel_outpoint 无效的情况
-
-    3. 路径验证
-       - 测试所有节点都存在的有效路径
-       - 测试节点不存在的无效路径
-       - 测试节点存在但无可用通道的情况
-
-    4. 特殊情况
-       - 测试空的 hops_info
-       - 测试只有一个 hop 的情况
-       - 测试包含重复节点的情况
-
-    5. UDT 支付路由（可选）
-       - 测试指定 udt 支付的情况
-       - 测试 ckb 支付的情况
+    Test build_router RPC functionality.
+    Requirement: https://github.com/nervosnetwork/fiber/blob/main/rpc/README.md#build_router
     """
 
     def test_base_build_router(self):
         """
-        b-c-d-私-a网络
-        1. d-a建立了路由关系，查看构建的路由返回信息
+        Test basic router building for a private channel.
+        Step 1: Start new fiber nodes and connect them.
+        Step 2: Open a private channel between fiber3 and fiber0.
+        Step 3: Wait for channel to be ready.
+        Step 4: Build router with specific hops_info.
+        Step 5: Assert router hops information is correct.
         """
+        # Step 1: Start new fiber nodes and connect them
         self.start_new_fiber(self.generate_account(10000))
         self.start_new_fiber(self.generate_account(10000))
 
-        fiber1_balance = 1000 * 100000000
-        fiber1_fee = 1000
+        fiber1_balance = Amount.ckb(1000)
+        fiber1_fee = TLCFeeRate.DEFAULT
 
-        self.open_channel(self.fibers[1], self.fibers[2], 1000 * 100000000, 1)  # b-c
         self.open_channel(
-            self.fibers[2], self.fibers[3], 1000 * 100000000, 1
-        )  # c-d == b-c-d
+            self.fibers[1], self.fibers[2],
+            Amount.ckb(1000), Amount.ckb(1),
+            fiber1_fee=fiber1_fee, fiber2_fee=fiber1_fee,
+        )  # b-c
+        self.open_channel(
+            self.fibers[2], self.fibers[3],
+            Amount.ckb(1000), Amount.ckb(1),
+            fiber1_fee=fiber1_fee, fiber2_fee=fiber1_fee,
+        )  # c-d
 
         self.fibers[3].connect_peer(self.fibers[0])  # d-a
-        time.sleep(1)
-        self.fibers[3].get_client().open_channel(  # d -a private channel
+
+        # Step 2: Open a private channel between fiber3 and fiber0
+        self.fibers[3].get_client().open_channel(
             {
                 "peer_id": self.fibers[0].get_peer_id(),
                 "funding_amount": hex(fiber1_balance + DEFAULT_MIN_DEPOSIT_CKB),
@@ -57,21 +48,19 @@ class TestBuildRouter(FiberTest):
                 "public": False,
             }
         )
-        time.sleep(1)
+
+        # Step 3: Wait for channel to be ready
         self.wait_for_channel_state(
-            self.fibers[3].get_client(), self.fibers[0].get_peer_id(), "CHANNEL_READY"
+            self.fibers[3].get_client(), self.fibers[0].get_peer_id(), ChannelState.CHANNEL_READY
         )
-        # 查看d-a的channeloutpoint
-        print(f"a peer_id:{self.fibers[0].get_peer_id()}")
-        print(f"d peer_id:{self.fibers[3].get_peer_id()}")
+
+        # Step 4: Build router with specific hops_info
         channels = (
             self.fibers[3]
             .get_client()
             .list_channels({"peer_id": self.fibers[0].get_peer_id()})
         )
-        print(f"d-a,channel:{channels}")
         da_channel_outpoint = channels["channels"][0]["channel_outpoint"]
-        print(f"d-a, channel_outpoint:{da_channel_outpoint}")
 
         router_hops = (
             self.fibers[3]
@@ -82,9 +71,7 @@ class TestBuildRouter(FiberTest):
                     "udt_type_script": None,
                     "hops_info": [
                         {
-                            "pubkey": self.fibers[0]
-                            .get_client()
-                            .node_info()["node_id"],
+                            "pubkey": self.fibers[0].get_client().node_info()["node_id"],
                             "channel_outpoint": da_channel_outpoint,
                         },
                     ],
@@ -92,30 +79,30 @@ class TestBuildRouter(FiberTest):
                 }
             )
         )
-        print(f"router_hops:{router_hops}")
+
+        # Step 5: Assert router hops information is correct
+        assert "router_hops" in router_hops
         hop = router_hops["router_hops"][0]
-        print(f"hop:{hop}")
         assert hop["channel_outpoint"] == da_channel_outpoint
         assert hop["target"] == self.fibers[0].get_client().node_info()["node_id"]
         assert hop["amount_received"] == hex(1 + DEFAULT_MIN_DEPOSIT_CKB)
 
     def test_amount_invalid(self):
         """
-        测试build_router对amount参数的有效性检查：
-        1. 测试amount为0时是否会返回错误
-        2. 测试amount超过通道余额时是否会返回错误
+        Test build_router validation for amount parameter.
+        Step 1: Setup network a-b and open channel.
+        Step 2: Test amount=0 should be rejected.
+        Step 3: Test amount exceeding balance should be rejected.
+        Step 4: Test normal amount should succeed.
         """
-        # 设置测试网络：a-b-c
+        # Step 1: Setup network a-b and open channel
         self.start_new_fiber(self.generate_account(10000))
         self.start_new_fiber(self.generate_account(10000))
 
-        # 设置通道参数
-        channel_balance = 1000 * 100000000  # 1000 CKB
-        channel_fee = 1000
+        channel_balance = Amount.ckb(1000)
+        channel_fee = TLCFeeRate.DEFAULT
 
-        # 创建a-b通道
         self.fibers[0].connect_peer(self.fibers[1])
-        time.sleep(1)
         self.fibers[0].get_client().open_channel(
             {
                 "peer_id": self.fibers[1].get_peer_id(),
@@ -124,12 +111,10 @@ class TestBuildRouter(FiberTest):
                 "public": True,
             }
         )
-        time.sleep(1)
         self.wait_for_channel_state(
-            self.fibers[0].get_client(), self.fibers[1].get_peer_id(), "CHANNEL_READY"
+            self.fibers[0].get_client(), self.fibers[1].get_peer_id(), ChannelState.CHANNEL_READY
         )
 
-        # 获取通道outpoint
         channels = (
             self.fibers[0]
             .get_client()
@@ -137,68 +122,53 @@ class TestBuildRouter(FiberTest):
         )
         channel_outpoint = channels["channels"][0]["channel_outpoint"]
 
-        # 测试1: amount为0时应该返回错误
-        try:
+        # Step 2: Test amount=0 should be rejected
+        with pytest.raises(Exception) as exc_info:
             self.fibers[0].get_client().build_router(
                 {
-                    "amount": hex(0),  # amount为0
+                    "amount": hex(0),
                     "udt_type_script": None,
                     "hops_info": [
                         {
-                            "pubkey": self.fibers[1]
-                            .get_client()
-                            .node_info()["node_id"],
+                            "pubkey": self.fibers[1].get_client().node_info()["node_id"],
                             "channel_outpoint": channel_outpoint,
                         },
                     ],
                     "final_tlc_expiry_delta": None,
                 }
             )
-            self.fail("应该抛出异常，因为amount为0")
-        except Exception as e:
-            print(f"预期的错误: {e}")
-            assert (
-                "amount must be greater than 0" in str(e) or "amount" in str(e).lower()
-            )
+        err = str(exc_info.value).lower()
+        assert "amount must be greater than 0" in err or "amount" in err
 
-        # 测试2: amount超过通道余额时应该返回错误
-        try:
+        # Step 3: Test amount exceeding balance should be rejected
+        with pytest.raises(Exception) as exc_info:
             self.fibers[0].get_client().build_router(
                 {
-                    "amount": hex(channel_balance + 100 * 100000000),  # 超过通道余额
+                    "amount": hex(channel_balance + Amount.ckb(100)),
                     "udt_type_script": None,
                     "hops_info": [
                         {
-                            "pubkey": self.fibers[1]
-                            .get_client()
-                            .node_info()["node_id"],
+                            "pubkey": self.fibers[1].get_client().node_info()["node_id"],
                             "channel_outpoint": channel_outpoint,
                         },
                     ],
                     "final_tlc_expiry_delta": None,
                 }
             )
-            self.fail("应该抛出异常，因为amount超过通道余额")
-        except Exception as e:
-            print(f"预期的错误: {e}")
-            assert (
-                "error: network graph error: pathfind error: no path found"
-                in str(e).lower()
-            )
+        err = str(exc_info.value).lower()
+        assert "no path found" in err
 
-        # 测试3: 正常的amount应该成功构建路由
+        # Step 4: Test normal amount should succeed
         router_hops = (
             self.fibers[0]
             .get_client()
             .build_router(
                 {
-                    "amount": hex(1 * 100000000),  # 1 CKB，有效金额
+                    "amount": hex(Amount.ckb(1)),
                     "udt_type_script": None,
                     "hops_info": [
                         {
-                            "pubkey": self.fibers[1]
-                            .get_client()
-                            .node_info()["node_id"],
+                            "pubkey": self.fibers[1].get_client().node_info()["node_id"],
                             "channel_outpoint": channel_outpoint,
                         },
                     ],
@@ -207,7 +177,6 @@ class TestBuildRouter(FiberTest):
             )
         )
 
-        # 验证返回的路由信息
         assert "router_hops" in router_hops
         assert len(router_hops["router_hops"]) == 1
         hop = router_hops["router_hops"][0]

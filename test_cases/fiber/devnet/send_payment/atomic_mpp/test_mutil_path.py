@@ -1,87 +1,90 @@
+"""
+Test atomic MPP multi-path: many-to-one, one-to-many, one-mutil-one, mutil-mutil; self-pay; fee/route/private/min value.
+"""
 import time
 
 import pytest
 
 from framework.basic_fiber import FiberTest
 from framework.config import DEFAULT_MIN_DEPOSIT_CKB
+from framework.constants import Amount, ChannelState, PaymentStatus, TLCFeeRate, Timeout
 
 
 class MutilPathTestCase(FiberTest):
-    # debug = True
+    """
+    Test atomic MPP over multiple paths: many-to-one (a->c), one-to-many, one-mutil-one,
+    mutil-mutil; self-payment; max_fee; disabled channel; private channel; tlc_minimum_value.
+    """
 
     def test_mutil_to_one(self):
         """
-        多-1(a->c)
-        - a-1-b-1-c
-        - a-2-b-1-c
-        - a-1-d-1-b-1-c
-        - a-2-d-1-b-1-c
-        Returns:
+        Many-to-one (a->c): multiple paths a-1-b-1-c, a-2-b-1-c, a-1-d-1-b-1-c, a-2-d-1-b-1-c.
+        Step 1: Start fiber3, open multiple channels; send invoice payments 0->2 and 2->0 repeatedly.
         """
         self.start_new_fiber(
-            self.generate_account(10000, self.fiber1.account_private, 1000 * 100000000)
+            self.generate_account(Amount.ckb(10000), self.fiber1.account_private, Amount.ckb(1000))
         )
         self.start_new_fiber(
-            self.generate_account(10000, self.fiber1.account_private, 1000 * 100000000)
+            self.generate_account(Amount.ckb(10000), self.fiber1.account_private, Amount.ckb(1000))
         )
         # self.start_new_fiber(
-        #     self.generate_account(10000, self.fiber1.account_private, 1000 * 100000000)
+        #     self.generate_account(Amount.ckb(10000), self.fiber1.account_private, Amount.ckb(1000))
         # )
 
-        self.open_channel(self.fibers[0], self.fibers[1], 1000 * 100000000, 0, 0, 0)
-        self.open_channel(self.fibers[0], self.fibers[1], 1000 * 100000000, 0, 0, 0)
+        self.open_channel(self.fibers[0], self.fibers[1], Amount.ckb(1000), 0, TLCFeeRate.ZERO, TLCFeeRate.ZERO)
+        self.open_channel(self.fibers[0], self.fibers[1], Amount.ckb(1000), 0, TLCFeeRate.ZERO, TLCFeeRate.ZERO)
 
-        self.open_channel(self.fibers[0], self.fibers[3], 1000 * 100000000, 0, 0, 0)
-        self.open_channel(self.fibers[0], self.fibers[3], 1000 * 100000000, 0, 0, 0)
+        self.open_channel(self.fibers[0], self.fibers[3], Amount.ckb(1000), 0, TLCFeeRate.ZERO, TLCFeeRate.ZERO)
+        self.open_channel(self.fibers[0], self.fibers[3], Amount.ckb(1000), 0, TLCFeeRate.ZERO, TLCFeeRate.ZERO)
 
-        self.open_channel(self.fibers[3], self.fibers[2], 2000 * 100000000, 0, 0, 0)
-        self.open_channel(self.fibers[1], self.fibers[2], 2000 * 100000000, 0, 0, 0)
+        self.open_channel(self.fibers[3], self.fibers[2], Amount.ckb(2000), 0, TLCFeeRate.ZERO, TLCFeeRate.ZERO)
+        self.open_channel(self.fibers[1], self.fibers[2], Amount.ckb(2000), 0, TLCFeeRate.ZERO, TLCFeeRate.ZERO)
         for i in range(10):
             time.sleep(2)
             self.send_invoice_payment(
                 self.fibers[0],
                 self.fibers[2],
-                4000 * 100000000,
+                Amount.ckb(4000),
                 other_options={"allow_atomic_mpp": True},
             )
             time.sleep(2)
             self.send_invoice_payment(
                 self.fibers[2],
                 self.fibers[0],
-                4000 * 100000000,
+                Amount.ckb(4000),
                 other_options={"allow_atomic_mpp": True},
             )
 
     # @pytest.mark.skip("This test is not stable, needs to be fixed")
     def test_mutil_to_one_2(self):
         self.start_new_fiber(
-            self.generate_account(10000, self.fiber1.account_private, 1000 * 100000000)
+            self.generate_account(Amount.ckb(10000), self.fiber1.account_private, Amount.ckb(1000))
         )
         self.start_new_fiber(
-            self.generate_account(10000, self.fiber1.account_private, 1000 * 100000000)
+            self.generate_account(Amount.ckb(10000), self.fiber1.account_private, Amount.ckb(1000))
         )
 
-        self.open_channel(self.fibers[0], self.fibers[1], 1000 * 100000000, 0, 0, 0)
-        self.open_channel(self.fibers[0], self.fibers[1], 1000 * 100000000, 0, 0, 0)
+        self.open_channel(self.fibers[0], self.fibers[1], Amount.ckb(1000), 0, TLCFeeRate.ZERO, TLCFeeRate.ZERO)
+        self.open_channel(self.fibers[0], self.fibers[1], Amount.ckb(1000), 0, TLCFeeRate.ZERO, TLCFeeRate.ZERO)
 
-        self.open_channel(self.fibers[0], self.fibers[3], 1000 * 100000000, 0, 0, 0)
-        self.open_channel(self.fibers[0], self.fibers[3], 1000 * 100000000, 0, 0, 0)
+        self.open_channel(self.fibers[0], self.fibers[3], Amount.ckb(1000), 0, TLCFeeRate.ZERO, TLCFeeRate.ZERO)
+        self.open_channel(self.fibers[0], self.fibers[3], Amount.ckb(1000), 0, TLCFeeRate.ZERO, TLCFeeRate.ZERO)
 
-        self.open_channel(self.fibers[3], self.fibers[2], 2000 * 100000000, 0, 0, 0)
-        self.open_channel(self.fibers[1], self.fibers[2], 2000 * 100000000, 0, 0, 0)
+        self.open_channel(self.fibers[3], self.fibers[2], Amount.ckb(2000), 0, TLCFeeRate.ZERO, TLCFeeRate.ZERO)
+        self.open_channel(self.fibers[1], self.fibers[2], Amount.ckb(2000), 0, TLCFeeRate.ZERO, TLCFeeRate.ZERO)
 
         time.sleep(2)
         self.send_invoice_payment(
             self.fibers[0],
             self.fibers[2],
-            2000 * 100000000,
+            Amount.ckb(2000),
             other_options={"allow_atomic_mpp": True},
         )
         time.sleep(2)
         self.send_invoice_payment(
             self.fibers[0],
             self.fibers[2],
-            2000 * 100000000,
+            Amount.ckb(2000),
             other_options={"allow_atomic_mpp": True},
         )
         time.sleep(2)
@@ -89,7 +92,7 @@ class MutilPathTestCase(FiberTest):
             self.send_invoice_payment(
                 self.fibers[0],
                 self.fibers[2],
-                2000 * 100000000,
+                Amount.ckb(2000),
                 other_options={"allow_atomic_mpp": True},
             )
         except Exception as e:
@@ -97,13 +100,13 @@ class MutilPathTestCase(FiberTest):
         self.send_invoice_payment(
             self.fibers[2],
             self.fibers[0],
-            2000 * 100000000,
+            Amount.ckb(2000),
             other_options={"allow_atomic_mpp": True},
         )
         self.send_invoice_payment(
             self.fibers[2],
             self.fibers[0],
-            2000 * 100000000,
+            Amount.ckb(2000),
             other_options={"allow_atomic_mpp": True},
         )
         self.send_invoice_payment(
@@ -115,31 +118,31 @@ class MutilPathTestCase(FiberTest):
 
     def test_mutil_to_one_3(self):
         self.start_new_fiber(
-            self.generate_account(10000, self.fiber1.account_private, 1000 * 100000000)
+            self.generate_account(Amount.ckb(10000), self.fiber1.account_private, Amount.ckb(1000))
         )
         self.start_new_fiber(
-            self.generate_account(10000, self.fiber1.account_private, 1000 * 100000000)
+            self.generate_account(Amount.ckb(10000), self.fiber1.account_private, Amount.ckb(1000))
         )
 
         self.open_channel(
-            self.fibers[0], self.fibers[1], 1000 * 100000000, 0, 1000, 1000
+            self.fibers[0], self.fibers[1], Amount.ckb(1000), 0, TLCFeeRate.DEFAULT, TLCFeeRate.DEFAULT
         )
         self.open_channel(
-            self.fibers[0], self.fibers[1], 1000 * 100000000, 0, 1000, 1000
-        )
-
-        self.open_channel(
-            self.fibers[0], self.fibers[3], 1000 * 100000000, 0, 1000, 1000
-        )
-        self.open_channel(
-            self.fibers[0], self.fibers[3], 1000 * 100000000, 0, 1000, 1000
+            self.fibers[0], self.fibers[1], Amount.ckb(1000), 0, TLCFeeRate.DEFAULT, TLCFeeRate.DEFAULT
         )
 
         self.open_channel(
-            self.fibers[3], self.fibers[2], 2000 * 100000000, 0, 1000, 1000
+            self.fibers[0], self.fibers[3], Amount.ckb(1000), 0, TLCFeeRate.DEFAULT, TLCFeeRate.DEFAULT
         )
         self.open_channel(
-            self.fibers[1], self.fibers[2], 2000 * 100000000, 0, 1000, 1000
+            self.fibers[0], self.fibers[3], Amount.ckb(1000), 0, TLCFeeRate.DEFAULT, TLCFeeRate.DEFAULT
+        )
+
+        self.open_channel(
+            self.fibers[3], self.fibers[2], Amount.ckb(2000), 0, TLCFeeRate.DEFAULT, TLCFeeRate.DEFAULT
+        )
+        self.open_channel(
+            self.fibers[1], self.fibers[2], Amount.ckb(2000), 0, TLCFeeRate.DEFAULT, TLCFeeRate.DEFAULT
         )
         self.wait_graph_channels_sync(self.fiber1, 6)
         self.wait_graph_channels_sync(self.fiber2, 6)
@@ -150,20 +153,20 @@ class MutilPathTestCase(FiberTest):
             self.send_invoice_payment(
                 self.fibers[0],
                 self.fibers[2],
-                1000 * 100000000,
+                Amount.ckb(1000),
                 other_options={"allow_atomic_mpp": True},
             )
         for i in range(10):
             self.send_invoice_payment(
                 self.fibers[2],
                 self.fibers[0],
-                2000 * 100000000,
+                Amount.ckb(2000),
                 other_options={"allow_atomic_mpp": True},
             )
             self.send_invoice_payment(
                 self.fibers[0],
                 self.fibers[2],
-                2000 * 100000000,
+                Amount.ckb(2000),
                 other_options={"allow_atomic_mpp": True},
             )
 
@@ -176,28 +179,28 @@ class MutilPathTestCase(FiberTest):
 
         """
         self.start_new_fiber(
-            self.generate_account(10000, self.fiber1.account_private, 1000 * 100000000)
+            self.generate_account(Amount.ckb(10000), self.fiber1.account_private, Amount.ckb(1000))
         )
         self.start_new_fiber(
-            self.generate_account(10000, self.fiber1.account_private, 1000 * 100000000)
+            self.generate_account(Amount.ckb(10000), self.fiber1.account_private, Amount.ckb(1000))
         )
 
-        self.open_channel(self.fibers[0], self.fibers[1], 3000 * 100000000, 0, 0, 0)
-        self.open_channel(self.fibers[1], self.fibers[2], 1000 * 100000000, 0, 0, 0)
-        self.open_channel(self.fibers[1], self.fibers[2], 1000 * 100000000, 0, 0, 0)
+        self.open_channel(self.fibers[0], self.fibers[1], Amount.ckb(3000), 0, TLCFeeRate.ZERO, TLCFeeRate.ZERO)
+        self.open_channel(self.fibers[1], self.fibers[2], Amount.ckb(1000), 0, TLCFeeRate.ZERO, TLCFeeRate.ZERO)
+        self.open_channel(self.fibers[1], self.fibers[2], Amount.ckb(1000), 0, TLCFeeRate.ZERO, TLCFeeRate.ZERO)
 
-        self.open_channel(self.fibers[1], self.fibers[3], 1000 * 100000000, 0, 0, 0)
-        self.open_channel(self.fibers[3], self.fibers[2], 1000 * 100000000, 0, 0, 0)
+        self.open_channel(self.fibers[1], self.fibers[3], Amount.ckb(1000), 0, TLCFeeRate.ZERO, TLCFeeRate.ZERO)
+        self.open_channel(self.fibers[3], self.fibers[2], Amount.ckb(1000), 0, TLCFeeRate.ZERO, TLCFeeRate.ZERO)
         self.send_invoice_payment(
             self.fibers[0],
             self.fibers[2],
-            3000 * 100000000,
+            Amount.ckb(3000),
             other_options={"allow_atomic_mpp": True},
         )
         self.send_invoice_payment(
             self.fibers[2],
             self.fibers[0],
-            3000 * 100000000,
+            Amount.ckb(3000),
             other_options={"allow_atomic_mpp": True},
         )
 
@@ -210,39 +213,39 @@ class MutilPathTestCase(FiberTest):
         Returns:
         """
         self.start_new_fiber(
-            self.generate_account(10000, self.fiber1.account_private, 1000 * 100000000)
+            self.generate_account(Amount.ckb(10000), self.fiber1.account_private, Amount.ckb(1000))
         )
         self.start_new_fiber(
-            self.generate_account(10000, self.fiber1.account_private, 1000 * 100000000)
+            self.generate_account(Amount.ckb(10000), self.fiber1.account_private, Amount.ckb(1000))
         )
         self.start_new_fiber(
-            self.generate_account(10000, self.fiber1.account_private, 1000 * 100000000)
+            self.generate_account(Amount.ckb(10000), self.fiber1.account_private, Amount.ckb(1000))
         )
 
-        self.open_channel(self.fibers[0], self.fibers[1], 4000 * 100000000, 0, 0, 0)
-        self.open_channel(self.fibers[1], self.fibers[2], 1000 * 100000000, 0, 0, 0)
-        self.open_channel(self.fibers[1], self.fibers[2], 1000 * 100000000, 0, 0, 0)
+        self.open_channel(self.fibers[0], self.fibers[1], Amount.ckb(4000), 0, TLCFeeRate.ZERO, TLCFeeRate.ZERO)
+        self.open_channel(self.fibers[1], self.fibers[2], Amount.ckb(1000), 0, TLCFeeRate.ZERO, TLCFeeRate.ZERO)
+        self.open_channel(self.fibers[1], self.fibers[2], Amount.ckb(1000), 0, TLCFeeRate.ZERO, TLCFeeRate.ZERO)
 
-        self.open_channel(self.fibers[1], self.fibers[4], 1000 * 100000000, 0, 0, 0)
-        self.open_channel(self.fibers[1], self.fibers[4], 1000 * 100000000, 0, 0, 0)
+        self.open_channel(self.fibers[1], self.fibers[4], Amount.ckb(1000), 0, TLCFeeRate.ZERO, TLCFeeRate.ZERO)
+        self.open_channel(self.fibers[1], self.fibers[4], Amount.ckb(1000), 0, TLCFeeRate.ZERO, TLCFeeRate.ZERO)
 
-        self.open_channel(self.fibers[1], self.fibers[2], 1000 * 100000000, 0, 0, 0)
-        self.open_channel(self.fibers[1], self.fibers[2], 1000 * 100000000, 0, 0, 0)
+        self.open_channel(self.fibers[1], self.fibers[2], Amount.ckb(1000), 0, TLCFeeRate.ZERO, TLCFeeRate.ZERO)
+        self.open_channel(self.fibers[1], self.fibers[2], Amount.ckb(1000), 0, TLCFeeRate.ZERO, TLCFeeRate.ZERO)
 
-        self.open_channel(self.fibers[4], self.fibers[2], 1000 * 100000000, 0, 0, 0)
-        self.open_channel(self.fibers[4], self.fibers[2], 1000 * 100000000, 0, 0, 0)
+        self.open_channel(self.fibers[4], self.fibers[2], Amount.ckb(1000), 0, TLCFeeRate.ZERO, TLCFeeRate.ZERO)
+        self.open_channel(self.fibers[4], self.fibers[2], Amount.ckb(1000), 0, TLCFeeRate.ZERO, TLCFeeRate.ZERO)
 
-        self.open_channel(self.fibers[2], self.fibers[3], 4000 * 100000000, 0, 0, 0)
+        self.open_channel(self.fibers[2], self.fibers[3], Amount.ckb(4000), 0, TLCFeeRate.ZERO, TLCFeeRate.ZERO)
         self.send_invoice_payment(
             self.fibers[0],
             self.fibers[3],
-            4000 * 100000000,
+            Amount.ckb(4000),
             other_options={"allow_atomic_mpp": True},
         )
         self.send_invoice_payment(
             self.fibers[3],
             self.fibers[0],
-            4000 * 100000000,
+            Amount.ckb(4000),
             other_options={"allow_atomic_mpp": True},
         )
 
@@ -255,50 +258,50 @@ class MutilPathTestCase(FiberTest):
         Returns:
         """
         self.start_new_fiber(
-            self.generate_account(10000, self.fiber1.account_private, 1000 * 100000000)
+            self.generate_account(Amount.ckb(10000), self.fiber1.account_private, Amount.ckb(1000))
         )
         self.start_new_fiber(
-            self.generate_account(10000, self.fiber1.account_private, 1000 * 100000000)
+            self.generate_account(Amount.ckb(10000), self.fiber1.account_private, Amount.ckb(1000))
         )
 
-        self.open_channel(self.fibers[0], self.fibers[1], 1000 * 100000000, 0, 0, 0)
-        self.open_channel(self.fibers[0], self.fibers[1], 1000 * 100000000, 0, 0, 0)
+        self.open_channel(self.fibers[0], self.fibers[1], Amount.ckb(1000), 0, TLCFeeRate.ZERO, TLCFeeRate.ZERO)
+        self.open_channel(self.fibers[0], self.fibers[1], Amount.ckb(1000), 0, TLCFeeRate.ZERO, TLCFeeRate.ZERO)
 
-        self.open_channel(self.fibers[0], self.fibers[3], 1000 * 100000000, 0, 0, 0)
-        self.open_channel(self.fibers[0], self.fibers[3], 1000 * 100000000, 0, 0, 0)
+        self.open_channel(self.fibers[0], self.fibers[3], Amount.ckb(1000), 0, TLCFeeRate.ZERO, TLCFeeRate.ZERO)
+        self.open_channel(self.fibers[0], self.fibers[3], Amount.ckb(1000), 0, TLCFeeRate.ZERO, TLCFeeRate.ZERO)
 
-        self.open_channel(self.fibers[3], self.fibers[2], 1000 * 100000000, 0, 0, 0)
-        self.open_channel(self.fibers[3], self.fibers[2], 1000 * 100000000, 0, 0, 0)
-        self.open_channel(self.fibers[1], self.fibers[2], 1000 * 100000000, 0, 0, 0)
-        self.open_channel(self.fibers[1], self.fibers[2], 1000 * 100000000, 0, 0, 0)
+        self.open_channel(self.fibers[3], self.fibers[2], Amount.ckb(1000), 0, TLCFeeRate.ZERO, TLCFeeRate.ZERO)
+        self.open_channel(self.fibers[3], self.fibers[2], Amount.ckb(1000), 0, TLCFeeRate.ZERO, TLCFeeRate.ZERO)
+        self.open_channel(self.fibers[1], self.fibers[2], Amount.ckb(1000), 0, TLCFeeRate.ZERO, TLCFeeRate.ZERO)
+        self.open_channel(self.fibers[1], self.fibers[2], Amount.ckb(1000), 0, TLCFeeRate.ZERO, TLCFeeRate.ZERO)
         self.send_invoice_payment(
             self.fibers[0],
             self.fibers[2],
-            4000 * 100000000,
+            Amount.ckb(4000),
             other_options={"allow_atomic_mpp": True},
         )
         self.send_invoice_payment(
             self.fibers[2],
             self.fibers[0],
-            4000 * 100000000,
+            Amount.ckb(4000),
             other_options={"allow_atomic_mpp": True},
         )
 
     def test_one_one_limit(self):
         N = 30
         for i in range(1, N):
-            self.open_channel(self.fiber1, self.fiber2, 1000 * 100000000, 0, 0, 0)
+            self.open_channel(self.fiber1, self.fiber2, Amount.ckb(1000), 0, TLCFeeRate.ZERO, TLCFeeRate.ZERO)
             time.sleep(3)
             self.send_invoice_payment(
                 self.fiber1,
                 self.fiber2,
-                1000 * 100000000 * i,
+                Amount.ckb(1000) * i,
                 other_options={"allow_atomic_mpp": True},
             )
             self.send_invoice_payment(
                 self.fiber2,
                 self.fiber1,
-                1000 * 100000000 * i,
+                Amount.ckb(1000) * i,
                 other_options={"allow_atomic_mpp": True},
             )
 
@@ -307,22 +310,22 @@ class MutilPathTestCase(FiberTest):
             print("current N:", i)
             fiber = self.start_new_fiber(
                 self.generate_account(
-                    10000, self.fiber1.account_private, 1000 * 100000000
+                    10000, self.fiber1.account_private, Amount.ckb(1000)
                 )
             )
-            self.open_channel(fiber, self.fiber2, 1000 * 100000000, 0, 0, 0)
+            self.open_channel(fiber, self.fiber2, Amount.ckb(1000), 0, TLCFeeRate.ZERO, TLCFeeRate.ZERO)
 
-            self.open_channel(self.fiber1, fiber, 1000 * 100000000, 0, 0, 0)
+            self.open_channel(self.fiber1, fiber, Amount.ckb(1000), 0, TLCFeeRate.ZERO, TLCFeeRate.ZERO)
             self.send_invoice_payment(
                 self.fiber1,
                 self.fiber2,
-                1000 * 100000000 * i,
+                Amount.ckb(1000) * i,
                 other_options={"allow_atomic_mpp": True},
             )
             self.send_invoice_payment(
                 self.fiber2,
                 self.fiber1,
-                1000 * 100000000 * i,
+                Amount.ckb(1000) * i,
                 other_options={"allow_atomic_mpp": True},
             )
 
@@ -333,26 +336,26 @@ class MutilPathTestCase(FiberTest):
     #
     #     """
     #     self.fiber3 = self.start_new_fiber(
-    #         self.generate_account(10000, self.fiber1.account_private, 1000 * 100000000)
+    #         self.generate_account(Amount.ckb(10000), self.fiber1.account_private, Amount.ckb(1000))
     #     )
     #
     #     self.fiber4 = self.start_new_fiber(
-    #         self.generate_account(10000, self.fiber1.account_private, 1000 * 100000000)
+    #         self.generate_account(Amount.ckb(10000), self.fiber1.account_private, Amount.ckb(1000))
     #     )
     #     self.fiber5 = self.start_new_fiber(
-    #         self.generate_account(10000, self.fiber1.account_private, 1000 * 100000000)
+    #         self.generate_account(Amount.ckb(10000), self.fiber1.account_private, Amount.ckb(1000))
     #     )
     #
-    #     self.open_channel(self.fiber1, self.fiber3, 1000 * 100000000, 0, 0, 0)
-    #     self.open_channel(self.fiber3, self.fiber4, 1000 * 100000000, 0, 0, 0)
+    #     self.open_channel(self.fiber1, self.fiber3, Amount.ckb(1000), 0, TLCFeeRate.ZERO, TLCFeeRate.ZERO)
+    #     self.open_channel(self.fiber3, self.fiber4, Amount.ckb(1000), 0, TLCFeeRate.ZERO, TLCFeeRate.ZERO)
     #
-    #     self.open_channel(self.fiber1, self.fiber2, 2000 * 100000000, 0, 0, 0)
-    #     self.open_channel(self.fiber2, self.fiber5, 2000 * 100000000, 0, 0, 0)
-    #     self.open_channel(self.fiber5, self.fiber4, 1000 * 100000000, 0, 0, 0)
-    #     self.open_channel(self.fiber5, self.fiber4, 1000 * 100000000, 0, 0, 0)
+    #     self.open_channel(self.fiber1, self.fiber2, Amount.ckb(2000), 0, TLCFeeRate.ZERO, TLCFeeRate.ZERO)
+    #     self.open_channel(self.fiber2, self.fiber5, Amount.ckb(2000), 0, TLCFeeRate.ZERO, TLCFeeRate.ZERO)
+    #     self.open_channel(self.fiber5, self.fiber4, Amount.ckb(1000), 0, TLCFeeRate.ZERO, TLCFeeRate.ZERO)
+    #     self.open_channel(self.fiber5, self.fiber4, Amount.ckb(1000), 0, TLCFeeRate.ZERO, TLCFeeRate.ZERO)
     #     time.sleep(1)
     #     payment = self.send_invoice_payment(
-    #         self.fiber1, self.fiber4, 3000 * 100000000, False
+    #         self.fiber1, self.fiber4, Amount.ckb(3000), False
     #     )
     #     time.sleep(0.05)
     #     # self.fiber4.get_client().c
@@ -374,27 +377,27 @@ class MutilPathTestCase(FiberTest):
     #
     #     """
     #     self.fiber3 = self.start_new_fiber(
-    #         self.generate_account(10000, self.fiber1.account_private, 1000 * 100000000)
+    #         self.generate_account(Amount.ckb(10000), self.fiber1.account_private, Amount.ckb(1000))
     #     )
     #
     #     self.fiber4 = self.start_new_fiber(
-    #         self.generate_account(10000, self.fiber1.account_private, 1000 * 100000000)
+    #         self.generate_account(Amount.ckb(10000), self.fiber1.account_private, Amount.ckb(1000))
     #     )
     #     self.fiber5 = self.start_new_fiber(
-    #         self.generate_account(10000, self.fiber1.account_private, 1000 * 100000000)
+    #         self.generate_account(Amount.ckb(10000), self.fiber1.account_private, Amount.ckb(1000))
     #     )
     #
-    #     self.open_channel(self.fiber1, self.fiber3, 1000 * 100000000, 0, 0, 0)
-    #     self.open_channel(self.fiber3, self.fiber4, 1000 * 100000000, 0, 0, 0)
+    #     self.open_channel(self.fiber1, self.fiber3, Amount.ckb(1000), 0, TLCFeeRate.ZERO, TLCFeeRate.ZERO)
+    #     self.open_channel(self.fiber3, self.fiber4, Amount.ckb(1000), 0, TLCFeeRate.ZERO, TLCFeeRate.ZERO)
     #
-    #     self.open_channel(self.fiber1, self.fiber2, 2000 * 100000000, 0, 0, 0)
-    #     self.open_channel(self.fiber2, self.fiber5, 2000 * 100000000, 0, 0, 0)
-    #     self.open_channel(self.fiber5, self.fiber4, 1000 * 100000000, 0, 0, 0)
-    #     self.open_channel(self.fiber5, self.fiber4, 1000 * 100000000, 0, 0, 0)
+    #     self.open_channel(self.fiber1, self.fiber2, Amount.ckb(2000), 0, TLCFeeRate.ZERO, TLCFeeRate.ZERO)
+    #     self.open_channel(self.fiber2, self.fiber5, Amount.ckb(2000), 0, TLCFeeRate.ZERO, TLCFeeRate.ZERO)
+    #     self.open_channel(self.fiber5, self.fiber4, Amount.ckb(1000), 0, TLCFeeRate.ZERO, TLCFeeRate.ZERO)
+    #     self.open_channel(self.fiber5, self.fiber4, Amount.ckb(1000), 0, TLCFeeRate.ZERO, TLCFeeRate.ZERO)
     #
     #     time.sleep(10)
     #     payment = self.send_invoice_payment(
-    #         self.fiber1, self.fiber4, 3000 * 100000000, False
+    #         self.fiber1, self.fiber4, Amount.ckb(3000), False
     #     )
     #     # self.wait_payment_state(self.fiber1, payment,"Inflight",interval=0.1)
     #     self.fiber5.stop()
@@ -406,18 +409,18 @@ class MutilPathTestCase(FiberTest):
 
     def test_transfer_self(self):
         self.fiber3 = self.start_new_fiber(
-            self.generate_account(10000, self.fiber1.account_private, 1000 * 100000000)
+            self.generate_account(Amount.ckb(10000), self.fiber1.account_private, Amount.ckb(1000))
         )
-        self.open_channel(self.fiber1, self.fiber2, 1000 * 100000000, 0, 0, 0)
-        self.open_channel(self.fiber1, self.fiber2, 1000 * 100000000, 0, 0, 0)
-        self.open_channel(self.fiber2, self.fiber3, 1000 * 100000000, 0, 0, 0)
-        self.open_channel(self.fiber2, self.fiber3, 1000 * 100000000, 0, 0, 0)
+        self.open_channel(self.fiber1, self.fiber2, Amount.ckb(1000), 0, TLCFeeRate.ZERO, TLCFeeRate.ZERO)
+        self.open_channel(self.fiber1, self.fiber2, Amount.ckb(1000), 0, TLCFeeRate.ZERO, TLCFeeRate.ZERO)
+        self.open_channel(self.fiber2, self.fiber3, Amount.ckb(1000), 0, TLCFeeRate.ZERO, TLCFeeRate.ZERO)
+        self.open_channel(self.fiber2, self.fiber3, Amount.ckb(1000), 0, TLCFeeRate.ZERO, TLCFeeRate.ZERO)
 
-        self.open_channel(self.fiber3, self.fiber1, 1000 * 100000000, 0, 0, 0)
-        self.open_channel(self.fiber3, self.fiber1, 1000 * 100000000, 0, 0, 0)
+        self.open_channel(self.fiber3, self.fiber1, Amount.ckb(1000), 0, TLCFeeRate.ZERO, TLCFeeRate.ZERO)
+        self.open_channel(self.fiber3, self.fiber1, Amount.ckb(1000), 0, TLCFeeRate.ZERO, TLCFeeRate.ZERO)
         payments = [[], [], []]
         for i in range(30):
-            # self.send_invoice_payment(self.fiber1,self.fiber1,2000 * 100000000,False)
+            # self.send_invoice_payment(self.fiber1,self.fiber1,Amount.ckb(2000),False)
             for i in range(3):
                 try:
                     payment_hash = self.send_invoice_payment(
@@ -454,27 +457,27 @@ class MutilPathTestCase(FiberTest):
 
     def test_transfer_self_3(self):
         self.fiber3 = self.start_new_fiber(
-            self.generate_account(10000, self.fiber1.account_private, 1000 * 100000000)
+            self.generate_account(Amount.ckb(10000), self.fiber1.account_private, Amount.ckb(1000))
         )
-        self.open_channel(self.fiber1, self.fiber2, 1000 * 100000000, 0, 0, 0)
-        self.open_channel(self.fiber1, self.fiber2, 1000 * 100000000, 0, 0, 0)
-        self.open_channel(self.fiber2, self.fiber3, 1000 * 100000000, 0, 0, 0)
-        self.open_channel(self.fiber2, self.fiber3, 1000 * 100000000, 0, 0, 0)
+        self.open_channel(self.fiber1, self.fiber2, Amount.ckb(1000), 0, TLCFeeRate.ZERO, TLCFeeRate.ZERO)
+        self.open_channel(self.fiber1, self.fiber2, Amount.ckb(1000), 0, TLCFeeRate.ZERO, TLCFeeRate.ZERO)
+        self.open_channel(self.fiber2, self.fiber3, Amount.ckb(1000), 0, TLCFeeRate.ZERO, TLCFeeRate.ZERO)
+        self.open_channel(self.fiber2, self.fiber3, Amount.ckb(1000), 0, TLCFeeRate.ZERO, TLCFeeRate.ZERO)
 
-        self.open_channel(self.fiber3, self.fiber1, 1000 * 100000000, 0, 0, 0)
-        self.open_channel(self.fiber3, self.fiber1, 1000 * 100000000, 0, 0, 0)
+        self.open_channel(self.fiber3, self.fiber1, Amount.ckb(1000), 0, TLCFeeRate.ZERO, TLCFeeRate.ZERO)
+        self.open_channel(self.fiber3, self.fiber1, Amount.ckb(1000), 0, TLCFeeRate.ZERO, TLCFeeRate.ZERO)
 
         #    self.fiber1.stop()
         self.faucet(
             self.fiber1.account_private,
             10000,
             self.fiber1.account_private,
-            10000 * 100000000,
+            Amount.ckb(10000),
         )
         self.open_channel(
             self.fiber1,
             self.fiber2,
-            1000 * 100000000,
+            Amount.ckb(1000),
             0,
             0,
             0,
@@ -483,7 +486,7 @@ class MutilPathTestCase(FiberTest):
         self.open_channel(
             self.fiber1,
             self.fiber2,
-            1000 * 100000000,
+            Amount.ckb(1000),
             0,
             0,
             0,
@@ -494,12 +497,12 @@ class MutilPathTestCase(FiberTest):
             self.fiber2.account_private,
             10000,
             self.fiber1.account_private,
-            10000 * 100000000,
+            Amount.ckb(10000),
         )
         self.open_channel(
             self.fiber2,
             self.fiber3,
-            1000 * 100000000,
+            Amount.ckb(1000),
             0,
             0,
             0,
@@ -508,7 +511,7 @@ class MutilPathTestCase(FiberTest):
         self.open_channel(
             self.fiber2,
             self.fiber3,
-            1000 * 100000000,
+            Amount.ckb(1000),
             0,
             0,
             0,
@@ -519,12 +522,12 @@ class MutilPathTestCase(FiberTest):
             self.fiber3.account_private,
             10000,
             self.fiber1.account_private,
-            10000 * 100000000,
+            Amount.ckb(10000),
         )
         self.open_channel(
             self.fiber3,
             self.fiber1,
-            1000 * 100000000,
+            Amount.ckb(1000),
             0,
             0,
             0,
@@ -533,7 +536,7 @@ class MutilPathTestCase(FiberTest):
         self.open_channel(
             self.fiber3,
             self.fiber1,
-            1000 * 100000000,
+            Amount.ckb(1000),
             0,
             0,
             0,
@@ -543,7 +546,7 @@ class MutilPathTestCase(FiberTest):
         time.sleep(10)
         payments = [[], [], []]
         for i in range(100):
-            # self.send_invoice_payment(self.fiber1,self.fiber1,2000 * 100000000,False)
+            # self.send_invoice_payment(self.fiber1,self.fiber1,Amount.ckb(2000),False)
             for i in range(3):
                 try:
                     payment_hash = self.send_invoice_payment(
@@ -615,33 +618,33 @@ class MutilPathTestCase(FiberTest):
         去掉了 余额最小值PAYMENT_MAX_PARTS_LIMIT:10000
         Returns:
         """
-        self.open_channel(self.fiber1, self.fiber2, 1000 * 100000000, 0, 0, 0)
-        self.open_channel(self.fiber2, self.fiber1, 1000 * 100000000, 10000 - 1, 0, 0)
+        self.open_channel(self.fiber1, self.fiber2, Amount.ckb(1000), 0, TLCFeeRate.ZERO, TLCFeeRate.ZERO)
+        self.open_channel(self.fiber2, self.fiber1, Amount.ckb(1000), 10000 - 1, 0, 0)
         self.send_invoice_payment(
             self.fiber1,
             self.fiber2,
-            1000 * 100000000 + 10000 - 1,
+            Amount.ckb(1000) + 10000 - 1,
             other_options={"allow_atomic_mpp": True},
         )
 
     def test_max_fee(self):
         self.fiber3 = self.start_new_fiber(
-            self.generate_account(10000, self.fiber1.account_private, 1000 * 100000000)
+            self.generate_account(Amount.ckb(10000), self.fiber1.account_private, Amount.ckb(1000))
         )
         self.fiber4 = self.start_new_fiber(
-            self.generate_account(10000, self.fiber1.account_private, 1000 * 100000000)
+            self.generate_account(Amount.ckb(10000), self.fiber1.account_private, Amount.ckb(1000))
         )
-        self.open_channel(self.fiber1, self.fiber2, 1000 * 100000000, 0, 0, 0)
-        self.open_channel(self.fiber2, self.fiber3, 1000 * 100000000, 0, 2000, 0)
+        self.open_channel(self.fiber1, self.fiber2, Amount.ckb(1000), 0, TLCFeeRate.ZERO, TLCFeeRate.ZERO)
+        self.open_channel(self.fiber2, self.fiber3, Amount.ckb(1000), 0, 2000, 0)
 
-        self.open_channel(self.fiber1, self.fiber4, 1000 * 100000000, 0, 0, 0)
-        self.open_channel(self.fiber4, self.fiber3, 1000 * 100000000, 0, 1000, 0)
-        # self.open_channel(self.fiber4, self.fiber3, 1000 * 100000000, 0, 0, 0)
+        self.open_channel(self.fiber1, self.fiber4, Amount.ckb(1000), 0, TLCFeeRate.ZERO, TLCFeeRate.ZERO)
+        self.open_channel(self.fiber4, self.fiber3, Amount.ckb(1000), 0, 1000, 0)
+        # self.open_channel(self.fiber4, self.fiber3, Amount.ckb(1000), 0, TLCFeeRate.ZERO, TLCFeeRate.ZERO)
 
         time.sleep(1)
         invoice = self.fiber3.get_client().new_invoice(
             {
-                "amount": hex(1000 * 100000000),
+                "amount": hex(Amount.ckb(1000)),
                 "currency": "Fibd",
                 "description": "test invoice generated by node2",
                 "expiry": "0xe10",
@@ -665,12 +668,12 @@ class MutilPathTestCase(FiberTest):
         Returns:
         """
         self.fiber3 = self.start_new_fiber(
-            self.generate_account(10000, self.fiber1.account_private, 1000 * 100000000)
+            self.generate_account(Amount.ckb(10000), self.fiber1.account_private, Amount.ckb(1000))
         )
-        self.open_channel(self.fiber1, self.fiber2, 3000 * 100000000, 0, 0, 0)
-        self.open_channel(self.fiber2, self.fiber3, 1000 * 100000000, 0, 0, 0)
-        self.open_channel(self.fiber2, self.fiber3, 1000 * 100000000, 0, 0, 0)
-        self.open_channel(self.fiber2, self.fiber3, 1000 * 100000000, 0, 0, 0)
+        self.open_channel(self.fiber1, self.fiber2, Amount.ckb(3000), 0, TLCFeeRate.ZERO, TLCFeeRate.ZERO)
+        self.open_channel(self.fiber2, self.fiber3, Amount.ckb(1000), 0, TLCFeeRate.ZERO, TLCFeeRate.ZERO)
+        self.open_channel(self.fiber2, self.fiber3, Amount.ckb(1000), 0, TLCFeeRate.ZERO, TLCFeeRate.ZERO)
+        self.open_channel(self.fiber2, self.fiber3, Amount.ckb(1000), 0, TLCFeeRate.ZERO, TLCFeeRate.ZERO)
         channels = self.fiber2.get_client().list_channels(
             {
                 "peer_id": self.fiber3.get_peer_id(),
@@ -683,11 +686,11 @@ class MutilPathTestCase(FiberTest):
         time.sleep(1)
 
         with pytest.raises(Exception) as exc_info:
-            # self.send_invoice_payment(self.fiber1, self.fiber2, 1000 * 100000000 + 10000 - 1)
+            # self.send_invoice_payment(self.fiber1, self.fiber2, Amount.ckb(1000) + 10000 - 1)
             self.send_invoice_payment(
                 self.fiber1,
                 self.fiber3,
-                3000 * 100000000,
+                Amount.ckb(3000),
                 other_options={"allow_atomic_mpp": True},
             )
         expected_error_message = "no path found"
@@ -698,7 +701,7 @@ class MutilPathTestCase(FiberTest):
         self.send_invoice_payment(
             self.fiber1,
             self.fiber3,
-            2000 * 100000000,
+            Amount.ckb(2000),
             other_options={"allow_atomic_mpp": True},
         )
         channels = self.fiber2.get_client().list_channels(
@@ -708,44 +711,44 @@ class MutilPathTestCase(FiberTest):
         )
         for channel in channels["channels"]:
             if channel["channel_id"] == channel_id:
-                assert channel["local_balance"] == hex(1000 * 100000000)
+                assert channel["local_balance"] == hex(Amount.ckb(1000))
 
     def test_private_channel(self):
         self.fiber3 = self.start_new_fiber(
-            self.generate_account(10000, self.fiber1.account_private, 1000 * 100000000)
+            self.generate_account(Amount.ckb(10000), self.fiber1.account_private, Amount.ckb(1000))
         )
 
         self.fiber1.get_client().open_channel(
             {
                 "peer_id": self.fiber2.get_peer_id(),
-                "funding_amount": hex(1000 * 100000000 + DEFAULT_MIN_DEPOSIT_CKB),
+                "funding_amount": hex(Amount.ckb(1000) + DEFAULT_MIN_DEPOSIT_CKB),
                 "public": False,
             }
         )
         self.wait_for_channel_state(
-            self.fiber1.get_client(), self.fiber2.get_peer_id(), "CHANNEL_READY"
+            self.fiber1.get_client(), self.fiber2.get_peer_id(), ChannelState.CHANNEL_READY
         )
         # self.fiber1.get_client().open_channel({
         #     "peer_id": self.fiber1.get_peer_id(),
-        #     "funding_amount": hex(1000 * 100000000),
+        #     "funding_amount": hex(Amount.ckb(1000)),
         #     "public": True,
         # })
-        # self.wait_for_channel_state(self.fiber1, self.fiber2.get_peer_id(), "CHANNEL_READY")
-        self.open_channel(self.fiber1, self.fiber2, 1000 * 100000000, 0, 0, 0)
+        # self.wait_for_channel_state(self.fiber1, self.fiber2.get_peer_id(), ChannelState.CHANNEL_READY)
+        self.open_channel(self.fiber1, self.fiber2, Amount.ckb(1000), 0, TLCFeeRate.ZERO, TLCFeeRate.ZERO)
         time.sleep(10)
         self.send_invoice_payment(
             self.fiber1,
             self.fiber2,
-            2000 * 100000000,
+            Amount.ckb(2000),
             other_options={"allow_atomic_mpp": True},
         )
-        self.open_channel(self.fiber3, self.fiber2, 2000 * 100000000, 0, 0, 0)
+        self.open_channel(self.fiber3, self.fiber2, Amount.ckb(2000), 0, TLCFeeRate.ZERO, TLCFeeRate.ZERO)
         time.sleep(10)
         with pytest.raises(Exception) as exc_info:
             self.send_invoice_payment(
                 self.fiber3,
                 self.fiber1,
-                2000 * 100000000,
+                Amount.ckb(2000),
                 other_options={"allow_atomic_mpp": True},
             )
         expected_error_message = "no path found"
@@ -755,8 +758,8 @@ class MutilPathTestCase(FiberTest):
         )
 
     def test_mini_value(self):
-        self.open_channel(self.fiber1, self.fiber2, 1000 * 100000000, 0, 0, 0)
-        self.open_channel(self.fiber1, self.fiber2, 1000 * 100000000, 0, 0, 0)
+        self.open_channel(self.fiber1, self.fiber2, Amount.ckb(1000), 0, TLCFeeRate.ZERO, TLCFeeRate.ZERO)
+        self.open_channel(self.fiber1, self.fiber2, Amount.ckb(1000), 0, TLCFeeRate.ZERO, TLCFeeRate.ZERO)
         channels = self.fiber1.get_client().list_channels({})
         self.fiber1.get_client().update_channel(
             {
@@ -798,27 +801,27 @@ class MutilPathTestCase(FiberTest):
         Returns:
         """
         self.fiber3 = self.start_new_fiber(
-            self.generate_account(10000, self.fiber1.account_private, 1000 * 100000000)
+            self.generate_account(Amount.ckb(10000), self.fiber1.account_private, Amount.ckb(1000))
         )
         self.fiber4 = self.start_new_fiber(
-            self.generate_account(10000, self.fiber1.account_private, 1000 * 100000000)
+            self.generate_account(Amount.ckb(10000), self.fiber1.account_private, Amount.ckb(1000))
         )
         self.fiber5 = self.start_new_fiber(
-            self.generate_account(10000, self.fiber1.account_private, 1000 * 100000000)
+            self.generate_account(Amount.ckb(10000), self.fiber1.account_private, Amount.ckb(1000))
         )
-        self.open_channel(self.fiber1, self.fiber2, 1000 * 100000000, 0, 0, 0)
-        self.open_channel(self.fiber1, self.fiber2, 1000 * 100000000, 0, 0, 0)
-        self.open_channel(self.fiber1, self.fiber2, 1000 * 100000000, 0, 0, 0)
-        self.open_channel(self.fiber2, self.fiber3, 3000 * 100000000, 0, 0, 0)
+        self.open_channel(self.fiber1, self.fiber2, Amount.ckb(1000), 0, TLCFeeRate.ZERO, TLCFeeRate.ZERO)
+        self.open_channel(self.fiber1, self.fiber2, Amount.ckb(1000), 0, TLCFeeRate.ZERO, TLCFeeRate.ZERO)
+        self.open_channel(self.fiber1, self.fiber2, Amount.ckb(1000), 0, TLCFeeRate.ZERO, TLCFeeRate.ZERO)
+        self.open_channel(self.fiber2, self.fiber3, Amount.ckb(3000), 0, TLCFeeRate.ZERO, TLCFeeRate.ZERO)
 
-        self.open_channel(self.fiber4, self.fiber5, 1000 * 100000000, 0, 0, 0)
-        self.open_channel(self.fiber4, self.fiber5, 1000 * 100000000, 0, 0, 0)
-        self.open_channel(self.fiber4, self.fiber5, 1000 * 100000000, 0, 0, 0)
-        self.open_channel(self.fiber5, self.fiber3, 3000 * 100000000, 0, 0, 0)
+        self.open_channel(self.fiber4, self.fiber5, Amount.ckb(1000), 0, TLCFeeRate.ZERO, TLCFeeRate.ZERO)
+        self.open_channel(self.fiber4, self.fiber5, Amount.ckb(1000), 0, TLCFeeRate.ZERO, TLCFeeRate.ZERO)
+        self.open_channel(self.fiber4, self.fiber5, Amount.ckb(1000), 0, TLCFeeRate.ZERO, TLCFeeRate.ZERO)
+        self.open_channel(self.fiber5, self.fiber3, Amount.ckb(3000), 0, TLCFeeRate.ZERO, TLCFeeRate.ZERO)
         time.sleep(5)
         invoice = self.fiber3.get_client().new_invoice(
             {
-                "amount": hex(3000 * 100000000),
+                "amount": hex(Amount.ckb(3000)),
                 "currency": "Fibd",
                 "description": "test invoice generated by node2",
                 "expiry": "0xe10",
@@ -842,9 +845,9 @@ class MutilPathTestCase(FiberTest):
             }
         )
 
-        self.wait_payment_state(self.fiber1, payment1["payment_hash"], "Success")
+        self.wait_payment_state(self.fiber1, payment1["payment_hash"], PaymentStatus.SUCCESS)
 
-        self.wait_payment_state(self.fiber4, payment2["payment_hash"], "Success")
+        self.wait_payment_state(self.fiber4, payment2["payment_hash"], PaymentStatus.SUCCESS)
         assert payment1["payment_hash"] != payment2["payment_hash"]
         # # todo 只能有1笔成功
         # payment = self.fiber1.get_client().send_payment(
@@ -860,18 +863,18 @@ class MutilPathTestCase(FiberTest):
 
     def test_invoice_same_sender_cost_two(self):
         self.fiber3 = self.start_new_fiber(
-            self.generate_account(10000, self.fiber1.account_private, 1000 * 100000000)
+            self.generate_account(Amount.ckb(10000), self.fiber1.account_private, Amount.ckb(1000))
         )
-        self.open_channel(self.fiber1, self.fiber2, 2000 * 100000000, 0, 0, 0)
-        self.open_channel(self.fiber1, self.fiber2, 2000 * 100000000, 0, 0, 0)
-        # self.open_channel(self.fiber1, self.fiber2, 2000 * 100000000, 0, 0, 0)
-        self.open_channel(self.fiber2, self.fiber3, 4000 * 100000000, 0, 0, 0)
-        # self.open_channel(self.fiber2, self.fiber3, 4000 * 100000000, 0, 0, 0)
+        self.open_channel(self.fiber1, self.fiber2, Amount.ckb(2000), 0, TLCFeeRate.ZERO, TLCFeeRate.ZERO)
+        self.open_channel(self.fiber1, self.fiber2, Amount.ckb(2000), 0, TLCFeeRate.ZERO, TLCFeeRate.ZERO)
+        # self.open_channel(self.fiber1, self.fiber2, Amount.ckb(2000), 0, TLCFeeRate.ZERO, TLCFeeRate.ZERO)
+        self.open_channel(self.fiber2, self.fiber3, Amount.ckb(4000), 0, TLCFeeRate.ZERO, TLCFeeRate.ZERO)
+        # self.open_channel(self.fiber2, self.fiber3, Amount.ckb(4000), 0, TLCFeeRate.ZERO, TLCFeeRate.ZERO)
 
         time.sleep(5)
         invoice = self.fiber3.get_client().new_invoice(
             {
-                "amount": hex(3000 * 100000000),
+                "amount": hex(Amount.ckb(3000)),
                 "currency": "Fibd",
                 "description": "test invoice generated by node2",
                 # "expiry": "0xe10",

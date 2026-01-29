@@ -1,39 +1,45 @@
+"""
+Test cases for accept_channel funding_amount parameter.
+Verifies: CKB/UDT funding amount validation and auto-accept behaviour.
+"""
 import time
 
 import pytest
 
 from framework.basic_fiber import FiberTest
 from framework.config import DEFAULT_MIN_DEPOSIT_CKB
+from framework.constants import (
+    Amount,
+    Timeout,
+    ChannelState,
+    PaymentStatus,
+    FeeRate,
+    Currency,
+    HashAlgorithm,
+)
 
 
 class TestFundingAmount(FiberTest):
+    """
+    Test accept_channel with various funding_amount values (CKB and UDT).
+    Verifies: zero, eq/gt/lt auto-accept, overflow and account balance edge cases.
+    """
 
     def test_ckb_funding_amount_zero(self):
         """
-        accept_channel:
-            ckb
-                funding_amount :0x0
-                    error: The funding amount (0) should be greater than or equal to 9800000000
-
-        Steps:
-        1. Get node information.
-        2. Retrieve the minimum CKB funding amount for auto-accepting channels.
-        3. Open a temporary channel with funding amount just below the minimum.
-        4. Wait for the channel to open.
-        5. Attempt to accept a channel with zero funding amount and expect an exception.
-        6. Verify the exception message contains the expected error message.
-
-        Returns:
+        CKB accept_channel with funding_amount 0x0 should raise; error mentions min amount.
+        Step 1: Get node information and min CKB funding amount.
+        Step 2: Open temporary channel with funding just below minimum.
+        Step 3: Attempt accept with zero funding amount; expect exception.
+        Step 4: Assert error message contains expected min amount.
         """
-        # Step 1: Get node information
+        # Step 1: Get node information and min CKB funding amount
         node_info = self.fiber1.get_client().node_info()
-
-        # Step 2: Retrieve the minimum CKB funding amount for auto-accepting channels
         open_channel_auto_accept_min_ckb_funding_amount = node_info[
             "open_channel_auto_accept_min_ckb_funding_amount"
         ]
 
-        # Step 3: Open a temporary channel with funding amount just below the minimum
+        # Step 2: Open temporary channel with funding just below minimum
         temporary_channel = self.fiber1.get_client().open_channel(
             {
                 "peer_id": self.fiber2.get_peer_id(),
@@ -41,13 +47,13 @@ class TestFundingAmount(FiberTest):
                     int(open_channel_auto_accept_min_ckb_funding_amount, 16) - 1
                 ),
                 "public": True,
+                "commitment_fee_rate": hex(FeeRate.DEFAULT),
+                "funding_fee_rate": hex(FeeRate.DEFAULT),
             }
         )
+        time.sleep(Timeout.POLL_INTERVAL)
 
-        # Step 4: Wait for the channel to open
-        time.sleep(1)
-
-        # Step 5: Attempt to accept a channel with zero funding amount and expect an exception
+        # Step 3: Attempt accept with zero funding amount; expect exception
         with pytest.raises(Exception) as exc_info:
             self.fiber2.get_client().accept_channel(
                 {
@@ -56,7 +62,7 @@ class TestFundingAmount(FiberTest):
                 }
             )
 
-        # Step 6: Verify the exception message contains the expected error message
+        # Step 4: Assert error message contains expected min amount
         expected_error_message = "should be greater than or equal to 9900000000"
         assert expected_error_message in exc_info.value.args[0], (
             f"Expected substring '{expected_error_message}' "
@@ -65,29 +71,24 @@ class TestFundingAmount(FiberTest):
 
     def test_udt_funding_amount_zero(self):
         """
-        accept_channel:
-            udt
-                funding_amount :0x0
-                    accept channel success
-
-        1. fiber1 open udt channel
-        2. fiber2 accept udt channel 0
-        3. fiber1 send 1 udt to fiber2
-        4. shutdown channel
-        5. check balance
-        Returns:
+        UDT accept_channel with funding_amount 0x0 should succeed; payment and shutdown.
+        Step 1: fiber1 open UDT channel; fiber2 accept with 0x0.
+        Step 2: Wait channel ready; fiber1 send 1 UDT to fiber2.
+        Step 3: Shutdown channel; verify UDT balances (fiber1 4, fiber2 1).
         """
         temporary_channel = self.fiber1.get_client().open_channel(
             {
                 "peer_id": self.fiber2.get_peer_id(),
-                "funding_amount": hex(5 * 100000000),
+                "funding_amount": hex(Amount.ckb(5)),
                 "public": True,
                 "funding_udt_type_script": self.get_account_udt_script(
                     self.fiber1.account_private
                 ),
+                "commitment_fee_rate": hex(FeeRate.DEFAULT),
+                "funding_fee_rate": hex(FeeRate.DEFAULT),
             }
         )
-        time.sleep(1)
+        time.sleep(Timeout.POLL_INTERVAL)
         self.fiber2.get_client().accept_channel(
             {
                 "temporary_channel_id": temporary_channel["temporary_channel_id"],
@@ -95,20 +96,22 @@ class TestFundingAmount(FiberTest):
             }
         )
         self.wait_for_channel_state(
-            self.fiber1.get_client(), self.fiber2.get_peer_id(), "CHANNEL_READY", 120
+            self.fiber1.get_client(),
+            self.fiber2.get_peer_id(),
+            ChannelState.CHANNEL_READY,
+            timeout=Timeout.CHANNEL_READY,
         )
-        # transfer
         payment_preimage = self.generate_random_preimage()
-        invoice_balance = 1 * 100000000
+        invoice_balance = Amount.ckb(1)
         invoice = self.fiber2.get_client().new_invoice(
             {
                 "amount": hex(invoice_balance),
-                "currency": "Fibd",
+                "currency": Currency.FIBD,
                 "description": "test invoice generated by node2",
                 "expiry": "0xe10",
                 "final_cltv": "0x28",
                 "payment_preimage": payment_preimage,
-                "hash_algorithm": "sha256",
+                "hash_algorithm": HashAlgorithm.SHA256,
                 "udt_type_script": self.get_account_udt_script(
                     self.fiber1.account_private
                 ),
@@ -121,7 +124,12 @@ class TestFundingAmount(FiberTest):
                 "invoice": invoice["invoice_address"],
             }
         )
-        self.wait_payment_state(self.fiber1, payment["payment_hash"], "Success")
+        self.wait_payment_state(
+            self.fiber1,
+            payment["payment_hash"],
+            PaymentStatus.SUCCESS,
+            timeout=Timeout.PAYMENT_SUCCESS,
+        )
         after_channel = self.fiber1.get_client().list_channels({})
         assert (
             int(before_channel["channels"][0]["local_balance"], 16)
@@ -145,16 +153,16 @@ class TestFundingAmount(FiberTest):
             self.get_account_script(self.fiber1.account_private)["args"],
             self.get_account_script(self.fiber2.account_private)["args"],
         )
-        # shut down
         self.fiber1.get_client().shutdown_channel(
             {
                 "channel_id": N1N2_CHANNEL_ID,
                 "close_script": self.get_account_script(self.Config.ACCOUNT_PRIVATE_1),
-                "fee_rate": "0x3FC",
+                "fee_rate": hex(FeeRate.DEFAULT),
             }
         )
-        # todo wait close tx commit
-        tx_hash = self.wait_and_check_tx_pool_fee(1000, False, 1000)
+        tx_hash = self.wait_and_check_tx_pool_fee(
+            FeeRate.DEFAULT, False, Timeout.CHANNEL_READY
+        )
         self.Miner.miner_until_tx_committed(self.node, tx_hash)
 
         after_account1 = self.udtContract.list_cell(
@@ -168,9 +176,8 @@ class TestFundingAmount(FiberTest):
             self.get_account_script(self.fiber2.account_private)["args"],
         )
 
-        assert after_account1[-1]["balance"] == 4 * 100000000
-        print(after_account2)
-        assert after_account2[-1]["balance"] == 1 * 100000000
+        assert after_account1[-1]["balance"] == Amount.ckb(4)
+        assert after_account2[-1]["balance"] == Amount.ckb(1)
 
     def test_ckb_funding_amount_eq_auto_accept_channel_ckb_funding_amount(self):
         """
@@ -198,9 +205,11 @@ class TestFundingAmount(FiberTest):
                     int(open_channel_auto_accept_min_ckb_funding_amount, 16) - 1
                 ),
                 "public": True,
+                "commitment_fee_rate": hex(FeeRate.DEFAULT),
+                "funding_fee_rate": hex(FeeRate.DEFAULT),
             }
         )
-        time.sleep(1)
+        time.sleep(Timeout.POLL_INTERVAL)
         accept_channel_funding_amount = int(
             node_info["auto_accept_channel_ckb_funding_amount"], 16
         )
@@ -211,7 +220,10 @@ class TestFundingAmount(FiberTest):
             }
         )
         self.wait_for_channel_state(
-            self.fiber1.get_client(), self.fiber2.get_peer_id(), "CHANNEL_READY", 120
+            self.fiber1.get_client(),
+            self.fiber2.get_peer_id(),
+            ChannelState.CHANNEL_READY,
+            timeout=Timeout.CHANNEL_READY,
         )
         channels = self.fiber2.get_client().list_channels({})
         assert accept_channel_funding_amount - DEFAULT_MIN_DEPOSIT_CKB == int(
@@ -219,16 +231,16 @@ class TestFundingAmount(FiberTest):
         )
         # transfer
         payment_preimage = self.generate_random_preimage()
-        invoice_balance = 1 * 10000000
+        invoice_balance = Amount.ckb(0.1)  # 0.1 CKB
         invoice = self.fiber2.get_client().new_invoice(
             {
                 "amount": hex(invoice_balance),
-                "currency": "Fibd",
+                "currency": Currency.FIBD,
                 "description": "test invoice generated by node2",
                 "expiry": "0xe10",
                 "final_cltv": "0x28",
                 "payment_preimage": payment_preimage,
-                "hash_algorithm": "sha256",
+                "hash_algorithm": HashAlgorithm.SHA256,
             }
         )
         before_channel = self.fiber1.get_client().list_channels({})
@@ -238,7 +250,12 @@ class TestFundingAmount(FiberTest):
                 "invoice": invoice["invoice_address"],
             }
         )
-        self.wait_payment_state(self.fiber1, payment["payment_hash"], "Success")
+        self.wait_payment_state(
+            self.fiber1,
+            payment["payment_hash"],
+            PaymentStatus.SUCCESS,
+            timeout=Timeout.PAYMENT_SUCCESS,
+        )
         after_channel = self.fiber1.get_client().list_channels({})
         assert (
             int(before_channel["channels"][0]["local_balance"], 16)
@@ -262,11 +279,13 @@ class TestFundingAmount(FiberTest):
             {
                 "channel_id": N1N2_CHANNEL_ID,
                 "close_script": self.get_account_script(self.Config.ACCOUNT_PRIVATE_1),
-                "fee_rate": "0x3FC",
+                "fee_rate": hex(FeeRate.DEFAULT),
             }
         )
 
-        tx_hash = self.wait_and_check_tx_pool_fee(1000, False, 1000)
+        tx_hash = self.wait_and_check_tx_pool_fee(
+            FeeRate.DEFAULT, False, Timeout.CHANNEL_READY
+        )
         self.Miner.miner_until_tx_committed(self.node, tx_hash)
 
         after_balance1 = self.Ckb_cli.wallet_get_capacity(
@@ -275,10 +294,6 @@ class TestFundingAmount(FiberTest):
         after_balance2 = self.Ckb_cli.wallet_get_capacity(
             self.fiber2.get_account()["address"]["testnet"]
         )
-        print("before_balance1:", before_balance1)
-        print("before_balance2:", before_balance2)
-        print("after_balance1:", after_balance1)
-        print("after_balance2:", after_balance2)
         assert int(after_balance2 - before_balance2) == 99
 
     def test_ckb_funding_amount_gt_auto_accept_channel_ckb_funding_amount(self):
@@ -307,11 +322,14 @@ class TestFundingAmount(FiberTest):
                     int(open_channel_auto_accept_min_ckb_funding_amount, 16) - 1
                 ),
                 "public": True,
+                "commitment_fee_rate": hex(FeeRate.DEFAULT),
+                "funding_fee_rate": hex(FeeRate.DEFAULT),
             }
         )
-        time.sleep(1)
+        time.sleep(Timeout.POLL_INTERVAL)
         accept_channel_funding_amount = (
-            int(node_info["auto_accept_channel_ckb_funding_amount"], 16) + 1 * 100000000
+            int(node_info["auto_accept_channel_ckb_funding_amount"], 16)
+            + Amount.ckb(1)
         )
         self.fiber2.get_client().accept_channel(
             {
@@ -320,7 +338,10 @@ class TestFundingAmount(FiberTest):
             }
         )
         self.wait_for_channel_state(
-            self.fiber1.get_client(), self.fiber2.get_peer_id(), "CHANNEL_READY", 120
+            self.fiber1.get_client(),
+            self.fiber2.get_peer_id(),
+            ChannelState.CHANNEL_READY,
+            timeout=Timeout.CHANNEL_READY,
         )
         channels = self.fiber2.get_client().list_channels({})
         assert accept_channel_funding_amount - DEFAULT_MIN_DEPOSIT_CKB == int(
@@ -328,16 +349,16 @@ class TestFundingAmount(FiberTest):
         )
         # transfer
         payment_preimage = self.generate_random_preimage()
-        invoice_balance = 1 * 10000000
+        invoice_balance = Amount.ckb(0.1)  # 0.1 CKB
         invoice = self.fiber2.get_client().new_invoice(
             {
                 "amount": hex(invoice_balance),
-                "currency": "Fibd",
+                "currency": Currency.FIBD,
                 "description": "test invoice generated by node2",
                 "expiry": "0xe10",
                 "final_cltv": "0x28",
                 "payment_preimage": payment_preimage,
-                "hash_algorithm": "sha256",
+                "hash_algorithm": HashAlgorithm.SHA256,
             }
         )
         before_channel = self.fiber1.get_client().list_channels({})
@@ -347,7 +368,12 @@ class TestFundingAmount(FiberTest):
                 "invoice": invoice["invoice_address"],
             }
         )
-        self.wait_payment_state(self.fiber1, payment["payment_hash"], "Success")
+        self.wait_payment_state(
+            self.fiber1,
+            payment["payment_hash"],
+            PaymentStatus.SUCCESS,
+            timeout=Timeout.PAYMENT_SUCCESS,
+        )
         after_channel = self.fiber1.get_client().list_channels({})
         assert (
             int(before_channel["channels"][0]["local_balance"], 16)
@@ -371,11 +397,11 @@ class TestFundingAmount(FiberTest):
             {
                 "channel_id": N1N2_CHANNEL_ID,
                 "close_script": self.get_account_script(self.Config.ACCOUNT_PRIVATE_1),
-                "fee_rate": "0x3FC",
+                "fee_rate": hex(FeeRate.DEFAULT),
             }
         )
         # todo wait close tx commit
-        shutdown_tx = self.wait_and_check_tx_pool_fee(1000, False)
+        shutdown_tx = self.wait_and_check_tx_pool_fee(FeeRate.DEFAULT, False)
         self.Miner.miner_until_tx_committed(self.node, shutdown_tx)
         after_balance1 = self.Ckb_cli.wallet_get_capacity(
             self.fiber1.get_account()["address"]["testnet"]
@@ -383,10 +409,6 @@ class TestFundingAmount(FiberTest):
         after_balance2 = self.Ckb_cli.wallet_get_capacity(
             self.fiber2.get_account()["address"]["testnet"]
         )
-        print("before_balance1:", before_balance1)
-        print("before_balance2:", before_balance2)
-        print("after_balance1:", after_balance1)
-        print("after_balance2:", after_balance2)
         assert int(after_balance2 - before_balance2) == 100
 
     @pytest.mark.skip("repeat")
@@ -409,47 +431,50 @@ class TestFundingAmount(FiberTest):
             self.fiber2.account_private,
             1000,
             self.fiber1.account_private,
-            100000 * 100000000,
+            Amount.udt(100000),
         )
         self.faucet(
             self.fiber1.account_private,
             1000,
             self.fiber1.account_private,
-            100000 * 100000000,
+            Amount.udt(100000),
         )
 
         temporary_channel = self.fiber1.get_client().open_channel(
             {
                 "peer_id": self.fiber2.get_peer_id(),
-                "funding_amount": hex(5 * 100000000),
+                "funding_amount": hex(Amount.ckb(5)),
                 "public": True,
                 "funding_udt_type_script": self.get_account_udt_script(
                     self.fiber1.account_private
                 ),
             }
         )
-        time.sleep(1)
+        time.sleep(Timeout.POLL_INTERVAL)
         self.fiber2.get_client().accept_channel(
             {
                 "temporary_channel_id": temporary_channel["temporary_channel_id"],
-                "funding_amount": hex(10000 * 100000000),
+                "funding_amount": hex(Amount.ckb(10000)),
             }
         )
         self.wait_for_channel_state(
-            self.fiber1.get_client(), self.fiber2.get_peer_id(), "CHANNEL_READY", 120
+            self.fiber1.get_client(),
+            self.fiber2.get_peer_id(),
+            ChannelState.CHANNEL_READY,
+            timeout=Timeout.CHANNEL_READY,
         )
         # transfer
         payment_preimage = self.generate_random_preimage()
-        invoice_balance = 1 * 100000000
+        invoice_balance = Amount.ckb(0.1)  # 0.1 CKB0
         invoice = self.fiber2.get_client().new_invoice(
             {
                 "amount": hex(invoice_balance),
-                "currency": "Fibd",
+                "currency": Currency.FIBD,
                 "description": "test invoice generated by node2",
                 "expiry": "0xe10",
                 "final_cltv": "0x28",
                 "payment_preimage": payment_preimage,
-                "hash_algorithm": "sha256",
+                "hash_algorithm": HashAlgorithm.SHA256,
                 "udt_type_script": self.get_account_udt_script(
                     self.fiber1.account_private
                 ),
@@ -462,7 +487,12 @@ class TestFundingAmount(FiberTest):
                 "invoice": invoice["invoice_address"],
             }
         )
-        self.wait_payment_state(self.fiber1, payment["payment_hash"], "Success")
+        self.wait_payment_state(
+            self.fiber1,
+            payment["payment_hash"],
+            PaymentStatus.SUCCESS,
+            timeout=Timeout.PAYMENT_SUCCESS,
+        )
         after_channel = self.fiber1.get_client().list_channels({})
         assert (
             int(before_channel["channels"][0]["local_balance"], 16)
@@ -472,16 +502,16 @@ class TestFundingAmount(FiberTest):
 
         #  transfer
         payment_preimage = self.generate_random_preimage()
-        invoice_balance = 1000 * 100000000
+        invoice_balance = Amount.ckb(1000)
         invoice = self.fiber1.get_client().new_invoice(
             {
                 "amount": hex(invoice_balance),
-                "currency": "Fibd",
+                "currency": Currency.FIBD,
                 "description": "test invoice generated by node2",
                 "expiry": "0xe10",
                 "final_cltv": "0x28",
                 "payment_preimage": payment_preimage,
-                "hash_algorithm": "sha256",
+                "hash_algorithm": HashAlgorithm.SHA256,
                 "udt_type_script": self.get_account_udt_script(
                     self.fiber1.account_private
                 ),
@@ -494,7 +524,12 @@ class TestFundingAmount(FiberTest):
                 "invoice": invoice["invoice_address"],
             }
         )
-        self.wait_payment_state(self.fiber1, payment["payment_hash"], "Success")
+        self.wait_payment_state(
+            self.fiber1,
+            payment["payment_hash"],
+            PaymentStatus.SUCCESS,
+            timeout=Timeout.PAYMENT_SUCCESS,
+        )
         after_channel = self.fiber2.get_client().list_channels({})
         assert (
             int(before_channel["channels"][0]["local_balance"], 16)
@@ -523,7 +558,7 @@ class TestFundingAmount(FiberTest):
             {
                 "channel_id": N1N2_CHANNEL_ID,
                 "close_script": self.get_account_script(self.Config.ACCOUNT_PRIVATE_1),
-                "fee_rate": "0x3FC",
+                "fee_rate": hex(FeeRate.DEFAULT),
             }
         )
         # todo wait close txx commit
@@ -540,9 +575,8 @@ class TestFundingAmount(FiberTest):
             self.get_account_script(self.fiber2.account_private)["args"],
         )
 
-        assert after_account1[-1]["balance"] == (5 - 1 + 999) * 100000000
-        print(after_account2)
-        assert after_account2[-1]["balance"] == (10000 + 1 - 9999) * 100000000
+        assert after_account1[-1]["balance"] == Amount.ckb(1003)  # 5 - 1 + 999
+        assert after_account2[-1]["balance"] == Amount.ckb(2)  # 10000 + 1 - 9999
 
     def test_ckb_funding_amount_gt_account(self):
         """
@@ -555,23 +589,24 @@ class TestFundingAmount(FiberTest):
         temporary_channel = self.fiber1.get_client().open_channel(
             {
                 "peer_id": self.fiber2.get_peer_id(),
-                "funding_amount": hex(100 * 100000000),
+                "funding_amount": hex(Amount.ckb(100)),
                 "public": True,
+                "commitment_fee_rate": hex(FeeRate.DEFAULT),
+                "funding_fee_rate": hex(FeeRate.DEFAULT),
             }
         )
-        time.sleep(1)
+        time.sleep(Timeout.POLL_INTERVAL)
         account2_capacity = self.Ckb_cli.wallet_get_capacity(
             self.fiber2.get_account()["address"]["testnet"]
         )
         channels = self.fiber1.get_client().list_channels({})
-        print("before channels:", channels)
         self.fiber2.get_client().accept_channel(
             {
                 "temporary_channel_id": temporary_channel["temporary_channel_id"],
-                "funding_amount": hex((int(account2_capacity) + 1) * 100000000),
+                "funding_amount": hex((int(account2_capacity) + 1) * Amount.CKB),
             }
         )
-        time.sleep(1)
+        time.sleep(Timeout.POLL_INTERVAL)
         channels = self.fiber1.get_client().list_channels({})
         assert len(channels["channels"]) == 0
 
@@ -586,7 +621,7 @@ class TestFundingAmount(FiberTest):
             self.fiber2.get_client().accept_channel(
                 {
                     "temporary_channel_id": temporary_channel["temporary_channel_id"],
-                    "funding_amount": hex(1000 * 100000000),
+                    "funding_amount": hex(Amount.ckb(1000)),
                 }
             )
         expected_error_message = "No channel with temp id"
@@ -604,14 +639,16 @@ class TestFundingAmount(FiberTest):
         temporary_channel = self.fiber1.get_client().open_channel(
             {
                 "peer_id": self.fiber2.get_peer_id(),
-                "funding_amount": hex(5 * 100000000),
+                "funding_amount": hex(Amount.ckb(5)),
                 "public": True,
                 "funding_udt_type_script": self.get_account_udt_script(
                     self.fiber1.account_private
                 ),
+                "commitment_fee_rate": hex(FeeRate.DEFAULT),
+                "funding_fee_rate": hex(FeeRate.DEFAULT),
             }
         )
-        time.sleep(1)
+        time.sleep(Timeout.POLL_INTERVAL)
 
         with pytest.raises(Exception) as exc_info:
             self.fiber2.get_client().accept_channel(
@@ -639,23 +676,25 @@ class TestFundingAmount(FiberTest):
             self.fiber2.account_private,
             1000,
             self.fiber1.account_private,
-            100000 * 100000000,
+            Amount.udt(100000),
         )
         temporary_channel = self.fiber1.get_client().open_channel(
             {
                 "peer_id": self.fiber2.get_peer_id(),
-                "funding_amount": hex(5 * 100000000),
+                "funding_amount": hex(Amount.ckb(5)),
                 "public": True,
                 "funding_udt_type_script": self.get_account_udt_script(
                     self.fiber1.account_private
                 ),
+                "commitment_fee_rate": hex(FeeRate.DEFAULT),
+                "funding_fee_rate": hex(FeeRate.DEFAULT),
             }
         )
-        time.sleep(1)
+        time.sleep(Timeout.POLL_INTERVAL)
         self.fiber2.get_client().accept_channel(
             {
                 "temporary_channel_id": temporary_channel["temporary_channel_id"],
-                "funding_amount": hex(100000 * 100000000 + 1),
+                "funding_amount": hex(Amount.ckb(100000) + 1),
             }
         )
 
@@ -677,54 +716,59 @@ class TestFundingAmount(FiberTest):
             self.fiber2.account_private,
             1000,
             self.fiber1.account_private,
-            100000 * 100000000,
+            Amount.udt(100000),
         )
         self.faucet(
             self.fiber2.account_private,
             1000,
             self.fiber1.account_private,
-            100000 * 100000000,
+            Amount.udt(100000),
         )
         self.faucet(
             self.fiber1.account_private,
             1000,
             self.fiber1.account_private,
-            100000 * 100000000,
+            Amount.udt(100000),
         )
         temporary_channel = self.fiber1.get_client().open_channel(
             {
                 "peer_id": self.fiber2.get_peer_id(),
-                "funding_amount": hex(1 * 100000000),
+                "funding_amount": hex(Amount.ckb(1)),
                 "public": True,
                 "funding_udt_type_script": self.get_account_udt_script(
                     self.fiber1.account_private
                 ),
+                "commitment_fee_rate": hex(FeeRate.DEFAULT),
+                "funding_fee_rate": hex(FeeRate.DEFAULT),
             }
         )
-        time.sleep(1)
+        time.sleep(Timeout.POLL_INTERVAL)
         self.fiber2.get_client().accept_channel(
             {
                 "temporary_channel_id": temporary_channel["temporary_channel_id"],
-                "funding_amount": hex(200000 * 100000000),
+                "funding_amount": hex(Amount.ckb(200000)),
             }
         )
 
         self.wait_for_channel_state(
-            self.fiber1.get_client(), self.fiber2.get_peer_id(), "CHANNEL_READY", 120
+            self.fiber1.get_client(),
+            self.fiber2.get_peer_id(),
+            ChannelState.CHANNEL_READY,
+            timeout=Timeout.CHANNEL_READY,
         )
 
         #  transfer
         payment_preimage = self.generate_random_preimage()
-        invoice_balance = 1000 * 100000000
+        invoice_balance = Amount.ckb(1000)
         invoice = self.fiber1.get_client().new_invoice(
             {
                 "amount": hex(invoice_balance),
-                "currency": "Fibd",
+                "currency": Currency.FIBD,
                 "description": "test invoice generated by node2",
                 "expiry": "0xe10",
                 "final_cltv": "0x28",
                 "payment_preimage": payment_preimage,
-                "hash_algorithm": "sha256",
+                "hash_algorithm": HashAlgorithm.SHA256,
                 "udt_type_script": self.get_account_udt_script(
                     self.fiber1.account_private
                 ),
@@ -737,7 +781,12 @@ class TestFundingAmount(FiberTest):
                 "invoice": invoice["invoice_address"],
             }
         )
-        self.wait_payment_state(self.fiber1, payment["payment_hash"], "Success")
+        self.wait_payment_state(
+            self.fiber1,
+            payment["payment_hash"],
+            PaymentStatus.SUCCESS,
+            timeout=Timeout.PAYMENT_SUCCESS,
+        )
         after_channel = self.fiber2.get_client().list_channels({})
         assert (
             int(before_channel["channels"][0]["local_balance"], 16)
@@ -754,7 +803,7 @@ class TestFundingAmount(FiberTest):
             {
                 "channel_id": N1N2_CHANNEL_ID,
                 "close_script": self.get_account_script(self.Config.ACCOUNT_PRIVATE_1),
-                "fee_rate": "0x3FC",
+                "fee_rate": hex(FeeRate.DEFAULT),
             }
         )
         # todo wait close txx commit
@@ -771,5 +820,5 @@ class TestFundingAmount(FiberTest):
             self.get_account_script(self.fiber2.account_private)["args"],
         )
 
-        assert after_account1[-1]["balance"] == (1 * 100000000 + invoice_balance)
-        assert after_account2[-1]["balance"] == (200000 * 100000000 - invoice_balance)
+        assert after_account1[-1]["balance"] == Amount.ckb(1) + invoice_balance
+        assert after_account2[-1]["balance"] == Amount.ckb(200000) - invoice_balance

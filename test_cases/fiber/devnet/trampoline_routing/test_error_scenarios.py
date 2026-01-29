@@ -1,60 +1,82 @@
+"""
+Trampoline routing error scenarios: insufficient balance, capacity, no path,
+max_fee_amount too low, duplicate/target/empty trampoline_hops.
+"""
+
 import pytest
 
 from framework.basic_fiber import FiberTest
+from framework.constants import Amount, Currency, PaymentStatus, Timeout
 
 
 class TestErrorScenarios(FiberTest):
     """
-    测试 trampoline routing 的各种错误场景
-    包括余额不足、通道容量不足、路径不存在等
+    Trampoline routing error cases: insufficient balance, channel capacity,
+    no path to trampoline or to target, max_fee_amount too low,
+    duplicate/target-in/empty trampoline_hops.
     """
 
     def test_insufficient_balance(self):
         """
-        测试余额不足的场景
+        Send amount exceeding path capacity; expect no path / failure.
+        Step 1: Create fiber3; open channels with 1000 CKB each.
+        Step 2: Keysend 2000 CKB via trampoline; assert error.
         """
+        # Step 1: Create fiber3; open channels
         self.fiber3 = self.start_new_fiber(self.generate_account(10000))
+        self.open_channel(
+            self.fiber1, self.fiber2,
+            fiber1_balance=Amount.ckb(1000), fiber2_balance=Amount.ckb(0),
+        )
+        self.open_channel(
+            self.fiber2, self.fiber3,
+            fiber1_balance=Amount.ckb(1000), fiber2_balance=Amount.ckb(0),
+        )
 
-        # 建立通道，但余额较小
-        self.open_channel(self.fiber1, self.fiber2, 1000 * 100000000, 0)
-        self.open_channel(self.fiber2, self.fiber3, 1000 * 100000000, 0)
-
-        # 尝试发送超过通道容量的金额
+        # Step 2: Keysend 2000 CKB; assert error
         with pytest.raises(Exception) as exc_info:
-            payment = self.fiber1.get_client().send_payment(
+            self.fiber1.get_client().send_payment(
                 {
                     "target_pubkey": self.fiber3.get_client().node_info()["node_id"],
-                    "currency": "Fibd",
-                    "amount": hex(2000 * 100000000),  # 超过通道容量
+                    "currency": Currency.FIBD,
+                    "amount": hex(Amount.ckb(2000)),
                     "keysend": True,
-                    "trampoline_hops": [
-                        self.fiber2.get_client().node_info()["node_id"],
-                    ],
+                    "trampoline_hops": [self.fiber2.get_client().node_info()["node_id"]],
                 }
             )
-        # 应该因为余额不足而失败
-        assert "no path found" in exc_info.value.args[0] or "Failed" in str(
-            exc_info.value
-        )
+        err = exc_info.value.args[0] if exc_info.value.args else ""
+        assert "no path found" in err or "Failed" in str(exc_info.value)
 
     def test_channel_capacity_insufficient(self):
         """
-        测试通道容量不足的场景
+        First payment consumes capacity; second may exceed remaining; expect failure when insufficient.
+        Step 1: Create fiber3..4; open 50 CKB channels.
+        Step 2: Send 30 CKB; wait success.
+        Step 3: Send another 30 CKB; expect exception or failure.
         """
+        # Step 1: Create fiber3..4; open 50 CKB channels
         self.fiber3 = self.start_new_fiber(self.generate_account(10000))
         self.fiber4 = self.start_new_fiber(self.generate_account(10000))
 
-        # 建立小容量通道
-        self.open_channel(self.fiber1, self.fiber2, 50 * 100000000, 0)
-        self.open_channel(self.fiber2, self.fiber3, 50 * 100000000, 0)
-        self.open_channel(self.fiber3, self.fiber4, 50 * 100000000, 0)
+        self.open_channel(
+            self.fiber1, self.fiber2,
+            fiber1_balance=Amount.ckb(50), fiber2_balance=Amount.ckb(0),
+        )
+        self.open_channel(
+            self.fiber2, self.fiber3,
+            fiber1_balance=Amount.ckb(50), fiber2_balance=Amount.ckb(0),
+        )
+        self.open_channel(
+            self.fiber3, self.fiber4,
+            fiber1_balance=Amount.ckb(50), fiber2_balance=Amount.ckb(0),
+        )
 
-        # 先发送一笔支付消耗部分容量
+        # Step 2: Send 30 CKB; wait success
         payment1 = self.fiber1.get_client().send_payment(
             {
                 "target_pubkey": self.fiber4.get_client().node_info()["node_id"],
-                "currency": "Fibd",
-                "amount": hex(30 * 100000000),
+                "currency": Currency.FIBD,
+                "amount": hex(Amount.ckb(30)),
                 "keysend": True,
                 "trampoline_hops": [
                     self.fiber2.get_client().node_info()["node_id"],
@@ -62,15 +84,18 @@ class TestErrorScenarios(FiberTest):
                 ],
             }
         )
-        self.wait_payment_state(self.fiber1, payment1["payment_hash"], "Success")
+        self.wait_payment_state(
+            self.fiber1, payment1["payment_hash"], PaymentStatus.SUCCESS,
+            timeout=Timeout.PAYMENT_SUCCESS,
+        )
 
-        # 尝试发送超过剩余容量的金额
+        # Step 3: Send another 30 CKB; expect exception
         with pytest.raises(Exception) as exc_info:
-            payment2 = self.fiber1.get_client().send_payment(
+            self.fiber1.get_client().send_payment(
                 {
                     "target_pubkey": self.fiber4.get_client().node_info()["node_id"],
-                    "currency": "Fibd",
-                    "amount": hex(30 * 100000000),  # 可能超过剩余容量
+                    "currency": Currency.FIBD,
+                    "amount": hex(Amount.ckb(30)),
                     "keysend": True,
                     "trampoline_hops": [
                         self.fiber2.get_client().node_info()["node_id"],
@@ -78,170 +103,203 @@ class TestErrorScenarios(FiberTest):
                     ],
                 }
             )
-        # 可能因为容量不足而失败
-        # 注意：如果容量足够，这个测试可能不会失败
+        err = exc_info.value.args[0] if exc_info.value.args else ""
+        assert "no path found" in err or "Failed" in str(exc_info.value)
 
     def test_no_path_to_trampoline(self):
         """
-        测试无法到达 trampoline 节点的场景
+        No channel from source to trampoline; expect no path.
+        Step 1: Open f2-f3, f3-f4 only (f1 not connected to f2).
+        Step 2: Keysend via trampoline f2; assert error.
         """
+        # Step 1: Open f2-f3, f3-f4 only
         self.fiber3 = self.start_new_fiber(self.generate_account(10000))
         self.fiber4 = self.start_new_fiber(self.generate_account(10000))
 
-        # 只建立 fiber2 到 fiber3 的通道，fiber1 无法到达 fiber2
-        self.open_channel(self.fiber2, self.fiber3, 1000 * 100000000, 0)
-        self.open_channel(self.fiber3, self.fiber4, 1000 * 100000000, 0)
+        self.open_channel(
+            self.fiber2, self.fiber3,
+            fiber1_balance=Amount.ckb(1000), fiber2_balance=Amount.ckb(0),
+        )
+        self.open_channel(
+            self.fiber3, self.fiber4,
+            fiber1_balance=Amount.ckb(1000), fiber2_balance=Amount.ckb(0),
+        )
 
-        # 尝试通过无法到达的 trampoline 节点路由
+        # Step 2: Keysend via trampoline f2; assert error
         with pytest.raises(Exception) as exc_info:
-            payment = self.fiber1.get_client().send_payment(
+            self.fiber1.get_client().send_payment(
                 {
                     "target_pubkey": self.fiber4.get_client().node_info()["node_id"],
-                    "currency": "Fibd",
-                    "amount": hex(1 * 100000000),
+                    "currency": Currency.FIBD,
+                    "amount": hex(Amount.ckb(1)),
                     "keysend": True,
-                    "trampoline_hops": [
-                        self.fiber2.get_client().node_info()["node_id"],
-                    ],
+                    "trampoline_hops": [self.fiber2.get_client().node_info()["node_id"]],
                 }
             )
-        expected_error_message = "no path found"
-        assert expected_error_message in exc_info.value.args[0], (
-            f"Expected substring '{expected_error_message}' "
-            f"not found in actual string '{exc_info.value.args[0]}'"
+        expected = "no path found"
+        assert expected in (exc_info.value.args[0] if exc_info.value.args else ""), (
+            f"Expected '{expected}' in error."
         )
 
     def test_no_path_from_trampoline_to_target(self):
         """
-        测试 trampoline 节点无法到达目标节点的场景
+        Trampoline has no path to target; payment should fail.
+        Step 1: Open f1-f2 only; f2 has no channel to f4.
+        Step 2: Keysend via trampoline f2 to f4; wait Failed.
         """
+        # Step 1: Open f1-f2 only
         self.fiber3 = self.start_new_fiber(self.generate_account(10000))
         self.fiber4 = self.start_new_fiber(self.generate_account(10000))
 
-        # 建立 fiber1 到 fiber2 的通道，但 fiber2 无法到达 fiber4
-        self.open_channel(self.fiber1, self.fiber2, 1000 * 100000000, 0)
-        # fiber2 和 fiber4 之间没有通道
+        self.open_channel(
+            self.fiber1, self.fiber2,
+            fiber1_balance=Amount.ckb(1000), fiber2_balance=Amount.ckb(0),
+        )
 
-        # 尝试通过无法到达目标的 trampoline 节点路由
+        # Step 2: Keysend via trampoline f2 to f4; wait Failed
         payment = self.fiber1.get_client().send_payment(
             {
                 "target_pubkey": self.fiber4.get_client().node_info()["node_id"],
-                "currency": "Fibd",
-                "amount": hex(1 * 100000000),
+                "currency": Currency.FIBD,
+                "amount": hex(Amount.ckb(1)),
                 "keysend": True,
-                "trampoline_hops": [
-                    self.fiber2.get_client().node_info()["node_id"],
-                ],
+                "trampoline_hops": [self.fiber2.get_client().node_info()["node_id"]],
             }
         )
-        self.wait_payment_state(self.fiber1, payment["payment_hash"], "Failed")
+        self.wait_payment_state(
+            self.fiber1, payment["payment_hash"], PaymentStatus.FAILED,
+            timeout=Timeout.PAYMENT_SUCCESS,
+        )
 
     def test_max_fee_amount_too_low(self):
         """
-        测试 max_fee_amount 设置过低的场景
+        max_fee_amount=1; expect error.
+        Step 1: Create fiber3; open channels.
+        Step 2: Keysend with max_fee_amount=1; assert error.
         """
+        # Step 1: Create fiber3; open channels
         self.fiber3 = self.start_new_fiber(self.generate_account(10000))
+        self.open_channel(
+            self.fiber1, self.fiber2,
+            fiber1_balance=Amount.ckb(1000), fiber2_balance=Amount.ckb(0),
+        )
+        self.open_channel(
+            self.fiber2, self.fiber3,
+            fiber1_balance=Amount.ckb(1000), fiber2_balance=Amount.ckb(0),
+        )
 
-        self.open_channel(self.fiber1, self.fiber2, 1000 * 100000000, 0)
-        self.open_channel(self.fiber2, self.fiber3, 1000 * 100000000, 0)
-
-        # 设置过低的 max_fee_amount
+        # Step 2: Keysend with max_fee_amount=1; assert error
         with pytest.raises(Exception) as exc_info:
-            payment = self.fiber1.get_client().send_payment(
+            self.fiber1.get_client().send_payment(
                 {
                     "target_pubkey": self.fiber3.get_client().node_info()["node_id"],
-                    "currency": "Fibd",
-                    "amount": hex(1 * 100000000),
+                    "currency": Currency.FIBD,
+                    "amount": hex(Amount.ckb(1)),
                     "keysend": True,
-                    "max_fee_amount": hex(1),  # 极低的费用预算
-                    "trampoline_hops": [
-                        self.fiber2.get_client().node_info()["node_id"]
-                    ],
+                    "max_fee_amount": hex(1),
+                    "trampoline_hops": [self.fiber2.get_client().node_info()["node_id"]],
                 }
             )
-        expected_error_message = "max_fee_amount is too low"
-        assert expected_error_message in exc_info.value.args[0], (
-            f"Expected substring '{expected_error_message}' "
-            f"not found in actual string '{exc_info.value.args[0]}'"
+        expected = "max_fee_amount is too low"
+        assert expected in (exc_info.value.args[0] if exc_info.value.args else ""), (
+            f"Expected '{expected}' in error."
         )
 
     def test_duplicate_trampoline_hops(self):
         """
-        测试重复的 trampoline hops（应该被拒绝）
+        Duplicate trampoline hop; expect error.
+        Step 1: Create fiber3; open channels.
+        Step 2: Keysend with duplicate hop; assert error.
         """
+        # Step 1: Create fiber3; open channels
         self.fiber3 = self.start_new_fiber(self.generate_account(10000))
+        self.open_channel(
+            self.fiber1, self.fiber2,
+            fiber1_balance=Amount.ckb(1000), fiber2_balance=Amount.ckb(0),
+        )
+        self.open_channel(
+            self.fiber2, self.fiber3,
+            fiber1_balance=Amount.ckb(1000), fiber2_balance=Amount.ckb(0),
+        )
 
-        self.open_channel(self.fiber1, self.fiber2, 1000 * 100000000, 0)
-        self.open_channel(self.fiber2, self.fiber3, 1000 * 100000000, 0)
-
-        # 使用重复的 trampoline hop
+        # Step 2: Keysend with duplicate hop; assert error
         with pytest.raises(Exception) as exc_info:
-            payment = self.fiber1.get_client().send_payment(
+            self.fiber1.get_client().send_payment(
                 {
                     "target_pubkey": self.fiber3.get_client().node_info()["node_id"],
-                    "currency": "Fibd",
-                    "amount": hex(1 * 100000000),
+                    "currency": Currency.FIBD,
+                    "amount": hex(Amount.ckb(1)),
                     "keysend": True,
                     "trampoline_hops": [
                         self.fiber2.get_client().node_info()["node_id"],
-                        self.fiber2.get_client().node_info()["node_id"],  # 重复
+                        self.fiber2.get_client().node_info()["node_id"],
                     ],
                 }
             )
-        # 应该因为重复的 hops 而失败
-        assert "duplicate" in exc_info.value.args[0].lower() or "Failed" in str(
-            exc_info.value
-        )
+        err = (exc_info.value.args[0] if exc_info.value.args else "").lower()
+        assert "duplicate" in err or "Failed" in str(exc_info.value)
 
     def test_target_in_trampoline_hops(self):
         """
-        测试目标节点在 trampoline_hops 中（应该被拒绝）
+        Target in trampoline_hops; expect error.
+        Step 1: Create fiber3; open channels.
+        Step 2: Keysend with target in trampoline_hops; assert error.
         """
+        # Step 1: Create fiber3; open channels
         self.fiber3 = self.start_new_fiber(self.generate_account(10000))
+        self.open_channel(
+            self.fiber1, self.fiber2,
+            fiber1_balance=Amount.ckb(1000), fiber2_balance=Amount.ckb(0),
+        )
+        self.open_channel(
+            self.fiber2, self.fiber3,
+            fiber1_balance=Amount.ckb(1000), fiber2_balance=Amount.ckb(0),
+        )
 
-        self.open_channel(self.fiber1, self.fiber2, 1000 * 100000000, 0)
-        self.open_channel(self.fiber2, self.fiber3, 1000 * 100000000, 0)
-
-        # 目标节点出现在 trampoline_hops 中
+        # Step 2: Keysend with target in trampoline_hops; assert error
         with pytest.raises(Exception) as exc_info:
-            payment = self.fiber1.get_client().send_payment(
+            self.fiber1.get_client().send_payment(
                 {
                     "target_pubkey": self.fiber3.get_client().node_info()["node_id"],
-                    "currency": "Fibd",
-                    "amount": hex(1 * 100000000),
+                    "currency": Currency.FIBD,
+                    "amount": hex(Amount.ckb(1)),
                     "keysend": True,
                     "trampoline_hops": [
                         self.fiber2.get_client().node_info()["node_id"],
-                        self.fiber3.get_client().node_info()["node_id"],  # 目标节点
+                        self.fiber3.get_client().node_info()["node_id"],
                     ],
                 }
             )
-        # 应该因为目标节点在 hops 中而失败
-        assert "target_pubkey" in exc_info.value.args[0].lower() or "Failed" in str(
-            exc_info.value
-        )
+        err = (exc_info.value.args[0] if exc_info.value.args else "").lower()
+        assert "target_pubkey" in err or "Failed" in str(exc_info.value)
 
     def test_empty_trampoline_hops(self):
         """
-        测试空的 trampoline_hops（应该被拒绝）
+        Empty trampoline_hops; expect error.
+        Step 1: Create fiber3; open channels.
+        Step 2: Keysend with trampoline_hops=[]; assert error.
         """
+        # Step 1: Create fiber3; open channels
         self.fiber3 = self.start_new_fiber(self.generate_account(10000))
+        self.open_channel(
+            self.fiber1, self.fiber2,
+            fiber1_balance=Amount.ckb(1000), fiber2_balance=Amount.ckb(0),
+        )
+        self.open_channel(
+            self.fiber2, self.fiber3,
+            fiber1_balance=Amount.ckb(1000), fiber2_balance=Amount.ckb(0),
+        )
 
-        self.open_channel(self.fiber1, self.fiber2, 1000 * 100000000, 0)
-        self.open_channel(self.fiber2, self.fiber3, 1000 * 100000000, 0)
-
-        # 使用空的 trampoline_hops
+        # Step 2: Keysend with trampoline_hops=[]; assert error
         with pytest.raises(Exception) as exc_info:
-            payment = self.fiber1.get_client().send_payment(
+            self.fiber1.get_client().send_payment(
                 {
                     "target_pubkey": self.fiber3.get_client().node_info()["node_id"],
-                    "currency": "Fibd",
-                    "amount": hex(1 * 100000000),
+                    "currency": Currency.FIBD,
+                    "amount": hex(Amount.ckb(1)),
                     "keysend": True,
-                    "trampoline_hops": [],  # 空的 hops
+                    "trampoline_hops": [],
                 }
             )
-        # 应该因为空的 hops 而失败
-        assert "empty" in exc_info.value.args[0].lower() or "Failed" in str(
-            exc_info.value
-        )
+        err = (exc_info.value.args[0] if exc_info.value.args else "").lower()
+        assert "empty" in err or "Failed" in str(exc_info.value)

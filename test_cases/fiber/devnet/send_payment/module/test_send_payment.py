@@ -1,68 +1,38 @@
+"""
+Module tests for send_payment: target_pubkey, amount, payment_hash, keysend, invoice, etc.
+"""
 import time
 
 import pytest
 
 from framework.basic_fiber import FiberTest
+from framework.constants import Amount, ChannelState, InvoiceStatus, PaymentStatus, Timeout
 
 
 class TestSendPayment(FiberTest):
     """
-    target_pubkey
-        和key send 一起使用
-    amount x
-        amount 为local_balance
-        amount 最大值
-        amount 最小值
-        amount 为0
-    payment_hash
-        payment_hash 不存在
-        已经使用的payment_hash
-        未使用的payment_hash x
-        不匹配的payment_hash
-
-    final_tlc_expiry_delta
-        - final_tlc_expiry_delta 为0
-        - final_tlc_expiry_delta 为1
-        - final_tlc_expiry_delta 为最大值
-        - final_tlc_expiry_delta 默认值
-
-    tlc_expiry_limit
-        - tlc_expiry_limit 为0
-        - 默认值
-        - 为1
-        - 0xffffffffffffffff
-    invoice
-    timeout
-        - todo 目前不生效
-    max_fee_amount x
-    max_parts
-        - todo
-    keysend x
-    udt_type_script x
-    allow_self_payment x
-        - a-b，b-a
-        - a-b,b-c,c-a
-    dry_run x
-    qa
-        channel 在各个状态调用 send_payment，只有在ready 才可以
-        并发测试
-        如何查询过去的交易记录
-
-    - target_pubkey 不存在
+    Test send_payment params and flows: target_pubkey/keysend, amount, payment_hash,
+    final_tlc_expiry_delta, tlc_expiry_limit, invoice, max_fee_amount, max_parts,
+    allow_self_payment, dry_run; target_pubkey not exist; used payment_hash; concurrent pay.
     """
 
-    # FiberTest.debug = True
-
     def test_target_pubkey_not_exist(self):
+        """
+        send_payment with non-existent target_pubkey must raise "Failed to build route".
+        Step 1: Call send_payment with fixed invalid target_pubkey and amount.
+        Step 2: Assert error message contains "Failed to build route".
+        """
+        # Step 1: Call send_payment with non-existent target_pubkey
         with pytest.raises(Exception) as exc_info:
             self.fiber1.get_client().send_payment(
                 {
                     "target_pubkey": "02a10c20047e52dbfa920d85bf2da89e790b18e89b7bcc5056968acc57c9e08531",
-                    "amount": hex(10 * 100000000),
+                    "amount": hex(Amount.ckb(10)),
                     "keysend": True,
                 }
             )
 
+        # Step 2: Assert error message
         expected_error_message = "Failed to build route"
         assert expected_error_message in exc_info.value.args[0], (
             f"Expected substring '{expected_error_message}' "
@@ -79,13 +49,13 @@ class TestSendPayment(FiberTest):
     #         self.fiber1.get_client().open_channel(
     #             {
     #                 "peer_id": self.fiber2.get_peer_id(),
-    #                 "funding_amount": hex(500 * 100000000),
+    #                 "funding_amount": hex(Amount.ckb(500)),
     #                 "public": True,
     #             }
     #         )
     #         time.sleep(3)
     #         self.wait_for_channel_state(
-    #             self.fiber1.get_client(), self.fiber2.get_peer_id(), "CHANNEL_READY"
+    #             self.fiber1.get_client(), self.fiber2.get_peer_id(), ChannelState.CHANNEL_READY
     #         )
 
     # def test_list_channes(self):
@@ -94,34 +64,42 @@ class TestSendPayment(FiberTest):
     #         print(f"local_balance: {channels['channels'][i]['local_balance']},remote_balance: {channels['channels'][i]['remote_balance']}")
 
     def test_Musig2VerifyError(self):
-        #
-        account_private = self.generate_account(1000)
+        """
+        Used payment_hash: invoice with payment_preimage; send_payment reuses hash; expect payment Failed and balances unchanged.
+        Step 1: Open channel fiber1-fiber2, fiber2-fiber3; create invoice with payment_preimage.
+        Step 2: Send payment with same payment_hash; wait invoice Open, payment Failed; assert balances unchanged.
+        """
+        account_private = self.generate_account(Amount.ckb(1000))
         self.fiber3 = self.start_new_fiber(account_private)
         self.fiber3.connect_peer(self.fiber2)
         self.fiber1.get_client().open_channel(
             {
                 "peer_id": self.fiber2.get_peer_id(),
-                "funding_amount": hex(500 * 100000000),
+                "funding_amount": hex(Amount.ckb(500)),
                 "public": True,
             }
         )
         self.wait_for_channel_state(
-            self.fiber1.get_client(), self.fiber2.get_peer_id(), "CHANNEL_READY"
+            self.fiber1.get_client(),
+            self.fiber2.get_peer_id(),
+            ChannelState.CHANNEL_READY,
         )
         self.fiber2.get_client().open_channel(
             {
                 "peer_id": self.fiber3.get_peer_id(),
-                "funding_amount": hex(500 * 100000000),
+                "funding_amount": hex(Amount.ckb(500)),
                 "public": True,
             }
         )
         self.wait_for_channel_state(
-            self.fiber3.get_client(), self.fiber2.get_peer_id(), "CHANNEL_READY"
+            self.fiber3.get_client(),
+            self.fiber2.get_peer_id(),
+            ChannelState.CHANNEL_READY,
         )
 
         invoice = self.fiber3.get_client().new_invoice(
             {
-                "amount": hex(100 * 100000000),
+                "amount": hex(Amount.ckb(100)),
                 "currency": "Fibd",
                 "description": "test invoice generated by node2",
                 "expiry": "0xe10",
@@ -146,8 +124,8 @@ class TestSendPayment(FiberTest):
             }
         )
         time.sleep(1)
-        self.wait_invoice_state(self.fiber3, payment1["payment_hash"], "Open")
-        self.wait_payment_state(self.fiber1, payment1["payment_hash"], "Failed")
+        self.wait_invoice_state(self.fiber3, payment1["payment_hash"], InvoiceStatus.OPEN)
+        self.wait_payment_state(self.fiber1, payment1["payment_hash"], PaymentStatus.FAILED)
         channels = self.fiber1.get_client().list_channels({})
         assert channels["channels"][0]["remote_balance"] == "0x0"
         assert (
@@ -163,50 +141,56 @@ class TestSendPayment(FiberTest):
 
     @pytest.mark.skip("https://github.com/nervosnetwork/fiber/issues/369")
     def test_node2_get_stuck(self):
-        account_private = self.generate_account(1000)
+        account_private = self.generate_account(Amount.ckb(1000))
         self.fiber3 = self.start_new_fiber(account_private)
         self.fiber3.connect_peer(self.fiber2)
         self.fiber1.get_client().open_channel(
             {
                 "peer_id": self.fiber2.get_peer_id(),
-                "funding_amount": hex(500 * 100000000),
+                "funding_amount": hex(Amount.ckb(500)),
                 "public": True,
             }
         )
         self.wait_for_channel_state(
-            self.fiber1.get_client(), self.fiber2.get_peer_id(), "CHANNEL_READY"
+            self.fiber1.get_client(),
+            self.fiber2.get_peer_id(),
+            ChannelState.CHANNEL_READY,
         )
         self.fiber2.get_client().open_channel(
             {
                 "peer_id": self.fiber3.get_peer_id(),
-                "funding_amount": hex(500 * 100000000),
+                "funding_amount": hex(Amount.ckb(500)),
                 "public": True,
             }
         )
         self.wait_for_channel_state(
-            self.fiber3.get_client(), self.fiber2.get_peer_id(), "CHANNEL_READY"
+            self.fiber3.get_client(),
+            self.fiber2.get_peer_id(),
+            ChannelState.CHANNEL_READY,
         )
         time.sleep(1)
         payment1 = self.fiber1.get_client().send_payment(
             {
                 "target_pubkey": self.fiber3.get_client().node_info()["node_id"],
                 "currency": "Fibd",
-                "amount": hex(1 * 100000000),
+                "amount": hex(Amount.ckb(1)),
                 "keysend": True,
-                # "payment_hash": self.generate_random_preimage(),
             }
         )
-        self.wait_payment_state(self.fiber1, payment1["payment_hash"], "Success")
+        self.wait_payment_state(
+            self.fiber1, payment1["payment_hash"], PaymentStatus.SUCCESS
+        )
         payment1 = self.fiber1.get_client().send_payment(
             {
                 "target_pubkey": self.fiber2.get_client().node_info()["node_id"],
                 "currency": "Fibd",
-                "amount": hex(1 * 100000000),
+                "amount": hex(Amount.ckb(1)),
                 "keysend": True,
-                # "payment_hash": self.generate_random_preimage(),
             }
         )
-        self.wait_payment_state(self.fiber1, payment1["payment_hash"], "Success")
+        self.wait_payment_state(
+            self.fiber1, payment1["payment_hash"], PaymentStatus.SUCCESS
+        )
         node1_payments = []
         node2_payments = []
         node3_payments = []
@@ -261,15 +245,15 @@ class TestSendPayment(FiberTest):
         for i in range(len(node1_payments)):
             payment1 = node1_payments[i]
             self.wait_payment_state(
-                self.fiber1, payment1["payment_hash"], "Success", 3600
+                self.fiber1, payment1["payment_hash"], PaymentStatus.SUCCESS, Timeout.VERY_LONG
             )
             payment2 = node2_payments[i]
             self.wait_payment_state(
-                self.fiber2, payment2["payment_hash"], "Success", 3600
+                self.fiber2, payment2["payment_hash"], PaymentStatus.SUCCESS, Timeout.VERY_LONG
             )
             payment3 = node3_payments[i]
             self.wait_payment_state(
-                self.fiber3, payment3["payment_hash"], "Success", 3600
+                self.fiber3, payment3["payment_hash"], PaymentStatus.SUCCESS, Timeout.VERY_LONG
             )
 
         # check balance
@@ -291,50 +275,46 @@ class TestSendPayment(FiberTest):
     #         {
     #             "target_pubkey": self.fiber3.get_client().node_info()["node_id"],
     #             "currency": "Fibd",
-    #             "amount": hex(1 * 100000000),
+    #             "amount": hex(Amount.ckb(1)),
     #             "keysend": True,
     #             # "payment_hash": self.generate_random_preimage(),
     #         }
     #     )
-    #     self.wait_payment_state(self.fiber1, payment1["payment_hash"], "Success")
+    #     self.wait_payment_state(self.fiber1, payment1["payment_hash"], PaymentStatus.SUCCESS)
 
     def test_send_payment_sametime(self):
         """
-        节点1 和节点2 同时给节点3的发票付钱
-            只会一个付款成功
-            目前是
-                一个付款成功
-                一个卡住
-        Returns:
-
+        Node1 and node2 pay the same invoice at the same time; one succeeds, one may be stuck.
+        Step 1: Open channels; create invoice on fiber3; fiber1 and fiber2 both send_payment.
+        Step 2: Wait invoice Paid; get payment status for both.
         """
-        account_private = self.generate_account(1000)
+        account_private = self.generate_account(Amount.ckb(1000))
         self.fiber3 = self.start_new_fiber(account_private)
         self.fiber3.connect_peer(self.fiber2)
         self.fiber1.get_client().open_channel(
             {
                 "peer_id": self.fiber2.get_peer_id(),
-                "funding_amount": hex(500 * 100000000),
+                "funding_amount": hex(Amount.ckb(500)),
                 "public": True,
             }
         )
         self.wait_for_channel_state(
-            self.fiber1.get_client(), self.fiber2.get_peer_id(), "CHANNEL_READY"
+            self.fiber1.get_client(), self.fiber2.get_peer_id(), ChannelState.CHANNEL_READY
         )
         self.fiber2.get_client().open_channel(
             {
                 "peer_id": self.fiber3.get_peer_id(),
-                "funding_amount": hex(500 * 100000000),
+                "funding_amount": hex(Amount.ckb(500)),
                 "public": True,
             }
         )
         self.wait_for_channel_state(
-            self.fiber3.get_client(), self.fiber2.get_peer_id(), "CHANNEL_READY"
+            self.fiber3.get_client(), self.fiber2.get_peer_id(), ChannelState.CHANNEL_READY
         )
 
         invoice = self.fiber3.get_client().new_invoice(
             {
-                "amount": hex(100 * 100000000),
+                "amount": hex(Amount.ckb(100)),
                 "currency": "Fibd",
                 "description": "test invoice generated by node2",
                 "expiry": "0xe10",
@@ -356,7 +336,7 @@ class TestSendPayment(FiberTest):
                 "invoice": invoice["invoice_address"],
             }
         )
-        self.wait_invoice_state(self.fiber3, payment1["payment_hash"], "Paid")
+        self.wait_invoice_state(self.fiber3, payment1["payment_hash"], InvoiceStatus.PAID)
 
         payment1 = self.fiber1.get_client().get_payment(
             {"payment_hash": payment1["payment_hash"]}
@@ -367,40 +347,40 @@ class TestSendPayment(FiberTest):
 
     # @pytest.mark.skip("https://github.com/nervosnetwork/fiber/issues/436")
     def test_send_payment_each_other(self):
-        account_private = self.generate_account(1000)
+        account_private = self.generate_account(Amount.ckb(1000))
         self.fiber3 = self.start_new_fiber(account_private)
         self.fiber3.connect_peer(self.fiber2)
         self.fiber1.get_client().open_channel(
             {
                 "peer_id": self.fiber2.get_peer_id(),
-                "funding_amount": hex(500 * 100000000),
+                "funding_amount": hex(Amount.ckb(500)),
                 "public": True,
             }
         )
         self.wait_for_channel_state(
-            self.fiber1.get_client(), self.fiber2.get_peer_id(), "CHANNEL_READY"
+            self.fiber1.get_client(), self.fiber2.get_peer_id(), ChannelState.CHANNEL_READY
         )
         self.fiber2.get_client().open_channel(
             {
                 "peer_id": self.fiber3.get_peer_id(),
-                "funding_amount": hex(500 * 100000000),
+                "funding_amount": hex(Amount.ckb(500)),
                 "public": True,
             }
         )
         self.wait_for_channel_state(
-            self.fiber3.get_client(), self.fiber2.get_peer_id(), "CHANNEL_READY"
+            self.fiber3.get_client(), self.fiber2.get_peer_id(), ChannelState.CHANNEL_READY
         )
         time.sleep(5)
         payment1 = self.fiber1.get_client().send_payment(
             {
                 "target_pubkey": self.fiber3.get_client().node_info()["node_id"],
                 "currency": "Fibd",
-                "amount": hex(100 * 100000000),
+                "amount": hex(Amount.ckb(100)),
                 "keysend": True,
                 # "payment_hash": self.generate_random_preimage(),
             }
         )
-        self.wait_payment_state(self.fiber1, payment1["payment_hash"], "Success", 30)
+        self.wait_payment_state(self.fiber1, payment1["payment_hash"], PaymentStatus.SUCCESS, Timeout.SHORT)
         time.sleep(1)
         node1_pubkey = self.fiber1.get_client().node_info()["node_id"]
         node3_pubkey = self.fiber3.get_client().node_info()["node_id"]
@@ -426,37 +406,40 @@ class TestSendPayment(FiberTest):
                     # "payment_hash": self.generate_random_preimage(),
                 }
             )
-            self.wait_payment_finished(self.fiber1, payment1["payment_hash"], 20)
-            self.wait_payment_finished(self.fiber3, payment2["payment_hash"], 20)
+            self.wait_payment_finished(self.fiber1, payment1["payment_hash"], Timeout.SHORT)
+            self.wait_payment_finished(self.fiber3, payment2["payment_hash"], Timeout.SHORT)
 
         time.sleep(10)
         self.fiber2.get_client().node_info()
 
-        # self.wait_payment_state(self.fiber1, payment1["payment_hash"], "Success")
+        # self.wait_payment_state(self.fiber1, payment1["payment_hash"], PaymentStatus.SUCCESS)
 
     def test_send_payment_each_other_2(self):
-
+        """
+        Two nodes pay each other repeatedly (keysend); assert all payments succeed.
+        Step 1: Open channel; send one payment each way; then 100 rounds of small keysend each way.
+        """
         self.fiber1.get_client().open_channel(
             {
                 "peer_id": self.fiber2.get_peer_id(),
-                "funding_amount": hex(500 * 100000000),
+                "funding_amount": hex(Amount.ckb(500)),
                 "public": True,
             }
         )
         self.wait_for_channel_state(
-            self.fiber1.get_client(), self.fiber2.get_peer_id(), "CHANNEL_READY"
+            self.fiber1.get_client(), self.fiber2.get_peer_id(), ChannelState.CHANNEL_READY
         )
 
         payment1 = self.fiber1.get_client().send_payment(
             {
                 "target_pubkey": self.fiber2.get_client().node_info()["node_id"],
                 "currency": "Fibd",
-                "amount": hex(1 * 100000000),
+                "amount": hex(Amount.ckb(1)),
                 "keysend": True,
                 # "payment_hash": self.generate_random_preimage(),
             }
         )
-        self.wait_payment_state(self.fiber1, payment1["payment_hash"], "Success")
+        self.wait_payment_state(self.fiber1, payment1["payment_hash"], PaymentStatus.SUCCESS)
         time.sleep(1)
         node1_pubkey = self.fiber1.get_client().node_info()["node_id"]
         node2_pubkey = self.fiber2.get_client().node_info()["node_id"]
@@ -479,45 +462,49 @@ class TestSendPayment(FiberTest):
                     # "payment_hash": self.generate_random_preimage(),
                 }
             )
-            self.wait_payment_state(self.fiber1, payment1["payment_hash"], "Success")
-            self.wait_payment_state(self.fiber2, payment2["payment_hash"], "Success")
+            self.wait_payment_state(
+                self.fiber1, payment1["payment_hash"], PaymentStatus.SUCCESS
+            )
+            self.wait_payment_state(
+                self.fiber2, payment2["payment_hash"], PaymentStatus.SUCCESS
+            )
 
         time.sleep(10)
         self.fiber2.get_client().node_info()
 
-        # self.wait_payment_state(self.fiber1, payment1["payment_hash"], "Success")
+        # self.wait_payment_state(self.fiber1, payment1["payment_hash"], PaymentStatus.SUCCESS)
 
     # @pytest.mark.skip("https://github.com/nervosnetwork/fiber/issues/436")
     def test_send_payment_0x1(self):
-        account_private = self.generate_account(1000)
+        account_private = self.generate_account(Amount.ckb(1000))
         self.fiber3 = self.start_new_fiber(account_private)
         self.fiber3.connect_peer(self.fiber2)
         self.fiber1.get_client().open_channel(
             {
                 "peer_id": self.fiber2.get_peer_id(),
-                "funding_amount": hex(500 * 100000000),
+                "funding_amount": hex(Amount.ckb(500)),
                 "public": True,
             }
         )
         self.wait_for_channel_state(
-            self.fiber1.get_client(), self.fiber2.get_peer_id(), "CHANNEL_READY"
+            self.fiber1.get_client(), self.fiber2.get_peer_id(), ChannelState.CHANNEL_READY
         )
         self.fiber2.get_client().open_channel(
             {
                 "peer_id": self.fiber3.get_peer_id(),
-                "funding_amount": hex(500 * 100000000),
+                "funding_amount": hex(Amount.ckb(500)),
                 "public": True,
             }
         )
         self.wait_for_channel_state(
-            self.fiber3.get_client(), self.fiber2.get_peer_id(), "CHANNEL_READY"
+            self.fiber3.get_client(), self.fiber2.get_peer_id(), ChannelState.CHANNEL_READY
         )
 
         payment1 = self.fiber1.get_client().send_payment(
             {
                 "target_pubkey": self.fiber3.get_client().node_info()["node_id"],
                 "currency": "Fibd",
-                "amount": hex(1 * 100000000),
+                "amount": hex(Amount.ckb(1)),
                 "keysend": True,
                 # "payment_hash": self.generate_random_preimage(),
             }
@@ -554,5 +541,5 @@ class TestSendPayment(FiberTest):
                     # "payment_hash": self.generate_random_preimage(),
                 }
             )
-            self.wait_payment_state(self.fiber1, payment1["payment_hash"], "Success")
+            self.wait_payment_state(self.fiber1, payment1["payment_hash"], PaymentStatus.SUCCESS)
             time.sleep(1)

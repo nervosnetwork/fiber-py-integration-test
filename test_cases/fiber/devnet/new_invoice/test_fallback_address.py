@@ -1,8 +1,13 @@
+"""
+Test cases for new_invoice fallback_address parameter (placeholder for future cases).
+"""
 from framework.basic_fiber import FiberTest
 
 
 class TestFallBackAddress(FiberTest):
-    """"""
+    """
+    Test new_invoice fallback_address: reserved for future test cases.
+    """
 
-    # def test_01(self):
-    #     pass
+    # Placeholder for fallback_address tests when spec is available
+    pass

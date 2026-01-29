@@ -17,7 +17,7 @@ from framework.config import get_tmp_path
 class FiberConfigPath(Enum):
     CURRENT_DEV = (
         "/source/fiber/dev_config_3.yml.j2",
-        "download/fiber/current/fnn",
+        "download/fiber/one_way3/fnn",
     )
 
     CURRENT_DEV_DEBUG = (
@@ -32,7 +32,7 @@ class FiberConfigPath(Enum):
 
     CURRENT_TESTNET = (
         "/source/template/fiber/testnet_config_3.yml.j2",
-        "download/fiber/0.6.1/fnn",
+        "download/fiber/one_way/fnn",
     )
 
     V060_DEV = (
@@ -235,6 +235,6 @@ class Fiber:
         address = (
             node.get_client()
             .node_info()["addresses"][0]
-            .replace("0。0.0.0", "127.0.0.1")
+            .replace("0.0.0.0", "127.0.0.1")
         )
         return self.client.connect_peer({"address": address})

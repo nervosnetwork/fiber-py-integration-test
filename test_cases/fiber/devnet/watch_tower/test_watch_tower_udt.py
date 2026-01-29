@@ -1,14 +1,29 @@
+"""
+Watch tower tests for UDT channels.
+Verifies split-tx and balance behavior when force shutting down UDT channels.
+"""
+
 import time
 
-import pytest
-
 from framework.basic_fiber import FiberTest
+from framework.constants import (
+    Amount,
+    ChannelState,
+    Currency,
+    HashAlgorithm,
+    InvoiceStatus,
+    PaymentStatus,
+)
 
 
 class TestWatchTowerUdt(FiberTest):
+    """
+    Test watch tower behavior with UDT channels.
+    Force shutdown UDT channels, mine split txs, assert CKB/UDT balance deltas.
+    """
+
     start_fiber_config = {"fiber_watchtower_check_interval_seconds": 5}
 
-    # @pytest.mark.skip("手续费不对 ckb 当手续费了")
     def test_node1_shutdown_when_open_and_node2_split_tx(self):
         """
         Test scenario where node1 shuts down when open and node2 splits the transaction.
@@ -34,7 +49,7 @@ class TestWatchTowerUdt(FiberTest):
         self.fiber1.get_client().open_channel(
             {
                 "peer_id": self.fiber2.get_peer_id(),
-                "funding_amount": hex(200 * 100000000),
+                "funding_amount": hex(Amount.ckb(200)),
                 "public": True,
                 "funding_udt_type_script": self.get_account_udt_script(
                     self.fiber1.account_private
@@ -44,7 +59,7 @@ class TestWatchTowerUdt(FiberTest):
 
         # Step 2: Wait for the channel to be in the CHANNEL_READY state
         self.wait_for_channel_state(
-            self.fiber1.get_client(), self.fiber2.get_peer_id(), "CHANNEL_READY"
+            self.fiber1.get_client(), self.fiber2.get_peer_id(), ChannelState.CHANNEL_READY
         )
 
         # Step 3: Shutdown the channel from node1
@@ -87,28 +102,18 @@ class TestWatchTowerUdt(FiberTest):
         tx_hash = self.wait_and_check_tx_pool_fee(1000, False, 1000)
         self.Miner.miner_until_tx_committed(self.node, tx_hash)
         tx_message = self.get_tx_message(tx_hash)
-        print("tx_message:", tx_message)
-
         # Step 12: Assert the capacity and arguments of input and output cells in the transaction message
         self.fiber1.start()
         self.node.getClient().generate_epochs("0x1", 0)
         tx_hash = self.wait_and_check_tx_pool_fee(1000, False, 1000)
         self.Miner.miner_until_tx_committed(self.node, tx_hash)
         tx_message = self.get_tx_message(tx_hash)
-        print("tx_message:", tx_message)
-        # assert tx_message['fee'] < 10000
         after_udt_balances = []
         for fiber in self.fibers:
             after_udt_balances.append(self.get_fiber_balance(fiber))
 
         results = []
         for i in range(len(before_udt_balances)):
-            print(
-                f"ckb:{before_udt_balances[i]['chain']['ckb']} - {after_udt_balances[i]['chain']['ckb']} = {before_udt_balances[i]['chain']['ckb'] - after_udt_balances[i]['chain']['ckb']}"
-            )
-            print(
-                f"udt:{before_udt_balances[i]['chain']['udt']} - {after_udt_balances[i]['chain']['udt']} = {before_udt_balances[i]['chain']['udt'] - after_udt_balances[i]['chain']['udt']}"
-            )
             results.append(
                 {
                     "ckb": before_udt_balances[i]["chain"]["ckb"]
@@ -117,9 +122,9 @@ class TestWatchTowerUdt(FiberTest):
                     - after_udt_balances[i]["chain"]["udt"],
                 }
             )
-        assert abs(results[0]["ckb"] - 100000000) < 10000
+        assert abs(results[0]["ckb"] - Amount.ckb(1)) < 10000
         assert results[0]["udt"] == 0
-        assert abs(results[1]["ckb"] + 100000000) < 10000
+        assert abs(results[1]["ckb"] + Amount.ckb(1)) < 10000
         assert results[1]["udt"] == 0
 
     def test_node2_shutdown_when_open_and_node2_split_tx(self):
@@ -148,7 +153,7 @@ class TestWatchTowerUdt(FiberTest):
         self.fiber1.get_client().open_channel(
             {
                 "peer_id": self.fiber2.get_peer_id(),
-                "funding_amount": hex(200 * 100000000),
+                "funding_amount": hex(Amount.ckb(200)),
                 "public": True,
                 "funding_udt_type_script": self.get_account_udt_script(
                     self.fiber1.account_private
@@ -158,7 +163,7 @@ class TestWatchTowerUdt(FiberTest):
 
         # Step 2: Wait for the channel to be in the CHANNEL_READY state
         self.wait_for_channel_state(
-            self.fiber1.get_client(), self.fiber2.get_peer_id(), "CHANNEL_READY"
+            self.fiber1.get_client(), self.fiber2.get_peer_id(), ChannelState.CHANNEL_READY
         )
 
         # Step 3: Shutdown the channel from node2
@@ -208,20 +213,12 @@ class TestWatchTowerUdt(FiberTest):
         tx_hash = self.wait_and_check_tx_pool_fee(1000, False, 1000)
         self.Miner.miner_until_tx_committed(self.node, tx_hash)
         tx_message = self.get_tx_message(tx_hash)
-        print("tx_message:", tx_message)
-        # assert tx_message['fee'] < 10000
         after_udt_balances = []
         for fiber in self.fibers:
             after_udt_balances.append(self.get_fiber_balance(fiber))
 
         results = []
         for i in range(len(before_udt_balances)):
-            print(
-                f"ckb:{before_udt_balances[i]['chain']['ckb']} - {after_udt_balances[i]['chain']['ckb']} = {before_udt_balances[i]['chain']['ckb'] - after_udt_balances[i]['chain']['ckb']}"
-            )
-            print(
-                f"udt:{before_udt_balances[i]['chain']['udt']} - {after_udt_balances[i]['chain']['udt']} = {before_udt_balances[i]['chain']['udt'] - after_udt_balances[i]['chain']['udt']}"
-            )
             results.append(
                 {
                     "ckb": before_udt_balances[i]["chain"]["ckb"]
@@ -230,10 +227,10 @@ class TestWatchTowerUdt(FiberTest):
                     - after_udt_balances[i]["chain"]["udt"],
                 }
             )
-        assert abs(results[0]["ckb"] - 100000000) < 10000
+        assert abs(results[0]["ckb"] - Amount.ckb(1)) < 10000
         assert results[0]["udt"] == 0
-        assert abs(results[1]["ckb"] + 100000000) < 10000
-        assert results[0]["udt"] == 0
+        assert abs(results[1]["ckb"] + Amount.ckb(1)) < 10000
+        assert results[1]["udt"] == 0
 
     def test_node2_shutdown_when_open_and_node1_split_tx(self):
         """
@@ -261,7 +258,7 @@ class TestWatchTowerUdt(FiberTest):
         self.fiber1.get_client().open_channel(
             {
                 "peer_id": self.fiber2.get_peer_id(),
-                "funding_amount": hex(200 * 100000000),
+                "funding_amount": hex(Amount.ckb(200)),
                 "public": True,
                 "funding_udt_type_script": self.get_account_udt_script(
                     self.fiber1.account_private
@@ -271,7 +268,7 @@ class TestWatchTowerUdt(FiberTest):
 
         # Step 2: Wait for the channel to be in the CHANNEL_READY state
         self.wait_for_channel_state(
-            self.fiber1.get_client(), self.fiber2.get_peer_id(), "CHANNEL_READY"
+            self.fiber1.get_client(), self.fiber2.get_peer_id(), ChannelState.CHANNEL_READY
         )
 
         # Step 3: Shutdown the channel from node2
@@ -321,20 +318,12 @@ class TestWatchTowerUdt(FiberTest):
         tx_hash = self.wait_and_check_tx_pool_fee(1000, False, 1000)
         self.Miner.miner_until_tx_committed(self.node, tx_hash)
         tx_message = self.get_tx_message(tx_hash)
-        print("tx_message:", tx_message)
-        # assert tx_message['fee'] < 10000
         after_udt_balances = []
         for fiber in self.fibers:
             after_udt_balances.append(self.get_fiber_balance(fiber))
 
         results = []
         for i in range(len(before_udt_balances)):
-            print(
-                f"ckb:{before_udt_balances[i]['chain']['ckb']} - {after_udt_balances[i]['chain']['ckb']} = {before_udt_balances[i]['chain']['ckb'] - after_udt_balances[i]['chain']['ckb']}"
-            )
-            print(
-                f"udt:{before_udt_balances[i]['chain']['udt']} - {after_udt_balances[i]['chain']['udt']} = {before_udt_balances[i]['chain']['udt'] - after_udt_balances[i]['chain']['udt']}"
-            )
             results.append(
                 {
                     "ckb": before_udt_balances[i]["chain"]["ckb"]
@@ -343,19 +332,26 @@ class TestWatchTowerUdt(FiberTest):
                     - after_udt_balances[i]["chain"]["udt"],
                 }
             )
-        assert abs(results[0]["ckb"] + 100000000) < 10000
+        assert abs(results[0]["ckb"] + Amount.ckb(1)) < 10000
         assert results[0]["udt"] == 0
-        assert abs(results[1]["ckb"] - 100000000) < 10000
-        assert results[0]["udt"] == 0
+        assert abs(results[1]["ckb"] - Amount.ckb(1)) < 10000
+        assert results[1]["udt"] == 0
 
     def test_node1_shutdown_when_open_and_node1_split_tx(self):
+        """
+        node1 shuts down when open and node1 splits the tx (UDT channel).
+        Step 1: Open UDT channel, force shutdown, mine; stop node2, generate epochs.
+        Step 2: Wait split tx, mine; restart node2, generate epochs, wait second split.
+        Step 3: Assert CKB and UDT balance deltas.
+        """
         before_udt_balances = []
         for fiber in self.fibers:
             before_udt_balances.append(self.get_fiber_balance(fiber))
+        # Step 1: Open UDT channel, force shutdown, mine; stop node2, generate epochs
         self.fiber1.get_client().open_channel(
             {
                 "peer_id": self.fiber2.get_peer_id(),
-                "funding_amount": hex(200 * 100000000),
+                "funding_amount": hex(Amount.ckb(200)),
                 "public": True,
                 "funding_udt_type_script": self.get_account_udt_script(
                     self.fiber1.account_private
@@ -364,7 +360,7 @@ class TestWatchTowerUdt(FiberTest):
         )
 
         self.wait_for_channel_state(
-            self.fiber1.get_client(), self.fiber2.get_peer_id(), "CHANNEL_READY"
+            self.fiber1.get_client(), self.fiber2.get_peer_id(), ChannelState.CHANNEL_READY
         )
 
         self.fiber1.get_client().shutdown_channel(
@@ -379,44 +375,30 @@ class TestWatchTowerUdt(FiberTest):
         self.Miner.miner_until_tx_committed(self.node, tx)
         for i in range(5):
             self.Miner.miner_with_version(self.node, "0x0")
-        # todo add check
-        # check list_channel
         node1_channel = self.fiber1.get_client().list_channels({})
         node2_channel = self.fiber2.get_client().list_channels({})
-
-        # check node_info
         node1_node_info = self.fiber1.get_client().node_info()
         node2_node_info = self.fiber2.get_client().node_info()
-
-        # check graph_node
         node1_graph_channels = self.fiber1.get_client().graph_channels()
         node2_graph_channels = self.fiber2.get_client().graph_channels()
+        # Step 2: Stop node2, generate epochs, wait split tx, mine; restart node2, second split
         self.fiber2.stop()
         self.node.getClient().generate_epochs("0x1", 0)
         tx_hash = self.wait_and_check_tx_pool_fee(1000, False, 1000)
         self.Miner.miner_until_tx_committed(self.node, tx_hash)
         tx_message = self.get_tx_message(tx_hash)
-        # assert tx_message['input_cells'][0]['capacity'] ==
-        # todo add assert cap
         self.fiber2.start()
         self.node.getClient().generate_epochs("0x1", 0)
         tx_hash = self.wait_and_check_tx_pool_fee(1000, False, 1000)
         self.Miner.miner_until_tx_committed(self.node, tx_hash)
         tx_message = self.get_tx_message(tx_hash)
-        print("tx_message:", tx_message)
-        # assert tx_message['fee'] < 10000
+        # Step 3: Assert CKB and UDT balance deltas
         after_udt_balances = []
         for fiber in self.fibers:
             after_udt_balances.append(self.get_fiber_balance(fiber))
 
         results = []
         for i in range(len(before_udt_balances)):
-            print(
-                f"ckb:{before_udt_balances[i]['chain']['ckb']} - {after_udt_balances[i]['chain']['ckb']} = {before_udt_balances[i]['chain']['ckb'] - after_udt_balances[i]['chain']['ckb']}"
-            )
-            print(
-                f"udt:{before_udt_balances[i]['chain']['udt']} - {after_udt_balances[i]['chain']['udt']} = {before_udt_balances[i]['chain']['udt'] - after_udt_balances[i]['chain']['udt']}"
-            )
             results.append(
                 {
                     "ckb": before_udt_balances[i]["chain"]["ckb"]
@@ -425,9 +407,9 @@ class TestWatchTowerUdt(FiberTest):
                     - after_udt_balances[i]["chain"]["udt"],
                 }
             )
-        assert abs(results[0]["ckb"] + 100000000) < 10000
+        assert abs(results[0]["ckb"] + Amount.ckb(1)) < 10000
         assert results[0]["udt"] == 0
-        assert abs(results[1]["ckb"] - 100000000) < 10000
+        assert abs(results[1]["ckb"] - Amount.ckb(1)) < 10000
         assert results[1]["udt"] == 0
 
     def test_node1_shutdown_after_send_tx1_and_node1_split_tx(self):
@@ -457,7 +439,7 @@ class TestWatchTowerUdt(FiberTest):
         self.fiber1.get_client().open_channel(
             {
                 "peer_id": self.fiber2.get_peer_id(),
-                "funding_amount": hex(200 * 100000000),
+                "funding_amount": hex(Amount.ckb(200)),
                 "public": True,
                 "funding_udt_type_script": self.get_account_udt_script(
                     self.fiber1.account_private
@@ -467,11 +449,11 @@ class TestWatchTowerUdt(FiberTest):
 
         # Step 2: Wait for the channel to be in the CHANNEL_READY state
         self.wait_for_channel_state(
-            self.fiber1.get_client(), self.fiber2.get_peer_id(), "CHANNEL_READY"
+            self.fiber1.get_client(), self.fiber2.get_peer_id(), ChannelState.CHANNEL_READY
         )
 
         # Step 3: Send a payment from node1 to node2
-        self.send_payment(self.fiber1, self.fiber2, 1 * 100000000, True)
+        self.send_payment(self.fiber1, self.fiber2, Amount.ckb(1), True)
 
         # Step 4: Shutdown the channel from node1
         self.fiber1.get_client().shutdown_channel(
@@ -520,20 +502,12 @@ class TestWatchTowerUdt(FiberTest):
         tx_hash = self.wait_and_check_tx_pool_fee(1000, False, 1000)
         self.Miner.miner_until_tx_committed(self.node, tx_hash)
         tx_message = self.get_tx_message(tx_hash)
-        print("tx_message:", tx_message)
-        # assert tx_message['fee'] < 10000
         after_udt_balances = []
         for fiber in self.fibers:
             after_udt_balances.append(self.get_fiber_balance(fiber))
 
         results = []
         for i in range(len(before_udt_balances)):
-            print(
-                f"ckb:{before_udt_balances[i]['chain']['ckb']} - {after_udt_balances[i]['chain']['ckb']} = {before_udt_balances[i]['chain']['ckb'] - after_udt_balances[i]['chain']['ckb']}"
-            )
-            print(
-                f"udt:{before_udt_balances[i]['chain']['udt']} - {after_udt_balances[i]['chain']['udt']} = {before_udt_balances[i]['chain']['udt'] - after_udt_balances[i]['chain']['udt']}"
-            )
             results.append(
                 {
                     "ckb": before_udt_balances[i]["chain"]["ckb"]
@@ -542,10 +516,10 @@ class TestWatchTowerUdt(FiberTest):
                     - after_udt_balances[i]["chain"]["udt"],
                 }
             )
-        assert abs(results[0]["ckb"] + 100000000) < 10000
-        assert results[0]["udt"] == 100000000
-        assert abs(results[1]["ckb"] - 100000000) < 10000
-        assert results[1]["udt"] == -100000000
+        assert abs(results[0]["ckb"] + Amount.ckb(1)) < 10000
+        assert results[0]["udt"] == Amount.udt(1)
+        assert abs(results[1]["ckb"] - Amount.ckb(1)) < 10000
+        assert results[1]["udt"] == -Amount.udt(1)
 
     def test_node1_shutdown_after_send_tx1_and_node2_split_tx(self):
         """
@@ -574,7 +548,7 @@ class TestWatchTowerUdt(FiberTest):
         self.fiber1.get_client().open_channel(
             {
                 "peer_id": self.fiber2.get_peer_id(),
-                "funding_amount": hex(200 * 100000000),
+                "funding_amount": hex(Amount.ckb(200)),
                 "public": True,
                 "funding_udt_type_script": self.get_account_udt_script(
                     self.fiber1.account_private
@@ -584,11 +558,11 @@ class TestWatchTowerUdt(FiberTest):
 
         # Step 2: Wait for the channel to be in the CHANNEL_READY state
         self.wait_for_channel_state(
-            self.fiber1.get_client(), self.fiber2.get_peer_id(), "CHANNEL_READY"
+            self.fiber1.get_client(), self.fiber2.get_peer_id(), ChannelState.CHANNEL_READY
         )
 
         # Step 3: Send a payment from node1 to node2
-        self.send_payment(self.fiber1, self.fiber2, 1 * 100000000, True)
+        self.send_payment(self.fiber1, self.fiber2, Amount.ckb(1), True)
 
         # Step 4: Shutdown the channel from node1
         self.fiber1.get_client().shutdown_channel(
@@ -639,20 +613,12 @@ class TestWatchTowerUdt(FiberTest):
         tx_hash = self.wait_and_check_tx_pool_fee(1000, False, 1000)
         self.Miner.miner_until_tx_committed(self.node, tx_hash)
         tx_message = self.get_tx_message(tx_hash)
-        print("tx_message:", tx_message)
-        # assert tx_message['fee'] < 10000
         after_udt_balances = []
         for fiber in self.fibers:
             after_udt_balances.append(self.get_fiber_balance(fiber))
 
         results = []
         for i in range(len(before_udt_balances)):
-            print(
-                f"ckb:{before_udt_balances[i]['chain']['ckb']} - {after_udt_balances[i]['chain']['ckb']} = {before_udt_balances[i]['chain']['ckb'] - after_udt_balances[i]['chain']['ckb']}"
-            )
-            print(
-                f"udt:{before_udt_balances[i]['chain']['udt']} - {after_udt_balances[i]['chain']['udt']} = {before_udt_balances[i]['chain']['udt'] - after_udt_balances[i]['chain']['udt']}"
-            )
             results.append(
                 {
                     "ckb": before_udt_balances[i]["chain"]["ckb"]
@@ -661,10 +627,10 @@ class TestWatchTowerUdt(FiberTest):
                     - after_udt_balances[i]["chain"]["udt"],
                 }
             )
-        assert abs(results[0]["ckb"] - 100000000) < 10000
-        assert results[0]["udt"] == 100000000
-        assert abs(results[1]["ckb"] + 100000000) < 10000
-        assert results[1]["udt"] == -100000000
+        assert abs(results[0]["ckb"] - Amount.ckb(1)) < 10000
+        assert results[0]["udt"] == Amount.udt(1)
+        assert abs(results[1]["ckb"] + Amount.ckb(1)) < 10000
+        assert results[1]["udt"] == -Amount.udt(1)
 
     def test_node2_shutdown_after_send_tx1_and_node1_split_tx(self):
         """
@@ -692,7 +658,7 @@ class TestWatchTowerUdt(FiberTest):
         self.fiber1.get_client().open_channel(
             {
                 "peer_id": self.fiber2.get_peer_id(),
-                "funding_amount": hex(200 * 100000000),
+                "funding_amount": hex(Amount.ckb(200)),
                 "public": True,
                 "funding_udt_type_script": self.get_account_udt_script(
                     self.fiber1.account_private
@@ -702,11 +668,11 @@ class TestWatchTowerUdt(FiberTest):
 
         # Step 2: Wait for the channel to be in the CHANNEL_READY state
         self.wait_for_channel_state(
-            self.fiber1.get_client(), self.fiber2.get_peer_id(), "CHANNEL_READY"
+            self.fiber1.get_client(), self.fiber2.get_peer_id(), ChannelState.CHANNEL_READY
         )
 
         # Step 3: Send a payment from node1 to node2
-        self.send_payment(self.fiber1, self.fiber2, 1 * 100000000, True)
+        self.send_payment(self.fiber1, self.fiber2, Amount.ckb(1), True)
         time.sleep(1)
 
         # Step 4: Shutdown the channel from node2
@@ -756,20 +722,12 @@ class TestWatchTowerUdt(FiberTest):
         tx_hash = self.wait_and_check_tx_pool_fee(1000, False, 1000)
         self.Miner.miner_until_tx_committed(self.node, tx_hash)
         tx_message = self.get_tx_message(tx_hash)
-        print("tx_message:", tx_message)
-        # assert tx_message['fee'] < 10000
         after_udt_balances = []
         for fiber in self.fibers:
             after_udt_balances.append(self.get_fiber_balance(fiber))
 
         results = []
         for i in range(len(before_udt_balances)):
-            print(
-                f"ckb:{before_udt_balances[i]['chain']['ckb']} - {after_udt_balances[i]['chain']['ckb']} = {before_udt_balances[i]['chain']['ckb'] - after_udt_balances[i]['chain']['ckb']}"
-            )
-            print(
-                f"udt:{before_udt_balances[i]['chain']['udt']} - {after_udt_balances[i]['chain']['udt']} = {before_udt_balances[i]['chain']['udt'] - after_udt_balances[i]['chain']['udt']}"
-            )
             results.append(
                 {
                     "ckb": before_udt_balances[i]["chain"]["ckb"]
@@ -778,10 +736,10 @@ class TestWatchTowerUdt(FiberTest):
                     - after_udt_balances[i]["chain"]["udt"],
                 }
             )
-        assert abs(results[0]["ckb"] + 100000000) < 10000
-        assert results[0]["udt"] == 100000000
-        assert abs(results[1]["ckb"] - 100000000) < 10000
-        assert results[1]["udt"] == -100000000
+        assert abs(results[0]["ckb"] + Amount.ckb(1)) < 10000
+        assert results[0]["udt"] == Amount.udt(1)
+        assert abs(results[1]["ckb"] - Amount.ckb(1)) < 10000
+        assert results[1]["udt"] == -Amount.udt(1)
 
     def test_node2_shutdown_after_send_tx1_and_node2_split_tx(self):
         """
@@ -810,7 +768,7 @@ class TestWatchTowerUdt(FiberTest):
         self.fiber1.get_client().open_channel(
             {
                 "peer_id": self.fiber2.get_peer_id(),
-                "funding_amount": hex(200 * 100000000),
+                "funding_amount": hex(Amount.ckb(200)),
                 "public": True,
                 "funding_udt_type_script": self.get_account_udt_script(
                     self.fiber1.account_private
@@ -820,11 +778,11 @@ class TestWatchTowerUdt(FiberTest):
 
         # Step 2: Wait for the channel to be in the CHANNEL_READY state
         self.wait_for_channel_state(
-            self.fiber1.get_client(), self.fiber2.get_peer_id(), "CHANNEL_READY"
+            self.fiber1.get_client(), self.fiber2.get_peer_id(), ChannelState.CHANNEL_READY
         )
 
         # Step 3: Send a payment from node1 to node2
-        self.send_payment(self.fiber1, self.fiber2, 1 * 100000000, True)
+        self.send_payment(self.fiber1, self.fiber2, Amount.ckb(1), True)
 
         # Step 4: Shutdown the channel from node1
         self.fiber1.get_client().shutdown_channel(
@@ -873,20 +831,12 @@ class TestWatchTowerUdt(FiberTest):
         tx_hash = self.wait_and_check_tx_pool_fee(1000, False, 1000)
         self.Miner.miner_until_tx_committed(self.node, tx_hash)
         tx_message = self.get_tx_message(tx_hash)
-        print("tx_message:", tx_message)
-        # assert tx_message['fee'] < 10000
         after_udt_balances = []
         for fiber in self.fibers:
             after_udt_balances.append(self.get_fiber_balance(fiber))
 
         results = []
         for i in range(len(before_udt_balances)):
-            print(
-                f"ckb:{before_udt_balances[i]['chain']['ckb']} - {after_udt_balances[i]['chain']['ckb']} = {before_udt_balances[i]['chain']['ckb'] - after_udt_balances[i]['chain']['ckb']}"
-            )
-            print(
-                f"udt:{before_udt_balances[i]['chain']['udt']} - {after_udt_balances[i]['chain']['udt']} = {before_udt_balances[i]['chain']['udt'] - after_udt_balances[i]['chain']['udt']}"
-            )
             results.append(
                 {
                     "ckb": before_udt_balances[i]["chain"]["ckb"]
@@ -895,10 +845,10 @@ class TestWatchTowerUdt(FiberTest):
                     - after_udt_balances[i]["chain"]["udt"],
                 }
             )
-        assert abs(results[0]["ckb"] - 100000000) < 10000
-        assert results[0]["udt"] == 100000000
-        assert abs(results[1]["ckb"] + 100000000) < 10000
-        assert results[1]["udt"] == -100000000
+        assert abs(results[0]["ckb"] - Amount.ckb(1)) < 10000
+        assert results[0]["udt"] == Amount.udt(1)
+        assert abs(results[1]["ckb"] + Amount.ckb(1)) < 10000
+        assert results[1]["udt"] == -Amount.udt(1)
 
     def test_node1_shutdown_after_send_tx2_and_node1_split_tx(self):
         """
@@ -927,7 +877,7 @@ class TestWatchTowerUdt(FiberTest):
         self.fiber1.get_client().open_channel(
             {
                 "peer_id": self.fiber2.get_peer_id(),
-                "funding_amount": hex(200 * 100000000),
+                "funding_amount": hex(Amount.ckb(200)),
                 "public": True,
                 "funding_udt_type_script": self.get_account_udt_script(
                     self.fiber1.account_private
@@ -937,12 +887,12 @@ class TestWatchTowerUdt(FiberTest):
 
         # Step 2: Wait for the channel to be in the CHANNEL_READY state
         self.wait_for_channel_state(
-            self.fiber1.get_client(), self.fiber2.get_peer_id(), "CHANNEL_READY"
+            self.fiber1.get_client(), self.fiber2.get_peer_id(), ChannelState.CHANNEL_READY
         )
 
         # Step 3: Send multiple payments between node1 and node2
-        self.send_payment(self.fiber1, self.fiber2, 10 * 100000000, True)
-        self.send_payment(self.fiber2, self.fiber1, 10 * 100000000, True)
+        self.send_payment(self.fiber1, self.fiber2, Amount.ckb(10), True)
+        self.send_payment(self.fiber2, self.fiber1, Amount.ckb(10), True)
         # todo check balance
 
         # Step 4: Shutdown the channel from node1
@@ -994,20 +944,12 @@ class TestWatchTowerUdt(FiberTest):
         tx_hash = self.wait_and_check_tx_pool_fee(1000, False, 1000)
         self.Miner.miner_until_tx_committed(self.node, tx_hash)
         tx_message = self.get_tx_message(tx_hash)
-        print("tx_message:", tx_message)
-        # assert tx_message['fee'] < 10000
         after_udt_balances = []
         for fiber in self.fibers:
             after_udt_balances.append(self.get_fiber_balance(fiber))
 
         results = []
         for i in range(len(before_udt_balances)):
-            print(
-                f"ckb:{before_udt_balances[i]['chain']['ckb']} - {after_udt_balances[i]['chain']['ckb']} = {before_udt_balances[i]['chain']['ckb'] - after_udt_balances[i]['chain']['ckb']}"
-            )
-            print(
-                f"udt:{before_udt_balances[i]['chain']['udt']} - {after_udt_balances[i]['chain']['udt']} = {before_udt_balances[i]['chain']['udt'] - after_udt_balances[i]['chain']['udt']}"
-            )
             results.append(
                 {
                     "ckb": before_udt_balances[i]["chain"]["ckb"]
@@ -1016,9 +958,9 @@ class TestWatchTowerUdt(FiberTest):
                     - after_udt_balances[i]["chain"]["udt"],
                 }
             )
-        assert abs(results[0]["ckb"] + 100000000) < 10000
+        assert abs(results[0]["ckb"] + Amount.ckb(1)) < 10000
         assert results[0]["udt"] == 0
-        assert abs(results[1]["ckb"] - 100000000) < 10000
+        assert abs(results[1]["ckb"] - Amount.ckb(1)) < 10000
         assert results[1]["udt"] == 0
 
     def test_node1_shutdown_after_send_tx2_and_node2_split_tx(self):
@@ -1048,7 +990,7 @@ class TestWatchTowerUdt(FiberTest):
         self.fiber1.get_client().open_channel(
             {
                 "peer_id": self.fiber2.get_peer_id(),
-                "funding_amount": hex(200 * 100000000),
+                "funding_amount": hex(Amount.ckb(200)),
                 "public": True,
                 "funding_udt_type_script": self.get_account_udt_script(
                     self.fiber1.account_private
@@ -1058,12 +1000,12 @@ class TestWatchTowerUdt(FiberTest):
 
         # Step 2: Wait for the channel to be in the CHANNEL_READY state
         self.wait_for_channel_state(
-            self.fiber1.get_client(), self.fiber2.get_peer_id(), "CHANNEL_READY"
+            self.fiber1.get_client(), self.fiber2.get_peer_id(), ChannelState.CHANNEL_READY
         )
 
         # Step 3: Send multiple payments between node1 and node2
-        self.send_payment(self.fiber1, self.fiber2, 1 * 100000000, True)
-        self.send_payment(self.fiber2, self.fiber1, 1 * 100000000, True)
+        self.send_payment(self.fiber1, self.fiber2, Amount.ckb(1), True)
+        self.send_payment(self.fiber2, self.fiber1, Amount.ckb(1), True)
 
         # Step 4: Shutdown the channel from node1
         self.fiber1.get_client().shutdown_channel(
@@ -1114,20 +1056,12 @@ class TestWatchTowerUdt(FiberTest):
         tx_hash = self.wait_and_check_tx_pool_fee(1000, False, 1000)
         self.Miner.miner_until_tx_committed(self.node, tx_hash)
         tx_message = self.get_tx_message(tx_hash)
-        print("tx_message:", tx_message)
-        # assert tx_message['fee'] < 10000
         after_udt_balances = []
         for fiber in self.fibers:
             after_udt_balances.append(self.get_fiber_balance(fiber))
 
         results = []
         for i in range(len(before_udt_balances)):
-            print(
-                f"ckb:{before_udt_balances[i]['chain']['ckb']} - {after_udt_balances[i]['chain']['ckb']} = {before_udt_balances[i]['chain']['ckb'] - after_udt_balances[i]['chain']['ckb']}"
-            )
-            print(
-                f"udt:{before_udt_balances[i]['chain']['udt']} - {after_udt_balances[i]['chain']['udt']} = {before_udt_balances[i]['chain']['udt'] - after_udt_balances[i]['chain']['udt']}"
-            )
             results.append(
                 {
                     "ckb": before_udt_balances[i]["chain"]["ckb"]
@@ -1136,9 +1070,9 @@ class TestWatchTowerUdt(FiberTest):
                     - after_udt_balances[i]["chain"]["udt"],
                 }
             )
-        assert abs(results[0]["ckb"] - 100000000) < 10000
+        assert abs(results[0]["ckb"] - Amount.ckb(1)) < 10000
         assert results[0]["udt"] == 0
-        assert abs(results[1]["ckb"] + 100000000) < 10000
+        assert abs(results[1]["ckb"] + Amount.ckb(1)) < 10000
         assert results[1]["udt"] == 0
 
     def test_node2_shutdown_after_send_tx2_and_node1_split_tx(self):
@@ -1168,7 +1102,7 @@ class TestWatchTowerUdt(FiberTest):
         self.fiber1.get_client().open_channel(
             {
                 "peer_id": self.fiber2.get_peer_id(),
-                "funding_amount": hex(200 * 100000000),
+                "funding_amount": hex(Amount.ckb(200)),
                 "public": True,
                 "funding_udt_type_script": self.get_account_udt_script(
                     self.fiber1.account_private
@@ -1178,12 +1112,12 @@ class TestWatchTowerUdt(FiberTest):
 
         # Step 2: Wait for the channel to be in the CHANNEL_READY state
         self.wait_for_channel_state(
-            self.fiber1.get_client(), self.fiber2.get_peer_id(), "CHANNEL_READY"
+            self.fiber1.get_client(), self.fiber2.get_peer_id(), ChannelState.CHANNEL_READY
         )
 
         # Step 3: Send multiple payments between node1 and node2
-        self.send_payment(self.fiber1, self.fiber2, 10 * 100000000, True)
-        self.send_payment(self.fiber2, self.fiber1, 10 * 100000000, True)
+        self.send_payment(self.fiber1, self.fiber2, Amount.ckb(10), True)
+        self.send_payment(self.fiber2, self.fiber1, Amount.ckb(10), True)
         # todo check balance
 
         # Step 4: Shutdown the channel from node2
@@ -1233,20 +1167,12 @@ class TestWatchTowerUdt(FiberTest):
         tx_hash = self.wait_and_check_tx_pool_fee(1000, False, 1000)
         self.Miner.miner_until_tx_committed(self.node, tx_hash)
         tx_message = self.get_tx_message(tx_hash)
-        print("tx_message:", tx_message)
-        # assert tx_message['fee'] < 10000
         after_udt_balances = []
         for fiber in self.fibers:
             after_udt_balances.append(self.get_fiber_balance(fiber))
 
         results = []
         for i in range(len(before_udt_balances)):
-            print(
-                f"ckb:{before_udt_balances[i]['chain']['ckb']} - {after_udt_balances[i]['chain']['ckb']} = {before_udt_balances[i]['chain']['ckb'] - after_udt_balances[i]['chain']['ckb']}"
-            )
-            print(
-                f"udt:{before_udt_balances[i]['chain']['udt']} - {after_udt_balances[i]['chain']['udt']} = {before_udt_balances[i]['chain']['udt'] - after_udt_balances[i]['chain']['udt']}"
-            )
             results.append(
                 {
                     "ckb": before_udt_balances[i]["chain"]["ckb"]
@@ -1255,9 +1181,9 @@ class TestWatchTowerUdt(FiberTest):
                     - after_udt_balances[i]["chain"]["udt"],
                 }
             )
-        assert abs(results[0]["ckb"] - 100000000) < 10000
+        assert abs(results[0]["ckb"] - Amount.ckb(1)) < 10000
         assert results[0]["udt"] == 0
-        assert abs(results[1]["ckb"] + 100000000) < 10000
+        assert abs(results[1]["ckb"] + Amount.ckb(1)) < 10000
         assert results[1]["udt"] == 0
 
     def test_node2_shutdown_after_send_tx2_and_node2_split_tx(self):
@@ -1287,7 +1213,7 @@ class TestWatchTowerUdt(FiberTest):
         self.fiber1.get_client().open_channel(
             {
                 "peer_id": self.fiber2.get_peer_id(),
-                "funding_amount": hex(200 * 100000000),
+                "funding_amount": hex(Amount.ckb(200)),
                 "public": True,
                 "funding_udt_type_script": self.get_account_udt_script(
                     self.fiber1.account_private
@@ -1297,12 +1223,12 @@ class TestWatchTowerUdt(FiberTest):
 
         # Step 2: Wait for the channel to be in the CHANNEL_READY state
         self.wait_for_channel_state(
-            self.fiber1.get_client(), self.fiber2.get_peer_id(), "CHANNEL_READY"
+            self.fiber1.get_client(), self.fiber2.get_peer_id(), ChannelState.CHANNEL_READY
         )
 
         # Step 3: Send multiple payments between node1 and node2
-        self.send_payment(self.fiber1, self.fiber2, 1 * 100000000, True)
-        self.send_payment(self.fiber2, self.fiber1, 1 * 100000000, True)
+        self.send_payment(self.fiber1, self.fiber2, Amount.ckb(1), True)
+        self.send_payment(self.fiber2, self.fiber1, Amount.ckb(1), True)
         time.sleep(1)
 
         # Step 4: Shutdown the channel from node1
@@ -1352,20 +1278,12 @@ class TestWatchTowerUdt(FiberTest):
         tx_hash = self.wait_and_check_tx_pool_fee(1000, False, 1000)
         self.Miner.miner_until_tx_committed(self.node, tx_hash)
         tx_message = self.get_tx_message(tx_hash)
-        print("tx_message:", tx_message)
-        # assert tx_message['fee'] < 10000
         after_udt_balances = []
         for fiber in self.fibers:
             after_udt_balances.append(self.get_fiber_balance(fiber))
 
         results = []
         for i in range(len(before_udt_balances)):
-            print(
-                f"ckb:{before_udt_balances[i]['chain']['ckb']} - {after_udt_balances[i]['chain']['ckb']} = {before_udt_balances[i]['chain']['ckb'] - after_udt_balances[i]['chain']['ckb']}"
-            )
-            print(
-                f"udt:{before_udt_balances[i]['chain']['udt']} - {after_udt_balances[i]['chain']['udt']} = {before_udt_balances[i]['chain']['udt'] - after_udt_balances[i]['chain']['udt']}"
-            )
             results.append(
                 {
                     "ckb": before_udt_balances[i]["chain"]["ckb"]
@@ -1374,9 +1292,9 @@ class TestWatchTowerUdt(FiberTest):
                     - after_udt_balances[i]["chain"]["udt"],
                 }
             )
-        assert abs(results[0]["ckb"] - 100000000) < 10000
+        assert abs(results[0]["ckb"] - Amount.ckb(1)) < 10000
         assert results[0]["udt"] == 0
-        assert abs(results[1]["ckb"] + 100000000) < 10000
+        assert abs(results[1]["ckb"] + Amount.ckb(1)) < 10000
         assert results[1]["udt"] == 0
 
     def test_node1_shutdown_after_send_txN_and_node1_split_tx(self):
@@ -1405,7 +1323,7 @@ class TestWatchTowerUdt(FiberTest):
         self.fiber1.get_client().open_channel(
             {
                 "peer_id": self.fiber2.get_peer_id(),
-                "funding_amount": hex(200 * 100000000),
+                "funding_amount": hex(Amount.ckb(200)),
                 "public": True,
                 "funding_udt_type_script": self.get_account_udt_script(
                     self.fiber1.account_private
@@ -1415,12 +1333,12 @@ class TestWatchTowerUdt(FiberTest):
 
         # Step 2: Wait for the channel to be in the CHANNEL_READY state
         self.wait_for_channel_state(
-            self.fiber1.get_client(), self.fiber2.get_peer_id(), "CHANNEL_READY"
+            self.fiber1.get_client(), self.fiber2.get_peer_id(), ChannelState.CHANNEL_READY
         )
 
         # Step 3: Send multiple payments from node1 to node2
         for i in range(10):
-            self.send_payment(self.fiber1, self.fiber2, 1 * 100000000, True)
+            self.send_payment(self.fiber1, self.fiber2, Amount.ckb(1), True)
 
         # Step 4: Shutdown the channel from node1
         self.fiber1.get_client().shutdown_channel(
@@ -1469,20 +1387,12 @@ class TestWatchTowerUdt(FiberTest):
         tx_hash = self.wait_and_check_tx_pool_fee(1000, False, 1000)
         self.Miner.miner_until_tx_committed(self.node, tx_hash)
         tx_message = self.get_tx_message(tx_hash)
-        print("tx_message:", tx_message)
-        # assert tx_message['fee'] < 10000
         after_udt_balances = []
         for fiber in self.fibers:
             after_udt_balances.append(self.get_fiber_balance(fiber))
 
         results = []
         for i in range(len(before_udt_balances)):
-            print(
-                f"ckb:{before_udt_balances[i]['chain']['ckb']} - {after_udt_balances[i]['chain']['ckb']} = {before_udt_balances[i]['chain']['ckb'] - after_udt_balances[i]['chain']['ckb']}"
-            )
-            print(
-                f"udt:{before_udt_balances[i]['chain']['udt']} - {after_udt_balances[i]['chain']['udt']} = {before_udt_balances[i]['chain']['udt'] - after_udt_balances[i]['chain']['udt']}"
-            )
             results.append(
                 {
                     "ckb": before_udt_balances[i]["chain"]["ckb"]
@@ -1491,10 +1401,10 @@ class TestWatchTowerUdt(FiberTest):
                     - after_udt_balances[i]["chain"]["udt"],
                 }
             )
-        assert abs(results[0]["ckb"] + 100000000) < 10000
-        assert results[0]["udt"] == 1000000000
-        assert abs(results[1]["ckb"] - 100000000) < 10000
-        assert results[1]["udt"] == -1000000000
+        assert abs(results[0]["ckb"] + Amount.ckb(1)) < 10000
+        assert results[0]["udt"] == Amount.udt(10)
+        assert abs(results[1]["ckb"] - Amount.ckb(1)) < 10000
+        assert results[1]["udt"] == -Amount.udt(10)
 
     def test_node2_shutdown_after_send_txN_and_node1_split_tx(self):
         """
@@ -1523,7 +1433,7 @@ class TestWatchTowerUdt(FiberTest):
         self.fiber1.get_client().open_channel(
             {
                 "peer_id": self.fiber2.get_peer_id(),
-                "funding_amount": hex(200 * 100000000),
+                "funding_amount": hex(Amount.ckb(200)),
                 "public": True,
                 "funding_udt_type_script": self.get_account_udt_script(
                     self.fiber1.account_private
@@ -1533,15 +1443,15 @@ class TestWatchTowerUdt(FiberTest):
 
         # Step 2: Wait for the channel to be in the CHANNEL_READY state
         self.wait_for_channel_state(
-            self.fiber1.get_client(), self.fiber2.get_peer_id(), "CHANNEL_READY"
+            self.fiber1.get_client(), self.fiber2.get_peer_id(), ChannelState.CHANNEL_READY
         )
 
         # Step 3: Send multiple payments between node1 and node2
         for i in range(10):
-            self.send_payment(self.fiber1, self.fiber2, 10 * 100000000, True)
-            self.send_payment(self.fiber2, self.fiber1, 10 * 100000000, True)
-        self.send_payment(self.fiber1, self.fiber2, 10 * 100000000, True)
-        self.send_payment(self.fiber2, self.fiber1, 5 * 100000000, True)
+            self.send_payment(self.fiber1, self.fiber2, Amount.ckb(10), True)
+            self.send_payment(self.fiber2, self.fiber1, Amount.ckb(10), True)
+        self.send_payment(self.fiber1, self.fiber2, Amount.ckb(10), True)
+        self.send_payment(self.fiber2, self.fiber1, Amount.ckb(5), True)
         # todo check balance
 
         # Step 4: Shutdown the channel from node2
@@ -1593,20 +1503,12 @@ class TestWatchTowerUdt(FiberTest):
         tx_hash = self.wait_and_check_tx_pool_fee(1000, False, 1000)
         self.Miner.miner_until_tx_committed(self.node, tx_hash)
         tx_message = self.get_tx_message(tx_hash)
-        print("tx_message:", tx_message)
-        # assert tx_message['fee'] < 10000
         after_udt_balances = []
         for fiber in self.fibers:
             after_udt_balances.append(self.get_fiber_balance(fiber))
 
         results = []
         for i in range(len(before_udt_balances)):
-            print(
-                f"ckb:{before_udt_balances[i]['chain']['ckb']} - {after_udt_balances[i]['chain']['ckb']} = {before_udt_balances[i]['chain']['ckb'] - after_udt_balances[i]['chain']['ckb']}"
-            )
-            print(
-                f"udt:{before_udt_balances[i]['chain']['udt']} - {after_udt_balances[i]['chain']['udt']} = {before_udt_balances[i]['chain']['udt'] - after_udt_balances[i]['chain']['udt']}"
-            )
             results.append(
                 {
                     "ckb": before_udt_balances[i]["chain"]["ckb"]
@@ -1615,22 +1517,22 @@ class TestWatchTowerUdt(FiberTest):
                     - after_udt_balances[i]["chain"]["udt"],
                 }
             )
-        assert abs(results[0]["ckb"] - 100000000) < 10000
-        assert results[0]["udt"] == 5 * 100000000
-        assert abs(results[1]["ckb"] + 100000000) < 10000
-        assert results[1]["udt"] == -5 * 100000000
+        assert abs(results[0]["ckb"] - Amount.ckb(1)) < 10000
+        assert results[0]["udt"] == Amount.udt(5)
+        assert abs(results[1]["ckb"] + Amount.ckb(1)) < 10000
+        assert results[1]["udt"] == -Amount.udt(5)
 
     def send_payment(self, src_fiber, to_fiber, amount, key_send=False):
         if not key_send:
             invoice_address = to_fiber.get_client().new_invoice(
                 {
                     "amount": hex(amount),
-                    "currency": "Fibd",
+                    "currency": Currency.FIBD,
                     "description": "test invoice generated by node2",
                     "expiry": "0xe10",
                     "final_cltv": "0x28",
                     "payment_preimage": self.generate_random_preimage(),
-                    "hash_algorithm": "sha256",
+                    "hash_algorithm": HashAlgorithm.SHA256,
                     "udt_type_script": self.get_account_udt_script(
                         self.fiber1.account_private
                     ),
@@ -1650,8 +1552,8 @@ class TestWatchTowerUdt(FiberTest):
                     "invoice": invoice_address,
                 }
             )
-            self.wait_payment_state(src_fiber, payment["payment_hash"], "Success")
-            self.wait_invoice_state(to_fiber, payment["payment_hash"], "Paid")
+            self.wait_payment_state(src_fiber, payment["payment_hash"], PaymentStatus.SUCCESS)
+            self.wait_invoice_state(to_fiber, payment["payment_hash"], InvoiceStatus.PAID)
             return payment["payment_hash"]
         payment = src_fiber.get_client().send_payment(
             {
@@ -1663,5 +1565,5 @@ class TestWatchTowerUdt(FiberTest):
                 ),
             }
         )
-        self.wait_payment_state(src_fiber, payment["payment_hash"], "Success")
+        self.wait_payment_state(src_fiber, payment["payment_hash"], PaymentStatus.SUCCESS)
         return payment["payment_hash"]

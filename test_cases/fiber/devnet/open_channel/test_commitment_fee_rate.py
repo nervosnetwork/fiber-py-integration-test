@@ -1,28 +1,37 @@
-import time
-
+"""
+Test open_channel commitment_fee_rate: validation and fee behavior.
+"""
 import pytest
 
 from framework.basic_fiber import FiberTest
+from framework.constants import (
+    Amount,
+    ChannelState,
+    Currency,
+    FeeRate,
+    PaymentStatus,
+    Timeout,
+)
 
 
 class TestCommitmentFeeRate(FiberTest):
+    """
+    Test open_channel commitment_fee_rate: too large, zero, below min, default and custom rate.
+    """
 
     def test_commitment_fee_rate_very_big(self):
         """
-        commitment_fee_rate == int.max
-        Returns:
-
-            TODO : 思考commit ment fee 的测试用例
+        commitment_fee_rate equal to int.max should be rejected (larger than half of reserved fee).
+        Step 1: Call open_channel with commitment_fee_rate hex(2^64-1).
+        Step 2: Assert error message contains expected substring.
         """
-
         with pytest.raises(Exception) as exc_info:
-            temporary_channel_id = self.fiber1.get_client().open_channel(
+            self.fiber1.get_client().open_channel(
                 {
                     "peer_id": self.fiber2.get_peer_id(),
-                    "funding_amount": hex(200 * 100000000),
+                    "funding_amount": hex(Amount.ckb(200)),
                     "public": True,
                     "commitment_fee_rate": hex(18446744073709551615),
-                    # "tlc_fee_proportional_millionths": "0x4B0",
                 }
             )
         expected_error_message = "is larger than half of reserved fee 100000000"
@@ -31,26 +40,19 @@ class TestCommitmentFeeRate(FiberTest):
             f"not found in actual string '{exc_info.value.args[0]}'"
         )
 
-    # @pytest.mark.skip("todo")
-    # def test_commitment_fee_rate_exist(self):
-    #     """
-    #     commitment_fee_rate != default.value
-    #     Returns:
-    #     """
-
     def test_commitment_fee_rate_zero(self):
         """
-        commitment_fee_rate == 0
-        Returns:
+        commitment_fee_rate equal to 0 should be rejected.
+        Step 1: Call open_channel with commitment_fee_rate hex(0).
+        Step 2: Assert error message contains "Commitment fee rate is less than 1000".
         """
         with pytest.raises(Exception) as exc_info:
-            temporary_channel_id = self.fiber1.get_client().open_channel(
+            self.fiber1.get_client().open_channel(
                 {
                     "peer_id": self.fiber2.get_peer_id(),
-                    "funding_amount": hex(200 * 100000000),
+                    "funding_amount": hex(Amount.ckb(200)),
                     "public": True,
                     "commitment_fee_rate": hex(0),
-                    # "tlc_fee_proportional_millionths": "0x4B0",
                 }
             )
         expected_error_message = "Commitment fee rate is less than 1000"
@@ -61,20 +63,17 @@ class TestCommitmentFeeRate(FiberTest):
 
     def test_commitment_fee_rate_is_1(self):
         """
-         commitment_fee_rate == 1
-        Returns:
-        Returns:
-
+        commitment_fee_rate equal to 1 should be rejected (below min 1000).
+        Step 1: Call open_channel with commitment_fee_rate hex(1).
+        Step 2: Assert error message contains "Commitment fee rate is less than 1000".
         """
-
         with pytest.raises(Exception) as exc_info:
-            temporary_channel_id = self.fiber1.get_client().open_channel(
+            self.fiber1.get_client().open_channel(
                 {
                     "peer_id": self.fiber2.get_peer_id(),
-                    "funding_amount": hex(200 * 100000000),
+                    "funding_amount": hex(Amount.ckb(200)),
                     "public": True,
                     "commitment_fee_rate": hex(1),
-                    # "tlc_fee_proportional_millionths": "0x4B0",
                 }
             )
         expected_error_message = "Commitment fee rate is less than 1000"
@@ -83,33 +82,33 @@ class TestCommitmentFeeRate(FiberTest):
             f"not found in actual string '{exc_info.value.args[0]}'"
         )
 
-    # @pytest.mark.skip("commitment_fee_rate 不准确")
     def test_check_commitment_fee_rate_is_none(self):
         """
-
-        Returns:
-
+        Open channel without commitment_fee_rate (default), send payment, shutdown.
+        Step 1: Open channel with default commitment_fee_rate, wait CHANNEL_READY.
+        Step 2: Create invoice and send payment, wait success.
+        Step 3: Assert local_balance decrease equals invoice amount.
+        Step 4: Shutdown channel and wait tx pool.
         """
-        default_commitment_fee_rate = self.fiber1.get_client().node_info()
-        temporary_channel_id = self.fiber1.get_client().open_channel(
+        self.fiber1.get_client().open_channel(
             {
                 "peer_id": self.fiber2.get_peer_id(),
-                "funding_amount": hex(200 * 100000000),
+                "funding_amount": hex(Amount.ckb(200)),
                 "public": True,
-                # "commitment_fee_rate": hex(commitment_fee_rate),
             }
         )
         self.wait_for_channel_state(
-            self.fiber1.get_client(), self.fiber2.get_peer_id(), "CHANNEL_READY", 120
+            self.fiber1.get_client(),
+            self.fiber2.get_peer_id(),
+            ChannelState.CHANNEL_READY,
+            timeout=Timeout.CHANNEL_READY,
         )
-
-        # transfer
         payment_preimage = self.generate_random_preimage()
-        invoice_balance = 100 * 100000000
+        invoice_balance = Amount.ckb(100)
         invoice = self.fiber2.get_client().new_invoice(
             {
                 "amount": hex(invoice_balance),
-                "currency": "Fibd",
+                "currency": Currency.FIBD,
                 "description": "test invoice generated by node2",
                 "expiry": "0xe10",
                 "final_cltv": "0x28",
@@ -118,61 +117,58 @@ class TestCommitmentFeeRate(FiberTest):
             }
         )
         before_channel = self.fiber1.get_client().list_channels({})
-
         payment = self.fiber1.get_client().send_payment(
-            {
-                "invoice": invoice["invoice_address"],
-            }
+            {"invoice": invoice["invoice_address"]}
         )
-        self.wait_payment_state(self.fiber1, payment["payment_hash"], "Success")
+        self.wait_payment_state(
+            self.fiber1,
+            payment["payment_hash"],
+            PaymentStatus.SUCCESS,
+            timeout=Timeout.LONG,
+        )
         after_channel = self.fiber1.get_client().list_channels({})
         assert (
             int(before_channel["channels"][0]["local_balance"], 16)
             - int(after_channel["channels"][0]["local_balance"], 16)
             == invoice_balance
         )
-
         channels = self.fiber1.get_client().list_channels(
             {"peer_id": self.fiber2.get_peer_id()}
         )
-        N1N2_CHANNEL_ID = channels["channels"][0]["channel_id"]
-        self.fiber1.get_client().graph_channels()
-
-        # shut down
+        channel_id = channels["channels"][0]["channel_id"]
         self.fiber1.get_client().shutdown_channel(
-            {
-                "channel_id": N1N2_CHANNEL_ID,
-                "force": True,
-            }
+            {"channel_id": channel_id, "force": True}
         )
-        self.wait_and_check_tx_pool_fee(1000)
+        self.wait_and_check_tx_pool_fee(FeeRate.DEFAULT)
 
-    # @pytest.mark.skip("commitment_fee_rate 不准确")
     def test_check_commitment_fee_rate(self):
         """
-        验证我方的commit fee
-        Returns:
+        Open channel with custom commitment_fee_rate 2000, send payment, shutdown and check fee.
+        Step 1: Open channel with commitment_fee_rate 2000, wait CHANNEL_READY.
+        Step 2: Send payment, assert balance change.
+        Step 3: Shutdown and wait_and_check_tx_pool_fee(commitment_fee_rate).
         """
-        commitment_fee_rate = 2000
-        temporary_channel_id = self.fiber1.get_client().open_channel(
+        commitment_fee_rate = FeeRate.MEDIUM
+        self.fiber1.get_client().open_channel(
             {
                 "peer_id": self.fiber2.get_peer_id(),
-                "funding_amount": hex(200 * 100000000),
+                "funding_amount": hex(Amount.ckb(200)),
                 "public": True,
                 "commitment_fee_rate": hex(commitment_fee_rate),
             }
         )
         self.wait_for_channel_state(
-            self.fiber1.get_client(), self.fiber2.get_peer_id(), "CHANNEL_READY", 120
+            self.fiber1.get_client(),
+            self.fiber2.get_peer_id(),
+            ChannelState.CHANNEL_READY,
+            timeout=Timeout.CHANNEL_READY,
         )
-
-        # transfer
         payment_preimage = self.generate_random_preimage()
-        invoice_balance = 100 * 100000000
+        invoice_balance = Amount.ckb(100)
         invoice = self.fiber2.get_client().new_invoice(
             {
                 "amount": hex(invoice_balance),
-                "currency": "Fibd",
+                "currency": Currency.FIBD,
                 "description": "test invoice generated by node2",
                 "expiry": "0xe10",
                 "final_cltv": "0x28",
@@ -181,59 +177,58 @@ class TestCommitmentFeeRate(FiberTest):
             }
         )
         before_channel = self.fiber1.get_client().list_channels({})
-
         payment = self.fiber1.get_client().send_payment(
-            {
-                "invoice": invoice["invoice_address"],
-            }
+            {"invoice": invoice["invoice_address"]}
         )
-        self.wait_payment_state(self.fiber1, payment["payment_hash"], "Success")
+        self.wait_payment_state(
+            self.fiber1,
+            payment["payment_hash"],
+            PaymentStatus.SUCCESS,
+            timeout=Timeout.LONG,
+        )
         after_channel = self.fiber1.get_client().list_channels({})
         assert (
             int(before_channel["channels"][0]["local_balance"], 16)
             - int(after_channel["channels"][0]["local_balance"], 16)
             == invoice_balance
         )
-
         channels = self.fiber1.get_client().list_channels(
             {"peer_id": self.fiber2.get_peer_id()}
         )
-        N1N2_CHANNEL_ID = channels["channels"][0]["channel_id"]
-        self.fiber1.get_client().graph_channels()
-
-        # shut down
+        channel_id = channels["channels"][0]["channel_id"]
         self.fiber1.get_client().shutdown_channel(
-            {
-                "channel_id": N1N2_CHANNEL_ID,
-                "force": True,
-            }
+            {"channel_id": channel_id, "force": True}
         )
         self.wait_and_check_tx_pool_fee(commitment_fee_rate)
 
     def test_other_node_check_commitment_fee_rate(self):
         """
-        Returns:
+        Open channel with high commitment_fee_rate, send payment, remote shutdown and assert tx fee.
+        Step 1: Open channel with commitment_fee_rate 21978021, wait CHANNEL_READY.
+        Step 2: Send payment, wait success, assert balance change.
+        Step 3: fiber2 shutdown channel, wait tx, assert fee equals expected.
         """
         commitment_fee_rate = 21978021
-        temporary_channel_id = self.fiber1.get_client().open_channel(
+        self.fiber1.get_client().open_channel(
             {
                 "peer_id": self.fiber2.get_peer_id(),
-                "funding_amount": hex(200 * 100000000),
+                "funding_amount": hex(Amount.ckb(200)),
                 "public": True,
                 "commitment_fee_rate": hex(commitment_fee_rate),
             }
         )
         self.wait_for_channel_state(
-            self.fiber1.get_client(), self.fiber2.get_peer_id(), "CHANNEL_READY", 120
+            self.fiber1.get_client(),
+            self.fiber2.get_peer_id(),
+            ChannelState.CHANNEL_READY,
+            timeout=Timeout.CHANNEL_READY,
         )
-
-        # transfer
         payment_preimage = self.generate_random_preimage()
-        invoice_balance = 100 * 100000000
+        invoice_balance = Amount.ckb(100)
         invoice = self.fiber2.get_client().new_invoice(
             {
                 "amount": hex(invoice_balance),
-                "currency": "Fibd",
+                "currency": Currency.FIBD,
                 "description": "test invoice generated by node2",
                 "expiry": "0xe10",
                 "final_cltv": "0x28",
@@ -242,34 +237,29 @@ class TestCommitmentFeeRate(FiberTest):
             }
         )
         before_channel = self.fiber1.get_client().list_channels({})
-
         payment = self.fiber1.get_client().send_payment(
-            {
-                "invoice": invoice["invoice_address"],
-            }
+            {"invoice": invoice["invoice_address"]}
         )
-        self.wait_payment_state(self.fiber1, payment["payment_hash"], "Success")
+        self.wait_payment_state(
+            self.fiber1,
+            payment["payment_hash"],
+            PaymentStatus.SUCCESS,
+            timeout=Timeout.LONG,
+        )
         after_channel = self.fiber1.get_client().list_channels({})
         assert (
             int(before_channel["channels"][0]["local_balance"], 16)
             - int(after_channel["channels"][0]["local_balance"], 16)
             == invoice_balance
         )
-
         channels = self.fiber1.get_client().list_channels(
             {"peer_id": self.fiber2.get_peer_id()}
         )
-        N1N2_CHANNEL_ID = channels["channels"][0]["channel_id"]
-        self.fiber1.get_client().graph_channels()
-
-        # shut down
+        channel_id = channels["channels"][0]["channel_id"]
         self.fiber2.get_client().shutdown_channel(
-            {
-                "channel_id": N1N2_CHANNEL_ID,
-                "force": True,
-            }
+            {"channel_id": channel_id, "force": True}
         )
-        tx_hash = self.wait_and_check_tx_pool_fee(1000, False, 100)
+        tx_hash = self.wait_and_check_tx_pool_fee(FeeRate.DEFAULT, False, 100)
         self.Miner.miner_until_tx_committed(self.node, tx_hash)
         tx_message = self.get_tx_message(tx_hash)
         assert tx_message["fee"] == 10021977
