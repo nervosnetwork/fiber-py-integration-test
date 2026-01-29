@@ -240,21 +240,21 @@
 
 - [x] `test_cases/fiber/devnet/send_payment/offline/test_disconnect.py`
 - [x] `test_cases/fiber/devnet/send_payment/offline/test_disconnect1.py`
-- [ ] `test_cases/fiber/devnet/send_payment/offline/test_force_restart.py`
-- [ ] `test_cases/fiber/devnet/send_payment/offline/test_restart.py`
-- [ ] `test_cases/fiber/devnet/send_payment/offline/test_send_payment_with_stop.py`
-- [ ] `test_cases/fiber/devnet/send_payment/offline/test_stop_mid_node.py`
+- [x] `test_cases/fiber/devnet/send_payment/offline/test_force_restart.py`
+- [x] `test_cases/fiber/devnet/send_payment/offline/test_restart.py`
+- [x] `test_cases/fiber/devnet/send_payment/offline/test_send_payment_with_stop.py`
+- [x] `test_cases/fiber/devnet/send_payment/offline/test_stop_mid_node.py`
 
 ### 25.7 send_payment/other_tlc (1 个文件)
 
-- [ ] `test_cases/fiber/devnet/send_payment/other_tlc/test_other_tlc.py`
+- [x] `test_cases/fiber/devnet/send_payment/other_tlc/test_other_tlc.py`
 
 ### 25.8 send_payment/params (14 个文件)
 
-- [ ] `test_cases/fiber/devnet/send_payment/params/test_allow_self_payment.py`
-- [ ] `test_cases/fiber/devnet/send_payment/params/test_amount.py`
-- [ ] `test_cases/fiber/devnet/send_payment/params/test_custom_records.py`
-- [ ] `test_cases/fiber/devnet/send_payment/params/test_dry_run.py`
+- [x] `test_cases/fiber/devnet/send_payment/params/test_allow_self_payment.py`
+- [x] `test_cases/fiber/devnet/send_payment/params/test_amount.py`
+- [x] `test_cases/fiber/devnet/send_payment/params/test_custom_records.py`
+- [x] `test_cases/fiber/devnet/send_payment/params/test_dry_run.py`
 - [ ] `test_cases/fiber/devnet/send_payment/params/test_fee.py`
 - [ ] `test_cases/fiber/devnet/send_payment/params/test_final_tlc_expiry_delta.py`
 - [ ] `test_cases/fiber/devnet/send_payment/params/test_hophint.py`

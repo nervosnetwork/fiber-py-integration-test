@@ -1,61 +1,62 @@
+"""
+Test cases for send_payment amount parameter: zero, min, max, overflow, UDT.
+"""
 import time
 
 import pytest
 
 from framework.basic_fiber import FiberTest
+from framework.constants import (
+    Amount,
+    ChannelState,
+    PaymentStatus,
+)
 
 
 class TestAmount(FiberTest):
+    """
+    Test send_payment amount validation and behavior: zero, min, local_balance, overflow, UDT.
+    """
 
     def test_ckb(self):
         """
-        10 亿的chanel
-
-        1. send zero to n2
-        2. send zero to n3
-
-        3. send 1 to n2
-        4. send 1 to n3
-
-        5. send local_balance to n2
-        6. send local_balance to n3
-
-        7. send amount > local_balance to n2
-        8. send amount > local_balance to n3
-
-        9. send u128 max to node2
-        10. send  u128 max to node3
-
-        Returns:
-
+        CKB amount validation: zero rejected, min accepted, local_balance/1.001 max.
+        Step 1: Build fiber1->fiber2->fiber3 topology with large channels.
+        Step 2: Assert amount=0 rejected.
+        Step 3: Assert amount=1 accepted (dry_run).
+        Step 4: Assert amount near local_balance/1.001 accepted for fiber2; local_balance/1.002001 for fiber3.
+        Step 5: Send payment with amount local_balance/1.00101; assert success.
         """
+        # Step 1: Build fiber1->fiber2->fiber3 topology with large channels
         self.fiber3 = self.start_new_fiber(self.generate_account(1000))
         self.fiber3.connect_peer(self.fiber2)
-        # open very big channel for n1-n2
         self.fiber1.get_client().open_channel(
             {
                 "peer_id": self.fiber2.get_peer_id(),
-                "funding_amount": hex((1000000000 - 36) * 100000000),
+                "funding_amount": hex((1_000_000_000 - 36) * Amount.CKB),
                 "public": True,
             }
         )
         self.wait_for_channel_state(
-            self.fiber1.get_client(), self.fiber2.get_peer_id(), "CHANNEL_READY"
+            self.fiber1.get_client(),
+            self.fiber2.get_peer_id(),
+            ChannelState.CHANNEL_READY,
         )
-        # open very big channel for n2-n3
         self.fiber2.get_client().open_channel(
             {
                 "peer_id": self.fiber3.get_peer_id(),
-                "funding_amount": hex((1000000000 - 36) * 100000000),
+                "funding_amount": hex((1_000_000_000 - 36) * Amount.CKB),
                 "public": True,
             }
         )
         self.wait_for_channel_state(
-            self.fiber3.get_client(), self.fiber2.get_peer_id(), "CHANNEL_READY"
+            self.fiber3.get_client(),
+            self.fiber2.get_peer_id(),
+            ChannelState.CHANNEL_READY,
         )
         time.sleep(1)
 
-        # send amount ： hex(0)
+        # Step 2: Assert amount=0 rejected
         with pytest.raises(Exception) as exc_info:
             self.fiber1.get_client().send_payment(
                 {
@@ -70,7 +71,6 @@ class TestAmount(FiberTest):
             f"Expected substring '{expected_error_message}' "
             f"not found in actual string '{exc_info.value.args[0]}'"
         )
-
         with pytest.raises(Exception) as exc_info:
             self.fiber1.get_client().send_payment(
                 {
@@ -80,13 +80,12 @@ class TestAmount(FiberTest):
                     "dry_run": True,
                 }
             )
-        expected_error_message = "amount must be greater than 0"
         assert expected_error_message in exc_info.value.args[0], (
             f"Expected substring '{expected_error_message}' "
             f"not found in actual string '{exc_info.value.args[0]}'"
         )
 
-        # send amount ： hex(1)
+        # Step 3: Assert amount=1 accepted (dry_run)
         payment = self.fiber1.get_client().send_payment(
             {
                 "target_pubkey": self.fiber2.get_client().node_info()["node_id"],
@@ -106,16 +105,7 @@ class TestAmount(FiberTest):
         )
         assert payment["fee"] == hex(1)
 
-        # send amount ： local_balance
-        # todo expected success
-        # current max = local_balance / 1.001
-        # channels = self.fiber1.get_client().list_channels({})
-        # payment = self.fiber1.get_client().send_payment({
-        #     "target_pubkey": self.fiber2.get_client().node_info()['public_key'],
-        #     "amount": channels[0]['local_balance'],
-        #     "keysend": True,
-        #     "dry_run": True,
-        # })
+        # Step 4: Assert amount near local_balance/1.001 accepted
         channels = self.fiber1.get_client().list_channels({})
         payment = self.fiber1.get_client().send_payment(
             {
@@ -127,9 +117,6 @@ class TestAmount(FiberTest):
                 "dry_run": True,
             }
         )
-
-        # current send to fiber3  max  = local_balance /  1.002001
-        # todo expected max  = local_balance /  1.001
         payment = self.fiber1.get_client().send_payment(
             {
                 "target_pubkey": self.fiber3.get_client().node_info()["node_id"],
@@ -142,22 +129,7 @@ class TestAmount(FiberTest):
         )
         assert payment["fee"] == "0x5ac4909a6563"
 
-        # with pytest.raises(Exception) as exc_info:
-        #     self.fiber1.get_client().send_payment(
-        #         {
-        #             "target_pubkey": self.fiber3.get_client().node_info()["node_id"],
-        #             "amount": hex(
-        #                 int(int(channels["channels"][0]["local_balance"], 16) / 1.001)
-        #             ),
-        #             "keysend": True,
-        #             "dry_run": True,
-        #         }
-        #     )
-        # expected_error_message = "no path found"
-        # assert expected_error_message in exc_info.value.args[0], (
-        #     f"Expected substring '{expected_error_message}' "
-        #     f"not found in actual string '{exc_info.value.args[0]}'"
-        # )
+        # Step 5: Send payment with amount local_balance/1.00101; assert success
         payment = self.fiber1.get_client().send_payment(
             {
                 "target_pubkey": self.fiber3.get_client().node_info()["node_id"],
@@ -167,39 +139,48 @@ class TestAmount(FiberTest):
                 "keysend": True,
             }
         )
-        self.wait_payment_state(self.fiber1, payment["payment_hash"], "Success")
+        self.wait_payment_state(
+            self.fiber1, payment["payment_hash"], PaymentStatus.SUCCESS
+        )
 
     def test_over_flow_panic(self):
+        """
+        Assert amount exceeding u128 max is rejected.
+        Step 1: Build topology with very large channels.
+        Step 2: Assert amount 0xfffffffffffffffffffffffffffffff rejected.
+        """
+        # Step 1: Build topology with very large channels
         self.fiber3 = self.start_new_fiber(self.generate_account(1000))
         self.fiber3.connect_peer(self.fiber2)
-        # open very big channel for n1-n2
         self.fiber1.get_client().open_channel(
             {
                 "peer_id": self.fiber2.get_peer_id(),
-                "funding_amount": hex(1000000000 * 100000000),
+                "funding_amount": hex(1_000_000_000 * Amount.CKB),
                 "public": True,
             }
         )
         self.wait_for_channel_state(
-            self.fiber1.get_client(), self.fiber2.get_peer_id(), "CHANNEL_READY"
+            self.fiber1.get_client(),
+            self.fiber2.get_peer_id(),
+            ChannelState.CHANNEL_READY,
         )
-        # open very big channel for n2-n3
         self.fiber2.get_client().open_channel(
             {
                 "peer_id": self.fiber3.get_peer_id(),
-                "funding_amount": hex(1000000000 * 100000000),
+                "funding_amount": hex(1_000_000_000 * Amount.CKB),
                 "public": True,
             }
         )
         self.wait_for_channel_state(
-            self.fiber3.get_client(), self.fiber2.get_peer_id(), "CHANNEL_READY"
+            self.fiber3.get_client(),
+            self.fiber2.get_peer_id(),
+            ChannelState.CHANNEL_READY,
         )
         time.sleep(1)
 
-        # amount : 0xfffffffffffffffffffffffffffffff
-        channels = self.fiber1.get_client().list_channels({})
+        # Step 2: Assert amount 0xfffffffffffffffffffffffffffffff rejected
         with pytest.raises(Exception) as exc_info:
-            payment = self.fiber1.get_client().send_payment(
+            self.fiber1.get_client().send_payment(
                 {
                     "target_pubkey": self.fiber3.get_client().node_info()["node_id"],
                     "amount": "0xfffffffffffffffffffffffffffffff",
@@ -213,38 +194,51 @@ class TestAmount(FiberTest):
             f"not found in actual string '{exc_info.value.args[0]}'"
         )
 
-    # @pytest.mark.skip("https://github.com/nervosnetwork/fiber/issues/359")
     def test_send_mutil_channel(self):
-        # open channel a1-b1
+        """
+        Send payment across multiple channels between same pair (bidirectional).
+        Step 1: Open bidirectional channels a1-b1.
+        Step 2: Send payment a1->b1; assert success.
+        Step 3: Send payment b1->a1; assert success.
+        """
+        # Step 1: Open bidirectional channels a1-b1
         self.fiber1.get_client().open_channel(
             {
                 "peer_id": self.fiber2.get_peer_id(),
-                "funding_amount": hex(1000 * 100000000),
+                "funding_amount": hex(Amount.ckb(1000)),
                 "public": True,
             }
         )
         self.wait_for_channel_state(
-            self.fiber1.get_client(), self.fiber2.get_peer_id(), "CHANNEL_READY"
+            self.fiber1.get_client(),
+            self.fiber2.get_peer_id(),
+            ChannelState.CHANNEL_READY,
         )
         self.wait_for_channel_state(
-            self.fiber2.get_client(), self.fiber1.get_peer_id(), "CHANNEL_READY"
+            self.fiber2.get_client(),
+            self.fiber1.get_peer_id(),
+            ChannelState.CHANNEL_READY,
         )
         self.fiber2.get_client().open_channel(
             {
                 "peer_id": self.fiber1.get_peer_id(),
-                "funding_amount": hex(1000 * 100000000),
+                "funding_amount": hex(Amount.ckb(1000)),
                 "public": True,
             }
         )
         time.sleep(2)
         self.wait_for_channel_state(
-            self.fiber2.get_client(), self.fiber1.get_peer_id(), "CHANNEL_READY"
+            self.fiber2.get_client(),
+            self.fiber1.get_peer_id(),
+            ChannelState.CHANNEL_READY,
         )
         time.sleep(1)
+
+        # Step 2: Send payment a1->b1; assert success
         self.fiber1.get_client().send_payment(
             {
                 "target_pubkey": self.fiber2.get_client().node_info()["node_id"],
-                "amount": hex(100 * 100000000),
+                "amount": hex(Amount.ckb(100)),
                 "keysend": True,
                 "dry_run": True,
             }
@@ -252,15 +246,19 @@ class TestAmount(FiberTest):
         payment1 = self.fiber1.get_client().send_payment(
             {
                 "target_pubkey": self.fiber2.get_client().node_info()["node_id"],
-                "amount": hex(100 * 100000000),
+                "amount": hex(Amount.ckb(100)),
                 "keysend": True,
             }
         )
-        self.wait_payment_state(self.fiber1, payment1["payment_hash"], "Success")
+        self.wait_payment_state(
+            self.fiber1, payment1["payment_hash"], PaymentStatus.SUCCESS
+        )
+
+        # Step 3: Send payment b1->a1; assert success
         self.fiber2.get_client().send_payment(
             {
                 "target_pubkey": self.fiber1.get_client().node_info()["node_id"],
-                "amount": hex(200 * 100000000),
+                "amount": hex(Amount.ckb(200)),
                 "keysend": True,
                 "dry_run": True,
             }
@@ -268,41 +266,42 @@ class TestAmount(FiberTest):
         payment2 = self.fiber2.get_client().send_payment(
             {
                 "target_pubkey": self.fiber1.get_client().node_info()["node_id"],
-                "amount": hex(200 * 100000000),
+                "amount": hex(Amount.ckb(200)),
                 "keysend": True,
             }
         )
-        self.wait_payment_state(self.fiber2, payment2["payment_hash"], "Success")
+        self.wait_payment_state(
+            self.fiber2, payment2["payment_hash"], PaymentStatus.SUCCESS
+        )
 
     def test_udt(self):
         """
-        open_channel 1亿亿
-
-        Returns:
-
+        UDT amount validation: zero rejected, min accepted, local_balance max.
+        Step 1: Faucet UDT, build topology with UDT channels.
+        Step 2: Assert amount=0 rejected.
+        Step 3: Assert amount=1 accepted (dry_run).
+        Step 4: Assert amount near local_balance/1.00101 accepted for fiber2 and fiber3.
         """
-        # todo use 10000000000000000
-        open_chanel_balance = 10000000000000000 * 100000000
-        # open_chanel_balance = 1000000000 * 100000000
+        # Step 1: Faucet UDT, build topology with UDT channels
+        open_channel_balance = 10_000_000_000_000_000 * Amount.CKB
         self.faucet(
             self.fiber2.account_private,
             0,
             self.fiber1.account_private,
-            open_chanel_balance,
+            open_channel_balance,
         )
         self.faucet(
             self.fiber1.account_private,
             0,
             self.fiber1.account_private,
-            open_chanel_balance,
+            open_channel_balance,
         )
         self.fiber3 = self.start_new_fiber(self.generate_account(1000))
         self.fiber2.connect_peer(self.fiber3)
-        # open very big channel for n1-n2
         self.fiber1.get_client().open_channel(
             {
                 "peer_id": self.fiber2.get_peer_id(),
-                "funding_amount": hex(open_chanel_balance),
+                "funding_amount": hex(open_channel_balance),
                 "funding_udt_type_script": self.get_account_udt_script(
                     self.fiber1.account_private
                 ),
@@ -310,13 +309,14 @@ class TestAmount(FiberTest):
             }
         )
         self.wait_for_channel_state(
-            self.fiber1.get_client(), self.fiber2.get_peer_id(), "CHANNEL_READY"
+            self.fiber1.get_client(),
+            self.fiber2.get_peer_id(),
+            ChannelState.CHANNEL_READY,
         )
-        # open very big channel for n2-n3
         self.fiber2.get_client().open_channel(
             {
                 "peer_id": self.fiber3.get_peer_id(),
-                "funding_amount": hex(open_chanel_balance),
+                "funding_amount": hex(open_channel_balance),
                 "funding_udt_type_script": self.get_account_udt_script(
                     self.fiber1.account_private
                 ),
@@ -324,11 +324,13 @@ class TestAmount(FiberTest):
             }
         )
         self.wait_for_channel_state(
-            self.fiber3.get_client(), self.fiber2.get_peer_id(), "CHANNEL_READY"
+            self.fiber3.get_client(),
+            self.fiber2.get_peer_id(),
+            ChannelState.CHANNEL_READY,
         )
         time.sleep(1)
 
-        # send amount ： hex(0)
+        # Step 2: Assert amount=0 rejected
         with pytest.raises(Exception) as exc_info:
             self.fiber1.get_client().send_payment(
                 {
@@ -346,7 +348,6 @@ class TestAmount(FiberTest):
             f"Expected substring '{expected_error_message}' "
             f"not found in actual string '{exc_info.value.args[0]}'"
         )
-
         with pytest.raises(Exception) as exc_info:
             self.fiber1.get_client().send_payment(
                 {
@@ -359,13 +360,12 @@ class TestAmount(FiberTest):
                     ),
                 }
             )
-        expected_error_message = "amount must be greater than 0"
         assert expected_error_message in exc_info.value.args[0], (
             f"Expected substring '{expected_error_message}' "
             f"not found in actual string '{exc_info.value.args[0]}'"
         )
 
-        # send amount ： hex(1)
+        # Step 3: Assert amount=1 accepted (dry_run)
         payment = self.fiber1.get_client().send_payment(
             {
                 "target_pubkey": self.fiber2.get_client().node_info()["node_id"],
@@ -390,17 +390,9 @@ class TestAmount(FiberTest):
             }
         )
         assert payment["fee"] == hex(1)
+
+        # Step 4: Assert amount near local_balance/1.00101 accepted
         channels = self.fiber1.get_client().list_channels({})
-        # send amount ： local_balance
-        # todo expected success
-        # payment = self.fiber1.get_client().send_payment({
-        #     "target_pubkey": self.fiber2.get_client().node_info()['public_key'],
-        #     "amount": channels['channels'][0]['local_balance'],
-        #     "keysend": True,
-        #     "dry_run": True,
-        #     "udt_type_script": self.get_account_udt_script(self.fiber1.account_private)
-        # })
-        # node1 send to node2 current max = local_balance / 1.001
         payment = self.fiber1.get_client().send_payment(
             {
                 "target_pubkey": self.fiber2.get_client().node_info()["node_id"],
@@ -415,8 +407,6 @@ class TestAmount(FiberTest):
             }
         )
         assert payment["fee"] == "0x0"
-        # node1 send to node3 current max = local_balance / 1.002001
-        # todo max = local_balance / 1.001
         payment = self.fiber1.get_client().send_payment(
             {
                 "target_pubkey": self.fiber3.get_client().node_info()["node_id"],
@@ -431,27 +421,3 @@ class TestAmount(FiberTest):
             }
         )
         assert payment["fee"] == "0x3627c90ef6acdb22d1"
-        # int max
-        # with pytest.raises(Exception) as exc_info:
-        # payment = self.fiber1.get_client().send_payment({
-        #     "target_pubkey": self.fiber3.get_client().node_info()['public_key'],
-        #     "amount": "0xfffffffffffffffffffffffffffffff",
-        #     "keysend": True,
-        #     "dry_run": True,
-        #     "udt_type_script": self.get_account_udt_script(self.fiber1.account_private),
-        #
-        # })
-        # expected_error_message = "route"
-        # assert expected_error_message in exc_info.value.args[0], (
-        #     f"Expected substring '{expected_error_message}' "
-        #     f"not found in actual string '{exc_info.value.args[0]}'"
-        # )
-
-        # channels = self.fiber1.get_client().list_channels({})
-        # payment = self.fiber1.get_client().send_payment({
-        #     "target_pubkey": self.fiber3.get_client().node_info()['public_key'],
-        #     "amount": "0xfffffffffffffffffffffffffffffff",
-        #     "keysend": True,
-        #     "dry_run": True,
-        # })
-        # self.fiber1.get_client().list_channels({})
