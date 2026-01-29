@@ -1,35 +1,44 @@
+"""
+Test cases for shutdown_channel during force restart of fiber nodes.
+Covers: initiator/acceptor force stop and restart during shutdown; channel closed and balance returned.
+"""
 import time
+
 from framework.basic_fiber import FiberTest
 from framework.config import DEFAULT_MIN_DEPOSIT_CKB
+from framework.constants import Amount, Timeout, ChannelState
 
 
 class TestForceRestart(FiberTest):
-    # FiberTest.debug = True
+    """
+    Test shutdown_channel during force restart: initiator and acceptor force stop/start; channel closed, balance returned.
+    """
 
     def test_force_restart_fiber_node_shutdown_channel(self):
         """
-        shutdown过程强制重启
-        1.发起方强制重启
-        2.接受方强制重启
-        3.检查通道是否被正常关闭，并且检查balance是否返还
-        Returns:
-
+        Force restart both nodes during shutdown; channel should close and balance returned.
+        Step 1: Open channel, wait CHANNEL_READY, call shutdown_channel.
+        Step 2: Acceptor force stop; assert funding cell unknown.
+        Step 3: Initiator force stop then start; acceptor start.
+        Step 4: Assert channel_count 0 and balance returned.
         """
+        # Step 1: Open channel and shutdown
         self.fiber1.get_client().open_channel(
             {
                 "peer_id": self.fiber2.get_peer_id(),
-                "funding_amount": hex(1000 * 100000000),
+                "funding_amount": hex(Amount.ckb(1000)),
                 "public": True,
             }
         )
         open_channel_tx_hash = self.wait_and_check_tx_pool_fee(1000, False)
         self.wait_for_channel_state(
-            self.fiber1.get_client(), self.fiber2.get_peer_id(), "CHANNEL_READY", 120
+            self.fiber1.get_client(), self.fiber2.get_peer_id(),
+            ChannelState.CHANNEL_READY, timeout=Timeout.CHANNEL_READY
         )
         channels = self.fiber1.get_client().list_channels(
             {"peer_id": self.fiber2.get_peer_id()}
         )
-        N1N2_CHANNEL_ID = channels["channels"][0]["channel_id"]
+        channel_id = channels["channels"][0]["channel_id"]
         self.fiber1.get_client().graph_channels()
 
         before_balance1 = self.Ckb_cli.wallet_get_capacity(
@@ -38,17 +47,15 @@ class TestForceRestart(FiberTest):
         before_balance2 = self.Ckb_cli.wallet_get_capacity(
             self.account2["address"]["testnet"]
         )
-        # shutdown channel
-        N1N2_CHANNEL_ID = self.fiber1.get_client().list_channels({})["channels"][0][
+        channel_id = self.fiber1.get_client().list_channels({})["channels"][0][
             "channel_id"
         ]
-        print(N1N2_CHANNEL_ID)
         cell = self.node.getClient().get_live_cell("0x0", open_channel_tx_hash)
         assert cell["status"] == "live"
 
-        shutdown_content = self.fiber1.get_client().shutdown_channel(
+        self.fiber1.get_client().shutdown_channel(
             {
-                "channel_id": N1N2_CHANNEL_ID,
+                "channel_id": channel_id,
                 "close_script": {
                     "code_hash": "0x9bd7e06f3ecf4be0f2fcd2188b23f1b9fcc88e5d4b65a8637b17723bbda3cce8",
                     "hash_type": "type",
@@ -57,39 +64,31 @@ class TestForceRestart(FiberTest):
                 "fee_rate": "0x3FC",
             }
         )
-        print(f"shutdown_content:{shutdown_content}")  # return None
         result = self.node.getClient().get_live_cell("0x0", open_channel_tx_hash)
         assert result["status"] == "live"
-        # 1.接收方stop
+
+        # Step 2: Acceptor force stop
         self.fiber2.force_stop()
         time.sleep(10)
         result = self.node.getClient().get_live_cell("0x0", open_channel_tx_hash)
         assert result["status"] == "unknown"
-        # 2.发送方重启
+
+        # Step 3: Initiator force stop then start; acceptor start
         self.fiber1.force_stop()
         time.sleep(10)
         self.fiber1.start()
         time.sleep(10)
-        # 3.接收方start
         self.fiber2.start()
         time.sleep(10)
         result = self.node.getClient().get_live_cell("0x0", open_channel_tx_hash)
         assert result["status"] == "unknown"
-        print(f"result=:{result}")
-        # 2.检查channel被close成功
-        node_info = self.fiber1.get_client().node_info()
-        print("node info :", node_info)
-        assert node_info["channel_count"] == "0x0"
+
+        # Step 4: Assert channel closed and balance returned
+        self.assert_channel_count(self.fiber1, 0)
         after_balance1 = self.Ckb_cli.wallet_get_capacity(
             self.account1["address"]["testnet"]
         )
         after_balance2 = self.Ckb_cli.wallet_get_capacity(
             self.account2["address"]["testnet"]
         )
-        print("before_balance1:", before_balance1)
-        print("before_balance2:", before_balance2)
-        print("after_balance1:", after_balance1)
-        print("after_balance2:", after_balance2)
-        # 3.检查关闭后balance被正常返还
-        assert after_balance2 - before_balance2 == DEFAULT_MIN_DEPOSIT_CKB / 100000000
-        # todo check channel state
+        assert after_balance2 - before_balance2 == Amount.to_ckb(DEFAULT_MIN_DEPOSIT_CKB)

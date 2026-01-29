@@ -1,6 +1,6 @@
 """
-Test cases for settle_invoice RPC.
-Requirement: PR-961 - Only invoice in Received state can be settled.
+Test cases for settle_invoice RPC (hold invoice settle flow and error handling).
+Requirement: PR-961 - only invoice in Received state can be settled.
 """
 import time
 import hashlib
@@ -16,8 +16,9 @@ from framework.constants import (
     Currency,
     HashAlgorithm,
 )
+
+
 def sha256_hex(preimage_hex: str) -> str:
-    """Compute SHA256 hash of preimage, return hex string."""
     raw = bytes.fromhex(preimage_hex.replace("0x", ""))
     return "0x" + hashlib.sha256(raw).hexdigest()
 
@@ -59,7 +60,7 @@ class TestSettleInvoice(FiberTest):
             }
         )
 
-        # Step 3: Send payment and wait for invoice Received
+        # Step 3: Send payment and wait for invoice Received (hold state)
         payment = self.fiber2.get_client().send_payment(
             {"invoice": invoice["invoice_address"]}
         )
@@ -67,35 +68,37 @@ class TestSettleInvoice(FiberTest):
             self.fiber1, payment["payment_hash"], InvoiceStatus.RECEIVED,
             timeout=Timeout.CHANNEL_READY, interval=Timeout.POLL_INTERVAL
         )
-
         # Step 4: Settle invoice with correct preimage
         self.fiber1.get_client().settle_invoice(
             {"payment_hash": payment["payment_hash"], "payment_preimage": preimage}
         )
-
-        # Step 5: Assert payment success and invoice Paid
         self.wait_payment_state(
             self.fiber2, payment["payment_hash"], PaymentStatus.SUCCESS,
             timeout=Timeout.PAYMENT_SUCCESS
         )
-        inv = self.fiber1.get_client().get_invoice({"payment_hash": payment_hash})
-        assert inv["status"] == InvoiceStatus.PAID
+        # Step 5: Assert payment success and invoice Paid
+        self.assert_invoice_paid(self.fiber1, payment_hash)
 
     def test_settle_with_wrong_preimage(self):
         """
-        Settle with wrong preimage returns Hash mismatch.
-        Step 1: Open channel.
-        Step 2: Create hold invoice and send payment.
-        Step 3: Settle with wrong preimage, assert Hash mismatch error.
+        Settle with wrong preimage should fail with hash mismatch.
+        Step 1: Open channel and create hold invoice.
+        Step 2: Send payment (do not wait for Received).
+        Step 3: Call settle_invoice with a different preimage; assert error.
         """
         # Step 1: Open channel
-        self.open_channel(
-            self.fiber2, self.fiber1,
-            fiber1_balance=Amount.ckb(1000),
-            fiber2_balance=Amount.ckb(500),
+        self.fiber2.get_client().open_channel(
+            {
+                "peer_id": self.fiber1.get_peer_id(),
+                "funding_amount": hex(Amount.ckb(1000)),
+                "public": True,
+            }
+        )
+        self.wait_for_channel_state(
+            self.fiber2.get_client(), self.fiber1.get_peer_id(),
+            ChannelState.CHANNEL_READY, timeout=Timeout.CHANNEL_READY
         )
 
-        # Step 2: Create hold invoice and send payment
         preimage1 = self.generate_random_preimage()
         payment_hash = sha256_hex(preimage1)
         invoice = self.fiber1.get_client().new_invoice(
@@ -109,11 +112,13 @@ class TestSettleInvoice(FiberTest):
                 "hash_algorithm": HashAlgorithm.SHA256,
             }
         )
-        self.fiber2.get_client().send_payment(
+
+        # Step 2: Send payment (do not wait for Received)
+        payment = self.fiber2.get_client().send_payment(
             {"invoice": invoice["invoice_address"]}
         )
 
-        # Step 3: Settle with wrong preimage, assert Hash mismatch
+        # Step 3: Settle with wrong preimage; expect hash mismatch
         with pytest.raises(Exception) as exc_info:
             self.fiber1.get_client().settle_invoice(
                 {
@@ -125,9 +130,8 @@ class TestSettleInvoice(FiberTest):
 
     def test_settle_nonexistent_invoice(self):
         """
-        Settle nonexistent invoice returns Invoice not found.
-        Step 1: Call settle_invoice with random payment_hash.
-        Step 2: Assert Invoice not found error.
+        Settle with non-existent payment_hash should fail with Invoice not found.
+        Step 1: Call settle_invoice with random payment_hash; assert error.
         """
         preimage = self.generate_random_preimage()
         payment_hash = sha256_hex(preimage)
@@ -141,17 +145,23 @@ class TestSettleInvoice(FiberTest):
     @pytest.mark.skip("https://github.com/nervosnetwork/fiber/issues/1029")
     def test_settle_expired_hold_invoice(self):
         """
-        Settle expired hold invoice returns already expired.
-        Step 1: Open channel and create short-expiry hold invoice.
-        Step 2: Send payment, wait for expiry.
-        Step 3: Settle after expiry, assert already expired.
+        Settle expired hold invoice (skip: issue 1029).
+        Step 1: Open channel, create short-expiry hold invoice, send payment.
+        Step 2: Wait for expiry then settle; assert payment success.
         """
-        self.open_channel(
-            self.fiber2, self.fiber1,
-            fiber1_balance=Amount.ckb(1000),
-            fiber2_balance=Amount.ckb(500),
+        self.fiber2.get_client().open_channel(
+            {
+                "peer_id": self.fiber1.get_peer_id(),
+                "funding_amount": hex(Amount.ckb(1000)),
+                "public": True,
+            }
         )
-        expiry_hex = "0x5"  # 5 seconds
+        self.wait_for_channel_state(
+            self.fiber2.get_client(), self.fiber1.get_peer_id(),
+            ChannelState.CHANNEL_READY, timeout=Timeout.CHANNEL_READY
+        )
+
+        expiry_hex = "0x5"  # 5 seconds; 0x0 would be rejected as expired at creation
         preimage = self.generate_random_preimage()
         payment_hash = sha256_hex(preimage)
         invoice = self.fiber1.get_client().new_invoice(
@@ -165,9 +175,11 @@ class TestSettleInvoice(FiberTest):
                 "hash_algorithm": HashAlgorithm.SHA256,
             }
         )
+
         payment = self.fiber2.get_client().send_payment(
             {"invoice": invoice["invoice_address"]}
         )
+
         try:
             self.wait_invoice_state(
                 self.fiber1, payment_hash, InvoiceStatus.RECEIVED,
@@ -175,7 +187,9 @@ class TestSettleInvoice(FiberTest):
             )
         except Exception:
             pass
+
         time.sleep(int(expiry_hex, 16) + 3)
+
         self.fiber1.get_client().settle_invoice(
             {"payment_hash": payment_hash, "payment_preimage": preimage}
         )
@@ -184,21 +198,28 @@ class TestSettleInvoice(FiberTest):
             timeout=Timeout.SHORT, interval=Timeout.POLL_INTERVAL
         )
         self.wait_payment_state(
-            self.fiber2, payment["payment_hash"], PaymentStatus.SUCCESS
+            self.fiber2, payment["payment_hash"], PaymentStatus.SUCCESS,
+            timeout=Timeout.PAYMENT_SUCCESS
         )
 
     def test_settle_already_settled_invoice(self):
         """
-        Second settle of already paid invoice returns already paid.
-        Step 1: Open channel, create hold invoice, settle once.
-        Step 2: Settle again, assert already paid error.
+        Second settle on same invoice should fail with already paid.
+        Step 1: Open channel, create hold invoice, send payment, settle once.
+        Step 2: Call settle_invoice again; assert error.
         """
-        # Step 1: Open channel and settle once
-        self.open_channel(
-            self.fiber2, self.fiber1,
-            fiber1_balance=Amount.ckb(1000),
-            fiber2_balance=Amount.ckb(500),
+        self.fiber2.get_client().open_channel(
+            {
+                "peer_id": self.fiber1.get_peer_id(),
+                "funding_amount": hex(Amount.ckb(1000)),
+                "public": True,
+            }
         )
+        self.wait_for_channel_state(
+            self.fiber2.get_client(), self.fiber1.get_peer_id(),
+            ChannelState.CHANNEL_READY, timeout=Timeout.CHANNEL_READY
+        )
+
         preimage = self.generate_random_preimage()
         payment_hash = sha256_hex(preimage)
         invoice = self.fiber1.get_client().new_invoice(
@@ -223,12 +244,11 @@ class TestSettleInvoice(FiberTest):
             {"payment_hash": payment_hash, "payment_preimage": preimage}
         )
         self.wait_payment_state(
-            self.fiber2, payment["payment_hash"], PaymentStatus.SUCCESS
+            self.fiber2, payment["payment_hash"], PaymentStatus.SUCCESS,
+            timeout=Timeout.PAYMENT_SUCCESS
         )
-        inv = self.fiber1.get_client().get_invoice({"payment_hash": payment_hash})
-        assert inv["status"] == InvoiceStatus.PAID
+        self.assert_invoice_paid(self.fiber1, payment_hash)
 
-        # Step 2: Second settle, assert already paid
         with pytest.raises(Exception) as exc_info:
             self.fiber1.get_client().settle_invoice(
                 {"payment_hash": payment_hash, "payment_preimage": preimage}
@@ -237,14 +257,20 @@ class TestSettleInvoice(FiberTest):
 
     def test_settle_open_invoice_should_fail(self):
         """
-        Settle Open invoice (no payment sent) returns still open/Open.
-        Step 1: Open channel and create hold invoice (no payment).
-        Step 2: Settle, assert still open or Open error.
+        Settle invoice that is still Open (no payment sent) should fail.
+        Step 1: Open channel, create invoice (do not send payment).
+        Step 2: Call settle_invoice; assert error mentions open/open state.
         """
-        self.open_channel(
-            self.fiber2, self.fiber1,
-            fiber1_balance=Amount.ckb(1000),
-            fiber2_balance=Amount.ckb(500),
+        self.fiber2.get_client().open_channel(
+            {
+                "peer_id": self.fiber1.get_peer_id(),
+                "funding_amount": hex(Amount.ckb(1000)),
+                "public": True,
+            }
+        )
+        self.wait_for_channel_state(
+            self.fiber2.get_client(), self.fiber1.get_peer_id(),
+            ChannelState.CHANNEL_READY, timeout=Timeout.CHANNEL_READY
         )
         preimage = self.generate_random_preimage()
         payment_hash = sha256_hex(preimage)
@@ -263,20 +289,28 @@ class TestSettleInvoice(FiberTest):
             self.fiber1.get_client().settle_invoice(
                 {"payment_hash": payment_hash, "payment_preimage": preimage}
             )
-        err = exc_info.value.args[0]
+        err = exc_info.value.args[0] if exc_info.value.args else ""
         assert "still open" in err or "Open" in err
 
     def test_settle_cancelled_invoice_should_fail(self):
         """
-        Settle cancelled invoice returns already cancelled.
-        Step 1: Open channel, create invoice, cancel it.
-        Step 2: Settle, assert already cancelled error.
+        Settle cancelled invoice should fail with already cancelled.
+        Step 1: Open channel, create hold invoice, cancel it.
+        Step 2: Call settle_invoice; assert error mentions already cancelled.
         """
-        self.open_channel(
-            self.fiber2, self.fiber1,
-            fiber1_balance=Amount.ckb(1000),
-            fiber2_balance=Amount.ckb(500),
+        # Step 1: Open channel
+        self.fiber2.get_client().open_channel(
+            {
+                "peer_id": self.fiber1.get_peer_id(),
+                "funding_amount": hex(Amount.ckb(1000)),
+                "public": True,
+            }
         )
+        self.wait_for_channel_state(
+            self.fiber2.get_client(), self.fiber1.get_peer_id(),
+            ChannelState.CHANNEL_READY, timeout=Timeout.CHANNEL_READY
+        )
+
         preimage = self.generate_random_preimage()
         payment_hash = sha256_hex(preimage)
         invoice = self.fiber1.get_client().new_invoice(
@@ -293,28 +327,38 @@ class TestSettleInvoice(FiberTest):
         self.fiber1.get_client().cancel_invoice(
             {"payment_hash": invoice["invoice"]["data"]["payment_hash"]}
         )
+
+        # Step 2: Call settle_invoice; expect already cancelled
         with pytest.raises(Exception) as exc_info:
             self.fiber1.get_client().settle_invoice(
                 {"payment_hash": payment_hash, "payment_preimage": preimage}
             )
         assert "already cancelled" in exc_info.value.args[0]
 
-    @pytest.mark.skip("expiry_time restricts send, so this scenario does not exist")
+    @pytest.mark.skip("expiry_time limits sender; this scenario does not exist")
     def test_settle_expired_invoice_should_fail(self):
         """
-        Settle expired invoice returns already expired.
+        Settle expired invoice should fail with already expired.
         Step 1: Open channel, create short-expiry invoice, wait for expiry.
-        Step 2: Settle, assert already expired error.
+        Step 2: Call settle_invoice; assert error mentions already expired.
         """
-        self.open_channel(
-            self.fiber2, self.fiber1,
-            fiber1_balance=Amount.ckb(1000),
-            fiber2_balance=Amount.ckb(500),
+        # Step 1: Open channel
+        self.fiber2.get_client().open_channel(
+            {
+                "peer_id": self.fiber1.get_peer_id(),
+                "funding_amount": hex(Amount.ckb(1000)),
+                "public": True,
+            }
         )
+        self.wait_for_channel_state(
+            self.fiber2.get_client(), self.fiber1.get_peer_id(),
+            ChannelState.CHANNEL_READY, timeout=Timeout.CHANNEL_READY
+        )
+
         expiry_hex = "0x5"
         preimage = self.generate_random_preimage()
         payment_hash = sha256_hex(preimage)
-        self.fiber1.get_client().new_invoice(
+        invoice = self.fiber1.get_client().new_invoice(
             {
                 "amount": hex(Amount.ckb(1)),
                 "currency": Currency.FIBD,
@@ -326,34 +370,35 @@ class TestSettleInvoice(FiberTest):
             }
         )
         time.sleep(int(expiry_hex, 16) + 3)
+
+        # Step 2: Call settle_invoice; expect already expired
         with pytest.raises(Exception) as exc_info:
             self.fiber1.get_client().settle_invoice(
                 {"payment_hash": payment_hash, "payment_preimage": preimage}
             )
         assert "already expired" in exc_info.value.args[0]
 
+    # @pytest.mark.skip("https://github.com/nervosnetwork/fiber/issues/965")
     def test_settle_sametime(self):
         """
-        Concurrent settle of same invoice: at most one succeeds, others may return already paid.
-        Step 1: Build fiber1-fiber2-fiber3 topology.
-        Step 2: Create hold invoice on fiber2.
-        Step 3: fiber1 and fiber3 both send payment to same invoice.
-        Step 4: Assert one payment fails before settle.
-        Step 5: Settle on fiber2.
-        Step 6: Assert one Success, one Failed.
+        Two senders pay same hold invoice; one fails, then settle; exactly one succeeds.
+        Step 1: Build topology fiber1-fiber2-fiber3, create hold invoice.
+        Step 2: fiber1 and fiber3 both send payment to same invoice.
+        Step 3: Assert one payment Failed before settle.
+        Step 4: Settle invoice; wait both payments finished; assert one Success one Failed.
         """
-        # Step 1: Build topology
+        # Step 1: Build topology and create hold invoice
         self.fiber3 = self.start_new_fiber(self.generate_account(10000))
         self.open_channel(
             self.fiber2, self.fiber3,
-            Amount.ckb(1000), Amount.ckb(1000),
+            fiber1_balance=Amount.ckb(1000),
+            fiber2_balance=Amount.ckb(1000),
         )
         self.open_channel(
             self.fiber1, self.fiber2,
-            Amount.ckb(1000), Amount.ckb(1000),
+            fiber1_balance=Amount.ckb(1000),
+            fiber2_balance=Amount.ckb(1000),
         )
-
-        # Step 2: Create hold invoice on fiber2
         preimage = self.generate_random_preimage()
         payment_hash = sha256_hex(preimage)
         invoice = self.fiber2.get_client().new_invoice(
@@ -366,7 +411,7 @@ class TestSettleInvoice(FiberTest):
             }
         )
 
-        # Step 3: Both fiber1 and fiber3 send payment
+        # Step 2: Both send payment to same invoice
         self.fiber1.get_client().send_payment(
             {"invoice": invoice["invoice_address"]}
         )
@@ -374,7 +419,7 @@ class TestSettleInvoice(FiberTest):
             {"invoice": invoice["invoice_address"]}
         )
 
-        # Step 4: Assert one fails before settle
+        # Step 3: Assert one payment Failed before settle
         time.sleep(Timeout.POLL_INTERVAL)
         fiber1_payment = self.fiber1.get_client().get_payment(
             {"payment_hash": payment_hash}
@@ -385,14 +430,12 @@ class TestSettleInvoice(FiberTest):
         assert (
             fiber3_payment["status"] == PaymentStatus.FAILED
             or fiber1_payment["status"] == PaymentStatus.FAILED
-        )
+        ), "Exactly one payment should fail before settle"
 
-        # Step 5: Settle on fiber2
+        # Step 4: Settle then wait both finished; one Success one Failed
         self.fiber2.get_client().settle_invoice(
             {"payment_hash": payment_hash, "payment_preimage": preimage}
         )
-
-        # Step 6: Assert one Success, one Failed
         fiber1_result = self.wait_payment_finished(
             self.fiber1, payment_hash, timeout=Timeout.CHANNEL_READY
         )

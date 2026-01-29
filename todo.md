@@ -289,20 +289,20 @@
 
 - [x] `test_cases/fiber/devnet/settle_invoice/test_batch_settle.py`
 - [x] `test_cases/fiber/devnet/settle_invoice/test_mpp.py`
-- [ ] `test_cases/fiber/devnet/settle_invoice/test_settle_invoice.py`
+- [x] `test_cases/fiber/devnet/settle_invoice/test_settle_invoice.py`
 
 ---
 
 ## 28. shutdown_channel (10 个文件)
 
-- [ ] `test_cases/fiber/devnet/shutdown_channel/test_channel_id.py`
-- [ ] `test_cases/fiber/devnet/shutdown_channel/test_close_script.py`
-- [ ] `test_cases/fiber/devnet/shutdown_channel/test_fee_rate.py`
-- [ ] `test_cases/fiber/devnet/shutdown_channel/test_force.py`
-- [ ] `test_cases/fiber/devnet/shutdown_channel/test_force_restart.py`
-- [ ] `test_cases/fiber/devnet/shutdown_channel/test_mutil_to_one.py`
-- [ ] `test_cases/fiber/devnet/shutdown_channel/test_node_state.py`
-- [ ] `test_cases/fiber/devnet/shutdown_channel/test_pending_tlc.py`
+- [x] `test_cases/fiber/devnet/shutdown_channel/test_channel_id.py`
+- [x] `test_cases/fiber/devnet/shutdown_channel/test_close_script.py`
+- [x] `test_cases/fiber/devnet/shutdown_channel/test_fee_rate.py`
+- [x] `test_cases/fiber/devnet/shutdown_channel/test_force.py`
+- [x] `test_cases/fiber/devnet/shutdown_channel/test_force_restart.py`
+- [x] `test_cases/fiber/devnet/shutdown_channel/test_mutil_to_one.py`
+- [x] `test_cases/fiber/devnet/shutdown_channel/test_node_state.py`
+- [x] `test_cases/fiber/devnet/shutdown_channel/test_pending_tlc.py`
 - [ ] `test_cases/fiber/devnet/shutdown_channel/test_restart.py`
 - [ ] `test_cases/fiber/devnet/shutdown_channel/test_shutdown_channel.py`
 
