@@ -32,7 +32,7 @@ class TestWatchTowerWithMpp(FiberTest):
         """
         # Step 1: Start fiber3 and open 8 channels; record before_balance
         self.fiber3 = self.start_new_fiber(
-            self.generate_account(10000, self.fiber1.account_private, Amount.ckb(1000))
+            self.generate_account(10000, self.fiber1.account_private, Amount.udt(1000))
         )
         before_balance = self.get_fibers_balance()
 

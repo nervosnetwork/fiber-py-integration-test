@@ -1,6 +1,10 @@
+"""
+Fiber demo tests: UDT channel, CKB channel, multi-hop payment.
+"""
 import time
 
 from framework.basic_fiber import FiberTest
+from framework.constants import Amount, ChannelState, PaymentStatus, FeeRate, Timeout
 
 
 class TestFiberDemo(FiberTest):
@@ -13,19 +17,17 @@ class TestFiberDemo(FiberTest):
 
     def test_udt(self):
         """
-        1. 建立 udt channel
-        2. 转账
-        3. close channel
-        4. 检查余额
-        Returns:
-
+        Test UDT channel: open, transfer, close, verify balance.
+        Step 1: Open UDT channel between fiber1 and fiber2.
+        Step 2: Create invoice and send payment.
+        Step 3: Shutdown channel.
+        Step 4: Assert UDT balance changes.
         """
-
-        # open channel
-        temporary_channel_id = self.fiber1.get_client().open_channel(
+        # Step 1: Open UDT channel
+        self.fiber1.get_client().open_channel(
             {
                 "peer_id": self.fiber2.get_peer_id(),
-                "funding_amount": hex(1000 * 100000000),
+                "funding_amount": hex(Amount.ckb(1000)),
                 "public": True,
                 "funding_udt_type_script": self.get_account_udt_script(
                     self.fiber1.account_private
@@ -60,7 +62,7 @@ class TestFiberDemo(FiberTest):
                 "invoice": invoice["invoice_address"],
             }
         )
-        self.wait_payment_state(self.fiber1, payment["payment_hash"], "Success")
+        self.wait_payment_state(self.fiber1, payment["payment_hash"], PaymentStatus.SUCCESS)
         after_channel = self.fiber1.get_client().list_channels({})
         assert (
             int(before_channel["channels"][0]["local_balance"], 16)
@@ -84,15 +86,14 @@ class TestFiberDemo(FiberTest):
             self.get_account_script(self.fiber1.account_private)["args"],
             self.get_account_script(self.fiber2.account_private)["args"],
         )
-        # shut down
+        # Step 3: Shutdown channel
         self.fiber1.get_client().shutdown_channel(
             {
                 "channel_id": N1N2_CHANNEL_ID,
                 "close_script": self.get_account_script(self.Config.ACCOUNT_PRIVATE_1),
-                "fee_rate": "0x3FC",
+                "fee_rate": hex(FeeRate.MEDIUM),
             }
         )
-        # todo wait close txx commit
         time.sleep(20)
 
         after_account1 = self.udtContract.list_cell(
@@ -106,24 +107,23 @@ class TestFiberDemo(FiberTest):
             self.get_account_script(self.fiber2.account_private)["args"],
         )
 
-        assert after_account1[-1]["balance"] == 90000000000
+        assert after_account1[-1]["balance"] == Amount.ckb(900)
         print(after_account2)
-        assert after_account2[-1]["balance"] == 10000000000
+        assert after_account2[-1]["balance"] == Amount.ckb(100)
 
     def test_ckb(self):
         """
-        1. 建立 ckb channel
-        2. 转账
-        3. close channel
-        4. 检查余额
-        Returns:
+        Test CKB channel: open, transfer, close, verify balance.
+        Step 1: Open CKB channel between fiber1 and fiber2.
+        Step 2: Create invoice and send payment.
+        Step 3: Shutdown channel.
+        Step 4: Verify CKB balance changes.
         """
-
-        # open channel
-        temporary_channel_id = self.fiber1.get_client().open_channel(
+        # Step 1: Open CKB channel
+        self.fiber1.get_client().open_channel(
             {
                 "peer_id": self.fiber2.get_peer_id(),
-                "funding_amount": hex(200 * 100000000),
+                "funding_amount": hex(Amount.ckb(200)),
                 "public": True,
                 # "tlc_fee_proportional_millionths": "0x4B0",
             }
@@ -153,7 +153,7 @@ class TestFiberDemo(FiberTest):
                 "invoice": invoice["invoice_address"],
             }
         )
-        self.wait_payment_state(self.fiber1, payment["payment_hash"], "Success")
+        self.wait_payment_state(self.fiber1, payment["payment_hash"], PaymentStatus.SUCCESS)
         after_channel = self.fiber1.get_client().list_channels({})
         assert (
             int(before_channel["channels"][0]["local_balance"], 16)
@@ -196,23 +196,13 @@ class TestFiberDemo(FiberTest):
 
     def test_new_fiber_test(self):
         """
-        多跳
-        1-2 100 ckb
-        2-3 100 ckb
-        1->3 转钱
-
-        1. 启动1个fiber3
-        2. 连接fiber3 和fiber2
-        3. 1 openchan 2
-        4 2 open channel 3
-        5. node3 new invoice
-        6. node1 transfer node3
-        8. query 是否成功
-        9 shut down
-         Returns:
-
+        Test multi-hop payment: fiber1->fiber2->fiber3.
+        Step 1: Start fiber3 and connect to fiber2.
+        Step 2: Open channels fiber1-fiber2 and fiber2-fiber3.
+        Step 3: Create invoice on fiber3 and send payment from fiber1.
+        Step 4: Verify payment success.
         """
-        # 1. 启动1个fiber3
+        # Step 1: Start fiber3
         account3_privake_key = self.generate_account(1000)
         fiber3 = self.start_new_fiber(account3_privake_key)
 
@@ -223,27 +213,29 @@ class TestFiberDemo(FiberTest):
         self.fiber1.get_client().open_channel(
             {
                 "peer_id": self.fiber2.get_peer_id(),
-                "funding_amount": hex(200 * 100000000),
+                "funding_amount": hex(Amount.ckb(200)),
                 "public": True,
             }
         )
         self.wait_for_channel_state(
-            self.fiber1.get_client(), self.fiber2.get_peer_id(), "CHANNEL_READY", 120
+            self.fiber1.get_client(), self.fiber2.get_peer_id(),
+            ChannelState.CHANNEL_READY, Timeout.CHANNEL_READY
         )
-        #         4 2 open channel 3
+        # Step 2: Open channel fiber2-fiber3
         self.fiber2.get_client().open_channel(
             {
                 "peer_id": fiber3.get_peer_id(),
-                "funding_amount": hex(200 * 100000000),
+                "funding_amount": hex(Amount.ckb(200)),
                 "public": True,
             }
         )
         self.wait_for_channel_state(
-            self.fiber2.get_client(), fiber3.get_peer_id(), "CHANNEL_READY", 120
+            self.fiber2.get_client(), fiber3.get_peer_id(),
+            ChannelState.CHANNEL_READY, Timeout.CHANNEL_READY
         )
-        #         5. node3 new invoice
+        # Step 3: Create invoice and send payment
         payment_preimage = self.generate_random_preimage()
-        invoice_balance = 100 * 100000000
+        invoice_balance = Amount.ckb(100)
         invoice = fiber3.get_client().new_invoice(
             {
                 "amount": hex(invoice_balance),
@@ -263,7 +255,7 @@ class TestFiberDemo(FiberTest):
             }
         )
         # 8. query 是否成功
-        self.wait_payment_state(self.fiber1, payment["payment_hash"], "Success")
+        self.wait_payment_state(self.fiber1, payment["payment_hash"], PaymentStatus.SUCCESS)
         # todo fiber3 query payment
         # self.wait_payment_state(fiber3, payment['payment_hash'], "Success")
 
@@ -273,9 +265,15 @@ class TestFiberDemo(FiberTest):
         #         9 shut down
 
     def test_faucet(self):
+        """
+        Test faucet: generate account, faucet UDT, verify balance.
+        """
         account_private_key = self.generate_account(0)
         self.faucet(
-            account_private_key, 1000, self.fiber2.account_private, 1000 * 10000000
+            account_private_key,
+            Amount.ckb(1000),
+            self.fiber2.account_private,
+            Amount.udt(100),  # 100 UDT
         )
 
         ret = self.udtContract.list_cell(
@@ -284,5 +282,5 @@ class TestFiberDemo(FiberTest):
             self.get_account_script(account_private_key)["args"],
         )
 
-        assert ret[0]["balance"] == 10000000000
-        assert ret[0]["ckb"] == 50000000000
+        assert ret[0]["balance"] == Amount.ckb(100)
+        assert ret[0]["ckb"] == Amount.ckb(500)

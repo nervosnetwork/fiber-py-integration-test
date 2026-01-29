@@ -1,29 +1,38 @@
+"""
+Test cases for send_payment through private channels.
+Verifies payment routing a-private-b-c-d-private-a topology.
+"""
 import time
 
 import pytest
 
 from framework.basic_fiber import FiberTest
 from framework.config import DEFAULT_MIN_DEPOSIT_CKB
+from framework.constants import Amount, ChannelState, TLCFeeRate, Timeout
 
 
 class TestPrivateChannel(FiberTest):
+    """
+    Test send_payment through private channel topology: a-private-b-c-d-private-a.
+    Verifies payments can route through private channels.
+    """
 
-    # @pytest.mark.skip("https://github.com/nervosnetwork/fiber/pull/502")
     def test_private_channel(self):
         """
-        a-私-b-c-d-私-a
-        1. a->b
-        2. a->c
-        3. a->d
-        4. a->a
-        Returns:
-
+        Test payment through private channel topology a-private-b-c-d-private-a.
+        Step 1: Open private channel fiber1-fiber2 and fiber3-fiber0.
+        Step 2: Open public channels fiber1-fiber2, fiber2-fiber3, fiber3-fiber0.
+        Step 3: Send payments from fiber0 to fiber1, fiber2, fiber3.
+        Step 4: Send self-payment from fiber0 to fiber0 (through the loop).
         """
+        # Step 1: Start two additional fibers
         self.start_new_fiber(self.generate_account(10000))
         self.start_new_fiber(self.generate_account(10000))
 
-        fiber1_balance = 1000 * 100000000
-        fiber1_fee = 1000
+        fiber1_balance = Amount.ckb(1000)
+        fiber1_fee = TLCFeeRate.DEFAULT
+
+        # Open private channel fiber1-fiber2
         self.fiber1.get_client().open_channel(
             {
                 "peer_id": self.fiber2.get_peer_id(),
@@ -32,15 +41,27 @@ class TestPrivateChannel(FiberTest):
                 "public": False,
             }
         )
-        time.sleep(1)
+        time.sleep(Timeout.POLL_INTERVAL)
         self.wait_for_channel_state(
-            self.fiber1.get_client(), self.fiber2.get_peer_id(), "CHANNEL_READY"
+            self.fiber1.get_client(),
+            self.fiber2.get_peer_id(),
+            ChannelState.CHANNEL_READY,
+            timeout=Timeout.CHANNEL_READY,
         )
-        self.open_channel(self.fibers[1], self.fibers[2], 1000 * 100000000, 1)
-        self.open_channel(self.fibers[2], self.fibers[3], 1000 * 100000000, 1)
 
+        # Step 2: Open public channels fiber1-fiber2, fiber2-fiber3, fiber3-fiber0
+        self.open_channel(
+            self.fibers[1], self.fibers[2],
+            Amount.ckb(1000), Amount.ckb(1)
+        )
+        self.open_channel(
+            self.fibers[2], self.fibers[3],
+            Amount.ckb(1000), Amount.ckb(1)
+        )
+
+        # Open private channel fiber3-fiber0
         self.fibers[3].connect_peer(self.fibers[0])
-        time.sleep(1)
+        time.sleep(Timeout.POLL_INTERVAL)
         self.fibers[3].get_client().open_channel(
             {
                 "peer_id": self.fibers[0].get_peer_id(),
@@ -49,12 +70,24 @@ class TestPrivateChannel(FiberTest):
                 "public": False,
             }
         )
-        time.sleep(1)
+        time.sleep(Timeout.POLL_INTERVAL)
         self.wait_for_channel_state(
-            self.fibers[3].get_client(), self.fibers[0].get_peer_id(), "CHANNEL_READY"
+            self.fibers[3].get_client(),
+            self.fibers[0].get_peer_id(),
+            ChannelState.CHANNEL_READY,
+            timeout=Timeout.CHANNEL_READY,
         )
-        time.sleep(1)
-        for i in range(1, len(self.fibers)):
-            self.send_payment(self.fibers[0], self.fibers[i], 1 * 100000000)
 
-        self.send_payment(self.fibers[0], self.fibers[0], 1 * 100000000)
+        # Step 3: Send payments from fiber0 to fiber1, fiber2, fiber3
+        time.sleep(Timeout.POLL_INTERVAL)
+        for i in range(1, len(self.fibers)):
+            self.send_payment(
+                self.fibers[0], self.fibers[i],
+                Amount.ckb(1)
+            )
+
+        # Step 4: Send self-payment from fiber0 to fiber0 (through the loop)
+        self.send_payment(
+            self.fibers[0], self.fibers[0],
+            Amount.ckb(1)
+        )

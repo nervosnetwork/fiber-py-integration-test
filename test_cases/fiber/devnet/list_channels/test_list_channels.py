@@ -26,7 +26,7 @@ class TestListChannels(FiberTest):
         Step 5: List channels by peer_id (fiber3) on fiber1 and fiber3; assert channel_id match.
         """
         # Step 1: Start fiber3 and connect to fiber1
-        account3_private_key = self.generate_account(Amount.ckb(1000))
+        account3_private_key = self.generate_account(1000)
         fiber3 = self.start_new_fiber(account3_private_key)
         fiber3.connect_peer(self.fiber1)
 
@@ -96,7 +96,7 @@ class TestListChannels(FiberTest):
         Step 4: List all channels on fiber1; assert count is 2.
         """
         # Step 1: Start fiber3 and connect to fiber1
-        account3_private_key = self.generate_account(Amount.ckb(1000))
+        account3_private_key = self.generate_account(1000)
         fiber3 = self.start_new_fiber(account3_private_key)
         fiber3.connect_peer(self.fiber1)
 
@@ -145,7 +145,7 @@ class TestListChannels(FiberTest):
         Step 3: List channels; assert first channel funding_udt_type_script matches.
         """
         # Step 1: Start fiber3 and connect to fiber1
-        account3_private_key = self.generate_account(Amount.ckb(1000))
+        account3_private_key = self.generate_account(1000)
         fiber3 = self.start_new_fiber(account3_private_key)
         fiber3.connect_peer(self.fiber1)
 
@@ -189,7 +189,7 @@ class TestListChannels(FiberTest):
         Step 3: List channels; assert created_at is within last 10 seconds.
         """
         # Step 1: Start fiber3 and connect to fiber1
-        account3_private_key = self.generate_account(Amount.ckb(1000))
+        account3_private_key = self.generate_account(1000)
         fiber3 = self.start_new_fiber(account3_private_key)
         fiber3.connect_peer(self.fiber1)
 

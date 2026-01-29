@@ -165,7 +165,7 @@ class TestFundingAmount(FiberTest):
         Step 2: Wait briefly; assert both sides have zero channels.
         """
         account3_private = self.generate_account(
-            1000, self.fiber1.account_private, Amount.ckb(1000)
+            1000, self.fiber1.account_private, Amount.udt(1000)
         )
         self.fiber3 = self.start_new_fiber(account3_private)
         self.fiber3.connect_peer(self.fiber1)
@@ -235,7 +235,7 @@ class TestFundingAmount(FiberTest):
         Step 2: Wait for CHANNEL_READY.
         """
         account3_private = self.generate_account(
-            1000, self.fiber1.account_private, Amount.ckb(1000)
+            1000, self.fiber1.account_private, Amount.udt(1000)
         )
         self.fiber3 = self.start_new_fiber(account3_private)
         self.fiber3.connect_peer(self.fiber1)
@@ -265,7 +265,7 @@ class TestFundingAmount(FiberTest):
         Step 3: Assert UDT list_cell balance is 1.
         """
         account3_private = self.generate_account(
-            1000, self.fiber1.account_private, Amount.ckb(1000)
+            1000, self.fiber1.account_private, Amount.udt(1000)
         )
         self.fiber3 = self.start_new_fiber(account3_private)
         self.fiber3.connect_peer(self.fiber1)

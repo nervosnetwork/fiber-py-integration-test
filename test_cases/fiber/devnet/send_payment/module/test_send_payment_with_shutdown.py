@@ -23,8 +23,8 @@ class TestSendPaymentWithShutdown(FiberTest):
         Step 2: Shutdown fiber3's channel (to fiber2); wait for tx in pool and payments to finish.
         """
         # Step 1: Build linear topology and send payments
-        self.start_new_fiber(self.generate_account(Amount.ckb(10000)))
-        self.start_new_fiber(self.generate_account(Amount.ckb(10000)))
+        self.start_new_fiber(self.generate_account(10000))
+        self.start_new_fiber(self.generate_account(10000))
         self.open_channel(
             self.fibers[0],
             self.fibers[1],
@@ -90,8 +90,8 @@ class TestSendPaymentWithShutdown(FiberTest):
         Step 1: Build topology and send payments; force shutdown channel.
         Step 2: Wait for shutdown tx and all payments to finish.
         """
-        self.start_new_fiber(self.generate_account(Amount.ckb(10000)))
-        self.start_new_fiber(self.generate_account(Amount.ckb(10000)))
+        self.start_new_fiber(self.generate_account(10000))
+        self.start_new_fiber(self.generate_account(10000))
         self.open_channel(
             self.fibers[0],
             self.fibers[1],

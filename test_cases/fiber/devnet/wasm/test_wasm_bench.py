@@ -29,7 +29,7 @@ class TestWasmBench(FiberTest):
         account_private = self.generate_account(
             10_000,
             self.Config.ACCOUNT_PRIVATE_1,
-            Amount.ckb(10_000),
+            Amount.udt(10_000),
         )
         WasmFiber.reset()
         wasm_fiber = WasmFiber(
@@ -51,7 +51,7 @@ class TestWasmBench(FiberTest):
             self.fiber1.account_private,
             10_000,
             self.fiber1.account_private,
-            Amount.ckb(10_000),
+            Amount.udt(10_000),
         )
         udt = self.get_account_udt_script(self.fiber1.account_private)
         self.open_channel(

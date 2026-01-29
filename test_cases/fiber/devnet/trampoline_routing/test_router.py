@@ -26,7 +26,7 @@ class TestRouter(FiberTest):
         """
         # Step 1: Create fiber3..4; faucet; open channels
         self.fiber3 = self.start_new_fiber(
-            self.generate_account(10000, self.fiber1.account_private, Amount.ckb(10000))
+            self.generate_account(10000, self.fiber1.account_private, Amount.udt(10000))
         )
         self.faucet(
             self.fiber2.account_private, 0,

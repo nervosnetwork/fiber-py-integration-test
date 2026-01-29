@@ -23,7 +23,7 @@ class TestMutilNodePayment(FiberTest):
         num_extra = 2
         # Step 1: Start extra fibers and open channels from fiber1 to each
         for _ in range(num_extra):
-            self.start_new_fiber(self.generate_account(Amount.ckb(10000)))
+            self.start_new_fiber(self.generate_account(10000))
         for i in range(1, len(self.fibers)):
             self.open_channel(
                 self.fiber1,

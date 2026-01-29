@@ -1,12 +1,22 @@
+"""
+Test watch tower with multi-to-one topology (aN->b->c).
+Verifies balance changes when hub node force shuts down with pending TLCs.
+"""
 import time
 
 from framework.basic_fiber import FiberTest
+from framework.constants import Amount, FeeRate
 from framework.util import ckb_hash
 
 
 class TestMutilToOne(FiberTest):
+    """
+    Test watch tower behavior when hub node (fiber1) force shuts down
+    with pending TLCs from multiple peer channels (aN->b->c topology).
+    """
     start_fiber_config = {"fiber_watchtower_check_interval_seconds": 3}
 
+    @classmethod
     def teardown_class(cls):
         cls.restore_time()
         super().teardown_class()
@@ -25,21 +35,31 @@ class TestMutilToOne(FiberTest):
 
     def test_mutil_to_one(self):
         """
-        aN->b->c
-        Returns:
+        Test CKB balance when hub node force shuts down (aN->b->c topology).
+        Step 1: Start 10 fibers and open channels.
+        Step 2: Send invoice payments from new fibers to fiber2.
+        Step 3: Disconnect hub and force shutdown channels.
+        Step 4: Wait for commitment cells to clear.
+        Step 5: Assert total CKB fee is less than 1 CKB.
         """
         for i in range(10):
             self.start_new_fiber(self.generate_account(10000))
 
         before_balance = self.get_fibers_balance()
 
-        self.open_channel(self.fiber1, self.fiber2, 1000 * 100000000, 0)
+        self.open_channel(
+            self.fiber1, self.fiber2,
+            Amount.ckb(1000), 0
+        )
         for i in range(len(self.new_fibers)):
-            self.open_channel(self.new_fibers[i], self.fiber1, 1000 * 100000000, 0)
+            self.open_channel(
+                self.new_fibers[i], self.fiber1,
+                Amount.ckb(1000), 0
+            )
         for i in range(10):
             for j in range(len(self.new_fibers)):
                 self.send_invoice_payment(
-                    self.new_fibers[i], self.fiber2, 1 * 100000000, False
+                    self.new_fibers[i], self.fiber2, Amount.ckb(1), False
                 )
         self.fiber1.get_client().disconnect_peer({"peer_id": self.fiber2.get_peer_id()})
         for channel in self.fiber1.get_client().list_channels({})["channels"]:
@@ -68,28 +88,34 @@ class TestMutilToOne(FiberTest):
 
         after_balance = self.get_fibers_balance()
         result = self.get_balance_change(before_balance, after_balance)
-        assert result[0]["ckb"] < 1 * 100000000
+        assert result[0]["ckb"] < Amount.ckb(1)
         ckb_fee = 0
         for rt in result:
             ckb_fee += rt["ckb"]
-        assert ckb_fee < 1 * 100000000
+        assert ckb_fee < Amount.ckb(1)
 
     def test_mutil_to_one_udt(self):
         """
-        aN->b->c
-        Returns:
+        Test UDT balance when hub node force shuts down (aN->b->c topology).
+        Step 1: Start 10 fibers with UDT, faucet, open channels.
+        Step 2: Send payments from new fibers to fiber2.
+        Step 3: Disconnect hub and force shutdown channels.
+        Step 4: Wait for commitment cells to clear.
+        Step 5: Assert UDT balance preserved and CKB fee within range.
         """
         for i in range(10):
             self.start_new_fiber(
                 self.generate_account(
-                    10000, self.fiber1.account_private, 10000 * 100000000
+                    10000,
+                    self.fiber1.account_private,
+                    Amount.udt(10000),
                 )
             )
         self.faucet(
             self.fiber1.account_private,
             0,
             self.fiber1.account_private,
-            10000 * 100000000,
+            Amount.udt(10000),
         )
         fibers_balance = []
         for i in range(len(self.fibers)):
@@ -99,7 +125,7 @@ class TestMutilToOne(FiberTest):
         self.open_channel(
             self.fiber1,
             self.fiber2,
-            1000 * 100000000,
+            Amount.ckb(1000),
             0,
             udt=self.get_account_udt_script(self.fiber1.account_private),
         )
@@ -107,18 +133,17 @@ class TestMutilToOne(FiberTest):
             self.open_channel(
                 self.new_fibers[i],
                 self.fiber1,
-                1000 * 100000000,
+                Amount.ckb(1000),
                 0,
                 udt=self.get_account_udt_script(self.fiber1.account_private),
             )
         udt = self.get_account_udt_script(self.fiber1.account_private)
         for i in range(20):
             for j in range(len(self.new_fibers)):
-                # self.send_invoice_payment(self.new_fibers[i], self.fiber2, 1 * 100000000, False,udt=self.get_account_udt_script(self.fiber1.account_private))
                 self.send_payment(
                     self.new_fibers[j],
                     self.fiber2,
-                    1 * 100000000,
+                    Amount.ckb(1),
                     False,
                     udt=udt,
                     try_count=0,
@@ -168,5 +193,5 @@ class TestMutilToOne(FiberTest):
         assert discard_ckb_balance == 0
         assert (
             fibers_balance[0]["chain"]["udt"] - after_fibers_balance[0]["chain"]["udt"]
-            < 1 * 100000000
+            < Amount.ckb(1)
         )

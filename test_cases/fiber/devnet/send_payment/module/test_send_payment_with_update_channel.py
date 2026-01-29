@@ -18,8 +18,8 @@ class TestSendPaymentWithUpdateChannel(FiberTest):
         Step 3: Send one final payment and assert success.
         """
         # Step 1: Build linear topology
-        self.start_new_fiber(self.generate_account(Amount.ckb(10000)))
-        self.start_new_fiber(self.generate_account(Amount.ckb(10000)))
+        self.start_new_fiber(self.generate_account(10000))
+        self.start_new_fiber(self.generate_account(10000))
 
         self.open_channel(
             self.fibers[0],

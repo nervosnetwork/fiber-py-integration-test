@@ -22,13 +22,13 @@ class MutilPathTestCase(FiberTest):
         Step 1: Start fiber3, open multiple channels; send invoice payments 0->2 and 2->0 repeatedly.
         """
         self.start_new_fiber(
-            self.generate_account(Amount.ckb(10000), self.fiber1.account_private, Amount.ckb(1000))
+            self.generate_account(10000, self.fiber1.account_private, Amount.udt(1000))
         )
         self.start_new_fiber(
-            self.generate_account(Amount.ckb(10000), self.fiber1.account_private, Amount.ckb(1000))
+            self.generate_account(10000, self.fiber1.account_private, Amount.udt(1000))
         )
         # self.start_new_fiber(
-        #     self.generate_account(Amount.ckb(10000), self.fiber1.account_private, Amount.ckb(1000))
+        #     self.generate_account(10000, self.fiber1.account_private, Amount.udt(1000))
         # )
 
         self.open_channel(self.fibers[0], self.fibers[1], Amount.ckb(1000), 0, TLCFeeRate.ZERO, TLCFeeRate.ZERO)
@@ -58,10 +58,10 @@ class MutilPathTestCase(FiberTest):
     # @pytest.mark.skip("This test is not stable, needs to be fixed")
     def test_mutil_to_one_2(self):
         self.start_new_fiber(
-            self.generate_account(Amount.ckb(10000), self.fiber1.account_private, Amount.ckb(1000))
+            self.generate_account(10000, self.fiber1.account_private, Amount.udt(1000))
         )
         self.start_new_fiber(
-            self.generate_account(Amount.ckb(10000), self.fiber1.account_private, Amount.ckb(1000))
+            self.generate_account(10000, self.fiber1.account_private, Amount.udt(1000))
         )
 
         self.open_channel(self.fibers[0], self.fibers[1], Amount.ckb(1000), 0, TLCFeeRate.ZERO, TLCFeeRate.ZERO)
@@ -118,10 +118,10 @@ class MutilPathTestCase(FiberTest):
 
     def test_mutil_to_one_3(self):
         self.start_new_fiber(
-            self.generate_account(Amount.ckb(10000), self.fiber1.account_private, Amount.ckb(1000))
+            self.generate_account(10000, self.fiber1.account_private, Amount.udt(1000))
         )
         self.start_new_fiber(
-            self.generate_account(Amount.ckb(10000), self.fiber1.account_private, Amount.ckb(1000))
+            self.generate_account(10000, self.fiber1.account_private, Amount.udt(1000))
         )
 
         self.open_channel(
@@ -179,10 +179,10 @@ class MutilPathTestCase(FiberTest):
 
         """
         self.start_new_fiber(
-            self.generate_account(Amount.ckb(10000), self.fiber1.account_private, Amount.ckb(1000))
+            self.generate_account(10000, self.fiber1.account_private, Amount.udt(1000))
         )
         self.start_new_fiber(
-            self.generate_account(Amount.ckb(10000), self.fiber1.account_private, Amount.ckb(1000))
+            self.generate_account(10000, self.fiber1.account_private, Amount.udt(1000))
         )
 
         self.open_channel(self.fibers[0], self.fibers[1], Amount.ckb(3000), 0, TLCFeeRate.ZERO, TLCFeeRate.ZERO)
@@ -213,13 +213,13 @@ class MutilPathTestCase(FiberTest):
         Returns:
         """
         self.start_new_fiber(
-            self.generate_account(Amount.ckb(10000), self.fiber1.account_private, Amount.ckb(1000))
+            self.generate_account(10000, self.fiber1.account_private, Amount.udt(1000))
         )
         self.start_new_fiber(
-            self.generate_account(Amount.ckb(10000), self.fiber1.account_private, Amount.ckb(1000))
+            self.generate_account(10000, self.fiber1.account_private, Amount.udt(1000))
         )
         self.start_new_fiber(
-            self.generate_account(Amount.ckb(10000), self.fiber1.account_private, Amount.ckb(1000))
+            self.generate_account(10000, self.fiber1.account_private, Amount.udt(1000))
         )
 
         self.open_channel(self.fibers[0], self.fibers[1], Amount.ckb(4000), 0, TLCFeeRate.ZERO, TLCFeeRate.ZERO)
@@ -258,10 +258,10 @@ class MutilPathTestCase(FiberTest):
         Returns:
         """
         self.start_new_fiber(
-            self.generate_account(Amount.ckb(10000), self.fiber1.account_private, Amount.ckb(1000))
+            self.generate_account(10000, self.fiber1.account_private, Amount.udt(1000))
         )
         self.start_new_fiber(
-            self.generate_account(Amount.ckb(10000), self.fiber1.account_private, Amount.ckb(1000))
+            self.generate_account(10000, self.fiber1.account_private, Amount.udt(1000))
         )
 
         self.open_channel(self.fibers[0], self.fibers[1], Amount.ckb(1000), 0, TLCFeeRate.ZERO, TLCFeeRate.ZERO)
@@ -336,14 +336,14 @@ class MutilPathTestCase(FiberTest):
     #
     #     """
     #     self.fiber3 = self.start_new_fiber(
-    #         self.generate_account(Amount.ckb(10000), self.fiber1.account_private, Amount.ckb(1000))
+    #         self.generate_account(10000, self.fiber1.account_private, Amount.udt(1000))
     #     )
     #
     #     self.fiber4 = self.start_new_fiber(
-    #         self.generate_account(Amount.ckb(10000), self.fiber1.account_private, Amount.ckb(1000))
+    #         self.generate_account(10000, self.fiber1.account_private, Amount.udt(1000))
     #     )
     #     self.fiber5 = self.start_new_fiber(
-    #         self.generate_account(Amount.ckb(10000), self.fiber1.account_private, Amount.ckb(1000))
+    #         self.generate_account(10000, self.fiber1.account_private, Amount.udt(1000))
     #     )
     #
     #     self.open_channel(self.fiber1, self.fiber3, Amount.ckb(1000), 0, TLCFeeRate.ZERO, TLCFeeRate.ZERO)
@@ -377,14 +377,14 @@ class MutilPathTestCase(FiberTest):
     #
     #     """
     #     self.fiber3 = self.start_new_fiber(
-    #         self.generate_account(Amount.ckb(10000), self.fiber1.account_private, Amount.ckb(1000))
+    #         self.generate_account(10000, self.fiber1.account_private, Amount.udt(1000))
     #     )
     #
     #     self.fiber4 = self.start_new_fiber(
-    #         self.generate_account(Amount.ckb(10000), self.fiber1.account_private, Amount.ckb(1000))
+    #         self.generate_account(10000, self.fiber1.account_private, Amount.udt(1000))
     #     )
     #     self.fiber5 = self.start_new_fiber(
-    #         self.generate_account(Amount.ckb(10000), self.fiber1.account_private, Amount.ckb(1000))
+    #         self.generate_account(10000, self.fiber1.account_private, Amount.udt(1000))
     #     )
     #
     #     self.open_channel(self.fiber1, self.fiber3, Amount.ckb(1000), 0, TLCFeeRate.ZERO, TLCFeeRate.ZERO)
@@ -409,7 +409,7 @@ class MutilPathTestCase(FiberTest):
 
     def test_transfer_self(self):
         self.fiber3 = self.start_new_fiber(
-            self.generate_account(Amount.ckb(10000), self.fiber1.account_private, Amount.ckb(1000))
+            self.generate_account(10000, self.fiber1.account_private, Amount.udt(1000))
         )
         self.open_channel(self.fiber1, self.fiber2, Amount.ckb(1000), 0, TLCFeeRate.ZERO, TLCFeeRate.ZERO)
         self.open_channel(self.fiber1, self.fiber2, Amount.ckb(1000), 0, TLCFeeRate.ZERO, TLCFeeRate.ZERO)
@@ -457,7 +457,7 @@ class MutilPathTestCase(FiberTest):
 
     def test_transfer_self_3(self):
         self.fiber3 = self.start_new_fiber(
-            self.generate_account(Amount.ckb(10000), self.fiber1.account_private, Amount.ckb(1000))
+            self.generate_account(10000, self.fiber1.account_private, Amount.udt(1000))
         )
         self.open_channel(self.fiber1, self.fiber2, Amount.ckb(1000), 0, TLCFeeRate.ZERO, TLCFeeRate.ZERO)
         self.open_channel(self.fiber1, self.fiber2, Amount.ckb(1000), 0, TLCFeeRate.ZERO, TLCFeeRate.ZERO)
@@ -629,10 +629,10 @@ class MutilPathTestCase(FiberTest):
 
     def test_max_fee(self):
         self.fiber3 = self.start_new_fiber(
-            self.generate_account(Amount.ckb(10000), self.fiber1.account_private, Amount.ckb(1000))
+            self.generate_account(10000, self.fiber1.account_private, Amount.udt(1000))
         )
         self.fiber4 = self.start_new_fiber(
-            self.generate_account(Amount.ckb(10000), self.fiber1.account_private, Amount.ckb(1000))
+            self.generate_account(10000, self.fiber1.account_private, Amount.udt(1000))
         )
         self.open_channel(self.fiber1, self.fiber2, Amount.ckb(1000), 0, TLCFeeRate.ZERO, TLCFeeRate.ZERO)
         self.open_channel(self.fiber2, self.fiber3, Amount.ckb(1000), 0, 2000, 0)
@@ -668,7 +668,7 @@ class MutilPathTestCase(FiberTest):
         Returns:
         """
         self.fiber3 = self.start_new_fiber(
-            self.generate_account(Amount.ckb(10000), self.fiber1.account_private, Amount.ckb(1000))
+            self.generate_account(10000, self.fiber1.account_private, Amount.udt(1000))
         )
         self.open_channel(self.fiber1, self.fiber2, Amount.ckb(3000), 0, TLCFeeRate.ZERO, TLCFeeRate.ZERO)
         self.open_channel(self.fiber2, self.fiber3, Amount.ckb(1000), 0, TLCFeeRate.ZERO, TLCFeeRate.ZERO)
@@ -715,7 +715,7 @@ class MutilPathTestCase(FiberTest):
 
     def test_private_channel(self):
         self.fiber3 = self.start_new_fiber(
-            self.generate_account(Amount.ckb(10000), self.fiber1.account_private, Amount.ckb(1000))
+            self.generate_account(10000, self.fiber1.account_private, Amount.udt(1000))
         )
 
         self.fiber1.get_client().open_channel(
@@ -801,13 +801,13 @@ class MutilPathTestCase(FiberTest):
         Returns:
         """
         self.fiber3 = self.start_new_fiber(
-            self.generate_account(Amount.ckb(10000), self.fiber1.account_private, Amount.ckb(1000))
+            self.generate_account(10000, self.fiber1.account_private, Amount.udt(1000))
         )
         self.fiber4 = self.start_new_fiber(
-            self.generate_account(Amount.ckb(10000), self.fiber1.account_private, Amount.ckb(1000))
+            self.generate_account(10000, self.fiber1.account_private, Amount.udt(1000))
         )
         self.fiber5 = self.start_new_fiber(
-            self.generate_account(Amount.ckb(10000), self.fiber1.account_private, Amount.ckb(1000))
+            self.generate_account(10000, self.fiber1.account_private, Amount.udt(1000))
         )
         self.open_channel(self.fiber1, self.fiber2, Amount.ckb(1000), 0, TLCFeeRate.ZERO, TLCFeeRate.ZERO)
         self.open_channel(self.fiber1, self.fiber2, Amount.ckb(1000), 0, TLCFeeRate.ZERO, TLCFeeRate.ZERO)
@@ -863,7 +863,7 @@ class MutilPathTestCase(FiberTest):
 
     def test_invoice_same_sender_cost_two(self):
         self.fiber3 = self.start_new_fiber(
-            self.generate_account(Amount.ckb(10000), self.fiber1.account_private, Amount.ckb(1000))
+            self.generate_account(10000, self.fiber1.account_private, Amount.udt(1000))
         )
         self.open_channel(self.fiber1, self.fiber2, Amount.ckb(2000), 0, TLCFeeRate.ZERO, TLCFeeRate.ZERO)
         self.open_channel(self.fiber1, self.fiber2, Amount.ckb(2000), 0, TLCFeeRate.ZERO, TLCFeeRate.ZERO)

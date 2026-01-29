@@ -28,7 +28,7 @@ class TestMppBench(FiberTest):
         """
         # Step 1: Start fiber3 and open 6 channels
         self.fiber3 = self.start_new_fiber(
-            self.generate_account(10000, self.fiber1.account_private, Amount.ckb(1000))
+            self.generate_account(10000, self.fiber1.account_private, Amount.udt(1000))
         )
         self.open_channel(
             self.fiber1, self.fiber2,
@@ -134,7 +134,7 @@ class TestMppBench(FiberTest):
         Step 3: Reconnect; wait; send self-payments; assert all TLC balances zero.
         """
         self.fiber3 = self.start_new_fiber(
-            self.generate_account(10000, self.fiber1.account_private, Amount.ckb(1000))
+            self.generate_account(10000, self.fiber1.account_private, Amount.udt(1000))
         )
         self.open_channel(
             self.fiber1, self.fiber2,

@@ -48,7 +48,7 @@ class TestWasmRpc(FiberTest):
         account_private = self.generate_account(
             10_000,
             self.Config.ACCOUNT_PRIVATE_1,
-            Amount.ckb(10_000),
+            Amount.udt(10_000),
         )
         WasmFiber.reset()
         wasm_fiber = WasmFiber(

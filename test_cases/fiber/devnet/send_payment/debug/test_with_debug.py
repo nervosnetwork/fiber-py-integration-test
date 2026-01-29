@@ -23,8 +23,8 @@ class TestWithDebug(FiberTest):
         Step 3: b->a keysend: either success (route b-a) or fail with "no path found" (route b-c-d-a without hop hint).
         """
         # Step 1: Build topology: a-private-b, b-c, c-d, d-private-a
-        self.start_new_fiber(self.generate_account(Amount.ckb(10000)))
-        self.start_new_fiber(self.generate_account(Amount.ckb(10000)))
+        self.start_new_fiber(self.generate_account(10000))
+        self.start_new_fiber(self.generate_account(10000))
 
         fiber1_balance = Amount.ckb(1000)
         fiber1_fee = TLCFeeRate.DEFAULT

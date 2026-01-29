@@ -69,7 +69,7 @@ class TestSendPayment(FiberTest):
         Step 1: Open channel fiber1-fiber2, fiber2-fiber3; create invoice with payment_preimage.
         Step 2: Send payment with same payment_hash; wait invoice Open, payment Failed; assert balances unchanged.
         """
-        account_private = self.generate_account(Amount.ckb(1000))
+        account_private = self.generate_account(1000)
         self.fiber3 = self.start_new_fiber(account_private)
         self.fiber3.connect_peer(self.fiber2)
         self.fiber1.get_client().open_channel(
@@ -141,7 +141,7 @@ class TestSendPayment(FiberTest):
 
     @pytest.mark.skip("https://github.com/nervosnetwork/fiber/issues/369")
     def test_node2_get_stuck(self):
-        account_private = self.generate_account(Amount.ckb(1000))
+        account_private = self.generate_account(1000)
         self.fiber3 = self.start_new_fiber(account_private)
         self.fiber3.connect_peer(self.fiber2)
         self.fiber1.get_client().open_channel(
@@ -288,7 +288,7 @@ class TestSendPayment(FiberTest):
         Step 1: Open channels; create invoice on fiber3; fiber1 and fiber2 both send_payment.
         Step 2: Wait invoice Paid; get payment status for both.
         """
-        account_private = self.generate_account(Amount.ckb(1000))
+        account_private = self.generate_account(1000)
         self.fiber3 = self.start_new_fiber(account_private)
         self.fiber3.connect_peer(self.fiber2)
         self.fiber1.get_client().open_channel(
@@ -347,7 +347,7 @@ class TestSendPayment(FiberTest):
 
     # @pytest.mark.skip("https://github.com/nervosnetwork/fiber/issues/436")
     def test_send_payment_each_other(self):
-        account_private = self.generate_account(Amount.ckb(1000))
+        account_private = self.generate_account(1000)
         self.fiber3 = self.start_new_fiber(account_private)
         self.fiber3.connect_peer(self.fiber2)
         self.fiber1.get_client().open_channel(
@@ -476,7 +476,7 @@ class TestSendPayment(FiberTest):
 
     # @pytest.mark.skip("https://github.com/nervosnetwork/fiber/issues/436")
     def test_send_payment_0x1(self):
-        account_private = self.generate_account(Amount.ckb(1000))
+        account_private = self.generate_account(1000)
         self.fiber3 = self.start_new_fiber(account_private)
         self.fiber3.connect_peer(self.fiber2)
         self.fiber1.get_client().open_channel(

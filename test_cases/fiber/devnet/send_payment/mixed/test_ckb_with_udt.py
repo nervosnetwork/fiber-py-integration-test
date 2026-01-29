@@ -28,7 +28,7 @@ class TestCkbWithUDT(FiberTest):
         """
         # Step 1: Build topology and UDT channels
         self.start_new_fiber(
-            self.generate_account(Amount.ckb(10000), self.fiber1.account_private, Amount.ckb(1000))
+            self.generate_account(10000, self.fiber1.account_private, Amount.udt(1000))
         )
         self.faucet(
             self.fibers[1].account_private,

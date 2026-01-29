@@ -24,7 +24,7 @@ class TestIssue670(FiberTest):
         Step 3: Add TLC on fiber1's channel with invoice payment_hash and expiry.
         """
         # Step 1: Start third fiber and open channel fiber1-fiber2
-        self.start_new_fiber(self.generate_account(Amount.ckb(1000)))
+        self.start_new_fiber(self.generate_account(1000))
         self.open_channel(
             self.fiber1, self.fiber2, Amount.ckb(1000), Amount.ckb(1000)
         )
