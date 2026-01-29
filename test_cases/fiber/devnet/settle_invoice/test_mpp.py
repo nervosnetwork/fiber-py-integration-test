@@ -32,7 +32,7 @@ class TestMpp(FiberTest):
             {"invoice": invoice["invoice_address"]}
         )
 
-        time.sleep(1)
+        time.sleep(5)
         print("before--settle-----")
         self.fiber1.get_client().get_payment({"payment_hash": payment_hash})
         payment3 = self.fiber3.get_client().get_payment(
