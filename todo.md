@@ -303,26 +303,26 @@
 - [x] `test_cases/fiber/devnet/shutdown_channel/test_mutil_to_one.py`
 - [x] `test_cases/fiber/devnet/shutdown_channel/test_node_state.py`
 - [x] `test_cases/fiber/devnet/shutdown_channel/test_pending_tlc.py`
-- [ ] `test_cases/fiber/devnet/shutdown_channel/test_restart.py`
-- [ ] `test_cases/fiber/devnet/shutdown_channel/test_shutdown_channel.py`
+- [x] `test_cases/fiber/devnet/shutdown_channel/test_restart.py`
+- [x] `test_cases/fiber/devnet/shutdown_channel/test_shutdown_channel.py`
 
 ---
 
 ## 29. spike_stress (1 个文件)
 
-- [ ] `test_cases/fiber/devnet/spike_stress/test_spike_impact.py`
+- [x] `test_cases/fiber/devnet/spike_stress/test_spike_impact.py`
 
 ---
 
 ## 30. stable (1 个文件)
 
-- [ ] `test_cases/fiber/devnet/stable/test_stable.py`
+- [x] `test_cases/fiber/devnet/stable/test_stable.py`
 
 ---
 
 ## 31. tlc_timeout (1 个文件)
 
-- [ ] `test_cases/fiber/devnet/tlc_timeout/test_tlc_timeout.py`
+- [x] `test_cases/fiber/devnet/tlc_timeout/test_tlc_timeout.py`
 
 ---
 
