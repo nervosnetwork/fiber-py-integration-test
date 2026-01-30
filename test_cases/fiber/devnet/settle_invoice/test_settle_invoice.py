@@ -180,7 +180,7 @@ class TestSettleInvoice(FiberTest):
         # 等待过期后再结算
         time.sleep(int(expiry_hex, 16) + 3)
 
-        # 过期后结算，必须抛错 “already expired”
+        # invoice.expiry 过期后结算，应该成功
         self.fiber1.get_client().settle_invoice(
             {"payment_hash": payment_hash, "payment_preimage": preimage}
         )
