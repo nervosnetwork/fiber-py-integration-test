@@ -299,8 +299,9 @@ self.open_channel(
 
 ### 5.2 Fiber 节点与 RPC
 
+- **RPC 文档指引**：Fiber JSON-RPC 的完整 API 规范、参数、返回类型等详见 **fiber-skill**（`.claude/skills/fiber-skill/`）。AI 在编写或调试 RPC 调用时，应优先查阅 fiber-skill 中的 `references/rpc-readme.md` 获取权威定义；框架的 `fiber_rpc.py` 为 Python 封装实现。
 - **获取 RPC 客户端**：统一用 `fiber.get_client()`，得到 `FiberRPCClient`。
-- **常见 RPC**（名称与用法以 `framework/fiber_rpc.py` 为准）：
+- **常见 RPC**（名称与用法以 `framework/fiber_rpc.py` 为准，详细规范见 fiber-skill）：
   - `send_payment(params)`、`get_payment(params)`
   - `open_channel(param)`、`accept_channel(param)`、`list_channels(param)`、`update_channel(param)`
   - `new_invoice(param)`、`get_invoice(param)`、`settle_invoice(param)`
