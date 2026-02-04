@@ -223,22 +223,43 @@ class FiberTest(CkbTest):
     def faucet(
         self,
         account_private_key,
-        ckb_balance,
+        ckb_balance_uint_ckb,
         udt_owner_private_key=None,
-        udt_balance=Amount.udt(1000),  # 默认 1000 UDT
+        udt_balance=Amount.udt(1000),  # Default 1000 UDT
     ):
-        if ckb_balance > 60:
+        """
+        Fund an account with CKB and optionally UDT.
+
+        Transfers CKB from the test faucet account (ACCOUNT_PRIVATE_1) to the target
+        account, and optionally issues UDT to it. Used by generate_account() and
+        when manually funding test accounts.
+
+        Args:
+            account_private_key: Private key of the account to fund.
+            ckb_balance_uint_ckb: CKB amount to transfer (in CKB units). Only transferred if > 60.
+            udt_owner_private_key: Optional. If provided, issues UDT to the account.
+            udt_balance: UDT amount in base units when udt_owner_private_key is set.
+                        Default: Amount.udt(1000).
+
+        Returns:
+            str: account_private_key when udt_owner_private_key is None; otherwise None.
+        """
+        # Step 1: Transfer CKB to the account if balance > 60 CKB
+        if ckb_balance_uint_ckb > 60:
             account = self.Ckb_cli.util_key_info_by_private_key(account_private_key)
             tx_hash = self.Ckb_cli.wallet_transfer_by_private_key(
                 self.Config.ACCOUNT_PRIVATE_1,
                 account["address"]["testnet"],
-                ckb_balance,
+                ckb_balance_uint_ckb,
                 self.node.rpcUrl,
             )
             self.Miner.miner_until_tx_committed(self.node, tx_hash, True)
 
+        # Step 2: Early return if no UDT issuance requested
         if udt_owner_private_key is None:
             return account_private_key
+
+        # Step 3: Issue UDT to the account and mine until committed
         tx_hash = issue_udt_tx(
             self.udtContract,
             self.node.rpcUrl,
@@ -249,14 +270,26 @@ class FiberTest(CkbTest):
         self.Miner.miner_until_tx_committed(self.node, tx_hash, True)
 
     def generate_account(
-        self, ckb_balance, udt_owner_private_key=None, udt_balance=Amount.udt(1000)
+        self, ckb_balance_uint_ckb, udt_owner_private_key=None, udt_balance=Amount.udt(1000)
     ):
-        # error
-        # if self.debug:
-        #     raise Exception("debug not support generate_account")
+        """
+        Generate a new CKB account with CKB and optionally UDT balance.
+
+        Creates a fresh account via generate_account_privakey(), then funds it via faucet.
+        Use this for spawning new Fiber nodes or test accounts that need initial balance.
+
+        Args:
+            ckb_balance_uint_ckb: CKB balance in CKB units (integer, e.g. 10000 for 10000 CKB).
+            udt_owner_private_key: Optional. If provided, issues UDT to the new account.
+            udt_balance: UDT amount in base units when udt_owner_private_key is set.
+                         Default: Amount.udt(1000).
+
+        Returns:
+            str: The new account's private key.
+        """
         account_private_key = generate_account_privakey()
         self.faucet(
-            account_private_key, ckb_balance, udt_owner_private_key, udt_balance
+            account_private_key, ckb_balance_uint_ckb, udt_owner_private_key, udt_balance
         )
         return account_private_key
 

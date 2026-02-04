@@ -26,7 +26,7 @@ class TestHtlcExpired(FiberTest):
         Step 4: Assert channels are closed and balances are correct.
         """
         # Step 1: Build topology fiber1->fiber2->fiber3 and open channels
-        self.start_new_fiber(self.generate_account(Amount.ckb(1000)))
+        self.start_new_fiber(self.generate_account(1000))
         self.open_channel(
             self.fiber1, self.fiber2,
             fiber1_balance=Amount.ckb(1000),
@@ -105,7 +105,7 @@ class TestHtlcExpired(FiberTest):
         Step 4: Assert channels are closed and balances are correct.
         """
         # Step 1: Build topology and add TLCs with short expiry
-        self.start_new_fiber(self.generate_account(Amount.ckb(1000)))
+        self.start_new_fiber(self.generate_account(1000))
         self.open_channel(
             self.fiber1, self.fiber2,
             fiber1_balance=Amount.ckb(1000),

@@ -28,7 +28,7 @@ class TestShutdownMidNode(FiberTest):
         for i in range(8):
             self.start_new_fiber(
                 self.generate_account(
-                    Amount.ckb(10000),
+                    10000,
                     self.fiber1.account_private,
                     Amount.udt(10000),
                 )

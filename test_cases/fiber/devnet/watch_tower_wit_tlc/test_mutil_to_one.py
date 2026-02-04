@@ -43,7 +43,7 @@ class TestMutilToOne(FiberTest):
         """
         # Step 1: Build topology with multiple nodes connecting to fiber1
         for i in range(10):
-            self.start_new_fiber(self.generate_account(Amount.ckb(10000)))
+            self.start_new_fiber(self.generate_account(10000))
 
         before_balance = self.get_fibers_balance()
 

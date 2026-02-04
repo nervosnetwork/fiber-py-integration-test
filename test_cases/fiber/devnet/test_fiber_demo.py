@@ -219,7 +219,7 @@ class TestFiberDemo(FiberTest):
         Step 4: Verify payment success.
         """
         # Step 1: Start fiber3 and connect to fiber2
-        account3_privake_key = self.generate_account(Amount.ckb(1000))
+        account3_privake_key = self.generate_account(1000)
         fiber3 = self.start_new_fiber(account3_privake_key)
         fiber3.connect_peer(self.fiber2)
         time.sleep(3)

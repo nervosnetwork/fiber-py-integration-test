@@ -13,11 +13,11 @@ from framework.constants import Amount, Timeout, ChannelState, FeeRate
 class TestAbandonChannel(FiberTest):
     """
     Test abandon_channel RPC under different channel states.
-    Covers: abandon by tmp_id; reject after accept (signed); reject when tx in pool;
+    Covers: abandon by temporary_channel_id; reject after accept (signed); reject when tx in pool;
     reject when CHANNEL_READY / SHUTTING_DOWN / CLOSED (should use shutdown instead).
     """
 
-    def test_tmp_id(self):
+    def test_temporary_channel_id(self):
         """
         Abandon channel with temporary_channel_id before accept; both sides end with no channel.
         Step 1: fiber1 opens channel (open_channel).

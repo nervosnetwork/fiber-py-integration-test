@@ -32,7 +32,7 @@ class TestCkbWithUDT(FiberTest):
         )
         self.faucet(
             self.fibers[1].account_private,
-            Amount.ckb(10000),
+            10000,
             self.fiber1.account_private,
             Amount.udt(10000),
         )
@@ -118,7 +118,7 @@ class TestCkbWithUDT(FiberTest):
         )
         self.faucet(
             self.fibers[1].account_private,
-            Amount.ckb(10000),
+            10000,
             self.fiber2.account_private,
             Amount.udt(10000),
         )

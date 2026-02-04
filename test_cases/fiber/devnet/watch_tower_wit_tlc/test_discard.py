@@ -45,7 +45,7 @@ class TestDiscard(FiberTest):
             self.fiber1.account_private,
             Amount.udt(10000),
         )
-        self.fiber3 = self.start_new_fiber(self.generate_account(Amount.ckb(1000)))
+        self.fiber3 = self.start_new_fiber(self.generate_account(1000))
         before_udt_balances = self.get_fibers_balance()
 
         self.open_channel(
@@ -115,7 +115,7 @@ class TestDiscard(FiberTest):
         Step 4: Assert CKB fee is within expected range.
         """
         # Step 1: Build fiber1->fiber2->fiber3 topology and send payments
-        self.fiber3 = self.start_new_fiber(self.generate_account(Amount.ckb(1000)))
+        self.fiber3 = self.start_new_fiber(self.generate_account(1000))
         before_udt_balances = []
         for fiber in self.fibers:
             before_udt_balances.append(self.get_fiber_balance(fiber))

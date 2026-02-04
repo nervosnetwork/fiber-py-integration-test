@@ -25,7 +25,7 @@ class TestOneToOne(FiberTest):
         Step 4: Assert balance changes are correct.
         """
         # Step 1: Build topology and create invoices
-        self.start_new_fiber(self.generate_account(Amount.ckb(10000)))
+        self.start_new_fiber(self.generate_account(10000))
         before_balance = self.get_fibers_balance()
         self.open_channel(
             self.fibers[0], self.fibers[1],
