@@ -172,7 +172,7 @@ class TestAbandonChannel(FiberTest):
             self.fiber1.get_client(),
             self.fiber2.get_peer_id(),
             ChannelState.CLOSED,
-            timeout=Timeout.CHANNEL_READY,
+            timeout=Timeout.MEDIUM,
             include_closed=True,
         )
         with pytest.raises(Exception) as exc_info:
