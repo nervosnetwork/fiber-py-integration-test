@@ -62,8 +62,6 @@ class TestTemporaryChannelId(FiberTest):
                     int(open_channel_auto_accept_min_ckb_funding_amount, 16) - 1
                 ),
                 "public": True,
-                "commitment_fee_rate": hex(FeeRate.DEFAULT),
-                "funding_fee_rate": hex(FeeRate.DEFAULT),
             }
         )
         time.sleep(Timeout.POLL_INTERVAL)

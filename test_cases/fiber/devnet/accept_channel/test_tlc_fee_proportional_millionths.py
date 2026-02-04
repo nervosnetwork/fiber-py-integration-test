@@ -30,8 +30,6 @@ class TestTlcFeeProportionalMillionths(FiberTest):
                 "peer_id": self.fiber2.get_peer_id(),
                 "funding_amount": hex(DEFAULT_MIN_DEPOSIT_CKB),
                 "public": True,
-                "commitment_fee_rate": hex(FeeRate.DEFAULT),
-                "funding_fee_rate": hex(FeeRate.DEFAULT),
             }
         )
         time.sleep(Timeout.POLL_INTERVAL)

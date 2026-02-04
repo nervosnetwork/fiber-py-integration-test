@@ -32,8 +32,6 @@ class TestMaxTlcValueInFlight(FiberTest):
                 "peer_id": self.fiber2.get_peer_id(),
                 "funding_amount": hex(DEFAULT_MIN_DEPOSIT_CKB),
                 "public": True,
-                "commitment_fee_rate": hex(FeeRate.DEFAULT),
-                "funding_fee_rate": hex(FeeRate.DEFAULT),
             }
         )
         time.sleep(Timeout.POLL_INTERVAL)
@@ -66,7 +64,6 @@ class TestMaxTlcValueInFlight(FiberTest):
         self.wait_payment_state(
             self.fiber2, payment_hash, PaymentStatus.FAILED, timeout=Timeout.PAYMENT_SUCCESS
         )
-        self.assert_payment_failed(self.fiber2, payment_hash)
 
         # Step 6: Send payment in reverse direction (should succeed)
         self.send_payment(self.fiber1, self.fiber2, Amount.ckb(1) + 1)

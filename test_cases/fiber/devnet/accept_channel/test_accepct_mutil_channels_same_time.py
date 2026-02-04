@@ -9,6 +9,7 @@ import pytest
 from framework.basic_fiber import FiberTest
 from framework.config import DEFAULT_MIN_DEPOSIT_CKB
 from framework.constants import Amount, Timeout, ChannelState, FeeRate
+from framework.waiter import Waiter, WaitConfig
 
 
 class TestAcceptMutilChannelsSameTime(FiberTest):
@@ -73,124 +74,78 @@ class TestAcceptMutilChannelsSameTime(FiberTest):
             timeout=Timeout.CHANNEL_READY,
         )
 
-    @pytest.mark.skip("https://github.com/nervosnetwork/fiber/issues/246")
+    debug = True
+
+    # @pytest.mark.skip("https://github.com/nervosnetwork/fiber/issues/246")
     def test_accept_channel_diff_channel_same_time(self):
         """
-        Multi-channel concurrent accept: fiber2 accepts multiple temporary channels in sequence,
-        verify first to CHANNEL_READY, second to AWAITING_TX_SIGNATURES, then open new channel and accept to CHANNEL_READY.
-        Skipped due to issue #246.
-        Step 1: Generate account and start fiber3 (1000 CKB balance, consistent with framework).
+        Multi-channel concurrent accept: fiber1 and fiber3 open N channels to fiber2,
+        fiber2 accepts all channels simultaneously, verify all channels become CHANNEL_READY.
+        Step 1: Generate account and start fiber3.
         Step 2: fiber3 connects to fiber2.
-        Step 3: Open one temp channel fiber1->fiber2 and one fiber3->fiber2.
-        Step 4: fiber3 opens 5 more temp channels for concurrent accept.
-        Step 5: fiber2 accepts first, second, then the other 5 in sequence.
-        Step 6: Wait fiber1<->fiber2 channel ready; wait fiber3<->fiber2 to AWAITING_TX_SIGNATURES.
-        Step 7: fiber3 opens one more channel, fiber2 accepts and wait CHANNEL_READY.
+        Step 3: fiber1 opens N channels to fiber2.
+        Step 4: fiber3 opens N channels to fiber2.
+        Step 5: fiber2 accepts all channels simultaneously.
+        Step 6: Wait and verify all channels are CHANNEL_READY.
         """
-        # Step 1: Generate account and start fiber3 (1000 CKB balance)
-        account3 = self.generate_account(1000)
+        channel_count = 3  # Number of channels each fiber opens to fiber2
+
+        # Step 1: Generate account and start fiber3
+        account3 = self.generate_account(10000)
         fiber3 = self.start_new_fiber(account3)
 
         # Step 2: fiber3 connects to fiber2
         fiber3.connect_peer(self.fiber2)
         time.sleep(Timeout.POLL_INTERVAL)
 
-        # Step 3: Open one temp channel fiber1->fiber2 and one fiber3->fiber2
-        temporary_channel1 = self.fiber1.get_client().open_channel(
-            {
-                "peer_id": self.fiber2.get_peer_id(),
-                "funding_amount": hex(DEFAULT_MIN_DEPOSIT_CKB),
-                "public": True,
-                "commitment_fee_rate": hex(FeeRate.DEFAULT),
-                "funding_fee_rate": hex(FeeRate.DEFAULT),
-            }
-        )
-        temporary_channel2 = fiber3.get_client().open_channel(
-            {
-                "peer_id": self.fiber2.get_peer_id(),
-                "funding_amount": hex(DEFAULT_MIN_DEPOSIT_CKB),
-                "public": True,
-                "commitment_fee_rate": hex(FeeRate.DEFAULT),
-                "funding_fee_rate": hex(FeeRate.DEFAULT),
-            }
-        )
+        # Step 3: fiber1 opens N channels to fiber2
+        fiber1_channels = []
+        for _ in range(channel_count):
+            temp_channel = self.fiber1.get_client().open_channel(
+                {
+                    "peer_id": self.fiber2.get_peer_id(),
+                    "funding_amount": hex(DEFAULT_MIN_DEPOSIT_CKB),
+                    "public": True,
+                }
+            )
+            fiber1_channels.append(temp_channel)
         time.sleep(Timeout.POLL_INTERVAL)
 
-        # Step 4: fiber3 opens 5 more temp channels for concurrent accept
-        temporary_other_channels = []
-        for _ in range(5):
-            temporary_other_channels.append(
-                fiber3.get_client().open_channel(
-                    {
-                        "peer_id": self.fiber2.get_peer_id(),
-                        "funding_amount": hex(DEFAULT_MIN_DEPOSIT_CKB),
-                        "public": True,
-                        "commitment_fee_rate": hex(FeeRate.DEFAULT),
-                        "funding_fee_rate": hex(FeeRate.DEFAULT),
-                    }
-                )
+        # Step 4: fiber3 opens N channels to fiber2
+        fiber3_channels = []
+        for _ in range(channel_count):
+            temp_channel = fiber3.get_client().open_channel(
+                {
+                    "peer_id": self.fiber2.get_peer_id(),
+                    "funding_amount": hex(DEFAULT_MIN_DEPOSIT_CKB),
+                    "public": True,
+                }
             )
+            fiber3_channels.append(temp_channel)
+        time.sleep(Timeout.POLL_INTERVAL)
 
-        # Step 5: fiber2 accepts first, second, then the other 5 in sequence
-        self.fiber2.get_client().accept_channel(
-            {
-                "temporary_channel_id": temporary_channel1["temporary_channel_id"],
-                "funding_amount": hex(DEFAULT_MIN_DEPOSIT_CKB),
-            }
-        )
-        time.sleep(Timeout.FAST_POLL_INTERVAL)
-        self.fiber2.get_client().accept_channel(
-            {
-                "temporary_channel_id": temporary_channel2["temporary_channel_id"],
-                "funding_amount": hex(DEFAULT_MIN_DEPOSIT_CKB),
-            }
-        )
-        time.sleep(Timeout.FAST_POLL_INTERVAL)
-        for ch in temporary_other_channels:
+        # Step 5: fiber2 accepts all channels simultaneously
+        all_channels = fiber1_channels + fiber3_channels
+        for ch in all_channels:
             self.fiber2.get_client().accept_channel(
                 {
                     "temporary_channel_id": ch["temporary_channel_id"],
                     "funding_amount": hex(DEFAULT_MIN_DEPOSIT_CKB),
                 }
             )
-            time.sleep(Timeout.FAST_POLL_INTERVAL)
 
-        # Step 6: Wait fiber1<->fiber2 channel ready
-        self.wait_for_channel_state(
-            self.fiber1.get_client(),
-            self.fiber2.get_peer_id(),
-            ChannelState.CHANNEL_READY,
-            timeout=Timeout.CHANNEL_READY,
-        )
-        # Wait fiber3<->fiber2 to AWAITING_TX_SIGNATURES
-        self.wait_for_channel_state(
-            self.fiber2.get_client(),
-            fiber3.get_peer_id(),
-            ChannelState.AWAITING_TX_SIGNATURES,
-            timeout=Timeout.CHANNEL_READY,
-        )
-        time.sleep(5)  # Allow multi-channel processing to settle (short wait, not main logic)
-
-        # Step 7: fiber3 opens one more channel, fiber2 accepts and wait CHANNEL_READY
-        temporary_channel2 = fiber3.get_client().open_channel(
-            {
-                "peer_id": self.fiber2.get_peer_id(),
-                "funding_amount": hex(DEFAULT_MIN_DEPOSIT_CKB),
-                "public": True,
-                "commitment_fee_rate": hex(FeeRate.DEFAULT),
-                "funding_fee_rate": hex(FeeRate.DEFAULT),
-            }
-        )
+        # Step 6: Wait and verify all channels are CHANNEL_READY (from fiber2's view)
         time.sleep(Timeout.POLL_INTERVAL)
-        self.fiber2.get_client().accept_channel(
-            {
-                "temporary_channel_id": temporary_channel2["temporary_channel_id"],
-                "funding_amount": hex(DEFAULT_MIN_DEPOSIT_CKB),
-            }
-        )
-        self.wait_for_channel_state(
-            self.fiber2.get_client(),
-            fiber3.get_peer_id(),
-            ChannelState.CHANNEL_READY,
-            timeout=Timeout.CHANNEL_READY,
+
+        def _fiber2_ready_predicate() -> bool:
+            channels = self.fiber2.get_client().list_channels({})["channels"]
+            for ch in channels:
+                if ch['state']['state_name'] != ChannelState.CHANNEL_READY:
+                    return False
+            return True
+
+        Waiter.wait_until(
+            _fiber2_ready_predicate,
+            config=WaitConfig(timeout=Timeout.CHANNEL_READY, interval=Timeout.POLL_INTERVAL),
+            error_message=f"fiber2 expected  related channels all CHANNEL_READY",
         )
