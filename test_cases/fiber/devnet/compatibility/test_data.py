@@ -8,7 +8,6 @@ from framework.test_fiber import FiberConfigPath
 
 
 class TestData(FiberTest):
-    debug = True
 
     # @pytest.mark.skip("migration failed")
     def test_old_fiber_061(self):
