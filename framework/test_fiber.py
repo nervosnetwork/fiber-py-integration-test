@@ -35,9 +35,9 @@ class FiberConfigPath(Enum):
         "download/fiber/0.6.1/fnn",
     )
 
-    V060_DEV = (
+    V061_DEV = (
         "/source/fiber/dev_config_3.yml.j2",
-        "download/fiber/0.6.0/fnn",
+        "download/fiber/0.6.1/fnn",
     )
 
     def __init__(self, fiber_config_path, fiber_bin_path):
