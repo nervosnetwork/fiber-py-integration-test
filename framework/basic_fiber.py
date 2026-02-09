@@ -442,6 +442,8 @@ class FiberTest(CkbTest):
                     "invoice": invoice["invoice_address"],
                     "allow_self_payment": True,
                     "max_parts": hex(12),
+                    # Extremely high max_fee_rate to avoid test failures due to fees
+                    # Production code should use reasonable values (default is 5 = 0.5%)
                     "max_fee_rate": hex(1000000000000000),
                 }
                 if "allow_atomic_mpp" in invoice_params:
@@ -457,6 +459,8 @@ class FiberTest(CkbTest):
             "invoice": invoice["invoice_address"],
             "allow_self_payment": True,
             "max_parts": hex(12),
+            # Extremely high max_fee_rate to avoid test failures due to fees
+            # Production code should use reasonable values (default is 5 = 0.5%)
             "max_fee_rate": hex(1000000000000000),
         }
         if "allow_atomic_mpp" in invoice_params:
@@ -476,6 +480,8 @@ class FiberTest(CkbTest):
                         "keysend": True,
                         "allow_self_payment": True,
                         "udt_type_script": udt,
+                        # Extremely high max_fee_rate to avoid test failures due to fees
+                        # Production code should use reasonable values (default is 5 = 0.5%)
                         "max_fee_rate": hex(1000000000000000),
                         # "final_tlc_expiry_delta": hex(120960000),
                     }
@@ -495,6 +501,8 @@ class FiberTest(CkbTest):
                 "keysend": True,
                 "allow_self_payment": True,
                 "udt_type_script": udt,
+                # Extremely high max_fee_rate to avoid test failures due to fees
+                # Production code should use reasonable values (default is 5 = 0.5%)
                 "max_fee_rate": hex(1000000000000000),
             }
         )
