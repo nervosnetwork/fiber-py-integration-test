@@ -11,6 +11,7 @@ settle_invoice 边缘用例与集成点测试（补充 PR 覆盖）
 7. 新旧命令兼容性（Compatibility with Legacy Code）
 8. 无效 payment_hash 的结算尝试（Invalid Input Handling）
 """
+
 import time
 import concurrent.futures
 import pytest
