@@ -20,7 +20,7 @@ class TestBoundaryValues(SharedFiberTest):
     fiber7: Fiber
     fiber8: Fiber
 
-    def setUp(self):
+    def setup_method(self, method):
         if getattr(TestBoundaryValues, "_channel_inited", False):
             return
         TestBoundaryValues._channel_inited = True

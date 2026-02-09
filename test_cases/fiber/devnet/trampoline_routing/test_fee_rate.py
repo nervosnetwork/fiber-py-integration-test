@@ -17,7 +17,7 @@ class TestFeeRate(SharedFiberTest):
     fiber5: Fiber
     fiber6: Fiber
 
-    def setUp(self):
+    def setup_method(self, method):
         if getattr(TestFeeRate, "_channel_inited", False):
             return
         TestFeeRate._channel_inited = True

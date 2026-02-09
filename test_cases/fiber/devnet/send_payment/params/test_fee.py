@@ -42,7 +42,7 @@ class TestFee(SharedFiberTest):
     fiber7: Fiber
     fiber8: Fiber
 
-    def setUp(self):
+    def setup_method(self, method):
         """
         fiber1_fee 表示, fiber1 在该通道中,做为路由节点时收取的基础费用 (base fee)，单位为 msat。
         fiber2_fee 表示, fiber2 在该通道中,做为路由节点时收取的基础费用 (base fee)，单位为 msat。
