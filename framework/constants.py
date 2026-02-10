@@ -4,6 +4,7 @@ Fiber 测试框架常量定义模块
 提供语义化的常量定义，避免魔法数字，提高代码可读性。
 """
 
+from decimal import Decimal
 from typing import Union
 
 
@@ -32,8 +33,8 @@ class Amount:
             >>> Amount.ckb(100)
             10000000000
         """
-        return int(n * Amount.CKB)
-    
+        return int(Decimal(str(n)) * Decimal(str(Amount.CKB)))
+
     @staticmethod
     def udt(n: Union[int, float]) -> int:
         """
@@ -49,8 +50,8 @@ class Amount:
             >>> Amount.udt(1000)
             100000000000
         """
-        return int(n * Amount.UDT)
-    
+        return int(Decimal(str(n)) * Decimal(str(Amount.UDT)))
+
     @staticmethod
     def to_ckb(shannon: int) -> float:
         """
