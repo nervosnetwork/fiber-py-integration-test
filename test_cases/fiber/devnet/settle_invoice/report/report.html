@@ -1,0 +1,360 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta charset="utf-8"/>
+    <title>report.html</title>
+    <link href="assets/style.css" rel="stylesheet" type="text/css"/></head>
+  <body onLoad="init()">
+    <script>/* This Source Code Form is subject to the terms of the Mozilla Public
+ * License, v. 2.0. If a copy of the MPL was not distributed with this file,
+ * You can obtain one at http://mozilla.org/MPL/2.0/. */
+
+
+function toArray(iter) {
+    if (iter === null) {
+        return null;
+    }
+    return Array.prototype.slice.call(iter);
+}
+
+function find(selector, elem) { // eslint-disable-line no-redeclare
+    if (!elem) {
+        elem = document;
+    }
+    return elem.querySelector(selector);
+}
+
+function findAll(selector, elem) {
+    if (!elem) {
+        elem = document;
+    }
+    return toArray(elem.querySelectorAll(selector));
+}
+
+function sortColumn(elem) {
+    toggleSortStates(elem);
+    const colIndex = toArray(elem.parentNode.childNodes).indexOf(elem);
+    let key;
+    if (elem.classList.contains('result')) {
+        key = keyResult;
+    } else if (elem.classList.contains('links')) {
+        key = keyLink;
+    } else {
+        key = keyAlpha;
+    }
+    sortTable(elem, key(colIndex));
+}
+
+function showAllExtras() { // eslint-disable-line no-unused-vars
+    findAll('.col-result').forEach(showExtras);
+}
+
+function hideAllExtras() { // eslint-disable-line no-unused-vars
+    findAll('.col-result').forEach(hideExtras);
+}
+
+function showExtras(colresultElem) {
+    const extras = colresultElem.parentNode.nextElementSibling;
+    const expandcollapse = colresultElem.firstElementChild;
+    extras.classList.remove('collapsed');
+    expandcollapse.classList.remove('expander');
+    expandcollapse.classList.add('collapser');
+}
+
+function hideExtras(colresultElem) {
+    const extras = colresultElem.parentNode.nextElementSibling;
+    const expandcollapse = colresultElem.firstElementChild;
+    extras.classList.add('collapsed');
+    expandcollapse.classList.remove('collapser');
+    expandcollapse.classList.add('expander');
+}
+
+function showFilters() {
+    let visibleString = getQueryParameter('visible') || 'all';
+    visibleString = visibleString.toLowerCase();
+    const checkedItems = visibleString.split(',');
+
+    const filterItems = document.getElementsByClassName('filter');
+    for (let i = 0; i < filterItems.length; i++) {
+        filterItems[i].hidden = false;
+
+        if (visibleString != 'all') {
+            filterItems[i].checked = checkedItems.includes(filterItems[i].getAttribute('data-test-result'));
+            filterTable(filterItems[i]);
+        }
+    }
+}
+
+function addCollapse() {
+    // Add links for show/hide all
+    const resulttable = find('table#results-table');
+    const showhideall = document.createElement('p');
+    showhideall.innerHTML = '<a href="javascript:showAllExtras()">Show all details</a> / ' +
+                            '<a href="javascript:hideAllExtras()">Hide all details</a>';
+    resulttable.parentElement.insertBefore(showhideall, resulttable);
+
+    // Add show/hide link to each result
+    findAll('.col-result').forEach(function(elem) {
+        const collapsed = getQueryParameter('collapsed') || 'Passed';
+        const extras = elem.parentNode.nextElementSibling;
+        const expandcollapse = document.createElement('span');
+        if (extras.classList.contains('collapsed')) {
+            expandcollapse.classList.add('expander');
+        } else if (collapsed.includes(elem.innerHTML)) {
+            extras.classList.add('collapsed');
+            expandcollapse.classList.add('expander');
+        } else {
+            expandcollapse.classList.add('collapser');
+        }
+        elem.appendChild(expandcollapse);
+
+        elem.addEventListener('click', function(event) {
+            if (event.currentTarget.parentNode.nextElementSibling.classList.contains('collapsed')) {
+                showExtras(event.currentTarget);
+            } else {
+                hideExtras(event.currentTarget);
+            }
+        });
+    });
+}
+
+function getQueryParameter(name) {
+    const match = RegExp('[?&]' + name + '=([^&]*)').exec(window.location.search);
+    return match && decodeURIComponent(match[1].replace(/\+/g, ' '));
+}
+
+function init () { // eslint-disable-line no-unused-vars
+    resetSortHeaders();
+
+    addCollapse();
+
+    showFilters();
+
+    sortColumn(find('.initial-sort'));
+
+    findAll('.sortable').forEach(function(elem) {
+        elem.addEventListener('click',
+            function() {
+                sortColumn(elem);
+            }, false);
+    });
+}
+
+function sortTable(clicked, keyFunc) {
+    const rows = findAll('.results-table-row');
+    const reversed = !clicked.classList.contains('asc');
+    const sortedRows = sort(rows, keyFunc, reversed);
+    /* Whole table is removed here because browsers acts much slower
+     * when appending existing elements.
+     */
+    const thead = document.getElementById('results-table-head');
+    document.getElementById('results-table').remove();
+    const parent = document.createElement('table');
+    parent.id = 'results-table';
+    parent.appendChild(thead);
+    sortedRows.forEach(function(elem) {
+        parent.appendChild(elem);
+    });
+    document.getElementsByTagName('BODY')[0].appendChild(parent);
+}
+
+function sort(items, keyFunc, reversed) {
+    const sortArray = items.map(function(item, i) {
+        return [keyFunc(item), i];
+    });
+
+    sortArray.sort(function(a, b) {
+        const keyA = a[0];
+        const keyB = b[0];
+
+        if (keyA == keyB) return 0;
+
+        if (reversed) {
+            return keyA < keyB ? 1 : -1;
+        } else {
+            return keyA > keyB ? 1 : -1;
+        }
+    });
+
+    return sortArray.map(function(item) {
+        const index = item[1];
+        return items[index];
+    });
+}
+
+function keyAlpha(colIndex) {
+    return function(elem) {
+        return elem.childNodes[1].childNodes[colIndex].firstChild.data.toLowerCase();
+    };
+}
+
+function keyLink(colIndex) {
+    return function(elem) {
+        const dataCell = elem.childNodes[1].childNodes[colIndex].firstChild;
+        return dataCell == null ? '' : dataCell.innerText.toLowerCase();
+    };
+}
+
+function keyResult(colIndex) {
+    return function(elem) {
+        const strings = ['Error', 'Failed', 'Rerun', 'XFailed', 'XPassed',
+            'Skipped', 'Passed'];
+        return strings.indexOf(elem.childNodes[1].childNodes[colIndex].firstChild.data);
+    };
+}
+
+function resetSortHeaders() {
+    findAll('.sort-icon').forEach(function(elem) {
+        elem.parentNode.removeChild(elem);
+    });
+    findAll('.sortable').forEach(function(elem) {
+        const icon = document.createElement('div');
+        icon.className = 'sort-icon';
+        icon.textContent = 'vvv';
+        elem.insertBefore(icon, elem.firstChild);
+        elem.classList.remove('desc', 'active');
+        elem.classList.add('asc', 'inactive');
+    });
+}
+
+function toggleSortStates(elem) {
+    //if active, toggle between asc and desc
+    if (elem.classList.contains('active')) {
+        elem.classList.toggle('asc');
+        elem.classList.toggle('desc');
+    }
+
+    //if inactive, reset all other functions and add ascending active
+    if (elem.classList.contains('inactive')) {
+        resetSortHeaders();
+        elem.classList.remove('inactive');
+        elem.classList.add('active');
+    }
+}
+
+function isAllRowsHidden(value) {
+    return value.hidden == false;
+}
+
+function filterTable(elem) { // eslint-disable-line no-unused-vars
+    const outcomeAtt = 'data-test-result';
+    const outcome = elem.getAttribute(outcomeAtt);
+    const classOutcome = outcome + ' results-table-row';
+    const outcomeRows = document.getElementsByClassName(classOutcome);
+
+    for(let i = 0; i < outcomeRows.length; i++){
+        outcomeRows[i].hidden = !elem.checked;
+    }
+
+    const rows = findAll('.results-table-row').filter(isAllRowsHidden);
+    const allRowsHidden = rows.length == 0 ? true : false;
+    const notFoundMessage = document.getElementById('not-found-message');
+    notFoundMessage.hidden = !allRowsHidden;
+}
+</script>
+    <h1>report.html</h1>
+    <p>Report generated on 28-Nov-2025 at 14:18:00 by <a href="https://pypi.python.org/pypi/pytest-html">pytest-html</a> v3.2.0</p>
+    <h2>Summary</h2>
+    <p>3 tests ran in 84.10 seconds. </p>
+    <p class="filter" hidden="true">(Un)check the boxes to filter the results.</p><input checked="true" class="filter" data-test-result="passed" hidden="true" name="filter_checkbox" onChange="filterTable(this)" type="checkbox"/><span class="passed">2 passed</span>, <input checked="true" class="filter" data-test-result="skipped" disabled="true" hidden="true" name="filter_checkbox" onChange="filterTable(this)" type="checkbox"/><span class="skipped">0 skipped</span>, <input checked="true" class="filter" data-test-result="failed" hidden="true" name="filter_checkbox" onChange="filterTable(this)" type="checkbox"/><span class="failed">1 failed</span>, <input checked="true" class="filter" data-test-result="error" disabled="true" hidden="true" name="filter_checkbox" onChange="filterTable(this)" type="checkbox"/><span class="error">0 errors</span>, <input checked="true" class="filter" data-test-result="xfailed" disabled="true" hidden="true" name="filter_checkbox" onChange="filterTable(this)" type="checkbox"/><span class="xfailed">0 expected failures</span>, <input checked="true" class="filter" data-test-result="xpassed" disabled="true" hidden="true" name="filter_checkbox" onChange="filterTable(this)" type="checkbox"/><span class="xpassed">0 unexpected passes</span>
+    <h2>Results</h2>
+    <table id="results-table">
+      <thead id="results-table-head">
+        <tr>
+          <th class="sortable result initial-sort" col="result">Result</th>
+          <th class="sortable" col="name">Test</th>
+          <th class="sortable" col="duration">Duration</th>
+          <th class="sortable links" col="links">Links</th></tr>
+        <tr hidden="true" id="not-found-message">
+          <th colspan="4">No results found. Try to check the filters</th></tr></thead>
+      <tbody class="failed results-table-row">
+        <tr>
+          <td class="col-result">Failed</td>
+          <td class="col-name">test_cases/fiber/devnet/settle_invoice/test_settle_invoice.py::TestSettleInvoice::test_batch_settle</td>
+          <td class="col-duration">50.12</td>
+          <td class="col-links"></td></tr>
+        <tr>
+          <td class="extra" colspan="4">
+            <div class="log">self = &lt;test_settle_invoice.TestSettleInvoice testMethod=test_batch_settle&gt;<br/><br/>    def test_batch_settle(self):<br/>        # 打开通道<br/>        self.fiber2.get_client().open_channel(<br/>            {<br/>                &quot;peer_id&quot;: self.fiber1.get_peer_id(),<br/>                &quot;funding_amount&quot;: hex(1000 * 100000000),<br/>                &quot;public&quot;: True,<br/>            }<br/>        )<br/>        self.wait_for_channel_state(<br/>            self.fiber2.get_client(), self.fiber1.get_peer_id(), &quot;CHANNEL_READY&quot;, 120<br/>        )<br/>    <br/>        batch_size = 20<br/>        before_channel = self.fiber2.get_client().list_channels({})<br/>        invoice_balance = 1 * 100000000<br/>    <br/>        invoices = []<br/>        payments = []<br/>        preimages = []<br/>    <br/>        # 批量创建 hold invoice 并进入 Received<br/>        for _ in range(batch_size):<br/>            preimage = self.generate_random_preimage()<br/>            payment_hash = sha256_hex(preimage)<br/>            inv = self.fiber1.get_client().new_invoice(<br/>                {<br/>                    &quot;amount&quot;: hex(invoice_balance),<br/>                    &quot;currency&quot;: &quot;Fibd&quot;,<br/>                    &quot;description&quot;: &quot;batch settle&quot;,<br/>                    &quot;expiry&quot;: &quot;0xe10&quot;,<br/>                    &quot;final_cltv&quot;: &quot;0x28&quot;,<br/>                    &quot;payment_hash&quot;: payment_hash,<br/>                    &quot;hash_algorithm&quot;: &quot;sha256&quot;,<br/>                }<br/>            )<br/>            pay = self.fiber2.get_client().send_payment(<br/>                {&quot;invoice&quot;: inv[&quot;invoice_address&quot;]}<br/>            )<br/>            invoices.append(inv)<br/>            payments.append(pay)<br/>            preimages.append(preimage)<br/>    <br/>        # 不再等待全部进入 Received，直接批量结算<br/>        for i in range(batch_size):<br/>            ph = invoices[i][&quot;invoice&quot;][&quot;data&quot;][&quot;payment_hash&quot;]<br/>            self.fiber1.get_client().settle_invoice(<br/>                {&quot;payment_hash&quot;: ph, &quot;payment_preimage&quot;: preimages[i]}<br/>            )<br/>    <br/>        # 验证全部支付成功与余额变动<br/>        for pay in payments:<br/>            self.wait_payment_state(self.fiber2, pay[&quot;payment_hash&quot;], &quot;Success&quot;)<br/>    <br/>        after_channel = self.fiber2.get_client().list_channels({})<br/>&gt;       assert (<br/>            int(before_channel[&quot;channels&quot;][0][&quot;local_balance&quot;], 16)<br/>            - int(after_channel[&quot;channels&quot;][0][&quot;local_balance&quot;], 16)<br/>            == batch_size * invoice_balance<br/>        )<br/><span class="error">E       AssertionError: assert (93800000000 - 92600000000) == (20 * 100000000)</span><br/><span class="error">E        +  where 93800000000 = int(&#x27;0x15d6ea6a00&#x27;, 16)</span><br/><span class="error">E        +  and   92600000000 = int(&#x27;0x158f63de00&#x27;, 16)</span><br/><br/>test_settle_invoice.py:367: AssertionError<br/> -----------------------------Captured stdout setup------------------------------ <br/>miner block num:1145
+pool num:1144, header num:1145
+miner block num:1146
+pool num:1146, header num:1146
+miner block num:1147
+pool num:1147, header num:1147
+miner block num:1148
+pool num:1148, header num:1148
+miner block num:1149
+pool num:1149, header num:1149
+output_cell_capacity to big 
+add header: 0x12a852dcfeefe9dd9caf60fdcadb595a97bf56d854528319167ef8cfed26fdd2
+add header: 0xa106f2cc58a3f09a9199d69188ba71c1a48d16dbc14b0903d8ae13a281956e94
+miner block num:1150
+pool num:1150, header num:1150
+miner block num:1151
+pool num:1151, header num:1151
+miner block num:1152
+pool num:1152, header num:1152
+miner block num:1153
+pool num:1153, header num:1153
+start fiber client 
+start fiber client 
+<br/></div></td></tr></tbody>
+      <tbody class="passed results-table-row">
+        <tr>
+          <td class="col-result">Passed</td>
+          <td class="col-name">test_cases/fiber/devnet/settle_invoice/test_settle_invoice.py::TestSettleInvoice::test_concurrent_settle_same_invoice</td>
+          <td class="col-duration">16.44</td>
+          <td class="col-links"></td></tr>
+        <tr>
+          <td class="extra" colspan="4">
+            <div class="log"> -----------------------------Captured stdout setup------------------------------ <br/>miner block num:1180
+pool num:1180, header num:1180
+miner block num:1181
+pool num:1181, header num:1181
+miner block num:1182
+pool num:1182, header num:1182
+miner block num:1183
+pool num:1183, header num:1183
+miner block num:1184
+pool num:1184, header num:1184
+add header: 0xa106f2cc58a3f09a9199d69188ba71c1a48d16dbc14b0903d8ae13a281956e94
+add header: 0xc95da78bff8a2a580cdb4c65d82f9ecf8dc649a7a87c63ea6fbc952410b434ba
+miner block num:1192
+pool num:1192, header num:1192
+miner block num:1194
+pool num:1194, header num:1194
+start fiber client 
+start fiber client 
+<br/></div></td></tr></tbody>
+      <tbody class="passed results-table-row">
+        <tr>
+          <td class="col-result">Passed</td>
+          <td class="col-name">test_cases/fiber/devnet/settle_invoice/test_settle_invoice.py::TestSettleInvoice::test_empty_payment_hash</td>
+          <td class="col-duration">13.54</td>
+          <td class="col-links"></td></tr>
+        <tr>
+          <td class="extra" colspan="4">
+            <div class="log"> -----------------------------Captured stdout setup------------------------------ <br/>miner block num:1203
+pool num:1203, header num:1203
+miner block num:1204
+pool num:1204, header num:1204
+miner block num:1205
+pool num:1205, header num:1205
+miner block num:1206
+pool num:1206, header num:1206
+miner block num:1207
+pool num:1207, header num:1207
+output_cell_capacity to big 
+add header: 0xa106f2cc58a3f09a9199d69188ba71c1a48d16dbc14b0903d8ae13a281956e94
+add header: 0x1324d72e9789f4fa6d4b47d71a49b15f5cbd49d980aec3d236d6b1bf4ea8e977
+miner block num:1212
+pool num:1212, header num:1212
+miner block num:1213
+pool num:1213, header num:1213
+miner block num:1214
+pool num:1214, header num:1214
+miner block num:1215
+pool num:1215, header num:1215
+start fiber client 
+start fiber client 
+<br/></div></td></tr></tbody></table></body></html>

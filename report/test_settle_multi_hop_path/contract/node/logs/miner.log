@@ -1,0 +1,35 @@
+2025-11-13 08:19:26.218 +00:00 main INFO sentry  sentry is disabled
+2025-11-13 08:19:26.269 +00:00 main INFO ckb_memory_tracker::process  track current process: unsupported
+2025-11-13 08:19:26.269 +00:00 main INFO ckb_miner::client  loop poll mode: interval 1000ms
+2025-11-13 08:19:26.269 +00:00 main INFO ckb_stop_handler::stop_register  Waiting exit signal...
+2025-11-13 08:19:27.276 +00:00 client INFO ckb_miner::miner  Found! #1126 0xa879f46592cf5350ff71db48e145bdf1d3f512e501ab0db849073f500fe58528
+2025-11-13 08:19:29.281 +00:00 client INFO ckb_miner::miner  Found! #1127 0xb4c20feb612d12d20a978e420f15422e1a169257cfa2502086da49f68cec5b36
+2025-11-13 08:19:30.286 +00:00 client INFO ckb_miner::miner  Found! #1128 0x58c360ca07972d457503fda23c5e2fb0dff5aad4ba2d4d0085ba416aee43cd7b
+2025-11-13 08:19:31.287 +00:00 client INFO ckb_miner::miner  Found! #1129 0x270e452b6bc0fab5fb53d16439698952594b50e77c4dfda2de9496925466efbf
+2025-11-13 08:19:32.288 +00:00 client INFO ckb_miner::miner  Found! #1130 0x09ce663cc31bd1fc3e0ab710cd23bb1ad49b2063a357689931a0f41f3dd02efd
+2025-11-13 08:19:33.289 +00:00 client INFO ckb_miner::miner  Found! #1131 0x52225ade6ee9810a631c64536df848239c87274d02cf3cb82b45f671aa699929
+2025-11-13 08:19:34.299 +00:00 client INFO ckb_miner::miner  Found! #1132 0x435eaa6f4bc710cca71cde55f9b8c8085897bf24d7d566de60924b15da76e425
+2025-11-13 08:19:35.309 +00:00 client INFO ckb_miner::miner  Found! #1133 0x30291d275a4d572eebcde6f378ce950e360b74c2b5ff600551a4a7ad51cccf5d
+2025-11-13 08:19:36.311 +00:00 client INFO ckb_miner::miner  Found! #1134 0xddf1bd595e9f0f2ae1dc2093d15b45d848a81e22bf3de51da160cdc274cd0840
+2025-11-13 08:19:37.319 +00:00 client INFO ckb_miner::miner  Found! #1135 0xefa17126a1478b29b2bbd2019a6f1ccef9ee04fcd93ed90c3fac9636e72cfb36
+2025-11-13 08:19:38.330 +00:00 client INFO ckb_miner::miner  Found! #1136 0xe46a16df2783f5525863f6ff8bf13318d2156055c1222937125389ab9d4dc5d3
+2025-11-13 08:19:39.336 +00:00 client INFO ckb_miner::miner  Found! #1137 0x11bbcc27929d6f3e5b9d8b2f0c28e648b271a1074b98a0d3bea25374b40df281
+2025-11-13 08:19:40.341 +00:00 client INFO ckb_miner::miner  Found! #1138 0xc18ece4539dd5d1ba6c69fa7a4ab8ffed00e9aa0cd2aad34d8f8093f70bb506f
+2025-11-13 08:19:41.344 +00:00 client INFO ckb_miner::miner  Found! #1139 0x1cbaceef098c12ba3ad5fcc56dd4e5bdcb9b5fffc8e7d767c3f96c4af6a8800a
+2025-11-13 08:19:42.351 +00:00 client INFO ckb_miner::miner  Found! #1141 0xa470ff61af7bce43c83968482657c2d0b61e44d253c0cea2ef3b0c4a2f8dc24b
+2025-11-13 08:19:43.352 +00:00 client INFO ckb_miner::miner  Found! #1143 0x1ab5e6a50fbba40551e3598838bf94876f631e6b8cfb0722f9229255523d87f5
+2025-11-13 08:19:44.363 +00:00 client INFO ckb_miner::miner  Found! #1144 0x53c4293f2f1da93339d301be9335b120263c64340a6ddc3168e63653bf1751eb
+2025-11-13 08:19:45.375 +00:00 client INFO ckb_miner::miner  Found! #1145 0x8a734141fd50d49f1ff95dccd266bc1fe03f73cb29f6a5aa4fe93fbfe8b10e32
+2025-11-13 08:19:46.379 +00:00 client INFO ckb_miner::miner  Found! #1146 0x12b4a0aac43574523a22c0783cdda3a82dc64351bf9b8ecad8563e10f3acd978
+2025-11-13 08:19:47.386 +00:00 client INFO ckb_miner::miner  Found! #1147 0xcd50933eef346686d41ae6b42593fa11df5b31f9fb839f064d57940bd4919e2d
+2025-11-13 08:19:48.389 +00:00 client INFO ckb_miner::miner  Found! #1148 0x31ac843931ea782ad98824dce221d6d9960563dbfec1440bd9f648ca1eecf7fd
+2025-11-13 08:19:49.398 +00:00 client INFO ckb_miner::miner  Found! #1149 0xd130a683f977ed43b2921f6887dada32308c73913453a920f83a2d25711d30ea
+2025-11-13 08:19:50.401 +00:00 client INFO ckb_miner::miner  Found! #1150 0x90a637ed521116eba96f3eecd202aad548b4608730552501e2b97e0270bab0b3
+2025-11-13 08:19:51.409 +00:00 client INFO ckb_miner::miner  Found! #1151 0x8d057524fce0448bbe051e782b6635094e5035fedc69c6d96597e4c5d47788d1
+2025-11-13 08:19:52.416 +00:00 client INFO ckb_miner::miner  Found! #1152 0x6a6c1d17af18023c25f709940dbb23277056eb9f2646c347324e81be14c5d9fc
+2025-11-13 08:19:53.421 +00:00 client INFO ckb_miner::miner  Found! #1153 0x565f45a799e795512c03c42732b27830f4ef4c9cf94e5314274551b99d399f7c
+2025-11-13 08:19:54.431 +00:00 client INFO ckb_miner::miner  Found! #1154 0x031abf36c226afb85463884b0f9d2066607cc6d1f0664fa3890513c2ba1049e3
+2025-11-13 08:19:55.436 +00:00 client INFO ckb_miner::miner  Found! #1155 0xecb9178780398c51464d3424fa619d7b33b3fd235b75877ba84bb58505ea98f0
+2025-11-13 08:19:56.436 +00:00 client INFO ckb_miner::miner  Found! #1156 0xabc5edebb6964c0a94862f388e44c8adaab7a1ff9d098c1f47ade63e78ac7905
+2025-11-13 08:19:57.448 +00:00 client INFO ckb_miner::miner  Found! #1157 0xffb7296b5e7c366876d417c8dc03cd9089b3aa4e6cdd3a1bc207a98b4d53368f
+2025-11-13 08:19:58.455 +00:00 client INFO ckb_miner::miner  Found! #1158 0xfc89d0af439b99f902aa511c0d84f5c10a92f2340fff4f7d9c52a917e244dfe4

@@ -1,0 +1,2123 @@
+2025/11/11-16:20:06.154342 4348904832 RocksDB version: 8.5.4
+2025/11/11-16:20:06.154374 4348904832 Git sha 145a50ba007326eab90da9b12d697b35f5b60e7d
+2025/11/11-16:20:06.154375 4348904832 Compile date 2023-09-26 19:47:02
+2025/11/11-16:20:06.154376 4348904832 DB SUMMARY
+2025/11/11-16:20:06.154376 4348904832 DB Session ID:  R7LJPNRGMG702R62PW7J
+2025/11/11-16:20:06.154425 4348904832 CURRENT file:  CURRENT
+2025/11/11-16:20:06.154426 4348904832 IDENTITY file:  IDENTITY
+2025/11/11-16:20:06.154432 4348904832 MANIFEST file:  MANIFEST-000066 size: 4062 Bytes
+2025/11/11-16:20:06.154433 4348904832 SST files in /Volumes/SSD/vscode/fiber-py-integration-test/tmp/contract/node/data/db dir, Total Num: 19, files: 000046.sst 000047.sst 000048.sst 000049.sst 000050.sst 000051.sst 000052.sst 000053.sst 000054.sst 
+2025/11/11-16:20:06.154434 4348904832 Write Ahead Log file in /Volumes/SSD/vscode/fiber-py-integration-test/tmp/contract/node/data/db: 000065.log size: 0 ; 
+2025/11/11-16:20:06.154435 4348904832                         Options.error_if_exists: 0
+2025/11/11-16:20:06.154436 4348904832                       Options.create_if_missing: 1
+2025/11/11-16:20:06.154436 4348904832                         Options.paranoid_checks: 1
+2025/11/11-16:20:06.154437 4348904832             Options.flush_verify_memtable_count: 1
+2025/11/11-16:20:06.154437 4348904832                               Options.track_and_verify_wals_in_manifest: 0
+2025/11/11-16:20:06.154438 4348904832        Options.verify_sst_unique_id_in_manifest: 1
+2025/11/11-16:20:06.154438 4348904832                                     Options.env: 0x600000bac000
+2025/11/11-16:20:06.154439 4348904832                                      Options.fs: PosixFileSystem
+2025/11/11-16:20:06.154440 4348904832                                Options.info_log: 0x135613888
+2025/11/11-16:20:06.154440 4348904832                Options.max_file_opening_threads: 16
+2025/11/11-16:20:06.154441 4348904832                              Options.statistics: 0x0
+2025/11/11-16:20:06.154441 4348904832                               Options.use_fsync: 0
+2025/11/11-16:20:06.154442 4348904832                       Options.max_log_file_size: 0
+2025/11/11-16:20:06.154443 4348904832                  Options.max_manifest_file_size: 1073741824
+2025/11/11-16:20:06.154443 4348904832                   Options.log_file_time_to_roll: 0
+2025/11/11-16:20:06.154444 4348904832                       Options.keep_log_file_num: 1
+2025/11/11-16:20:06.154444 4348904832                    Options.recycle_log_file_num: 0
+2025/11/11-16:20:06.154445 4348904832                         Options.allow_fallocate: 1
+2025/11/11-16:20:06.154445 4348904832                        Options.allow_mmap_reads: 0
+2025/11/11-16:20:06.154446 4348904832                       Options.allow_mmap_writes: 0
+2025/11/11-16:20:06.154446 4348904832                        Options.use_direct_reads: 0
+2025/11/11-16:20:06.154447 4348904832                        Options.use_direct_io_for_flush_and_compaction: 0
+2025/11/11-16:20:06.154447 4348904832          Options.create_missing_column_families: 1
+2025/11/11-16:20:06.154448 4348904832                              Options.db_log_dir: 
+2025/11/11-16:20:06.154448 4348904832                                 Options.wal_dir: 
+2025/11/11-16:20:06.154449 4348904832                Options.table_cache_numshardbits: 6
+2025/11/11-16:20:06.154449 4348904832                         Options.WAL_ttl_seconds: 0
+2025/11/11-16:20:06.154450 4348904832                       Options.WAL_size_limit_MB: 0
+2025/11/11-16:20:06.154450 4348904832                        Options.max_write_batch_group_size_bytes: 1048576
+2025/11/11-16:20:06.154451 4348904832             Options.manifest_preallocation_size: 4194304
+2025/11/11-16:20:06.154451 4348904832                     Options.is_fd_close_on_exec: 1
+2025/11/11-16:20:06.154452 4348904832                   Options.advise_random_on_open: 1
+2025/11/11-16:20:06.154452 4348904832                    Options.db_write_buffer_size: 0
+2025/11/11-16:20:06.154453 4348904832                    Options.write_buffer_manager: 0x6000009bc4e0
+2025/11/11-16:20:06.154454 4348904832         Options.access_hint_on_compaction_start: 1
+2025/11/11-16:20:06.154454 4348904832           Options.random_access_max_buffer_size: 1048576
+2025/11/11-16:20:06.154455 4348904832                      Options.use_adaptive_mutex: 0
+2025/11/11-16:20:06.154455 4348904832                            Options.rate_limiter: 0x0
+2025/11/11-16:20:06.154456 4348904832     Options.sst_file_manager.rate_bytes_per_sec: 0
+2025/11/11-16:20:06.154456 4348904832                       Options.wal_recovery_mode: 2
+2025/11/11-16:20:06.154457 4348904832                  Options.enable_thread_tracking: 0
+2025/11/11-16:20:06.154458 4348904832                  Options.enable_pipelined_write: 0
+2025/11/11-16:20:06.154458 4348904832                  Options.unordered_write: 0
+2025/11/11-16:20:06.154459 4348904832         Options.allow_concurrent_memtable_write: 1
+2025/11/11-16:20:06.154459 4348904832      Options.enable_write_thread_adaptive_yield: 1
+2025/11/11-16:20:06.154460 4348904832             Options.write_thread_max_yield_usec: 100
+2025/11/11-16:20:06.154460 4348904832            Options.write_thread_slow_yield_usec: 3
+2025/11/11-16:20:06.154461 4348904832                               Options.row_cache: None
+2025/11/11-16:20:06.154461 4348904832                              Options.wal_filter: None
+2025/11/11-16:20:06.154462 4348904832             Options.avoid_flush_during_recovery: 0
+2025/11/11-16:20:06.154462 4348904832             Options.allow_ingest_behind: 0
+2025/11/11-16:20:06.154463 4348904832             Options.two_write_queues: 0
+2025/11/11-16:20:06.154463 4348904832             Options.manual_wal_flush: 0
+2025/11/11-16:20:06.154464 4348904832             Options.wal_compression: 0
+2025/11/11-16:20:06.154464 4348904832             Options.atomic_flush: 0
+2025/11/11-16:20:06.154465 4348904832             Options.avoid_unnecessary_blocking_io: 0
+2025/11/11-16:20:06.154465 4348904832                 Options.persist_stats_to_disk: 0
+2025/11/11-16:20:06.154466 4348904832                 Options.write_dbid_to_manifest: 0
+2025/11/11-16:20:06.154466 4348904832                 Options.log_readahead_size: 0
+2025/11/11-16:20:06.154467 4348904832                 Options.file_checksum_gen_factory: Unknown
+2025/11/11-16:20:06.154468 4348904832                 Options.best_efforts_recovery: 0
+2025/11/11-16:20:06.154468 4348904832                Options.max_bgerror_resume_count: 2147483647
+2025/11/11-16:20:06.154469 4348904832            Options.bgerror_resume_retry_interval: 1000000
+2025/11/11-16:20:06.154469 4348904832             Options.allow_data_in_errors: 0
+2025/11/11-16:20:06.154470 4348904832             Options.db_host_id: __hostname__
+2025/11/11-16:20:06.154470 4348904832             Options.enforce_single_del_contracts: true
+2025/11/11-16:20:06.154471 4348904832             Options.max_background_jobs: 2
+2025/11/11-16:20:06.154471 4348904832             Options.max_background_compactions: -1
+2025/11/11-16:20:06.154472 4348904832             Options.max_subcompactions: 1
+2025/11/11-16:20:06.154472 4348904832             Options.avoid_flush_during_shutdown: 0
+2025/11/11-16:20:06.154473 4348904832           Options.writable_file_max_buffer_size: 1048576
+2025/11/11-16:20:06.154473 4348904832             Options.delayed_write_rate : 16777216
+2025/11/11-16:20:06.154474 4348904832             Options.max_total_wal_size: 0
+2025/11/11-16:20:06.154475 4348904832             Options.delete_obsolete_files_period_micros: 21600000000
+2025/11/11-16:20:06.154475 4348904832                   Options.stats_dump_period_sec: 600
+2025/11/11-16:20:06.154476 4348904832                 Options.stats_persist_period_sec: 600
+2025/11/11-16:20:06.154476 4348904832                 Options.stats_history_buffer_size: 1048576
+2025/11/11-16:20:06.154477 4348904832                          Options.max_open_files: -1
+2025/11/11-16:20:06.154477 4348904832                          Options.bytes_per_sync: 0
+2025/11/11-16:20:06.154478 4348904832                      Options.wal_bytes_per_sync: 0
+2025/11/11-16:20:06.154478 4348904832                   Options.strict_bytes_per_sync: 0
+2025/11/11-16:20:06.154479 4348904832       Options.compaction_readahead_size: 0
+2025/11/11-16:20:06.154479 4348904832                  Options.max_background_flushes: -1
+2025/11/11-16:20:06.154480 4348904832 Compression algorithms supported:
+2025/11/11-16:20:06.154480 4348904832 	kZSTD supported: 0
+2025/11/11-16:20:06.154481 4348904832 	kZlibCompression supported: 0
+2025/11/11-16:20:06.154482 4348904832 	kXpressCompression supported: 0
+2025/11/11-16:20:06.154482 4348904832 	kSnappyCompression supported: 1
+2025/11/11-16:20:06.154483 4348904832 	kZSTDNotFinalCompression supported: 0
+2025/11/11-16:20:06.154483 4348904832 	kLZ4HCCompression supported: 1
+2025/11/11-16:20:06.154484 4348904832 	kLZ4Compression supported: 1
+2025/11/11-16:20:06.154485 4348904832 	kBZip2Compression supported: 0
+2025/11/11-16:20:06.154488 4348904832 Fast CRC32 supported: Supported on Arm64
+2025/11/11-16:20:06.154489 4348904832 DMutex implementation: pthread_mutex_t
+2025/11/11-16:20:06.154489 4348904832 [db/db_impl/db_impl_secondary.cc:27] Opening the db in secondary mode
+2025/11/11-16:20:06.154556 4348904832 [db/version_set.cc:7305] Switched to new manifest: /Volumes/SSD/vscode/fiber-py-integration-test/tmp/contract/node/data/db/MANIFEST-000066
+2025/11/11-16:20:06.154578 4348904832 [db/column_family.cc:617] --------------- Options for column family [default]:
+2025/11/11-16:20:06.154579 4348904832               Options.comparator: leveldb.BytewiseComparator
+2025/11/11-16:20:06.154580 4348904832           Options.merge_operator: None
+2025/11/11-16:20:06.154581 4348904832        Options.compaction_filter: None
+2025/11/11-16:20:06.154581 4348904832        Options.compaction_filter_factory: None
+2025/11/11-16:20:06.154582 4348904832  Options.sst_partitioner_factory: None
+2025/11/11-16:20:06.154582 4348904832         Options.memtable_factory: SkipListFactory
+2025/11/11-16:20:06.154583 4348904832            Options.table_factory: BlockBasedTable
+2025/11/11-16:20:06.154593 4348904832            table_factory options:   flush_block_policy_factory: FlushBlockBySizePolicyFactory (0x6000032a1d40)
+  cache_index_and_filter_blocks: 0
+  cache_index_and_filter_blocks_with_high_priority: 1
+  pin_l0_filter_and_index_blocks_in_cache: 0
+  pin_top_level_index_and_filter: 1
+  index_type: 0
+  data_block_index_type: 0
+  index_shortening: 1
+  data_block_hash_table_util_ratio: 0.750000
+  checksum: 4
+  no_block_cache: 0
+  block_cache: 0x6000007bccd8
+  block_cache_name: LRUCache
+  block_cache_options:
+    capacity : 33554432
+    num_shard_bits : 6
+    strict_capacity_limit : 0
+    memory_allocator : None
+    high_pri_pool_ratio: 0.500
+    low_pri_pool_ratio: 0.000
+  persistent_cache: 0x0
+  block_size: 4096
+  block_size_deviation: 10
+  block_restart_interval: 16
+  index_block_restart_interval: 1
+  metadata_block_size: 4096
+  partition_filters: 0
+  use_delta_encoding: 1
+  filter_policy: nullptr
+  whole_key_filtering: 1
+  verify_compression: 0
+  read_amp_bytes_per_bit: 0
+  format_version: 5
+  enable_index_compression: 1
+  block_align: 0
+  max_auto_readahead_size: 262144
+  prepopulate_block_cache: 0
+  initial_auto_readahead_size: 8192
+  num_file_reads_for_auto_readahead: 2
+2025/11/11-16:20:06.154595 4348904832        Options.write_buffer_size: 67108864
+2025/11/11-16:20:06.154596 4348904832  Options.max_write_buffer_number: 2
+2025/11/11-16:20:06.154596 4348904832          Options.compression: Snappy
+2025/11/11-16:20:06.154597 4348904832                  Options.bottommost_compression: Disabled
+2025/11/11-16:20:06.154597 4348904832       Options.prefix_extractor: nullptr
+2025/11/11-16:20:06.154598 4348904832   Options.memtable_insert_with_hint_prefix_extractor: nullptr
+2025/11/11-16:20:06.154598 4348904832             Options.num_levels: 7
+2025/11/11-16:20:06.154599 4348904832        Options.min_write_buffer_number_to_merge: 1
+2025/11/11-16:20:06.154599 4348904832     Options.max_write_buffer_number_to_maintain: 0
+2025/11/11-16:20:06.154600 4348904832     Options.max_write_buffer_size_to_maintain: 0
+2025/11/11-16:20:06.154601 4348904832            Options.bottommost_compression_opts.window_bits: -14
+2025/11/11-16:20:06.154601 4348904832                  Options.bottommost_compression_opts.level: 32767
+2025/11/11-16:20:06.154602 4348904832               Options.bottommost_compression_opts.strategy: 0
+2025/11/11-16:20:06.154602 4348904832         Options.bottommost_compression_opts.max_dict_bytes: 0
+2025/11/11-16:20:06.154603 4348904832         Options.bottommost_compression_opts.zstd_max_train_bytes: 0
+2025/11/11-16:20:06.154603 4348904832         Options.bottommost_compression_opts.parallel_threads: 1
+2025/11/11-16:20:06.154604 4348904832                  Options.bottommost_compression_opts.enabled: false
+2025/11/11-16:20:06.154604 4348904832         Options.bottommost_compression_opts.max_dict_buffer_bytes: 0
+2025/11/11-16:20:06.154605 4348904832         Options.bottommost_compression_opts.use_zstd_dict_trainer: true
+2025/11/11-16:20:06.154605 4348904832            Options.compression_opts.window_bits: -14
+2025/11/11-16:20:06.154606 4348904832                  Options.compression_opts.level: 32767
+2025/11/11-16:20:06.154606 4348904832               Options.compression_opts.strategy: 0
+2025/11/11-16:20:06.154607 4348904832         Options.compression_opts.max_dict_bytes: 0
+2025/11/11-16:20:06.154607 4348904832         Options.compression_opts.zstd_max_train_bytes: 0
+2025/11/11-16:20:06.154608 4348904832         Options.compression_opts.use_zstd_dict_trainer: true
+2025/11/11-16:20:06.154609 4348904832         Options.compression_opts.parallel_threads: 1
+2025/11/11-16:20:06.154609 4348904832                  Options.compression_opts.enabled: false
+2025/11/11-16:20:06.154610 4348904832         Options.compression_opts.max_dict_buffer_bytes: 0
+2025/11/11-16:20:06.154610 4348904832      Options.level0_file_num_compaction_trigger: 4
+2025/11/11-16:20:06.154611 4348904832          Options.level0_slowdown_writes_trigger: 20
+2025/11/11-16:20:06.154611 4348904832              Options.level0_stop_writes_trigger: 36
+2025/11/11-16:20:06.154612 4348904832                   Options.target_file_size_base: 67108864
+2025/11/11-16:20:06.154612 4348904832             Options.target_file_size_multiplier: 1
+2025/11/11-16:20:06.154613 4348904832                Options.max_bytes_for_level_base: 268435456
+2025/11/11-16:20:06.154613 4348904832 Options.level_compaction_dynamic_level_bytes: 1
+2025/11/11-16:20:06.154614 4348904832          Options.max_bytes_for_level_multiplier: 10.000000
+2025/11/11-16:20:06.154615 4348904832 Options.max_bytes_for_level_multiplier_addtl[0]: 1
+2025/11/11-16:20:06.154615 4348904832 Options.max_bytes_for_level_multiplier_addtl[1]: 1
+2025/11/11-16:20:06.154616 4348904832 Options.max_bytes_for_level_multiplier_addtl[2]: 1
+2025/11/11-16:20:06.154616 4348904832 Options.max_bytes_for_level_multiplier_addtl[3]: 1
+2025/11/11-16:20:06.154617 4348904832 Options.max_bytes_for_level_multiplier_addtl[4]: 1
+2025/11/11-16:20:06.154617 4348904832 Options.max_bytes_for_level_multiplier_addtl[5]: 1
+2025/11/11-16:20:06.154618 4348904832 Options.max_bytes_for_level_multiplier_addtl[6]: 1
+2025/11/11-16:20:06.154618 4348904832       Options.max_sequential_skip_in_iterations: 8
+2025/11/11-16:20:06.154619 4348904832                    Options.max_compaction_bytes: 1677721600
+2025/11/11-16:20:06.154619 4348904832   Options.ignore_max_compaction_bytes_for_input: true
+2025/11/11-16:20:06.154620 4348904832                        Options.arena_block_size: 1048576
+2025/11/11-16:20:06.154621 4348904832   Options.soft_pending_compaction_bytes_limit: 68719476736
+2025/11/11-16:20:06.154621 4348904832   Options.hard_pending_compaction_bytes_limit: 274877906944
+2025/11/11-16:20:06.154622 4348904832                Options.disable_auto_compactions: 0
+2025/11/11-16:20:06.154623 4348904832                        Options.compaction_style: kCompactionStyleLevel
+2025/11/11-16:20:06.154623 4348904832                          Options.compaction_pri: kMinOverlappingRatio
+2025/11/11-16:20:06.154624 4348904832 Options.compaction_options_universal.size_ratio: 1
+2025/11/11-16:20:06.154624 4348904832 Options.compaction_options_universal.min_merge_width: 2
+2025/11/11-16:20:06.154625 4348904832 Options.compaction_options_universal.max_merge_width: 4294967295
+2025/11/11-16:20:06.154626 4348904832 Options.compaction_options_universal.max_size_amplification_percent: 200
+2025/11/11-16:20:06.154626 4348904832 Options.compaction_options_universal.compression_size_percent: -1
+2025/11/11-16:20:06.154627 4348904832 Options.compaction_options_universal.stop_style: kCompactionStopStyleTotalSize
+2025/11/11-16:20:06.154627 4348904832 Options.compaction_options_fifo.max_table_files_size: 1073741824
+2025/11/11-16:20:06.154628 4348904832 Options.compaction_options_fifo.allow_compaction: 0
+2025/11/11-16:20:06.154630 4348904832                   Options.table_properties_collectors: 
+2025/11/11-16:20:06.154630 4348904832                   Options.inplace_update_support: 0
+2025/11/11-16:20:06.154631 4348904832                 Options.inplace_update_num_locks: 10000
+2025/11/11-16:20:06.154631 4348904832               Options.memtable_prefix_bloom_size_ratio: 0.000000
+2025/11/11-16:20:06.154632 4348904832               Options.memtable_whole_key_filtering: 0
+2025/11/11-16:20:06.154632 4348904832   Options.memtable_huge_page_size: 0
+2025/11/11-16:20:06.154633 4348904832                           Options.bloom_locality: 0
+2025/11/11-16:20:06.154633 4348904832                    Options.max_successive_merges: 0
+2025/11/11-16:20:06.154634 4348904832                Options.optimize_filters_for_hits: 0
+2025/11/11-16:20:06.154634 4348904832                Options.paranoid_file_checks: 0
+2025/11/11-16:20:06.154635 4348904832                Options.force_consistency_checks: 1
+2025/11/11-16:20:06.154635 4348904832                Options.report_bg_io_stats: 0
+2025/11/11-16:20:06.154636 4348904832                               Options.ttl: 2592000
+2025/11/11-16:20:06.154636 4348904832          Options.periodic_compaction_seconds: 0
+2025/11/11-16:20:06.154637 4348904832  Options.preclude_last_level_data_seconds: 0
+2025/11/11-16:20:06.154637 4348904832    Options.preserve_internal_time_seconds: 0
+2025/11/11-16:20:06.154638 4348904832                       Options.enable_blob_files: false
+2025/11/11-16:20:06.154638 4348904832                           Options.min_blob_size: 0
+2025/11/11-16:20:06.154639 4348904832                          Options.blob_file_size: 268435456
+2025/11/11-16:20:06.154639 4348904832                   Options.blob_compression_type: NoCompression
+2025/11/11-16:20:06.154640 4348904832          Options.enable_blob_garbage_collection: false
+2025/11/11-16:20:06.154641 4348904832      Options.blob_garbage_collection_age_cutoff: 0.250000
+2025/11/11-16:20:06.154641 4348904832 Options.blob_garbage_collection_force_threshold: 1.000000
+2025/11/11-16:20:06.154642 4348904832          Options.blob_compaction_readahead_size: 0
+2025/11/11-16:20:06.154642 4348904832                Options.blob_file_starting_level: 0
+2025/11/11-16:20:06.154643 4348904832 Options.experimental_mempurge_threshold: 0.000000
+2025/11/11-16:20:06.154673 4348904832 [db/column_family.cc:617] --------------- Options for column family [0]:
+2025/11/11-16:20:06.154674 4348904832               Options.comparator: leveldb.BytewiseComparator
+2025/11/11-16:20:06.154675 4348904832           Options.merge_operator: None
+2025/11/11-16:20:06.154676 4348904832        Options.compaction_filter: None
+2025/11/11-16:20:06.154676 4348904832        Options.compaction_filter_factory: None
+2025/11/11-16:20:06.154677 4348904832  Options.sst_partitioner_factory: None
+2025/11/11-16:20:06.154677 4348904832         Options.memtable_factory: SkipListFactory
+2025/11/11-16:20:06.154678 4348904832            Options.table_factory: BlockBasedTable
+2025/11/11-16:20:06.154684 4348904832            table_factory options:   flush_block_policy_factory: FlushBlockBySizePolicyFactory (0x6000032a0a60)
+  cache_index_and_filter_blocks: 0
+  cache_index_and_filter_blocks_with_high_priority: 1
+  pin_l0_filter_and_index_blocks_in_cache: 0
+  pin_top_level_index_and_filter: 1
+  index_type: 0
+  data_block_index_type: 0
+  index_shortening: 1
+  data_block_hash_table_util_ratio: 0.750000
+  checksum: 4
+  no_block_cache: 0
+  block_cache: 0x6000007bc3d8
+  block_cache_name: LRUCache
+  block_cache_options:
+    capacity : 33554432
+    num_shard_bits : 6
+    strict_capacity_limit : 0
+    memory_allocator : None
+    high_pri_pool_ratio: 0.500
+    low_pri_pool_ratio: 0.000
+  persistent_cache: 0x0
+  block_size: 4096
+  block_size_deviation: 10
+  block_restart_interval: 16
+  index_block_restart_interval: 1
+  metadata_block_size: 4096
+  partition_filters: 0
+  use_delta_encoding: 1
+  filter_policy: nullptr
+  whole_key_filtering: 1
+  verify_compression: 0
+  read_amp_bytes_per_bit: 0
+  format_version: 5
+  enable_index_compression: 1
+  block_align: 0
+  max_auto_readahead_size: 262144
+  prepopulate_block_cache: 0
+  initial_auto_readahead_size: 8192
+  num_file_reads_for_auto_readahead: 2
+2025/11/11-16:20:06.154684 4348904832        Options.write_buffer_size: 67108864
+2025/11/11-16:20:06.154685 4348904832  Options.max_write_buffer_number: 2
+2025/11/11-16:20:06.154685 4348904832          Options.compression: Snappy
+2025/11/11-16:20:06.154686 4348904832                  Options.bottommost_compression: Disabled
+2025/11/11-16:20:06.154686 4348904832       Options.prefix_extractor: nullptr
+2025/11/11-16:20:06.154687 4348904832   Options.memtable_insert_with_hint_prefix_extractor: nullptr
+2025/11/11-16:20:06.154687 4348904832             Options.num_levels: 7
+2025/11/11-16:20:06.154688 4348904832        Options.min_write_buffer_number_to_merge: 1
+2025/11/11-16:20:06.154688 4348904832     Options.max_write_buffer_number_to_maintain: 0
+2025/11/11-16:20:06.154689 4348904832     Options.max_write_buffer_size_to_maintain: 0
+2025/11/11-16:20:06.154689 4348904832            Options.bottommost_compression_opts.window_bits: -14
+2025/11/11-16:20:06.154690 4348904832                  Options.bottommost_compression_opts.level: 32767
+2025/11/11-16:20:06.154691 4348904832               Options.bottommost_compression_opts.strategy: 0
+2025/11/11-16:20:06.154691 4348904832         Options.bottommost_compression_opts.max_dict_bytes: 0
+2025/11/11-16:20:06.154692 4348904832         Options.bottommost_compression_opts.zstd_max_train_bytes: 0
+2025/11/11-16:20:06.154692 4348904832         Options.bottommost_compression_opts.parallel_threads: 1
+2025/11/11-16:20:06.154693 4348904832                  Options.bottommost_compression_opts.enabled: false
+2025/11/11-16:20:06.154693 4348904832         Options.bottommost_compression_opts.max_dict_buffer_bytes: 0
+2025/11/11-16:20:06.154694 4348904832         Options.bottommost_compression_opts.use_zstd_dict_trainer: true
+2025/11/11-16:20:06.154694 4348904832            Options.compression_opts.window_bits: -14
+2025/11/11-16:20:06.154695 4348904832                  Options.compression_opts.level: 32767
+2025/11/11-16:20:06.154695 4348904832               Options.compression_opts.strategy: 0
+2025/11/11-16:20:06.154696 4348904832         Options.compression_opts.max_dict_bytes: 0
+2025/11/11-16:20:06.154696 4348904832         Options.compression_opts.zstd_max_train_bytes: 0
+2025/11/11-16:20:06.154697 4348904832         Options.compression_opts.use_zstd_dict_trainer: true
+2025/11/11-16:20:06.154697 4348904832         Options.compression_opts.parallel_threads: 1
+2025/11/11-16:20:06.154698 4348904832                  Options.compression_opts.enabled: false
+2025/11/11-16:20:06.154698 4348904832         Options.compression_opts.max_dict_buffer_bytes: 0
+2025/11/11-16:20:06.154699 4348904832      Options.level0_file_num_compaction_trigger: 4
+2025/11/11-16:20:06.154699 4348904832          Options.level0_slowdown_writes_trigger: 20
+2025/11/11-16:20:06.154700 4348904832              Options.level0_stop_writes_trigger: 36
+2025/11/11-16:20:06.154700 4348904832                   Options.target_file_size_base: 67108864
+2025/11/11-16:20:06.154701 4348904832             Options.target_file_size_multiplier: 1
+2025/11/11-16:20:06.154701 4348904832                Options.max_bytes_for_level_base: 268435456
+2025/11/11-16:20:06.154702 4348904832 Options.level_compaction_dynamic_level_bytes: 1
+2025/11/11-16:20:06.154703 4348904832          Options.max_bytes_for_level_multiplier: 10.000000
+2025/11/11-16:20:06.154703 4348904832 Options.max_bytes_for_level_multiplier_addtl[0]: 1
+2025/11/11-16:20:06.154704 4348904832 Options.max_bytes_for_level_multiplier_addtl[1]: 1
+2025/11/11-16:20:06.154704 4348904832 Options.max_bytes_for_level_multiplier_addtl[2]: 1
+2025/11/11-16:20:06.154705 4348904832 Options.max_bytes_for_level_multiplier_addtl[3]: 1
+2025/11/11-16:20:06.154705 4348904832 Options.max_bytes_for_level_multiplier_addtl[4]: 1
+2025/11/11-16:20:06.154706 4348904832 Options.max_bytes_for_level_multiplier_addtl[5]: 1
+2025/11/11-16:20:06.154706 4348904832 Options.max_bytes_for_level_multiplier_addtl[6]: 1
+2025/11/11-16:20:06.154707 4348904832       Options.max_sequential_skip_in_iterations: 8
+2025/11/11-16:20:06.154707 4348904832                    Options.max_compaction_bytes: 1677721600
+2025/11/11-16:20:06.154708 4348904832   Options.ignore_max_compaction_bytes_for_input: true
+2025/11/11-16:20:06.154708 4348904832                        Options.arena_block_size: 1048576
+2025/11/11-16:20:06.154710 4348904832   Options.soft_pending_compaction_bytes_limit: 68719476736
+2025/11/11-16:20:06.154710 4348904832   Options.hard_pending_compaction_bytes_limit: 274877906944
+2025/11/11-16:20:06.154711 4348904832                Options.disable_auto_compactions: 0
+2025/11/11-16:20:06.154711 4348904832                        Options.compaction_style: kCompactionStyleLevel
+2025/11/11-16:20:06.154712 4348904832                          Options.compaction_pri: kMinOverlappingRatio
+2025/11/11-16:20:06.154713 4348904832 Options.compaction_options_universal.size_ratio: 1
+2025/11/11-16:20:06.154713 4348904832 Options.compaction_options_universal.min_merge_width: 2
+2025/11/11-16:20:06.154714 4348904832 Options.compaction_options_universal.max_merge_width: 4294967295
+2025/11/11-16:20:06.154714 4348904832 Options.compaction_options_universal.max_size_amplification_percent: 200
+2025/11/11-16:20:06.154715 4348904832 Options.compaction_options_universal.compression_size_percent: -1
+2025/11/11-16:20:06.154715 4348904832 Options.compaction_options_universal.stop_style: kCompactionStopStyleTotalSize
+2025/11/11-16:20:06.154716 4348904832 Options.compaction_options_fifo.max_table_files_size: 1073741824
+2025/11/11-16:20:06.154716 4348904832 Options.compaction_options_fifo.allow_compaction: 0
+2025/11/11-16:20:06.154717 4348904832                   Options.table_properties_collectors: 
+2025/11/11-16:20:06.154717 4348904832                   Options.inplace_update_support: 0
+2025/11/11-16:20:06.154718 4348904832                 Options.inplace_update_num_locks: 10000
+2025/11/11-16:20:06.154718 4348904832               Options.memtable_prefix_bloom_size_ratio: 0.000000
+2025/11/11-16:20:06.154719 4348904832               Options.memtable_whole_key_filtering: 0
+2025/11/11-16:20:06.154719 4348904832   Options.memtable_huge_page_size: 0
+2025/11/11-16:20:06.154720 4348904832                           Options.bloom_locality: 0
+2025/11/11-16:20:06.154720 4348904832                    Options.max_successive_merges: 0
+2025/11/11-16:20:06.154721 4348904832                Options.optimize_filters_for_hits: 0
+2025/11/11-16:20:06.154721 4348904832                Options.paranoid_file_checks: 0
+2025/11/11-16:20:06.154722 4348904832                Options.force_consistency_checks: 1
+2025/11/11-16:20:06.154722 4348904832                Options.report_bg_io_stats: 0
+2025/11/11-16:20:06.154723 4348904832                               Options.ttl: 2592000
+2025/11/11-16:20:06.154723 4348904832          Options.periodic_compaction_seconds: 0
+2025/11/11-16:20:06.154724 4348904832  Options.preclude_last_level_data_seconds: 0
+2025/11/11-16:20:06.154724 4348904832    Options.preserve_internal_time_seconds: 0
+2025/11/11-16:20:06.154725 4348904832                       Options.enable_blob_files: false
+2025/11/11-16:20:06.154725 4348904832                           Options.min_blob_size: 0
+2025/11/11-16:20:06.154726 4348904832                          Options.blob_file_size: 268435456
+2025/11/11-16:20:06.154726 4348904832                   Options.blob_compression_type: NoCompression
+2025/11/11-16:20:06.154727 4348904832          Options.enable_blob_garbage_collection: false
+2025/11/11-16:20:06.154727 4348904832      Options.blob_garbage_collection_age_cutoff: 0.250000
+2025/11/11-16:20:06.154728 4348904832 Options.blob_garbage_collection_force_threshold: 1.000000
+2025/11/11-16:20:06.154729 4348904832          Options.blob_compaction_readahead_size: 0
+2025/11/11-16:20:06.154729 4348904832                Options.blob_file_starting_level: 0
+2025/11/11-16:20:06.154730 4348904832 Options.experimental_mempurge_threshold: 0.000000
+2025/11/11-16:20:06.154744 4348904832 [db/column_family.cc:617] --------------- Options for column family [1]:
+2025/11/11-16:20:06.154744 4348904832               Options.comparator: leveldb.BytewiseComparator
+2025/11/11-16:20:06.154745 4348904832           Options.merge_operator: None
+2025/11/11-16:20:06.154745 4348904832        Options.compaction_filter: None
+2025/11/11-16:20:06.154746 4348904832        Options.compaction_filter_factory: None
+2025/11/11-16:20:06.154747 4348904832  Options.sst_partitioner_factory: None
+2025/11/11-16:20:06.154747 4348904832         Options.memtable_factory: SkipListFactory
+2025/11/11-16:20:06.154748 4348904832            Options.table_factory: BlockBasedTable
+2025/11/11-16:20:06.154753 4348904832            table_factory options:   flush_block_policy_factory: FlushBlockBySizePolicyFactory (0x6000032a1de0)
+  cache_index_and_filter_blocks: 0
+  cache_index_and_filter_blocks_with_high_priority: 1
+  pin_l0_filter_and_index_blocks_in_cache: 0
+  pin_top_level_index_and_filter: 1
+  index_type: 0
+  data_block_index_type: 0
+  index_shortening: 1
+  data_block_hash_table_util_ratio: 0.750000
+  checksum: 4
+  no_block_cache: 0
+  block_cache: 0x6000007bc198
+  block_cache_name: LRUCache
+  block_cache_options:
+    capacity : 33554432
+    num_shard_bits : 6
+    strict_capacity_limit : 0
+    memory_allocator : None
+    high_pri_pool_ratio: 0.500
+    low_pri_pool_ratio: 0.000
+  persistent_cache: 0x0
+  block_size: 4096
+  block_size_deviation: 10
+  block_restart_interval: 16
+  index_block_restart_interval: 1
+  metadata_block_size: 4096
+  partition_filters: 0
+  use_delta_encoding: 1
+  filter_policy: nullptr
+  whole_key_filtering: 1
+  verify_compression: 0
+  read_amp_bytes_per_bit: 0
+  format_version: 5
+  enable_index_compression: 1
+  block_align: 0
+  max_auto_readahead_size: 262144
+  prepopulate_block_cache: 0
+  initial_auto_readahead_size: 8192
+  num_file_reads_for_auto_readahead: 2
+2025/11/11-16:20:06.154753 4348904832        Options.write_buffer_size: 67108864
+2025/11/11-16:20:06.154754 4348904832  Options.max_write_buffer_number: 2
+2025/11/11-16:20:06.154754 4348904832          Options.compression: Snappy
+2025/11/11-16:20:06.154755 4348904832                  Options.bottommost_compression: Disabled
+2025/11/11-16:20:06.154755 4348904832       Options.prefix_extractor: nullptr
+2025/11/11-16:20:06.154756 4348904832   Options.memtable_insert_with_hint_prefix_extractor: nullptr
+2025/11/11-16:20:06.154757 4348904832             Options.num_levels: 7
+2025/11/11-16:20:06.154757 4348904832        Options.min_write_buffer_number_to_merge: 1
+2025/11/11-16:20:06.154758 4348904832     Options.max_write_buffer_number_to_maintain: 0
+2025/11/11-16:20:06.154758 4348904832     Options.max_write_buffer_size_to_maintain: 0
+2025/11/11-16:20:06.154759 4348904832            Options.bottommost_compression_opts.window_bits: -14
+2025/11/11-16:20:06.154759 4348904832                  Options.bottommost_compression_opts.level: 32767
+2025/11/11-16:20:06.154760 4348904832               Options.bottommost_compression_opts.strategy: 0
+2025/11/11-16:20:06.154760 4348904832         Options.bottommost_compression_opts.max_dict_bytes: 0
+2025/11/11-16:20:06.154761 4348904832         Options.bottommost_compression_opts.zstd_max_train_bytes: 0
+2025/11/11-16:20:06.154761 4348904832         Options.bottommost_compression_opts.parallel_threads: 1
+2025/11/11-16:20:06.154762 4348904832                  Options.bottommost_compression_opts.enabled: false
+2025/11/11-16:20:06.154762 4348904832         Options.bottommost_compression_opts.max_dict_buffer_bytes: 0
+2025/11/11-16:20:06.154763 4348904832         Options.bottommost_compression_opts.use_zstd_dict_trainer: true
+2025/11/11-16:20:06.154763 4348904832            Options.compression_opts.window_bits: -14
+2025/11/11-16:20:06.154764 4348904832                  Options.compression_opts.level: 32767
+2025/11/11-16:20:06.154764 4348904832               Options.compression_opts.strategy: 0
+2025/11/11-16:20:06.154765 4348904832         Options.compression_opts.max_dict_bytes: 0
+2025/11/11-16:20:06.154765 4348904832         Options.compression_opts.zstd_max_train_bytes: 0
+2025/11/11-16:20:06.154766 4348904832         Options.compression_opts.use_zstd_dict_trainer: true
+2025/11/11-16:20:06.154766 4348904832         Options.compression_opts.parallel_threads: 1
+2025/11/11-16:20:06.154767 4348904832                  Options.compression_opts.enabled: false
+2025/11/11-16:20:06.154767 4348904832         Options.compression_opts.max_dict_buffer_bytes: 0
+2025/11/11-16:20:06.154768 4348904832      Options.level0_file_num_compaction_trigger: 4
+2025/11/11-16:20:06.154768 4348904832          Options.level0_slowdown_writes_trigger: 20
+2025/11/11-16:20:06.154769 4348904832              Options.level0_stop_writes_trigger: 36
+2025/11/11-16:20:06.154769 4348904832                   Options.target_file_size_base: 67108864
+2025/11/11-16:20:06.154770 4348904832             Options.target_file_size_multiplier: 1
+2025/11/11-16:20:06.154771 4348904832                Options.max_bytes_for_level_base: 268435456
+2025/11/11-16:20:06.154771 4348904832 Options.level_compaction_dynamic_level_bytes: 1
+2025/11/11-16:20:06.154772 4348904832          Options.max_bytes_for_level_multiplier: 10.000000
+2025/11/11-16:20:06.154772 4348904832 Options.max_bytes_for_level_multiplier_addtl[0]: 1
+2025/11/11-16:20:06.154773 4348904832 Options.max_bytes_for_level_multiplier_addtl[1]: 1
+2025/11/11-16:20:06.154773 4348904832 Options.max_bytes_for_level_multiplier_addtl[2]: 1
+2025/11/11-16:20:06.154774 4348904832 Options.max_bytes_for_level_multiplier_addtl[3]: 1
+2025/11/11-16:20:06.154774 4348904832 Options.max_bytes_for_level_multiplier_addtl[4]: 1
+2025/11/11-16:20:06.154775 4348904832 Options.max_bytes_for_level_multiplier_addtl[5]: 1
+2025/11/11-16:20:06.154775 4348904832 Options.max_bytes_for_level_multiplier_addtl[6]: 1
+2025/11/11-16:20:06.154776 4348904832       Options.max_sequential_skip_in_iterations: 8
+2025/11/11-16:20:06.154776 4348904832                    Options.max_compaction_bytes: 1677721600
+2025/11/11-16:20:06.154777 4348904832   Options.ignore_max_compaction_bytes_for_input: true
+2025/11/11-16:20:06.154777 4348904832                        Options.arena_block_size: 1048576
+2025/11/11-16:20:06.154778 4348904832   Options.soft_pending_compaction_bytes_limit: 68719476736
+2025/11/11-16:20:06.154778 4348904832   Options.hard_pending_compaction_bytes_limit: 274877906944
+2025/11/11-16:20:06.154779 4348904832                Options.disable_auto_compactions: 0
+2025/11/11-16:20:06.154779 4348904832                        Options.compaction_style: kCompactionStyleLevel
+2025/11/11-16:20:06.154780 4348904832                          Options.compaction_pri: kMinOverlappingRatio
+2025/11/11-16:20:06.154780 4348904832 Options.compaction_options_universal.size_ratio: 1
+2025/11/11-16:20:06.154781 4348904832 Options.compaction_options_universal.min_merge_width: 2
+2025/11/11-16:20:06.154781 4348904832 Options.compaction_options_universal.max_merge_width: 4294967295
+2025/11/11-16:20:06.154782 4348904832 Options.compaction_options_universal.max_size_amplification_percent: 200
+2025/11/11-16:20:06.154783 4348904832 Options.compaction_options_universal.compression_size_percent: -1
+2025/11/11-16:20:06.154783 4348904832 Options.compaction_options_universal.stop_style: kCompactionStopStyleTotalSize
+2025/11/11-16:20:06.154784 4348904832 Options.compaction_options_fifo.max_table_files_size: 1073741824
+2025/11/11-16:20:06.154784 4348904832 Options.compaction_options_fifo.allow_compaction: 0
+2025/11/11-16:20:06.154785 4348904832                   Options.table_properties_collectors: 
+2025/11/11-16:20:06.154785 4348904832                   Options.inplace_update_support: 0
+2025/11/11-16:20:06.154786 4348904832                 Options.inplace_update_num_locks: 10000
+2025/11/11-16:20:06.154786 4348904832               Options.memtable_prefix_bloom_size_ratio: 0.000000
+2025/11/11-16:20:06.154787 4348904832               Options.memtable_whole_key_filtering: 0
+2025/11/11-16:20:06.154787 4348904832   Options.memtable_huge_page_size: 0
+2025/11/11-16:20:06.154788 4348904832                           Options.bloom_locality: 0
+2025/11/11-16:20:06.154788 4348904832                    Options.max_successive_merges: 0
+2025/11/11-16:20:06.154789 4348904832                Options.optimize_filters_for_hits: 0
+2025/11/11-16:20:06.154789 4348904832                Options.paranoid_file_checks: 0
+2025/11/11-16:20:06.154790 4348904832                Options.force_consistency_checks: 1
+2025/11/11-16:20:06.154790 4348904832                Options.report_bg_io_stats: 0
+2025/11/11-16:20:06.154791 4348904832                               Options.ttl: 2592000
+2025/11/11-16:20:06.154791 4348904832          Options.periodic_compaction_seconds: 0
+2025/11/11-16:20:06.154792 4348904832  Options.preclude_last_level_data_seconds: 0
+2025/11/11-16:20:06.154792 4348904832    Options.preserve_internal_time_seconds: 0
+2025/11/11-16:20:06.154793 4348904832                       Options.enable_blob_files: false
+2025/11/11-16:20:06.154794 4348904832                           Options.min_blob_size: 0
+2025/11/11-16:20:06.154794 4348904832                          Options.blob_file_size: 268435456
+2025/11/11-16:20:06.154795 4348904832                   Options.blob_compression_type: NoCompression
+2025/11/11-16:20:06.154795 4348904832          Options.enable_blob_garbage_collection: false
+2025/11/11-16:20:06.154796 4348904832      Options.blob_garbage_collection_age_cutoff: 0.250000
+2025/11/11-16:20:06.154796 4348904832 Options.blob_garbage_collection_force_threshold: 1.000000
+2025/11/11-16:20:06.154797 4348904832          Options.blob_compaction_readahead_size: 0
+2025/11/11-16:20:06.154797 4348904832                Options.blob_file_starting_level: 0
+2025/11/11-16:20:06.154798 4348904832 Options.experimental_mempurge_threshold: 0.000000
+2025/11/11-16:20:06.154811 4348904832 [db/column_family.cc:617] --------------- Options for column family [2]:
+2025/11/11-16:20:06.154812 4348904832               Options.comparator: leveldb.BytewiseComparator
+2025/11/11-16:20:06.154812 4348904832           Options.merge_operator: None
+2025/11/11-16:20:06.154813 4348904832        Options.compaction_filter: None
+2025/11/11-16:20:06.154813 4348904832        Options.compaction_filter_factory: None
+2025/11/11-16:20:06.154814 4348904832  Options.sst_partitioner_factory: None
+2025/11/11-16:20:06.154814 4348904832         Options.memtable_factory: SkipListFactory
+2025/11/11-16:20:06.154815 4348904832            Options.table_factory: BlockBasedTable
+2025/11/11-16:20:06.154820 4348904832            table_factory options:   flush_block_policy_factory: FlushBlockBySizePolicyFactory (0x6000032a0b80)
+  cache_index_and_filter_blocks: 0
+  cache_index_and_filter_blocks_with_high_priority: 1
+  pin_l0_filter_and_index_blocks_in_cache: 0
+  pin_top_level_index_and_filter: 1
+  index_type: 0
+  data_block_index_type: 0
+  index_shortening: 1
+  data_block_hash_table_util_ratio: 0.750000
+  checksum: 4
+  no_block_cache: 0
+  block_cache: 0x6000007bc618
+  block_cache_name: LRUCache
+  block_cache_options:
+    capacity : 33554432
+    num_shard_bits : 6
+    strict_capacity_limit : 0
+    memory_allocator : None
+    high_pri_pool_ratio: 0.500
+    low_pri_pool_ratio: 0.000
+  persistent_cache: 0x0
+  block_size: 4096
+  block_size_deviation: 10
+  block_restart_interval: 16
+  index_block_restart_interval: 1
+  metadata_block_size: 4096
+  partition_filters: 0
+  use_delta_encoding: 1
+  filter_policy: nullptr
+  whole_key_filtering: 1
+  verify_compression: 0
+  read_amp_bytes_per_bit: 0
+  format_version: 5
+  enable_index_compression: 1
+  block_align: 0
+  max_auto_readahead_size: 262144
+  prepopulate_block_cache: 0
+  initial_auto_readahead_size: 8192
+  num_file_reads_for_auto_readahead: 2
+2025/11/11-16:20:06.154821 4348904832        Options.write_buffer_size: 67108864
+2025/11/11-16:20:06.154821 4348904832  Options.max_write_buffer_number: 2
+2025/11/11-16:20:06.154822 4348904832          Options.compression: Snappy
+2025/11/11-16:20:06.154822 4348904832                  Options.bottommost_compression: Disabled
+2025/11/11-16:20:06.154823 4348904832       Options.prefix_extractor: nullptr
+2025/11/11-16:20:06.154823 4348904832   Options.memtable_insert_with_hint_prefix_extractor: nullptr
+2025/11/11-16:20:06.154824 4348904832             Options.num_levels: 7
+2025/11/11-16:20:06.154824 4348904832        Options.min_write_buffer_number_to_merge: 1
+2025/11/11-16:20:06.154825 4348904832     Options.max_write_buffer_number_to_maintain: 0
+2025/11/11-16:20:06.154825 4348904832     Options.max_write_buffer_size_to_maintain: 0
+2025/11/11-16:20:06.154826 4348904832            Options.bottommost_compression_opts.window_bits: -14
+2025/11/11-16:20:06.154829 4348904832                  Options.bottommost_compression_opts.level: 32767
+2025/11/11-16:20:06.154829 4348904832               Options.bottommost_compression_opts.strategy: 0
+2025/11/11-16:20:06.154830 4348904832         Options.bottommost_compression_opts.max_dict_bytes: 0
+2025/11/11-16:20:06.154830 4348904832         Options.bottommost_compression_opts.zstd_max_train_bytes: 0
+2025/11/11-16:20:06.154831 4348904832         Options.bottommost_compression_opts.parallel_threads: 1
+2025/11/11-16:20:06.154831 4348904832                  Options.bottommost_compression_opts.enabled: false
+2025/11/11-16:20:06.154832 4348904832         Options.bottommost_compression_opts.max_dict_buffer_bytes: 0
+2025/11/11-16:20:06.154832 4348904832         Options.bottommost_compression_opts.use_zstd_dict_trainer: true
+2025/11/11-16:20:06.154833 4348904832            Options.compression_opts.window_bits: -14
+2025/11/11-16:20:06.154833 4348904832                  Options.compression_opts.level: 32767
+2025/11/11-16:20:06.154834 4348904832               Options.compression_opts.strategy: 0
+2025/11/11-16:20:06.154834 4348904832         Options.compression_opts.max_dict_bytes: 0
+2025/11/11-16:20:06.154835 4348904832         Options.compression_opts.zstd_max_train_bytes: 0
+2025/11/11-16:20:06.154835 4348904832         Options.compression_opts.use_zstd_dict_trainer: true
+2025/11/11-16:20:06.154836 4348904832         Options.compression_opts.parallel_threads: 1
+2025/11/11-16:20:06.154836 4348904832                  Options.compression_opts.enabled: false
+2025/11/11-16:20:06.154837 4348904832         Options.compression_opts.max_dict_buffer_bytes: 0
+2025/11/11-16:20:06.154837 4348904832      Options.level0_file_num_compaction_trigger: 4
+2025/11/11-16:20:06.154838 4348904832          Options.level0_slowdown_writes_trigger: 20
+2025/11/11-16:20:06.154838 4348904832              Options.level0_stop_writes_trigger: 36
+2025/11/11-16:20:06.154839 4348904832                   Options.target_file_size_base: 67108864
+2025/11/11-16:20:06.154839 4348904832             Options.target_file_size_multiplier: 1
+2025/11/11-16:20:06.154840 4348904832                Options.max_bytes_for_level_base: 268435456
+2025/11/11-16:20:06.154840 4348904832 Options.level_compaction_dynamic_level_bytes: 1
+2025/11/11-16:20:06.154841 4348904832          Options.max_bytes_for_level_multiplier: 10.000000
+2025/11/11-16:20:06.154841 4348904832 Options.max_bytes_for_level_multiplier_addtl[0]: 1
+2025/11/11-16:20:06.154842 4348904832 Options.max_bytes_for_level_multiplier_addtl[1]: 1
+2025/11/11-16:20:06.154842 4348904832 Options.max_bytes_for_level_multiplier_addtl[2]: 1
+2025/11/11-16:20:06.154843 4348904832 Options.max_bytes_for_level_multiplier_addtl[3]: 1
+2025/11/11-16:20:06.154844 4348904832 Options.max_bytes_for_level_multiplier_addtl[4]: 1
+2025/11/11-16:20:06.154844 4348904832 Options.max_bytes_for_level_multiplier_addtl[5]: 1
+2025/11/11-16:20:06.154845 4348904832 Options.max_bytes_for_level_multiplier_addtl[6]: 1
+2025/11/11-16:20:06.154845 4348904832       Options.max_sequential_skip_in_iterations: 8
+2025/11/11-16:20:06.154846 4348904832                    Options.max_compaction_bytes: 1677721600
+2025/11/11-16:20:06.154846 4348904832   Options.ignore_max_compaction_bytes_for_input: true
+2025/11/11-16:20:06.154847 4348904832                        Options.arena_block_size: 1048576
+2025/11/11-16:20:06.154847 4348904832   Options.soft_pending_compaction_bytes_limit: 68719476736
+2025/11/11-16:20:06.154848 4348904832   Options.hard_pending_compaction_bytes_limit: 274877906944
+2025/11/11-16:20:06.154848 4348904832                Options.disable_auto_compactions: 0
+2025/11/11-16:20:06.154849 4348904832                        Options.compaction_style: kCompactionStyleLevel
+2025/11/11-16:20:06.154849 4348904832                          Options.compaction_pri: kMinOverlappingRatio
+2025/11/11-16:20:06.154850 4348904832 Options.compaction_options_universal.size_ratio: 1
+2025/11/11-16:20:06.154850 4348904832 Options.compaction_options_universal.min_merge_width: 2
+2025/11/11-16:20:06.154851 4348904832 Options.compaction_options_universal.max_merge_width: 4294967295
+2025/11/11-16:20:06.154851 4348904832 Options.compaction_options_universal.max_size_amplification_percent: 200
+2025/11/11-16:20:06.154852 4348904832 Options.compaction_options_universal.compression_size_percent: -1
+2025/11/11-16:20:06.154852 4348904832 Options.compaction_options_universal.stop_style: kCompactionStopStyleTotalSize
+2025/11/11-16:20:06.154853 4348904832 Options.compaction_options_fifo.max_table_files_size: 1073741824
+2025/11/11-16:20:06.154853 4348904832 Options.compaction_options_fifo.allow_compaction: 0
+2025/11/11-16:20:06.154854 4348904832                   Options.table_properties_collectors: 
+2025/11/11-16:20:06.154854 4348904832                   Options.inplace_update_support: 0
+2025/11/11-16:20:06.154855 4348904832                 Options.inplace_update_num_locks: 10000
+2025/11/11-16:20:06.154855 4348904832               Options.memtable_prefix_bloom_size_ratio: 0.000000
+2025/11/11-16:20:06.154856 4348904832               Options.memtable_whole_key_filtering: 0
+2025/11/11-16:20:06.154856 4348904832   Options.memtable_huge_page_size: 0
+2025/11/11-16:20:06.154857 4348904832                           Options.bloom_locality: 0
+2025/11/11-16:20:06.154857 4348904832                    Options.max_successive_merges: 0
+2025/11/11-16:20:06.154858 4348904832                Options.optimize_filters_for_hits: 0
+2025/11/11-16:20:06.154858 4348904832                Options.paranoid_file_checks: 0
+2025/11/11-16:20:06.154859 4348904832                Options.force_consistency_checks: 1
+2025/11/11-16:20:06.154859 4348904832                Options.report_bg_io_stats: 0
+2025/11/11-16:20:06.154860 4348904832                               Options.ttl: 2592000
+2025/11/11-16:20:06.154860 4348904832          Options.periodic_compaction_seconds: 0
+2025/11/11-16:20:06.154861 4348904832  Options.preclude_last_level_data_seconds: 0
+2025/11/11-16:20:06.154861 4348904832    Options.preserve_internal_time_seconds: 0
+2025/11/11-16:20:06.154862 4348904832                       Options.enable_blob_files: false
+2025/11/11-16:20:06.154862 4348904832                           Options.min_blob_size: 0
+2025/11/11-16:20:06.154863 4348904832                          Options.blob_file_size: 268435456
+2025/11/11-16:20:06.154863 4348904832                   Options.blob_compression_type: NoCompression
+2025/11/11-16:20:06.154864 4348904832          Options.enable_blob_garbage_collection: false
+2025/11/11-16:20:06.154864 4348904832      Options.blob_garbage_collection_age_cutoff: 0.250000
+2025/11/11-16:20:06.154865 4348904832 Options.blob_garbage_collection_force_threshold: 1.000000
+2025/11/11-16:20:06.154865 4348904832          Options.blob_compaction_readahead_size: 0
+2025/11/11-16:20:06.154866 4348904832                Options.blob_file_starting_level: 0
+2025/11/11-16:20:06.154866 4348904832 Options.experimental_mempurge_threshold: 0.000000
+2025/11/11-16:20:06.154879 4348904832 [db/column_family.cc:617] --------------- Options for column family [3]:
+2025/11/11-16:20:06.154879 4348904832               Options.comparator: leveldb.BytewiseComparator
+2025/11/11-16:20:06.154880 4348904832           Options.merge_operator: None
+2025/11/11-16:20:06.154880 4348904832        Options.compaction_filter: None
+2025/11/11-16:20:06.154881 4348904832        Options.compaction_filter_factory: None
+2025/11/11-16:20:06.154881 4348904832  Options.sst_partitioner_factory: None
+2025/11/11-16:20:06.154882 4348904832         Options.memtable_factory: SkipListFactory
+2025/11/11-16:20:06.154882 4348904832            Options.table_factory: BlockBasedTable
+2025/11/11-16:20:06.154887 4348904832            table_factory options:   flush_block_policy_factory: FlushBlockBySizePolicyFactory (0x6000032a0d00)
+  cache_index_and_filter_blocks: 0
+  cache_index_and_filter_blocks_with_high_priority: 1
+  pin_l0_filter_and_index_blocks_in_cache: 0
+  pin_top_level_index_and_filter: 1
+  index_type: 0
+  data_block_index_type: 0
+  index_shortening: 1
+  data_block_hash_table_util_ratio: 0.750000
+  checksum: 4
+  no_block_cache: 0
+  block_cache: 0x6000007bca98
+  block_cache_name: LRUCache
+  block_cache_options:
+    capacity : 33554432
+    num_shard_bits : 6
+    strict_capacity_limit : 0
+    memory_allocator : None
+    high_pri_pool_ratio: 0.500
+    low_pri_pool_ratio: 0.000
+  persistent_cache: 0x0
+  block_size: 4096
+  block_size_deviation: 10
+  block_restart_interval: 16
+  index_block_restart_interval: 1
+  metadata_block_size: 4096
+  partition_filters: 0
+  use_delta_encoding: 1
+  filter_policy: nullptr
+  whole_key_filtering: 1
+  verify_compression: 0
+  read_amp_bytes_per_bit: 0
+  format_version: 5
+  enable_index_compression: 1
+  block_align: 0
+  max_auto_readahead_size: 262144
+  prepopulate_block_cache: 0
+  initial_auto_readahead_size: 8192
+  num_file_reads_for_auto_readahead: 2
+2025/11/11-16:20:06.154888 4348904832        Options.write_buffer_size: 67108864
+2025/11/11-16:20:06.154888 4348904832  Options.max_write_buffer_number: 2
+2025/11/11-16:20:06.154889 4348904832          Options.compression: Snappy
+2025/11/11-16:20:06.154889 4348904832                  Options.bottommost_compression: Disabled
+2025/11/11-16:20:06.154890 4348904832       Options.prefix_extractor: nullptr
+2025/11/11-16:20:06.154890 4348904832   Options.memtable_insert_with_hint_prefix_extractor: nullptr
+2025/11/11-16:20:06.154891 4348904832             Options.num_levels: 7
+2025/11/11-16:20:06.154891 4348904832        Options.min_write_buffer_number_to_merge: 1
+2025/11/11-16:20:06.154892 4348904832     Options.max_write_buffer_number_to_maintain: 0
+2025/11/11-16:20:06.154892 4348904832     Options.max_write_buffer_size_to_maintain: 0
+2025/11/11-16:20:06.154893 4348904832            Options.bottommost_compression_opts.window_bits: -14
+2025/11/11-16:20:06.154894 4348904832                  Options.bottommost_compression_opts.level: 32767
+2025/11/11-16:20:06.154894 4348904832               Options.bottommost_compression_opts.strategy: 0
+2025/11/11-16:20:06.154895 4348904832         Options.bottommost_compression_opts.max_dict_bytes: 0
+2025/11/11-16:20:06.154895 4348904832         Options.bottommost_compression_opts.zstd_max_train_bytes: 0
+2025/11/11-16:20:06.154896 4348904832         Options.bottommost_compression_opts.parallel_threads: 1
+2025/11/11-16:20:06.154896 4348904832                  Options.bottommost_compression_opts.enabled: false
+2025/11/11-16:20:06.154897 4348904832         Options.bottommost_compression_opts.max_dict_buffer_bytes: 0
+2025/11/11-16:20:06.154897 4348904832         Options.bottommost_compression_opts.use_zstd_dict_trainer: true
+2025/11/11-16:20:06.154898 4348904832            Options.compression_opts.window_bits: -14
+2025/11/11-16:20:06.154898 4348904832                  Options.compression_opts.level: 32767
+2025/11/11-16:20:06.154898 4348904832               Options.compression_opts.strategy: 0
+2025/11/11-16:20:06.154899 4348904832         Options.compression_opts.max_dict_bytes: 0
+2025/11/11-16:20:06.154899 4348904832         Options.compression_opts.zstd_max_train_bytes: 0
+2025/11/11-16:20:06.154900 4348904832         Options.compression_opts.use_zstd_dict_trainer: true
+2025/11/11-16:20:06.154900 4348904832         Options.compression_opts.parallel_threads: 1
+2025/11/11-16:20:06.154901 4348904832                  Options.compression_opts.enabled: false
+2025/11/11-16:20:06.154901 4348904832         Options.compression_opts.max_dict_buffer_bytes: 0
+2025/11/11-16:20:06.154902 4348904832      Options.level0_file_num_compaction_trigger: 4
+2025/11/11-16:20:06.154902 4348904832          Options.level0_slowdown_writes_trigger: 20
+2025/11/11-16:20:06.154903 4348904832              Options.level0_stop_writes_trigger: 36
+2025/11/11-16:20:06.154903 4348904832                   Options.target_file_size_base: 67108864
+2025/11/11-16:20:06.154904 4348904832             Options.target_file_size_multiplier: 1
+2025/11/11-16:20:06.154904 4348904832                Options.max_bytes_for_level_base: 268435456
+2025/11/11-16:20:06.154905 4348904832 Options.level_compaction_dynamic_level_bytes: 1
+2025/11/11-16:20:06.154906 4348904832          Options.max_bytes_for_level_multiplier: 10.000000
+2025/11/11-16:20:06.154906 4348904832 Options.max_bytes_for_level_multiplier_addtl[0]: 1
+2025/11/11-16:20:06.154907 4348904832 Options.max_bytes_for_level_multiplier_addtl[1]: 1
+2025/11/11-16:20:06.154907 4348904832 Options.max_bytes_for_level_multiplier_addtl[2]: 1
+2025/11/11-16:20:06.154908 4348904832 Options.max_bytes_for_level_multiplier_addtl[3]: 1
+2025/11/11-16:20:06.154908 4348904832 Options.max_bytes_for_level_multiplier_addtl[4]: 1
+2025/11/11-16:20:06.154909 4348904832 Options.max_bytes_for_level_multiplier_addtl[5]: 1
+2025/11/11-16:20:06.154909 4348904832 Options.max_bytes_for_level_multiplier_addtl[6]: 1
+2025/11/11-16:20:06.154910 4348904832       Options.max_sequential_skip_in_iterations: 8
+2025/11/11-16:20:06.154910 4348904832                    Options.max_compaction_bytes: 1677721600
+2025/11/11-16:20:06.154911 4348904832   Options.ignore_max_compaction_bytes_for_input: true
+2025/11/11-16:20:06.154911 4348904832                        Options.arena_block_size: 1048576
+2025/11/11-16:20:06.154912 4348904832   Options.soft_pending_compaction_bytes_limit: 68719476736
+2025/11/11-16:20:06.154912 4348904832   Options.hard_pending_compaction_bytes_limit: 274877906944
+2025/11/11-16:20:06.154913 4348904832                Options.disable_auto_compactions: 0
+2025/11/11-16:20:06.154913 4348904832                        Options.compaction_style: kCompactionStyleLevel
+2025/11/11-16:20:06.154914 4348904832                          Options.compaction_pri: kMinOverlappingRatio
+2025/11/11-16:20:06.154914 4348904832 Options.compaction_options_universal.size_ratio: 1
+2025/11/11-16:20:06.154915 4348904832 Options.compaction_options_universal.min_merge_width: 2
+2025/11/11-16:20:06.154915 4348904832 Options.compaction_options_universal.max_merge_width: 4294967295
+2025/11/11-16:20:06.154916 4348904832 Options.compaction_options_universal.max_size_amplification_percent: 200
+2025/11/11-16:20:06.154916 4348904832 Options.compaction_options_universal.compression_size_percent: -1
+2025/11/11-16:20:06.154917 4348904832 Options.compaction_options_universal.stop_style: kCompactionStopStyleTotalSize
+2025/11/11-16:20:06.154917 4348904832 Options.compaction_options_fifo.max_table_files_size: 1073741824
+2025/11/11-16:20:06.154918 4348904832 Options.compaction_options_fifo.allow_compaction: 0
+2025/11/11-16:20:06.154918 4348904832                   Options.table_properties_collectors: 
+2025/11/11-16:20:06.154919 4348904832                   Options.inplace_update_support: 0
+2025/11/11-16:20:06.154919 4348904832                 Options.inplace_update_num_locks: 10000
+2025/11/11-16:20:06.154920 4348904832               Options.memtable_prefix_bloom_size_ratio: 0.000000
+2025/11/11-16:20:06.154920 4348904832               Options.memtable_whole_key_filtering: 0
+2025/11/11-16:20:06.154921 4348904832   Options.memtable_huge_page_size: 0
+2025/11/11-16:20:06.154921 4348904832                           Options.bloom_locality: 0
+2025/11/11-16:20:06.154922 4348904832                    Options.max_successive_merges: 0
+2025/11/11-16:20:06.154922 4348904832                Options.optimize_filters_for_hits: 0
+2025/11/11-16:20:06.154923 4348904832                Options.paranoid_file_checks: 0
+2025/11/11-16:20:06.154923 4348904832                Options.force_consistency_checks: 1
+2025/11/11-16:20:06.154924 4348904832                Options.report_bg_io_stats: 0
+2025/11/11-16:20:06.154924 4348904832                               Options.ttl: 2592000
+2025/11/11-16:20:06.154925 4348904832          Options.periodic_compaction_seconds: 0
+2025/11/11-16:20:06.154925 4348904832  Options.preclude_last_level_data_seconds: 0
+2025/11/11-16:20:06.154926 4348904832    Options.preserve_internal_time_seconds: 0
+2025/11/11-16:20:06.154926 4348904832                       Options.enable_blob_files: false
+2025/11/11-16:20:06.154927 4348904832                           Options.min_blob_size: 0
+2025/11/11-16:20:06.154927 4348904832                          Options.blob_file_size: 268435456
+2025/11/11-16:20:06.154929 4348904832                   Options.blob_compression_type: NoCompression
+2025/11/11-16:20:06.154929 4348904832          Options.enable_blob_garbage_collection: false
+2025/11/11-16:20:06.154930 4348904832      Options.blob_garbage_collection_age_cutoff: 0.250000
+2025/11/11-16:20:06.154930 4348904832 Options.blob_garbage_collection_force_threshold: 1.000000
+2025/11/11-16:20:06.154931 4348904832          Options.blob_compaction_readahead_size: 0
+2025/11/11-16:20:06.154931 4348904832                Options.blob_file_starting_level: 0
+2025/11/11-16:20:06.154932 4348904832 Options.experimental_mempurge_threshold: 0.000000
+2025/11/11-16:20:06.154945 4348904832 [db/column_family.cc:617] --------------- Options for column family [4]:
+2025/11/11-16:20:06.154946 4348904832               Options.comparator: leveldb.BytewiseComparator
+2025/11/11-16:20:06.154946 4348904832           Options.merge_operator: None
+2025/11/11-16:20:06.154947 4348904832        Options.compaction_filter: None
+2025/11/11-16:20:06.154947 4348904832        Options.compaction_filter_factory: None
+2025/11/11-16:20:06.154948 4348904832  Options.sst_partitioner_factory: None
+2025/11/11-16:20:06.154948 4348904832         Options.memtable_factory: SkipListFactory
+2025/11/11-16:20:06.154949 4348904832            Options.table_factory: BlockBasedTable
+2025/11/11-16:20:06.154953 4348904832            table_factory options:   flush_block_policy_factory: FlushBlockBySizePolicyFactory (0x6000032a0480)
+  cache_index_and_filter_blocks: 0
+  cache_index_and_filter_blocks_with_high_priority: 1
+  pin_l0_filter_and_index_blocks_in_cache: 0
+  pin_top_level_index_and_filter: 1
+  index_type: 0
+  data_block_index_type: 0
+  index_shortening: 1
+  data_block_hash_table_util_ratio: 0.750000
+  checksum: 4
+  no_block_cache: 0
+  block_cache: 0x6000007bc258
+  block_cache_name: LRUCache
+  block_cache_options:
+    capacity : 33554432
+    num_shard_bits : 6
+    strict_capacity_limit : 0
+    memory_allocator : None
+    high_pri_pool_ratio: 0.500
+    low_pri_pool_ratio: 0.000
+  persistent_cache: 0x0
+  block_size: 4096
+  block_size_deviation: 10
+  block_restart_interval: 16
+  index_block_restart_interval: 1
+  metadata_block_size: 4096
+  partition_filters: 0
+  use_delta_encoding: 1
+  filter_policy: nullptr
+  whole_key_filtering: 1
+  verify_compression: 0
+  read_amp_bytes_per_bit: 0
+  format_version: 5
+  enable_index_compression: 1
+  block_align: 0
+  max_auto_readahead_size: 262144
+  prepopulate_block_cache: 0
+  initial_auto_readahead_size: 8192
+  num_file_reads_for_auto_readahead: 2
+2025/11/11-16:20:06.154954 4348904832        Options.write_buffer_size: 67108864
+2025/11/11-16:20:06.154954 4348904832  Options.max_write_buffer_number: 2
+2025/11/11-16:20:06.154955 4348904832          Options.compression: Snappy
+2025/11/11-16:20:06.154955 4348904832                  Options.bottommost_compression: Disabled
+2025/11/11-16:20:06.154956 4348904832       Options.prefix_extractor: nullptr
+2025/11/11-16:20:06.154956 4348904832   Options.memtable_insert_with_hint_prefix_extractor: nullptr
+2025/11/11-16:20:06.154957 4348904832             Options.num_levels: 7
+2025/11/11-16:20:06.154957 4348904832        Options.min_write_buffer_number_to_merge: 1
+2025/11/11-16:20:06.154958 4348904832     Options.max_write_buffer_number_to_maintain: 0
+2025/11/11-16:20:06.154958 4348904832     Options.max_write_buffer_size_to_maintain: 0
+2025/11/11-16:20:06.154959 4348904832            Options.bottommost_compression_opts.window_bits: -14
+2025/11/11-16:20:06.154959 4348904832                  Options.bottommost_compression_opts.level: 32767
+2025/11/11-16:20:06.154960 4348904832               Options.bottommost_compression_opts.strategy: 0
+2025/11/11-16:20:06.154960 4348904832         Options.bottommost_compression_opts.max_dict_bytes: 0
+2025/11/11-16:20:06.154961 4348904832         Options.bottommost_compression_opts.zstd_max_train_bytes: 0
+2025/11/11-16:20:06.154961 4348904832         Options.bottommost_compression_opts.parallel_threads: 1
+2025/11/11-16:20:06.154962 4348904832                  Options.bottommost_compression_opts.enabled: false
+2025/11/11-16:20:06.154962 4348904832         Options.bottommost_compression_opts.max_dict_buffer_bytes: 0
+2025/11/11-16:20:06.154963 4348904832         Options.bottommost_compression_opts.use_zstd_dict_trainer: true
+2025/11/11-16:20:06.154963 4348904832            Options.compression_opts.window_bits: -14
+2025/11/11-16:20:06.154964 4348904832                  Options.compression_opts.level: 32767
+2025/11/11-16:20:06.154964 4348904832               Options.compression_opts.strategy: 0
+2025/11/11-16:20:06.154965 4348904832         Options.compression_opts.max_dict_bytes: 0
+2025/11/11-16:20:06.154965 4348904832         Options.compression_opts.zstd_max_train_bytes: 0
+2025/11/11-16:20:06.154966 4348904832         Options.compression_opts.use_zstd_dict_trainer: true
+2025/11/11-16:20:06.154966 4348904832         Options.compression_opts.parallel_threads: 1
+2025/11/11-16:20:06.154967 4348904832                  Options.compression_opts.enabled: false
+2025/11/11-16:20:06.154967 4348904832         Options.compression_opts.max_dict_buffer_bytes: 0
+2025/11/11-16:20:06.154968 4348904832      Options.level0_file_num_compaction_trigger: 4
+2025/11/11-16:20:06.154968 4348904832          Options.level0_slowdown_writes_trigger: 20
+2025/11/11-16:20:06.154969 4348904832              Options.level0_stop_writes_trigger: 36
+2025/11/11-16:20:06.154969 4348904832                   Options.target_file_size_base: 67108864
+2025/11/11-16:20:06.154970 4348904832             Options.target_file_size_multiplier: 1
+2025/11/11-16:20:06.154970 4348904832                Options.max_bytes_for_level_base: 268435456
+2025/11/11-16:20:06.154971 4348904832 Options.level_compaction_dynamic_level_bytes: 1
+2025/11/11-16:20:06.154971 4348904832          Options.max_bytes_for_level_multiplier: 10.000000
+2025/11/11-16:20:06.154972 4348904832 Options.max_bytes_for_level_multiplier_addtl[0]: 1
+2025/11/11-16:20:06.154972 4348904832 Options.max_bytes_for_level_multiplier_addtl[1]: 1
+2025/11/11-16:20:06.154973 4348904832 Options.max_bytes_for_level_multiplier_addtl[2]: 1
+2025/11/11-16:20:06.154973 4348904832 Options.max_bytes_for_level_multiplier_addtl[3]: 1
+2025/11/11-16:20:06.154974 4348904832 Options.max_bytes_for_level_multiplier_addtl[4]: 1
+2025/11/11-16:20:06.154974 4348904832 Options.max_bytes_for_level_multiplier_addtl[5]: 1
+2025/11/11-16:20:06.154975 4348904832 Options.max_bytes_for_level_multiplier_addtl[6]: 1
+2025/11/11-16:20:06.154975 4348904832       Options.max_sequential_skip_in_iterations: 8
+2025/11/11-16:20:06.154976 4348904832                    Options.max_compaction_bytes: 1677721600
+2025/11/11-16:20:06.154976 4348904832   Options.ignore_max_compaction_bytes_for_input: true
+2025/11/11-16:20:06.154977 4348904832                        Options.arena_block_size: 1048576
+2025/11/11-16:20:06.154977 4348904832   Options.soft_pending_compaction_bytes_limit: 68719476736
+2025/11/11-16:20:06.154978 4348904832   Options.hard_pending_compaction_bytes_limit: 274877906944
+2025/11/11-16:20:06.154978 4348904832                Options.disable_auto_compactions: 0
+2025/11/11-16:20:06.154979 4348904832                        Options.compaction_style: kCompactionStyleLevel
+2025/11/11-16:20:06.154979 4348904832                          Options.compaction_pri: kMinOverlappingRatio
+2025/11/11-16:20:06.154980 4348904832 Options.compaction_options_universal.size_ratio: 1
+2025/11/11-16:20:06.154980 4348904832 Options.compaction_options_universal.min_merge_width: 2
+2025/11/11-16:20:06.154981 4348904832 Options.compaction_options_universal.max_merge_width: 4294967295
+2025/11/11-16:20:06.154981 4348904832 Options.compaction_options_universal.max_size_amplification_percent: 200
+2025/11/11-16:20:06.154982 4348904832 Options.compaction_options_universal.compression_size_percent: -1
+2025/11/11-16:20:06.154982 4348904832 Options.compaction_options_universal.stop_style: kCompactionStopStyleTotalSize
+2025/11/11-16:20:06.154983 4348904832 Options.compaction_options_fifo.max_table_files_size: 1073741824
+2025/11/11-16:20:06.154983 4348904832 Options.compaction_options_fifo.allow_compaction: 0
+2025/11/11-16:20:06.154984 4348904832                   Options.table_properties_collectors: 
+2025/11/11-16:20:06.154984 4348904832                   Options.inplace_update_support: 0
+2025/11/11-16:20:06.154985 4348904832                 Options.inplace_update_num_locks: 10000
+2025/11/11-16:20:06.154985 4348904832               Options.memtable_prefix_bloom_size_ratio: 0.000000
+2025/11/11-16:20:06.154986 4348904832               Options.memtable_whole_key_filtering: 0
+2025/11/11-16:20:06.154986 4348904832   Options.memtable_huge_page_size: 0
+2025/11/11-16:20:06.154987 4348904832                           Options.bloom_locality: 0
+2025/11/11-16:20:06.154987 4348904832                    Options.max_successive_merges: 0
+2025/11/11-16:20:06.154988 4348904832                Options.optimize_filters_for_hits: 0
+2025/11/11-16:20:06.154988 4348904832                Options.paranoid_file_checks: 0
+2025/11/11-16:20:06.154989 4348904832                Options.force_consistency_checks: 1
+2025/11/11-16:20:06.154989 4348904832                Options.report_bg_io_stats: 0
+2025/11/11-16:20:06.154990 4348904832                               Options.ttl: 2592000
+2025/11/11-16:20:06.154990 4348904832          Options.periodic_compaction_seconds: 0
+2025/11/11-16:20:06.154991 4348904832  Options.preclude_last_level_data_seconds: 0
+2025/11/11-16:20:06.154991 4348904832    Options.preserve_internal_time_seconds: 0
+2025/11/11-16:20:06.154992 4348904832                       Options.enable_blob_files: false
+2025/11/11-16:20:06.154992 4348904832                           Options.min_blob_size: 0
+2025/11/11-16:20:06.154993 4348904832                          Options.blob_file_size: 268435456
+2025/11/11-16:20:06.154993 4348904832                   Options.blob_compression_type: NoCompression
+2025/11/11-16:20:06.154994 4348904832          Options.enable_blob_garbage_collection: false
+2025/11/11-16:20:06.154994 4348904832      Options.blob_garbage_collection_age_cutoff: 0.250000
+2025/11/11-16:20:06.154995 4348904832 Options.blob_garbage_collection_force_threshold: 1.000000
+2025/11/11-16:20:06.154995 4348904832          Options.blob_compaction_readahead_size: 0
+2025/11/11-16:20:06.154996 4348904832                Options.blob_file_starting_level: 0
+2025/11/11-16:20:06.154996 4348904832 Options.experimental_mempurge_threshold: 0.000000
+2025/11/11-16:20:06.155011 4348904832 [db/column_family.cc:617] --------------- Options for column family [7]:
+2025/11/11-16:20:06.155012 4348904832               Options.comparator: leveldb.BytewiseComparator
+2025/11/11-16:20:06.155012 4348904832           Options.merge_operator: None
+2025/11/11-16:20:06.155013 4348904832        Options.compaction_filter: None
+2025/11/11-16:20:06.155013 4348904832        Options.compaction_filter_factory: None
+2025/11/11-16:20:06.155014 4348904832  Options.sst_partitioner_factory: None
+2025/11/11-16:20:06.155014 4348904832         Options.memtable_factory: SkipListFactory
+2025/11/11-16:20:06.155015 4348904832            Options.table_factory: BlockBasedTable
+2025/11/11-16:20:06.155019 4348904832            table_factory options:   flush_block_policy_factory: FlushBlockBySizePolicyFactory (0x6000032a1620)
+  cache_index_and_filter_blocks: 0
+  cache_index_and_filter_blocks_with_high_priority: 1
+  pin_l0_filter_and_index_blocks_in_cache: 0
+  pin_top_level_index_and_filter: 1
+  index_type: 0
+  data_block_index_type: 0
+  index_shortening: 1
+  data_block_hash_table_util_ratio: 0.750000
+  checksum: 4
+  no_block_cache: 0
+  block_cache: 0x6000007bcb58
+  block_cache_name: LRUCache
+  block_cache_options:
+    capacity : 33554432
+    num_shard_bits : 6
+    strict_capacity_limit : 0
+    memory_allocator : None
+    high_pri_pool_ratio: 0.500
+    low_pri_pool_ratio: 0.000
+  persistent_cache: 0x0
+  block_size: 4096
+  block_size_deviation: 10
+  block_restart_interval: 16
+  index_block_restart_interval: 1
+  metadata_block_size: 4096
+  partition_filters: 0
+  use_delta_encoding: 1
+  filter_policy: nullptr
+  whole_key_filtering: 1
+  verify_compression: 0
+  read_amp_bytes_per_bit: 0
+  format_version: 5
+  enable_index_compression: 1
+  block_align: 0
+  max_auto_readahead_size: 262144
+  prepopulate_block_cache: 0
+  initial_auto_readahead_size: 8192
+  num_file_reads_for_auto_readahead: 2
+2025/11/11-16:20:06.155020 4348904832        Options.write_buffer_size: 67108864
+2025/11/11-16:20:06.155020 4348904832  Options.max_write_buffer_number: 2
+2025/11/11-16:20:06.155021 4348904832          Options.compression: Snappy
+2025/11/11-16:20:06.155021 4348904832                  Options.bottommost_compression: Disabled
+2025/11/11-16:20:06.155022 4348904832       Options.prefix_extractor: nullptr
+2025/11/11-16:20:06.155022 4348904832   Options.memtable_insert_with_hint_prefix_extractor: nullptr
+2025/11/11-16:20:06.155023 4348904832             Options.num_levels: 7
+2025/11/11-16:20:06.155023 4348904832        Options.min_write_buffer_number_to_merge: 1
+2025/11/11-16:20:06.155024 4348904832     Options.max_write_buffer_number_to_maintain: 0
+2025/11/11-16:20:06.155024 4348904832     Options.max_write_buffer_size_to_maintain: 0
+2025/11/11-16:20:06.155025 4348904832            Options.bottommost_compression_opts.window_bits: -14
+2025/11/11-16:20:06.155025 4348904832                  Options.bottommost_compression_opts.level: 32767
+2025/11/11-16:20:06.155026 4348904832               Options.bottommost_compression_opts.strategy: 0
+2025/11/11-16:20:06.155026 4348904832         Options.bottommost_compression_opts.max_dict_bytes: 0
+2025/11/11-16:20:06.155027 4348904832         Options.bottommost_compression_opts.zstd_max_train_bytes: 0
+2025/11/11-16:20:06.155027 4348904832         Options.bottommost_compression_opts.parallel_threads: 1
+2025/11/11-16:20:06.155028 4348904832                  Options.bottommost_compression_opts.enabled: false
+2025/11/11-16:20:06.155028 4348904832         Options.bottommost_compression_opts.max_dict_buffer_bytes: 0
+2025/11/11-16:20:06.155029 4348904832         Options.bottommost_compression_opts.use_zstd_dict_trainer: true
+2025/11/11-16:20:06.155029 4348904832            Options.compression_opts.window_bits: -14
+2025/11/11-16:20:06.155030 4348904832                  Options.compression_opts.level: 32767
+2025/11/11-16:20:06.155030 4348904832               Options.compression_opts.strategy: 0
+2025/11/11-16:20:06.155031 4348904832         Options.compression_opts.max_dict_bytes: 0
+2025/11/11-16:20:06.155031 4348904832         Options.compression_opts.zstd_max_train_bytes: 0
+2025/11/11-16:20:06.155032 4348904832         Options.compression_opts.use_zstd_dict_trainer: true
+2025/11/11-16:20:06.155032 4348904832         Options.compression_opts.parallel_threads: 1
+2025/11/11-16:20:06.155033 4348904832                  Options.compression_opts.enabled: false
+2025/11/11-16:20:06.155033 4348904832         Options.compression_opts.max_dict_buffer_bytes: 0
+2025/11/11-16:20:06.155034 4348904832      Options.level0_file_num_compaction_trigger: 4
+2025/11/11-16:20:06.155034 4348904832          Options.level0_slowdown_writes_trigger: 20
+2025/11/11-16:20:06.155035 4348904832              Options.level0_stop_writes_trigger: 36
+2025/11/11-16:20:06.155035 4348904832                   Options.target_file_size_base: 67108864
+2025/11/11-16:20:06.155036 4348904832             Options.target_file_size_multiplier: 1
+2025/11/11-16:20:06.155036 4348904832                Options.max_bytes_for_level_base: 268435456
+2025/11/11-16:20:06.155037 4348904832 Options.level_compaction_dynamic_level_bytes: 1
+2025/11/11-16:20:06.155037 4348904832          Options.max_bytes_for_level_multiplier: 10.000000
+2025/11/11-16:20:06.155038 4348904832 Options.max_bytes_for_level_multiplier_addtl[0]: 1
+2025/11/11-16:20:06.155038 4348904832 Options.max_bytes_for_level_multiplier_addtl[1]: 1
+2025/11/11-16:20:06.155039 4348904832 Options.max_bytes_for_level_multiplier_addtl[2]: 1
+2025/11/11-16:20:06.155039 4348904832 Options.max_bytes_for_level_multiplier_addtl[3]: 1
+2025/11/11-16:20:06.155040 4348904832 Options.max_bytes_for_level_multiplier_addtl[4]: 1
+2025/11/11-16:20:06.155040 4348904832 Options.max_bytes_for_level_multiplier_addtl[5]: 1
+2025/11/11-16:20:06.155047 4348904832 Options.max_bytes_for_level_multiplier_addtl[6]: 1
+2025/11/11-16:20:06.155048 4348904832       Options.max_sequential_skip_in_iterations: 8
+2025/11/11-16:20:06.155048 4348904832                    Options.max_compaction_bytes: 1677721600
+2025/11/11-16:20:06.155049 4348904832   Options.ignore_max_compaction_bytes_for_input: true
+2025/11/11-16:20:06.155049 4348904832                        Options.arena_block_size: 1048576
+2025/11/11-16:20:06.155050 4348904832   Options.soft_pending_compaction_bytes_limit: 68719476736
+2025/11/11-16:20:06.155050 4348904832   Options.hard_pending_compaction_bytes_limit: 274877906944
+2025/11/11-16:20:06.155051 4348904832                Options.disable_auto_compactions: 0
+2025/11/11-16:20:06.155051 4348904832                        Options.compaction_style: kCompactionStyleLevel
+2025/11/11-16:20:06.155052 4348904832                          Options.compaction_pri: kMinOverlappingRatio
+2025/11/11-16:20:06.155052 4348904832 Options.compaction_options_universal.size_ratio: 1
+2025/11/11-16:20:06.155053 4348904832 Options.compaction_options_universal.min_merge_width: 2
+2025/11/11-16:20:06.155053 4348904832 Options.compaction_options_universal.max_merge_width: 4294967295
+2025/11/11-16:20:06.155054 4348904832 Options.compaction_options_universal.max_size_amplification_percent: 200
+2025/11/11-16:20:06.155054 4348904832 Options.compaction_options_universal.compression_size_percent: -1
+2025/11/11-16:20:06.155055 4348904832 Options.compaction_options_universal.stop_style: kCompactionStopStyleTotalSize
+2025/11/11-16:20:06.155055 4348904832 Options.compaction_options_fifo.max_table_files_size: 1073741824
+2025/11/11-16:20:06.155056 4348904832 Options.compaction_options_fifo.allow_compaction: 0
+2025/11/11-16:20:06.155056 4348904832                   Options.table_properties_collectors: 
+2025/11/11-16:20:06.155057 4348904832                   Options.inplace_update_support: 0
+2025/11/11-16:20:06.155057 4348904832                 Options.inplace_update_num_locks: 10000
+2025/11/11-16:20:06.155058 4348904832               Options.memtable_prefix_bloom_size_ratio: 0.000000
+2025/11/11-16:20:06.155058 4348904832               Options.memtable_whole_key_filtering: 0
+2025/11/11-16:20:06.155059 4348904832   Options.memtable_huge_page_size: 0
+2025/11/11-16:20:06.155059 4348904832                           Options.bloom_locality: 0
+2025/11/11-16:20:06.155060 4348904832                    Options.max_successive_merges: 0
+2025/11/11-16:20:06.155060 4348904832                Options.optimize_filters_for_hits: 0
+2025/11/11-16:20:06.155061 4348904832                Options.paranoid_file_checks: 0
+2025/11/11-16:20:06.155061 4348904832                Options.force_consistency_checks: 1
+2025/11/11-16:20:06.155062 4348904832                Options.report_bg_io_stats: 0
+2025/11/11-16:20:06.155062 4348904832                               Options.ttl: 2592000
+2025/11/11-16:20:06.155063 4348904832          Options.periodic_compaction_seconds: 0
+2025/11/11-16:20:06.155063 4348904832  Options.preclude_last_level_data_seconds: 0
+2025/11/11-16:20:06.155064 4348904832    Options.preserve_internal_time_seconds: 0
+2025/11/11-16:20:06.155064 4348904832                       Options.enable_blob_files: false
+2025/11/11-16:20:06.155065 4348904832                           Options.min_blob_size: 0
+2025/11/11-16:20:06.155065 4348904832                          Options.blob_file_size: 268435456
+2025/11/11-16:20:06.155066 4348904832                   Options.blob_compression_type: NoCompression
+2025/11/11-16:20:06.155066 4348904832          Options.enable_blob_garbage_collection: false
+2025/11/11-16:20:06.155067 4348904832      Options.blob_garbage_collection_age_cutoff: 0.250000
+2025/11/11-16:20:06.155067 4348904832 Options.blob_garbage_collection_force_threshold: 1.000000
+2025/11/11-16:20:06.155068 4348904832          Options.blob_compaction_readahead_size: 0
+2025/11/11-16:20:06.155068 4348904832                Options.blob_file_starting_level: 0
+2025/11/11-16:20:06.155069 4348904832 Options.experimental_mempurge_threshold: 0.000000
+2025/11/11-16:20:06.155083 4348904832 [db/column_family.cc:617] --------------- Options for column family [15]:
+2025/11/11-16:20:06.155084 4348904832               Options.comparator: leveldb.BytewiseComparator
+2025/11/11-16:20:06.155085 4348904832           Options.merge_operator: None
+2025/11/11-16:20:06.155085 4348904832        Options.compaction_filter: None
+2025/11/11-16:20:06.155086 4348904832        Options.compaction_filter_factory: None
+2025/11/11-16:20:06.155086 4348904832  Options.sst_partitioner_factory: None
+2025/11/11-16:20:06.155087 4348904832         Options.memtable_factory: SkipListFactory
+2025/11/11-16:20:06.155087 4348904832            Options.table_factory: BlockBasedTable
+2025/11/11-16:20:06.155092 4348904832            table_factory options:   flush_block_policy_factory: FlushBlockBySizePolicyFactory (0x6000032a1d00)
+  cache_index_and_filter_blocks: 0
+  cache_index_and_filter_blocks_with_high_priority: 1
+  pin_l0_filter_and_index_blocks_in_cache: 0
+  pin_top_level_index_and_filter: 1
+  index_type: 0
+  data_block_index_type: 0
+  index_shortening: 1
+  data_block_hash_table_util_ratio: 0.750000
+  checksum: 4
+  no_block_cache: 0
+  block_cache: 0x6000007bcc18
+  block_cache_name: LRUCache
+  block_cache_options:
+    capacity : 33554432
+    num_shard_bits : 6
+    strict_capacity_limit : 0
+    memory_allocator : None
+    high_pri_pool_ratio: 0.500
+    low_pri_pool_ratio: 0.000
+  persistent_cache: 0x0
+  block_size: 4096
+  block_size_deviation: 10
+  block_restart_interval: 16
+  index_block_restart_interval: 1
+  metadata_block_size: 4096
+  partition_filters: 0
+  use_delta_encoding: 1
+  filter_policy: nullptr
+  whole_key_filtering: 1
+  verify_compression: 0
+  read_amp_bytes_per_bit: 0
+  format_version: 5
+  enable_index_compression: 1
+  block_align: 0
+  max_auto_readahead_size: 262144
+  prepopulate_block_cache: 0
+  initial_auto_readahead_size: 8192
+  num_file_reads_for_auto_readahead: 2
+2025/11/11-16:20:06.155092 4348904832        Options.write_buffer_size: 67108864
+2025/11/11-16:20:06.155093 4348904832  Options.max_write_buffer_number: 2
+2025/11/11-16:20:06.155093 4348904832          Options.compression: Snappy
+2025/11/11-16:20:06.155094 4348904832                  Options.bottommost_compression: Disabled
+2025/11/11-16:20:06.155094 4348904832       Options.prefix_extractor: nullptr
+2025/11/11-16:20:06.155095 4348904832   Options.memtable_insert_with_hint_prefix_extractor: nullptr
+2025/11/11-16:20:06.155095 4348904832             Options.num_levels: 7
+2025/11/11-16:20:06.155096 4348904832        Options.min_write_buffer_number_to_merge: 1
+2025/11/11-16:20:06.155096 4348904832     Options.max_write_buffer_number_to_maintain: 0
+2025/11/11-16:20:06.155097 4348904832     Options.max_write_buffer_size_to_maintain: 0
+2025/11/11-16:20:06.155097 4348904832            Options.bottommost_compression_opts.window_bits: -14
+2025/11/11-16:20:06.155098 4348904832                  Options.bottommost_compression_opts.level: 32767
+2025/11/11-16:20:06.155098 4348904832               Options.bottommost_compression_opts.strategy: 0
+2025/11/11-16:20:06.155099 4348904832         Options.bottommost_compression_opts.max_dict_bytes: 0
+2025/11/11-16:20:06.155099 4348904832         Options.bottommost_compression_opts.zstd_max_train_bytes: 0
+2025/11/11-16:20:06.155100 4348904832         Options.bottommost_compression_opts.parallel_threads: 1
+2025/11/11-16:20:06.155100 4348904832                  Options.bottommost_compression_opts.enabled: false
+2025/11/11-16:20:06.155101 4348904832         Options.bottommost_compression_opts.max_dict_buffer_bytes: 0
+2025/11/11-16:20:06.155101 4348904832         Options.bottommost_compression_opts.use_zstd_dict_trainer: true
+2025/11/11-16:20:06.155102 4348904832            Options.compression_opts.window_bits: -14
+2025/11/11-16:20:06.155102 4348904832                  Options.compression_opts.level: 32767
+2025/11/11-16:20:06.155103 4348904832               Options.compression_opts.strategy: 0
+2025/11/11-16:20:06.155103 4348904832         Options.compression_opts.max_dict_bytes: 0
+2025/11/11-16:20:06.155104 4348904832         Options.compression_opts.zstd_max_train_bytes: 0
+2025/11/11-16:20:06.155105 4348904832         Options.compression_opts.use_zstd_dict_trainer: true
+2025/11/11-16:20:06.155105 4348904832         Options.compression_opts.parallel_threads: 1
+2025/11/11-16:20:06.155106 4348904832                  Options.compression_opts.enabled: false
+2025/11/11-16:20:06.155106 4348904832         Options.compression_opts.max_dict_buffer_bytes: 0
+2025/11/11-16:20:06.155107 4348904832      Options.level0_file_num_compaction_trigger: 4
+2025/11/11-16:20:06.155107 4348904832          Options.level0_slowdown_writes_trigger: 20
+2025/11/11-16:20:06.155108 4348904832              Options.level0_stop_writes_trigger: 36
+2025/11/11-16:20:06.155108 4348904832                   Options.target_file_size_base: 67108864
+2025/11/11-16:20:06.155109 4348904832             Options.target_file_size_multiplier: 1
+2025/11/11-16:20:06.155109 4348904832                Options.max_bytes_for_level_base: 268435456
+2025/11/11-16:20:06.155110 4348904832 Options.level_compaction_dynamic_level_bytes: 1
+2025/11/11-16:20:06.155110 4348904832          Options.max_bytes_for_level_multiplier: 10.000000
+2025/11/11-16:20:06.155111 4348904832 Options.max_bytes_for_level_multiplier_addtl[0]: 1
+2025/11/11-16:20:06.155111 4348904832 Options.max_bytes_for_level_multiplier_addtl[1]: 1
+2025/11/11-16:20:06.155112 4348904832 Options.max_bytes_for_level_multiplier_addtl[2]: 1
+2025/11/11-16:20:06.155112 4348904832 Options.max_bytes_for_level_multiplier_addtl[3]: 1
+2025/11/11-16:20:06.155113 4348904832 Options.max_bytes_for_level_multiplier_addtl[4]: 1
+2025/11/11-16:20:06.155113 4348904832 Options.max_bytes_for_level_multiplier_addtl[5]: 1
+2025/11/11-16:20:06.155114 4348904832 Options.max_bytes_for_level_multiplier_addtl[6]: 1
+2025/11/11-16:20:06.155114 4348904832       Options.max_sequential_skip_in_iterations: 8
+2025/11/11-16:20:06.155115 4348904832                    Options.max_compaction_bytes: 1677721600
+2025/11/11-16:20:06.155115 4348904832   Options.ignore_max_compaction_bytes_for_input: true
+2025/11/11-16:20:06.155116 4348904832                        Options.arena_block_size: 1048576
+2025/11/11-16:20:06.155116 4348904832   Options.soft_pending_compaction_bytes_limit: 68719476736
+2025/11/11-16:20:06.155117 4348904832   Options.hard_pending_compaction_bytes_limit: 274877906944
+2025/11/11-16:20:06.155117 4348904832                Options.disable_auto_compactions: 0
+2025/11/11-16:20:06.155118 4348904832                        Options.compaction_style: kCompactionStyleLevel
+2025/11/11-16:20:06.155118 4348904832                          Options.compaction_pri: kMinOverlappingRatio
+2025/11/11-16:20:06.155119 4348904832 Options.compaction_options_universal.size_ratio: 1
+2025/11/11-16:20:06.155119 4348904832 Options.compaction_options_universal.min_merge_width: 2
+2025/11/11-16:20:06.155120 4348904832 Options.compaction_options_universal.max_merge_width: 4294967295
+2025/11/11-16:20:06.155120 4348904832 Options.compaction_options_universal.max_size_amplification_percent: 200
+2025/11/11-16:20:06.155121 4348904832 Options.compaction_options_universal.compression_size_percent: -1
+2025/11/11-16:20:06.155121 4348904832 Options.compaction_options_universal.stop_style: kCompactionStopStyleTotalSize
+2025/11/11-16:20:06.155122 4348904832 Options.compaction_options_fifo.max_table_files_size: 1073741824
+2025/11/11-16:20:06.155122 4348904832 Options.compaction_options_fifo.allow_compaction: 0
+2025/11/11-16:20:06.155123 4348904832                   Options.table_properties_collectors: 
+2025/11/11-16:20:06.155123 4348904832                   Options.inplace_update_support: 0
+2025/11/11-16:20:06.155124 4348904832                 Options.inplace_update_num_locks: 10000
+2025/11/11-16:20:06.155124 4348904832               Options.memtable_prefix_bloom_size_ratio: 0.000000
+2025/11/11-16:20:06.155125 4348904832               Options.memtable_whole_key_filtering: 0
+2025/11/11-16:20:06.155125 4348904832   Options.memtable_huge_page_size: 0
+2025/11/11-16:20:06.155126 4348904832                           Options.bloom_locality: 0
+2025/11/11-16:20:06.155126 4348904832                    Options.max_successive_merges: 0
+2025/11/11-16:20:06.155127 4348904832                Options.optimize_filters_for_hits: 0
+2025/11/11-16:20:06.155127 4348904832                Options.paranoid_file_checks: 0
+2025/11/11-16:20:06.155128 4348904832                Options.force_consistency_checks: 1
+2025/11/11-16:20:06.155128 4348904832                Options.report_bg_io_stats: 0
+2025/11/11-16:20:06.155129 4348904832                               Options.ttl: 2592000
+2025/11/11-16:20:06.155129 4348904832          Options.periodic_compaction_seconds: 0
+2025/11/11-16:20:06.155130 4348904832  Options.preclude_last_level_data_seconds: 0
+2025/11/11-16:20:06.155130 4348904832    Options.preserve_internal_time_seconds: 0
+2025/11/11-16:20:06.155131 4348904832                       Options.enable_blob_files: false
+2025/11/11-16:20:06.155131 4348904832                           Options.min_blob_size: 0
+2025/11/11-16:20:06.155132 4348904832                          Options.blob_file_size: 268435456
+2025/11/11-16:20:06.155132 4348904832                   Options.blob_compression_type: NoCompression
+2025/11/11-16:20:06.155133 4348904832          Options.enable_blob_garbage_collection: false
+2025/11/11-16:20:06.155133 4348904832      Options.blob_garbage_collection_age_cutoff: 0.250000
+2025/11/11-16:20:06.155134 4348904832 Options.blob_garbage_collection_force_threshold: 1.000000
+2025/11/11-16:20:06.155134 4348904832          Options.blob_compaction_readahead_size: 0
+2025/11/11-16:20:06.155135 4348904832                Options.blob_file_starting_level: 0
+2025/11/11-16:20:06.155135 4348904832 Options.experimental_mempurge_threshold: 0.000000
+2025/11/11-16:20:06.156496 4348904832 [db/db_impl/db_impl_secondary.cc:154] Recovering log #65 mode 2
+2025/11/11-16:20:06.957164 6248361984 [db/db_impl/db_impl_secondary.cc:640] Last sequence is 22887
+2025/11/11-16:20:06.960383 6248361984 [db/db_impl/db_impl_secondary.cc:640] Last sequence is 22887
+2025/11/11-16:20:08.961443 6248361984 [db/db_impl/db_impl_secondary.cc:640] Last sequence is 22887
+2025/11/11-16:20:10.962356 6248361984 [db/db_impl/db_impl_secondary.cc:640] Last sequence is 22887
+2025/11/11-16:20:11.582509 6254800896 [db/db_impl/db_impl_secondary.cc:640] Last sequence is 22887
+2025/11/11-16:20:12.616537 6171373568 [db/db_impl/db_impl_secondary.cc:640] Last sequence is 22904
+2025/11/11-16:20:12.626625 6248361984 [db/db_impl/db_impl_secondary.cc:640] Last sequence is 22926
+2025/11/11-16:20:12.961500 6248361984 [db/db_impl/db_impl_secondary.cc:640] Last sequence is 22950
+2025/11/11-16:20:13.656406 6171373568 [db/db_impl/db_impl_secondary.cc:640] Last sequence is 22950
+2025/11/11-16:20:13.666984 6256947200 [db/db_impl/db_impl_secondary.cc:640] Last sequence is 22969
+2025/11/11-16:20:14.964612 6179958784 [db/db_impl/db_impl_secondary.cc:640] Last sequence is 22989
+2025/11/11-16:20:17.020495 6179958784 [db/db_impl/db_impl_secondary.cc:640] Last sequence is 22989
+2025/11/11-16:20:17.281898 6169227264 [db/db_impl/db_impl_secondary.cc:640] Last sequence is 23008
+2025/11/11-16:20:17.942072 6179958784 [db/db_impl/db_impl_secondary.cc:640] Last sequence is 23008
+2025/11/11-16:20:18.962753 6169227264 [db/db_impl/db_impl_secondary.cc:640] Last sequence is 23029
+2025/11/11-16:20:19.050054 6171373568 [db/db_impl/db_impl_secondary.cc:640] Last sequence is 23035
+2025/11/11-16:20:20.063226 6256947200 [db/db_impl/db_impl_secondary.cc:640] Last sequence is 23048
+2025/11/11-16:20:20.959986 6164934656 [db/db_impl/db_impl_secondary.cc:640] Last sequence is 23079
+2025/11/11-16:20:22.146205 6164934656 [db/db_impl/db_impl_secondary.cc:640] Last sequence is 23079
+2025/11/11-16:20:22.960278 6248361984 [db/db_impl/db_impl_secondary.cc:640] Last sequence is 23098
+2025/11/11-16:20:24.158880 6169227264 [db/db_impl/db_impl_secondary.cc:640] Last sequence is 23098
+2025/11/11-16:20:24.960545 6256947200 [db/db_impl/db_impl_secondary.cc:640] Last sequence is 23120
+2025/11/11-16:20:25.163926 6169227264 [db/db_impl/db_impl_secondary.cc:640] Last sequence is 23120
+2025/11/11-16:20:26.183309 6179958784 [db/db_impl/db_impl_secondary.cc:640] Last sequence is 23139
+2025/11/11-16:20:26.963209 6248361984 [db/db_impl/db_impl_secondary.cc:640] Last sequence is 23159
+2025/11/11-16:20:27.607505 6256947200 [db/db_impl/db_impl_secondary.cc:640] Last sequence is 23159
+2025/11/11-16:20:28.553450 6256947200 [db/db_impl/db_impl_secondary.cc:640] Last sequence is 23178
+2025/11/11-16:20:28.959783 6171373568 [db/db_impl/db_impl_secondary.cc:640] Last sequence is 23196
+2025/11/11-16:20:29.290266 6169227264 [db/db_impl/db_impl_secondary.cc:640] Last sequence is 23199
+2025/11/11-16:20:30.192775 6254800896 [db/db_impl/db_impl_secondary.cc:640] Last sequence is 23218
+2025/11/11-16:20:30.960116 6256947200 [db/db_impl/db_impl_secondary.cc:640] Last sequence is 23238
+2025/11/11-16:20:31.203565 6169227264 [db/db_impl/db_impl_secondary.cc:640] Last sequence is 23238
+2025/11/11-16:20:32.209212 6164934656 [db/db_impl/db_impl_secondary.cc:640] Last sequence is 23257
+2025/11/11-16:20:32.963352 6169227264 [db/db_impl/db_impl_secondary.cc:640] Last sequence is 23280
+2025/11/11-16:20:33.207433 6169227264 [db/db_impl/db_impl_secondary.cc:640] Last sequence is 23280
+2025/11/11-16:20:34.213668 6256947200 [db/db_impl/db_impl_secondary.cc:640] Last sequence is 23299
+2025/11/11-16:20:34.960743 6179958784 [db/db_impl/db_impl_secondary.cc:640] Last sequence is 23319
+2025/11/11-16:20:35.215444 6248361984 [db/db_impl/db_impl_secondary.cc:640] Last sequence is 23319
+2025/11/11-16:20:36.225554 6248361984 [db/db_impl/db_impl_secondary.cc:640] Last sequence is 23338
+2025/11/11-16:20:36.962334 6256947200 [db/db_impl/db_impl_secondary.cc:640] Last sequence is 23359
+2025/11/11-16:20:37.233823 6175666176 [db/db_impl/db_impl_secondary.cc:640] Last sequence is 23359
+2025/11/11-16:20:38.246637 6171373568 [db/db_impl/db_impl_secondary.cc:640] Last sequence is 23378
+2025/11/11-16:20:38.962677 6169227264 [db/db_impl/db_impl_secondary.cc:640] Last sequence is 23415
+2025/11/11-16:20:39.247102 6171373568 [db/db_impl/db_impl_secondary.cc:640] Last sequence is 23415
+2025/11/11-16:20:40.247985 6179958784 [db/db_impl/db_impl_secondary.cc:640] Last sequence is 23434
+2025/11/11-16:20:40.962286 6248361984 [db/db_impl/db_impl_secondary.cc:640] Last sequence is 23456
+2025/11/11-16:20:41.254084 6171373568 [db/db_impl/db_impl_secondary.cc:640] Last sequence is 23456
+2025/11/11-16:20:42.264338 6256947200 [db/db_impl/db_impl_secondary.cc:640] Last sequence is 23475
+2025/11/11-16:20:42.962160 6248361984 [db/db_impl/db_impl_secondary.cc:640] Last sequence is 23495
+2025/11/11-16:20:43.271330 6248361984 [db/db_impl/db_impl_secondary.cc:640] Last sequence is 23495
+2025/11/11-16:20:44.270590 6169227264 [db/db_impl/db_impl_secondary.cc:640] Last sequence is 23514
+2025/11/11-16:20:44.962742 6248361984 [db/db_impl/db_impl_secondary.cc:640] Last sequence is 23535
+2025/11/11-16:20:45.278536 6261239808 [db/db_impl/db_impl_secondary.cc:640] Last sequence is 23535
+2025/11/11-16:20:46.280329 6261239808 [db/db_impl/db_impl_secondary.cc:640] Last sequence is 23554
+2025/11/11-16:20:46.962605 6171373568 [db/db_impl/db_impl_secondary.cc:640] Last sequence is 23574
+2025/11/11-16:20:47.292249 6171373568 [db/db_impl/db_impl_secondary.cc:640] Last sequence is 23574
+2025/11/11-16:20:48.298307 6169227264 [db/db_impl/db_impl_secondary.cc:640] Last sequence is 23593
+2025/11/11-16:20:48.962346 6261239808 [db/db_impl/db_impl_secondary.cc:640] Last sequence is 23619
+2025/11/11-16:20:49.293286 6164934656 [db/db_impl/db_impl_secondary.cc:640] Last sequence is 23619
+2025/11/11-16:20:50.297019 6261239808 [db/db_impl/db_impl_secondary.cc:640] Last sequence is 23638
+2025/11/11-16:20:50.961593 6256947200 [db/db_impl/db_impl_secondary.cc:640] Last sequence is 23658
+2025/11/11-16:20:51.302972 6256947200 [db/db_impl/db_impl_secondary.cc:640] Last sequence is 23658
+2025/11/11-16:20:52.305450 6254800896 [db/db_impl/db_impl_secondary.cc:640] Last sequence is 23677
+2025/11/11-16:20:52.961825 6261239808 [db/db_impl/db_impl_secondary.cc:640] Last sequence is 23698
+2025/11/11-16:20:53.307234 6164934656 [db/db_impl/db_impl_secondary.cc:640] Last sequence is 23698
+2025/11/11-16:20:54.315835 6256947200 [db/db_impl/db_impl_secondary.cc:640] Last sequence is 23717
+2025/11/11-16:20:54.962948 6169227264 [db/db_impl/db_impl_secondary.cc:640] Last sequence is 23737
+2025/11/11-16:20:55.321052 6254800896 [db/db_impl/db_impl_secondary.cc:640] Last sequence is 23737
+2025/11/11-16:20:56.335437 6256947200 [db/db_impl/db_impl_secondary.cc:640] Last sequence is 23756
+2025/11/11-16:20:56.959504 6261239808 [db/db_impl/db_impl_secondary.cc:640] Last sequence is 23778
+2025/11/11-16:20:57.341982 6261239808 [db/db_impl/db_impl_secondary.cc:640] Last sequence is 23778
+2025/11/11-16:20:58.344721 6175666176 [db/db_impl/db_impl_secondary.cc:640] Last sequence is 23797
+2025/11/11-16:20:58.962769 6248361984 [db/db_impl/db_impl_secondary.cc:640] Last sequence is 23817
+2025/11/11-16:20:59.376206 6175666176 [db/db_impl/db_impl_secondary.cc:640] Last sequence is 23817
+2025/11/11-16:21:00.359658 6175666176 [db/db_impl/db_impl_secondary.cc:640] Last sequence is 23836
+2025/11/11-16:21:00.962156 6169227264 [db/db_impl/db_impl_secondary.cc:640] Last sequence is 23857
+2025/11/11-16:21:01.356912 6171373568 [db/db_impl/db_impl_secondary.cc:640] Last sequence is 23857
+2025/11/11-16:21:02.367128 6164934656 [db/db_impl/db_impl_secondary.cc:640] Last sequence is 23876
+2025/11/11-16:21:02.959634 6175666176 [db/db_impl/db_impl_secondary.cc:640] Last sequence is 23896
+2025/11/11-16:21:03.368473 6248361984 [db/db_impl/db_impl_secondary.cc:640] Last sequence is 23896
+2025/11/11-16:21:04.381510 6164934656 [db/db_impl/db_impl_secondary.cc:640] Last sequence is 23915
+2025/11/11-16:21:04.961143 6175666176 [db/db_impl/db_impl_secondary.cc:640] Last sequence is 23938
+2025/11/11-16:21:05.377277 6169227264 [db/db_impl/db_impl_secondary.cc:640] Last sequence is 23938
+2025/11/11-16:21:06.374589 6164934656 [db/db_impl/db_impl_secondary.cc:640] Last sequence is 23957
+2025/11/11-16:21:06.961142 6254800896 [db/db_impl/db_impl_secondary.cc:640] Last sequence is 23977
+2025/11/11-16:21:07.377193 6164934656 [db/db_impl/db_impl_secondary.cc:640] Last sequence is 23977
+2025/11/11-16:21:08.385416 6164934656 [db/db_impl/db_impl_secondary.cc:640] Last sequence is 23996
+2025/11/11-16:21:08.962050 6261239808 [db/db_impl/db_impl_secondary.cc:640] Last sequence is 24017
+2025/11/11-16:21:09.396917 6169227264 [db/db_impl/db_impl_secondary.cc:640] Last sequence is 24017
+2025/11/11-16:21:10.399494 6248361984 [db/db_impl/db_impl_secondary.cc:640] Last sequence is 24036
+2025/11/11-16:21:10.962609 6164934656 [db/db_impl/db_impl_secondary.cc:640] Last sequence is 24056
+2025/11/11-16:21:11.412575 6179958784 [db/db_impl/db_impl_secondary.cc:640] Last sequence is 24056
+2025/11/11-16:21:12.413148 6179958784 [db/db_impl/db_impl_secondary.cc:640] Last sequence is 24075
+2025/11/11-16:21:12.962376 6175666176 [db/db_impl/db_impl_secondary.cc:640] Last sequence is 24097
+2025/11/11-16:21:13.416562 6179958784 [db/db_impl/db_impl_secondary.cc:640] Last sequence is 24097
+2025/11/11-16:21:14.424708 6169227264 [db/db_impl/db_impl_secondary.cc:640] Last sequence is 24116
+2025/11/11-16:21:14.960318 6259093504 [db/db_impl/db_impl_secondary.cc:640] Last sequence is 24136
+2025/11/11-16:21:15.431919 6248361984 [db/db_impl/db_impl_secondary.cc:640] Last sequence is 24136
+2025/11/11-16:21:16.441817 6175666176 [db/db_impl/db_impl_secondary.cc:640] Last sequence is 24155
+2025/11/11-16:21:16.960296 6171373568 [db/db_impl/db_impl_secondary.cc:640] Last sequence is 24176
+2025/11/11-16:21:17.442861 6164934656 [db/db_impl/db_impl_secondary.cc:640] Last sequence is 24176
+2025/11/11-16:21:18.458523 6179958784 [db/db_impl/db_impl_secondary.cc:640] Last sequence is 24195
+2025/11/11-16:21:18.962065 6259093504 [db/db_impl/db_impl_secondary.cc:640] Last sequence is 24215
+2025/11/11-16:21:19.457472 6171373568 [db/db_impl/db_impl_secondary.cc:640] Last sequence is 24215
+2025/11/11-16:21:20.468692 6164934656 [db/db_impl/db_impl_secondary.cc:640] Last sequence is 24234
+2025/11/11-16:21:20.962612 6169227264 [db/db_impl/db_impl_secondary.cc:640] Last sequence is 24258
+2025/11/11-16:21:21.469954 6171373568 [db/db_impl/db_impl_secondary.cc:640] Last sequence is 24258
+2025/11/11-16:21:22.473381 6254800896 [db/db_impl/db_impl_secondary.cc:640] Last sequence is 24277
+2025/11/11-16:21:22.961900 6175666176 [db/db_impl/db_impl_secondary.cc:640] Last sequence is 24297
+2025/11/11-16:21:23.482515 6169227264 [db/db_impl/db_impl_secondary.cc:640] Last sequence is 24297
+2025/11/11-16:21:24.481846 6169227264 [db/db_impl/db_impl_secondary.cc:640] Last sequence is 24316
+2025/11/11-16:21:24.959798 6254800896 [db/db_impl/db_impl_secondary.cc:640] Last sequence is 24337
+2025/11/11-16:21:25.494870 6164934656 [db/db_impl/db_impl_secondary.cc:640] Last sequence is 24337
+2025/11/11-16:21:26.494379 6175666176 [db/db_impl/db_impl_secondary.cc:640] Last sequence is 24356
+2025/11/11-16:21:26.960315 6175666176 [db/db_impl/db_impl_secondary.cc:640] Last sequence is 24376
+2025/11/11-16:21:27.505763 6179958784 [db/db_impl/db_impl_secondary.cc:640] Last sequence is 24376
+2025/11/11-16:21:28.509016 6259093504 [db/db_impl/db_impl_secondary.cc:640] Last sequence is 24395
+2025/11/11-16:21:28.960728 6259093504 [db/db_impl/db_impl_secondary.cc:640] Last sequence is 24417
+2025/11/11-16:21:29.515752 6248361984 [db/db_impl/db_impl_secondary.cc:640] Last sequence is 24417
+2025/11/11-16:21:30.528721 6259093504 [db/db_impl/db_impl_secondary.cc:640] Last sequence is 24436
+2025/11/11-16:21:30.960599 6254800896 [db/db_impl/db_impl_secondary.cc:640] Last sequence is 24456
+2025/11/11-16:21:31.564960 6259093504 [db/db_impl/db_impl_secondary.cc:640] Last sequence is 24456
+2025/11/11-16:21:32.536859 6179958784 [db/db_impl/db_impl_secondary.cc:640] Last sequence is 24475
+2025/11/11-16:21:32.958695 6261239808 [db/db_impl/db_impl_secondary.cc:640] Last sequence is 24496
+2025/11/11-16:21:33.547079 6254800896 [db/db_impl/db_impl_secondary.cc:640] Last sequence is 24496
+2025/11/11-16:21:34.544774 6248361984 [db/db_impl/db_impl_secondary.cc:640] Last sequence is 24515
+2025/11/11-16:21:34.961410 6169227264 [db/db_impl/db_impl_secondary.cc:640] Last sequence is 24535
+2025/11/11-16:21:35.556847 6256947200 [db/db_impl/db_impl_secondary.cc:640] Last sequence is 24535
+2025/11/11-16:21:36.566846 6256947200 [db/db_impl/db_impl_secondary.cc:640] Last sequence is 24554
+2025/11/11-16:21:36.961921 6256947200 [db/db_impl/db_impl_secondary.cc:640] Last sequence is 24577
+2025/11/11-16:21:37.567648 6179958784 [db/db_impl/db_impl_secondary.cc:640] Last sequence is 24577
+2025/11/11-16:21:38.575276 6259093504 [db/db_impl/db_impl_secondary.cc:640] Last sequence is 24596
+2025/11/11-16:21:38.961342 6259093504 [db/db_impl/db_impl_secondary.cc:640] Last sequence is 24616
+2025/11/11-16:21:39.581755 6175666176 [db/db_impl/db_impl_secondary.cc:640] Last sequence is 24616
+2025/11/11-16:21:40.581891 6256947200 [db/db_impl/db_impl_secondary.cc:640] Last sequence is 24635
+2025/11/11-16:21:40.960553 6256947200 [db/db_impl/db_impl_secondary.cc:640] Last sequence is 24656
+2025/11/11-16:21:41.590254 6171373568 [db/db_impl/db_impl_secondary.cc:640] Last sequence is 24656
+2025/11/11-16:21:42.600562 6171373568 [db/db_impl/db_impl_secondary.cc:640] Last sequence is 24675
+2025/11/11-16:21:42.961354 6256947200 [db/db_impl/db_impl_secondary.cc:640] Last sequence is 24695
+2025/11/11-16:21:43.608644 6169227264 [db/db_impl/db_impl_secondary.cc:640] Last sequence is 24695
+2025/11/11-16:21:44.607689 6169227264 [db/db_impl/db_impl_secondary.cc:640] Last sequence is 24714
+2025/11/11-16:21:44.958379 6169227264 [db/db_impl/db_impl_secondary.cc:640] Last sequence is 24736
+2025/11/11-16:21:45.611782 6179958784 [db/db_impl/db_impl_secondary.cc:640] Last sequence is 24736
+2025/11/11-16:21:46.610017 6175666176 [db/db_impl/db_impl_secondary.cc:640] Last sequence is 24755
+2025/11/11-16:21:46.959127 6164934656 [db/db_impl/db_impl_secondary.cc:640] Last sequence is 24775
+2025/11/11-16:21:47.614116 6179958784 [db/db_impl/db_impl_secondary.cc:640] Last sequence is 24775
+2025/11/11-16:21:48.629810 6248361984 [db/db_impl/db_impl_secondary.cc:640] Last sequence is 24794
+2025/11/11-16:21:48.960473 6256947200 [db/db_impl/db_impl_secondary.cc:640] Last sequence is 24815
+2025/11/11-16:21:49.656698 6171373568 [db/db_impl/db_impl_secondary.cc:640] Last sequence is 24815
+2025/11/11-16:21:50.639556 6175666176 [db/db_impl/db_impl_secondary.cc:640] Last sequence is 24834
+2025/11/11-16:21:50.692608 6175666176 [db/db_impl/db_impl_secondary.cc:640] Last sequence is 24854
+2025/11/11-16:21:50.700980 6164934656 [db/db_impl/db_impl_secondary.cc:640] Last sequence is 24873
+2025/11/11-16:21:50.706432 6171373568 [db/db_impl/db_impl_secondary.cc:640] Last sequence is 24898
+2025/11/11-16:21:50.715193 6175666176 [db/db_impl/db_impl_secondary.cc:640] Last sequence is 24917
+2025/11/11-16:21:50.721051 6259093504 [db/db_impl/db_impl_secondary.cc:640] Last sequence is 24937
+2025/11/11-16:21:50.957144 6261239808 [db/db_impl/db_impl_secondary.cc:640] Last sequence is 24956
+2025/11/11-16:21:51.401521 6254800896 [db/db_impl/db_impl_secondary.cc:640] Last sequence is 24956
+2025/11/11-16:21:52.419993 6256947200 [db/db_impl/db_impl_secondary.cc:640] Last sequence is 24977
+2025/11/11-16:21:52.959050 6179958784 [db/db_impl/db_impl_secondary.cc:640] Last sequence is 25004
+2025/11/11-16:21:53.432067 6179958784 [db/db_impl/db_impl_secondary.cc:640] Last sequence is 25012
+2025/11/11-16:21:54.449817 6261239808 [db/db_impl/db_impl_secondary.cc:640] Last sequence is 25032
+2025/11/11-16:21:54.958638 6179958784 [db/db_impl/db_impl_secondary.cc:640] Last sequence is 25067
+2025/11/11-16:21:55.676506 6248361984 [db/db_impl/db_impl_secondary.cc:640] Last sequence is 25076
+2025/11/11-16:21:56.927283 6259093504 [db/db_impl/db_impl_secondary.cc:640] Last sequence is 25100
+2025/11/11-16:21:56.957589 6261239808 [db/db_impl/db_impl_secondary.cc:640] Last sequence is 25121
+2025/11/11-16:21:58.008578 6171373568 [db/db_impl/db_impl_secondary.cc:640] Last sequence is 25121
+2025/11/11-16:21:58.776819 6175666176 [db/db_impl/db_impl_secondary.cc:640] Last sequence is 25141
+2025/11/11-16:21:58.959472 6259093504 [db/db_impl/db_impl_secondary.cc:640] Last sequence is 25160
+2025/11/11-16:21:59.696460 6248361984 [db/db_impl/db_impl_secondary.cc:640] Last sequence is 25160
+2025/11/11-16:22:00.704860 6259093504 [db/db_impl/db_impl_secondary.cc:640] Last sequence is 25181
+2025/11/11-16:22:00.958196 6248361984 [db/db_impl/db_impl_secondary.cc:640] Last sequence is 25200
+2025/11/11-16:22:01.724740 6259093504 [db/db_impl/db_impl_secondary.cc:640] Last sequence is 25200
+2025/11/11-16:22:02.717215 6248361984 [db/db_impl/db_impl_secondary.cc:640] Last sequence is 25220
+2025/11/11-16:22:02.980118 6254800896 [db/db_impl/db_impl_secondary.cc:640] Last sequence is 25239
+2025/11/11-16:22:03.731059 6256947200 [db/db_impl/db_impl_secondary.cc:640] Last sequence is 25239
+2025/11/11-16:22:04.733349 6175666176 [db/db_impl/db_impl_secondary.cc:640] Last sequence is 25262
+2025/11/11-16:22:04.958497 6259093504 [db/db_impl/db_impl_secondary.cc:640] Last sequence is 25281
+2025/11/11-16:22:05.741815 6179958784 [db/db_impl/db_impl_secondary.cc:640] Last sequence is 25281
+2025/11/11-16:22:06.752559 6175666176 [db/db_impl/db_impl_secondary.cc:640] Last sequence is 25301
+2025/11/11-16:22:06.958888 6164934656 [db/db_impl/db_impl_secondary.cc:640] Last sequence is 25337
+2025/11/11-16:22:07.761323 6175666176 [db/db_impl/db_impl_secondary.cc:640] Last sequence is 25337
+2025/11/11-16:22:08.779149 6261239808 [db/db_impl/db_impl_secondary.cc:640] Last sequence is 25358
+2025/11/11-16:22:08.958419 6248361984 [db/db_impl/db_impl_secondary.cc:640] Last sequence is 25377
+2025/11/11-16:22:09.778420 6179958784 [db/db_impl/db_impl_secondary.cc:640] Last sequence is 25377
+2025/11/11-16:22:10.784481 6261239808 [db/db_impl/db_impl_secondary.cc:640] Last sequence is 25397
+2025/11/11-16:22:10.958358 6175666176 [db/db_impl/db_impl_secondary.cc:640] Last sequence is 25416
+2025/11/11-16:22:11.793381 6175666176 [db/db_impl/db_impl_secondary.cc:640] Last sequence is 25416
+2025/11/11-16:22:12.959501 6256947200 [db/db_impl/db_impl_secondary.cc:640] Last sequence is 25438
+2025/11/11-16:22:12.963171 6259093504 [db/db_impl/db_impl_secondary.cc:640] Last sequence is 25457
+2025/11/11-16:22:13.804362 6171373568 [db/db_impl/db_impl_secondary.cc:640] Last sequence is 25457
+2025/11/11-16:22:14.810986 6256947200 [db/db_impl/db_impl_secondary.cc:640] Last sequence is 25477
+2025/11/11-16:22:14.956876 6248361984 [db/db_impl/db_impl_secondary.cc:640] Last sequence is 25496
+2025/11/11-16:22:15.822546 6179958784 [db/db_impl/db_impl_secondary.cc:640] Last sequence is 25496
+2025/11/11-16:22:16.828520 6261239808 [db/db_impl/db_impl_secondary.cc:640] Last sequence is 25517
+2025/11/11-16:22:16.958449 6179958784 [db/db_impl/db_impl_secondary.cc:640] Last sequence is 25536
+2025/11/11-16:22:17.828943 6261239808 [db/db_impl/db_impl_secondary.cc:640] Last sequence is 25536
+2025/11/11-16:22:18.829309 6179958784 [db/db_impl/db_impl_secondary.cc:640] Last sequence is 25556
+2025/11/11-16:22:18.958641 6175666176 [db/db_impl/db_impl_secondary.cc:640] Last sequence is 25575
+2025/11/11-16:22:19.834966 6261239808 [db/db_impl/db_impl_secondary.cc:640] Last sequence is 25575
+2025/11/11-16:22:20.838760 6254800896 [db/db_impl/db_impl_secondary.cc:640] Last sequence is 25599
+2025/11/11-16:22:20.958699 6175666176 [db/db_impl/db_impl_secondary.cc:640] Last sequence is 25618
+2025/11/11-16:22:21.843785 6256947200 [db/db_impl/db_impl_secondary.cc:640] Last sequence is 25618
+2025/11/11-16:22:22.848878 6254800896 [db/db_impl/db_impl_secondary.cc:640] Last sequence is 25638
+2025/11/11-16:22:22.958488 6164934656 [db/db_impl/db_impl_secondary.cc:640] Last sequence is 25657
+2025/11/11-16:22:23.860248 6175666176 [db/db_impl/db_impl_secondary.cc:640] Last sequence is 25657
+2025/11/11-16:22:24.864325 6179958784 [db/db_impl/db_impl_secondary.cc:640] Last sequence is 25678
+2025/11/11-16:22:24.959487 6248361984 [db/db_impl/db_impl_secondary.cc:640] Last sequence is 25697
+2025/11/11-16:22:25.872114 6164934656 [db/db_impl/db_impl_secondary.cc:640] Last sequence is 25697
+2025/11/11-16:22:26.882173 6175666176 [db/db_impl/db_impl_secondary.cc:640] Last sequence is 25717
+2025/11/11-16:22:26.959220 6256947200 [db/db_impl/db_impl_secondary.cc:640] Last sequence is 25736
+2025/11/11-16:22:27.885359 6254800896 [db/db_impl/db_impl_secondary.cc:640] Last sequence is 25736
+2025/11/11-16:22:28.914011 6254800896 [db/db_impl/db_impl_secondary.cc:640] Last sequence is 25758
+2025/11/11-16:22:29.006871 6175666176 [db/db_impl/db_impl_secondary.cc:640] Last sequence is 25777
+2025/11/11-16:22:29.904536 6179958784 [db/db_impl/db_impl_secondary.cc:640] Last sequence is 25777
+2025/11/11-16:22:30.902318 6261239808 [db/db_impl/db_impl_secondary.cc:640] Last sequence is 25797
+2025/11/11-16:22:30.959856 6254800896 [db/db_impl/db_impl_secondary.cc:640] Last sequence is 25816
+2025/11/11-16:22:31.909060 6254800896 [db/db_impl/db_impl_secondary.cc:640] Last sequence is 25816
+2025/11/11-16:22:32.907202 6248361984 [db/db_impl/db_impl_secondary.cc:640] Last sequence is 25837
+2025/11/11-16:22:32.957091 6254800896 [db/db_impl/db_impl_secondary.cc:640] Last sequence is 25856
+2025/11/11-16:22:33.910256 6256947200 [db/db_impl/db_impl_secondary.cc:640] Last sequence is 25856
+2025/11/11-16:22:34.923092 6259093504 [db/db_impl/db_impl_secondary.cc:640] Last sequence is 25876
+2025/11/11-16:22:34.958363 6256947200 [db/db_impl/db_impl_secondary.cc:640] Last sequence is 25895
+2025/11/11-16:22:35.919148 6256947200 [db/db_impl/db_impl_secondary.cc:640] Last sequence is 25895
+2025/11/11-16:22:36.936324 6259093504 [db/db_impl/db_impl_secondary.cc:640] Last sequence is 25918
+2025/11/11-16:22:36.960507 6261239808 [db/db_impl/db_impl_secondary.cc:640] Last sequence is 25937
+2025/11/11-16:22:37.935814 6248361984 [db/db_impl/db_impl_secondary.cc:640] Last sequence is 25937
+2025/11/11-16:22:38.941991 6261239808 [db/db_impl/db_impl_secondary.cc:640] Last sequence is 25957
+2025/11/11-16:22:38.959123 6256947200 [db/db_impl/db_impl_secondary.cc:640] Last sequence is 25976
+2025/11/11-16:22:39.997274 6248361984 [db/db_impl/db_impl_secondary.cc:640] Last sequence is 25976
+2025/11/11-16:22:40.954394 6179958784 [db/db_impl/db_impl_secondary.cc:640] Last sequence is 25997
+2025/11/11-16:22:40.959603 6171373568 [db/db_impl/db_impl_secondary.cc:640] Last sequence is 26016
+2025/11/11-16:22:41.965790 6256947200 [db/db_impl/db_impl_secondary.cc:640] Last sequence is 26016
+2025/11/11-16:22:42.960000 6171373568 [db/db_impl/db_impl_secondary.cc:640] Last sequence is 26036
+2025/11/11-16:22:43.020979 6179958784 [db/db_impl/db_impl_secondary.cc:640] Last sequence is 26036
+2025/11/11-16:22:44.053699 6254800896 [db/db_impl/db_impl_secondary.cc:640] Last sequence is 26055
+2025/11/11-16:22:44.959076 6164934656 [db/db_impl/db_impl_secondary.cc:640] Last sequence is 26077
+2025/11/11-16:22:44.977672 6254800896 [db/db_impl/db_impl_secondary.cc:640] Last sequence is 26077
+2025/11/11-16:22:45.985475 6179958784 [db/db_impl/db_impl_secondary.cc:640] Last sequence is 26096
+2025/11/11-16:22:46.960264 6164934656 [db/db_impl/db_impl_secondary.cc:640] Last sequence is 26116
+2025/11/11-16:22:46.992899 6261239808 [db/db_impl/db_impl_secondary.cc:640] Last sequence is 26116
+2025/11/11-16:22:48.004299 6256947200 [db/db_impl/db_impl_secondary.cc:640] Last sequence is 26135
+2025/11/11-16:22:48.960096 6261239808 [db/db_impl/db_impl_secondary.cc:640] Last sequence is 26156
+2025/11/11-16:22:49.014315 6248361984 [db/db_impl/db_impl_secondary.cc:640] Last sequence is 26156
+2025/11/11-16:22:50.017291 6175666176 [db/db_impl/db_impl_secondary.cc:640] Last sequence is 26175
+2025/11/11-16:22:50.959846 6254800896 [db/db_impl/db_impl_secondary.cc:640] Last sequence is 26195
+2025/11/11-16:22:51.023530 6256947200 [db/db_impl/db_impl_secondary.cc:640] Last sequence is 26195
+2025/11/11-16:22:52.034140 6171373568 [db/db_impl/db_impl_secondary.cc:640] Last sequence is 26214
+2025/11/11-16:22:52.959136 6261239808 [db/db_impl/db_impl_secondary.cc:640] Last sequence is 26241
+2025/11/11-16:22:53.038111 6164934656 [db/db_impl/db_impl_secondary.cc:640] Last sequence is 26241
+2025/11/11-16:22:54.051364 6254800896 [db/db_impl/db_impl_secondary.cc:640] Last sequence is 26260
+2025/11/11-16:22:54.959597 6169227264 [db/db_impl/db_impl_secondary.cc:640] Last sequence is 26280
+2025/11/11-16:22:55.060525 6179958784 [db/db_impl/db_impl_secondary.cc:640] Last sequence is 26280
+2025/11/11-16:22:56.057560 6256947200 [db/db_impl/db_impl_secondary.cc:640] Last sequence is 26299
+2025/11/11-16:22:56.957724 6259093504 [db/db_impl/db_impl_secondary.cc:640] Last sequence is 26320
+2025/11/11-16:22:57.173313 6164934656 [db/db_impl/db_impl_secondary.cc:640] Last sequence is 26320
+2025/11/11-16:22:58.080962 6256947200 [db/db_impl/db_impl_secondary.cc:640] Last sequence is 26339
+2025/11/11-16:22:58.958687 6169227264 [db/db_impl/db_impl_secondary.cc:640] Last sequence is 26359
+2025/11/11-16:22:59.092427 6254800896 [db/db_impl/db_impl_secondary.cc:640] Last sequence is 26359
+2025/11/11-16:23:00.103528 6179958784 [db/db_impl/db_impl_secondary.cc:640] Last sequence is 26378
+2025/11/11-16:23:00.958988 6259093504 [db/db_impl/db_impl_secondary.cc:640] Last sequence is 26400
+2025/11/11-16:23:01.103635 6179958784 [db/db_impl/db_impl_secondary.cc:640] Last sequence is 26400
+2025/11/11-16:23:02.110015 6256947200 [db/db_impl/db_impl_secondary.cc:640] Last sequence is 26419
+2025/11/11-16:23:02.958670 6254800896 [db/db_impl/db_impl_secondary.cc:640] Last sequence is 26439
+2025/11/11-16:23:03.117203 6256947200 [db/db_impl/db_impl_secondary.cc:640] Last sequence is 26439
+2025/11/11-16:23:04.118791 6256947200 [db/db_impl/db_impl_secondary.cc:640] Last sequence is 26458
+2025/11/11-16:23:04.957784 6254800896 [db/db_impl/db_impl_secondary.cc:640] Last sequence is 26479
+2025/11/11-16:23:05.117926 6261239808 [db/db_impl/db_impl_secondary.cc:640] Last sequence is 26479
+2025/11/11-16:23:06.129677 6175666176 [db/db_impl/db_impl_secondary.cc:640] Last sequence is 26498
+2025/11/11-16:23:06.961735 6259093504 [db/db_impl/db_impl_secondary.cc:640] Last sequence is 26518
+2025/11/11-16:23:07.139176 6175666176 [db/db_impl/db_impl_secondary.cc:640] Last sequence is 26518
+2025/11/11-16:23:08.138175 6261239808 [db/db_impl/db_impl_secondary.cc:640] Last sequence is 26537
+2025/11/11-16:23:08.956042 6164934656 [db/db_impl/db_impl_secondary.cc:640] Last sequence is 26560
+2025/11/11-16:23:09.143103 6179958784 [db/db_impl/db_impl_secondary.cc:640] Last sequence is 26560
+2025/11/11-16:23:10.157928 6259093504 [db/db_impl/db_impl_secondary.cc:640] Last sequence is 26579
+2025/11/11-16:23:10.958978 6169227264 [db/db_impl/db_impl_secondary.cc:640] Last sequence is 26599
+2025/11/11-16:23:11.162454 6175666176 [db/db_impl/db_impl_secondary.cc:640] Last sequence is 26599
+2025/11/11-16:23:12.166790 6256947200 [db/db_impl/db_impl_secondary.cc:640] Last sequence is 26618
+2025/11/11-16:23:12.958647 6259093504 [db/db_impl/db_impl_secondary.cc:640] Last sequence is 26639
+2025/11/11-16:23:13.174947 6261239808 [db/db_impl/db_impl_secondary.cc:640] Last sequence is 26639
+2025/11/11-16:23:14.183102 6179958784 [db/db_impl/db_impl_secondary.cc:640] Last sequence is 26658
+2025/11/11-16:23:14.955276 6175666176 [db/db_impl/db_impl_secondary.cc:640] Last sequence is 26678
+2025/11/11-16:23:15.183603 6169227264 [db/db_impl/db_impl_secondary.cc:640] Last sequence is 26678
+2025/11/11-16:23:16.187700 6179958784 [db/db_impl/db_impl_secondary.cc:640] Last sequence is 26697
+2025/11/11-16:23:16.955613 6259093504 [db/db_impl/db_impl_secondary.cc:640] Last sequence is 26719
+2025/11/11-16:23:17.187783 6175666176 [db/db_impl/db_impl_secondary.cc:640] Last sequence is 26719
+2025/11/11-16:23:18.197844 6261239808 [db/db_impl/db_impl_secondary.cc:640] Last sequence is 26738
+2025/11/11-16:23:18.955803 6259093504 [db/db_impl/db_impl_secondary.cc:640] Last sequence is 26758
+2025/11/11-16:23:19.205326 6259093504 [db/db_impl/db_impl_secondary.cc:640] Last sequence is 26758
+2025/11/11-16:23:20.016216 6175666176 [db/db_impl/db_impl_secondary.cc:640] Last sequence is 26777
+2025/11/11-16:23:20.028363 6256947200 [db/db_impl/db_impl_secondary.cc:640] Last sequence is 26798
+2025/11/11-16:23:20.035720 6175666176 [db/db_impl/db_impl_secondary.cc:640] Last sequence is 26817
+2025/11/11-16:23:20.045945 6256947200 [db/db_impl/db_impl_secondary.cc:640] Last sequence is 26837
+2025/11/11-16:23:20.212110 6169227264 [db/db_impl/db_impl_secondary.cc:640] Last sequence is 26856
+2025/11/11-16:23:20.797108 6259093504 [db/db_impl/db_impl_secondary.cc:640] Last sequence is 26899
+2025/11/11-16:23:20.956075 6254800896 [db/db_impl/db_impl_secondary.cc:640] Last sequence is 26919
+2025/11/11-16:23:21.219399 6259093504 [db/db_impl/db_impl_secondary.cc:640] Last sequence is 26919
+2025/11/11-16:23:21.822765 6256947200 [db/db_impl/db_impl_secondary.cc:640] Last sequence is 26938
+2025/11/11-16:23:22.233785 6164934656 [db/db_impl/db_impl_secondary.cc:640] Last sequence is 26959
+2025/11/11-16:23:22.961590 6175666176 [db/db_impl/db_impl_secondary.cc:640] Last sequence is 26989
+2025/11/11-16:23:23.313260 6261239808 [db/db_impl/db_impl_secondary.cc:640] Last sequence is 26989
+2025/11/11-16:23:24.395104 6256947200 [db/db_impl/db_impl_secondary.cc:640] Last sequence is 27009
+2025/11/11-16:23:24.956786 6256947200 [db/db_impl/db_impl_secondary.cc:640] Last sequence is 27028
+2025/11/11-16:23:25.307584 6171373568 [db/db_impl/db_impl_secondary.cc:640] Last sequence is 27028
+2025/11/11-16:23:26.281902 6164934656 [db/db_impl/db_impl_secondary.cc:640] Last sequence is 27050
+2025/11/11-16:23:26.956610 6254800896 [db/db_impl/db_impl_secondary.cc:640] Last sequence is 27069
+2025/11/11-16:23:27.276804 6254800896 [db/db_impl/db_impl_secondary.cc:640] Last sequence is 27069
+2025/11/11-16:23:28.289263 6164934656 [db/db_impl/db_impl_secondary.cc:640] Last sequence is 27089
+2025/11/11-16:23:28.956289 6254800896 [db/db_impl/db_impl_secondary.cc:640] Last sequence is 27108
+2025/11/11-16:23:29.305528 6259093504 [db/db_impl/db_impl_secondary.cc:640] Last sequence is 27108
+2025/11/11-16:23:30.311756 6254800896 [db/db_impl/db_impl_secondary.cc:640] Last sequence is 27129
+2025/11/11-16:23:30.956087 6261239808 [db/db_impl/db_impl_secondary.cc:640] Last sequence is 27148
+2025/11/11-16:23:31.315502 6254800896 [db/db_impl/db_impl_secondary.cc:640] Last sequence is 27148
+2025/11/11-16:23:32.316224 6175666176 [db/db_impl/db_impl_secondary.cc:640] Last sequence is 27168
+2025/11/11-16:23:32.686153 6259093504 [db/db_impl/db_impl_secondary.cc:640] Last sequence is 27187
+2025/11/11-16:23:32.692884 6164934656 [db/db_impl/db_impl_secondary.cc:640] Last sequence is 27210
+2025/11/11-16:23:32.698033 6259093504 [db/db_impl/db_impl_secondary.cc:640] Last sequence is 27229
+2025/11/11-16:23:32.704168 6164934656 [db/db_impl/db_impl_secondary.cc:640] Last sequence is 27249
+2025/11/11-16:23:32.710757 6259093504 [db/db_impl/db_impl_secondary.cc:640] Last sequence is 27268
+2025/11/11-16:23:32.956049 6175666176 [db/db_impl/db_impl_secondary.cc:640] Last sequence is 27289
+2025/11/11-16:23:32.977785 6171373568 [db/db_impl/db_impl_secondary.cc:640] Last sequence is 27289
+2025/11/11-16:23:33.328050 6171373568 [db/db_impl/db_impl_secondary.cc:640] Last sequence is 27308
+2025/11/11-16:23:33.999536 6164934656 [db/db_impl/db_impl_secondary.cc:640] Last sequence is 27328
+2025/11/11-16:23:34.330688 6171373568 [db/db_impl/db_impl_secondary.cc:640] Last sequence is 27347
+2025/11/11-16:23:34.957133 6256947200 [db/db_impl/db_impl_secondary.cc:640] Last sequence is 27380
+2025/11/11-16:23:35.503560 6175666176 [db/db_impl/db_impl_secondary.cc:640] Last sequence is 27380
+2025/11/11-16:23:36.507825 6254800896 [db/db_impl/db_impl_secondary.cc:640] Last sequence is 27399
+2025/11/11-16:23:36.955816 6164934656 [db/db_impl/db_impl_secondary.cc:640] Last sequence is 27419
+2025/11/11-16:23:37.456699 6254800896 [db/db_impl/db_impl_secondary.cc:640] Last sequence is 27419
+2025/11/11-16:23:38.350056 6256947200 [db/db_impl/db_impl_secondary.cc:640] Last sequence is 27438
+2025/11/11-16:23:38.955535 6179958784 [db/db_impl/db_impl_secondary.cc:640] Last sequence is 27459
+2025/11/11-16:23:39.358707 6256947200 [db/db_impl/db_impl_secondary.cc:640] Last sequence is 27459
+2025/11/11-16:23:40.360850 6169227264 [db/db_impl/db_impl_secondary.cc:640] Last sequence is 27478
+2025/11/11-16:23:40.957226 6179958784 [db/db_impl/db_impl_secondary.cc:640] Last sequence is 27498
+2025/11/11-16:23:41.365573 6261239808 [db/db_impl/db_impl_secondary.cc:640] Last sequence is 27498
+2025/11/11-16:23:42.371120 6261239808 [db/db_impl/db_impl_secondary.cc:640] Last sequence is 27517
+2025/11/11-16:23:42.498001 6256947200 [db/db_impl/db_impl_secondary.cc:640] Last sequence is 27542
+2025/11/11-16:23:42.503883 6254800896 [db/db_impl/db_impl_secondary.cc:640] Last sequence is 27561
+2025/11/11-16:23:42.511990 6256947200 [db/db_impl/db_impl_secondary.cc:640] Last sequence is 27578
+2025/11/11-16:23:42.518463 6175666176 [db/db_impl/db_impl_secondary.cc:640] Last sequence is 27594
+2025/11/11-16:23:42.523688 6179958784 [db/db_impl/db_impl_secondary.cc:640] Last sequence is 27612
+2025/11/11-16:23:42.833017 6261239808 [db/db_impl/db_impl_secondary.cc:640] Last sequence is 27628
+2025/11/11-16:23:42.956228 6169227264 [db/db_impl/db_impl_secondary.cc:640] Last sequence is 27660
+2025/11/11-16:23:43.373107 6256947200 [db/db_impl/db_impl_secondary.cc:640] Last sequence is 27660
+2025/11/11-16:23:43.853999 6171373568 [db/db_impl/db_impl_secondary.cc:640] Last sequence is 27679
+2025/11/11-16:23:44.379911 6261239808 [db/db_impl/db_impl_secondary.cc:640] Last sequence is 27701
+2025/11/11-16:23:44.955575 6248361984 [db/db_impl/db_impl_secondary.cc:640] Last sequence is 27728
+2025/11/11-16:23:45.386899 6179958784 [db/db_impl/db_impl_secondary.cc:640] Last sequence is 27728
+2025/11/11-16:23:46.429646 6248361984 [db/db_impl/db_impl_secondary.cc:640] Last sequence is 27748
+2025/11/11-16:23:46.955130 6169227264 [db/db_impl/db_impl_secondary.cc:640] Last sequence is 27767
+2025/11/11-16:23:47.417780 6179958784 [db/db_impl/db_impl_secondary.cc:640] Last sequence is 27767
+2025/11/11-16:23:48.403388 6175666176 [db/db_impl/db_impl_secondary.cc:640] Last sequence is 27788
+2025/11/11-16:23:48.955091 6254800896 [db/db_impl/db_impl_secondary.cc:640] Last sequence is 27807
+2025/11/11-16:23:49.412236 6248361984 [db/db_impl/db_impl_secondary.cc:640] Last sequence is 27807
+2025/11/11-16:23:50.421020 6175666176 [db/db_impl/db_impl_secondary.cc:640] Last sequence is 27827
+2025/11/11-16:23:50.957256 6175666176 [db/db_impl/db_impl_secondary.cc:640] Last sequence is 27846
+2025/11/11-16:23:51.415232 6256947200 [db/db_impl/db_impl_secondary.cc:640] Last sequence is 27846
+2025/11/11-16:23:52.421179 6171373568 [db/db_impl/db_impl_secondary.cc:640] Last sequence is 27869
+2025/11/11-16:23:52.957173 6261239808 [db/db_impl/db_impl_secondary.cc:640] Last sequence is 27888
+2025/11/11-16:23:53.427734 6179958784 [db/db_impl/db_impl_secondary.cc:640] Last sequence is 27888
+2025/11/11-16:23:54.439285 6259093504 [db/db_impl/db_impl_secondary.cc:640] Last sequence is 27908
+2025/11/11-16:23:54.955853 6171373568 [db/db_impl/db_impl_secondary.cc:640] Last sequence is 27927
+2025/11/11-16:23:55.451898 6164934656 [db/db_impl/db_impl_secondary.cc:640] Last sequence is 27927
+2025/11/11-16:23:56.455038 6254800896 [db/db_impl/db_impl_secondary.cc:640] Last sequence is 27965
+2025/11/11-16:23:56.956355 6261239808 [db/db_impl/db_impl_secondary.cc:640] Last sequence is 27984
+2025/11/11-16:23:57.459221 6261239808 [db/db_impl/db_impl_secondary.cc:640] Last sequence is 27984
+2025/11/11-16:23:58.463335 6248361984 [db/db_impl/db_impl_secondary.cc:640] Last sequence is 28004
+2025/11/11-16:23:58.956958 6179958784 [db/db_impl/db_impl_secondary.cc:640] Last sequence is 28023
+2025/11/11-16:23:59.468661 6254800896 [db/db_impl/db_impl_secondary.cc:640] Last sequence is 28023
+2025/11/11-16:24:00.473053 6175666176 [db/db_impl/db_impl_secondary.cc:640] Last sequence is 28045
+2025/11/11-16:24:00.956259 6169227264 [db/db_impl/db_impl_secondary.cc:640] Last sequence is 28064
+2025/11/11-16:24:01.482267 6175666176 [db/db_impl/db_impl_secondary.cc:640] Last sequence is 28064
+2025/11/11-16:24:02.484499 6261239808 [db/db_impl/db_impl_secondary.cc:640] Last sequence is 28084
+2025/11/11-16:24:02.958018 6261239808 [db/db_impl/db_impl_secondary.cc:640] Last sequence is 28103
+2025/11/11-16:24:03.491149 6169227264 [db/db_impl/db_impl_secondary.cc:640] Last sequence is 28103
+2025/11/11-16:24:04.489722 6179958784 [db/db_impl/db_impl_secondary.cc:640] Last sequence is 28124
+2025/11/11-16:24:04.956435 6169227264 [db/db_impl/db_impl_secondary.cc:640] Last sequence is 28143
+2025/11/11-16:24:05.490026 6164934656 [db/db_impl/db_impl_secondary.cc:640] Last sequence is 28143
+2025/11/11-16:24:06.511375 6175666176 [db/db_impl/db_impl_secondary.cc:640] Last sequence is 28163
+2025/11/11-16:24:06.956550 6175666176 [db/db_impl/db_impl_secondary.cc:640] Last sequence is 28182
+2025/11/11-16:24:07.508068 6179958784 [db/db_impl/db_impl_secondary.cc:640] Last sequence is 28182
+2025/11/11-16:24:08.510638 6171373568 [db/db_impl/db_impl_secondary.cc:640] Last sequence is 28206
+2025/11/11-16:24:08.957553 6171373568 [db/db_impl/db_impl_secondary.cc:640] Last sequence is 28225
+2025/11/11-16:24:09.519723 6169227264 [db/db_impl/db_impl_secondary.cc:640] Last sequence is 28225
+2025/11/11-16:24:10.527347 6169227264 [db/db_impl/db_impl_secondary.cc:640] Last sequence is 28245
+2025/11/11-16:24:10.957784 6248361984 [db/db_impl/db_impl_secondary.cc:640] Last sequence is 28264
+2025/11/11-16:24:11.537284 6179958784 [db/db_impl/db_impl_secondary.cc:640] Last sequence is 28264
+2025/11/11-16:24:12.548110 6179958784 [db/db_impl/db_impl_secondary.cc:640] Last sequence is 28285
+2025/11/11-16:24:12.955065 6248361984 [db/db_impl/db_impl_secondary.cc:640] Last sequence is 28304
+2025/11/11-16:24:13.549482 6175666176 [db/db_impl/db_impl_secondary.cc:640] Last sequence is 28304
+2025/11/11-16:24:14.560601 6248361984 [db/db_impl/db_impl_secondary.cc:640] Last sequence is 28324
+2025/11/11-16:24:14.956178 6248361984 [db/db_impl/db_impl_secondary.cc:640] Last sequence is 28343
+2025/11/11-16:24:15.573837 6256947200 [db/db_impl/db_impl_secondary.cc:640] Last sequence is 28343
+2025/11/11-16:24:16.581243 6175666176 [db/db_impl/db_impl_secondary.cc:640] Last sequence is 28365
+2025/11/11-16:24:16.956626 6175666176 [db/db_impl/db_impl_secondary.cc:640] Last sequence is 28384
+2025/11/11-16:24:17.581903 6259093504 [db/db_impl/db_impl_secondary.cc:640] Last sequence is 28384
+2025/11/11-16:24:18.583282 6259093504 [db/db_impl/db_impl_secondary.cc:640] Last sequence is 28404
+2025/11/11-16:24:18.955968 6175666176 [db/db_impl/db_impl_secondary.cc:640] Last sequence is 28423
+2025/11/11-16:24:19.600752 6164934656 [db/db_impl/db_impl_secondary.cc:640] Last sequence is 28423
+2025/11/11-16:24:20.591682 6248361984 [db/db_impl/db_impl_secondary.cc:640] Last sequence is 28444
+2025/11/11-16:24:20.956780 6261239808 [db/db_impl/db_impl_secondary.cc:640] Last sequence is 28463
+2025/11/11-16:24:21.597206 6175666176 [db/db_impl/db_impl_secondary.cc:640] Last sequence is 28463
+2025/11/11-16:24:22.608044 6256947200 [db/db_impl/db_impl_secondary.cc:640] Last sequence is 28483
+2025/11/11-16:24:22.961760 6256947200 [db/db_impl/db_impl_secondary.cc:640] Last sequence is 28502
+2025/11/11-16:24:23.606143 6248361984 [db/db_impl/db_impl_secondary.cc:640] Last sequence is 28502
+2025/11/11-16:24:24.604321 6179958784 [db/db_impl/db_impl_secondary.cc:640] Last sequence is 28525
+2025/11/11-16:24:24.955871 6171373568 [db/db_impl/db_impl_secondary.cc:640] Last sequence is 28544
+2025/11/11-16:24:25.613846 6256947200 [db/db_impl/db_impl_secondary.cc:640] Last sequence is 28544
+2025/11/11-16:24:26.623961 6261239808 [db/db_impl/db_impl_secondary.cc:640] Last sequence is 28564
+2025/11/11-16:24:26.955403 6254800896 [db/db_impl/db_impl_secondary.cc:640] Last sequence is 28583
+2025/11/11-16:24:27.634592 6248361984 [db/db_impl/db_impl_secondary.cc:640] Last sequence is 28583
+2025/11/11-16:24:28.641830 6261239808 [db/db_impl/db_impl_secondary.cc:640] Last sequence is 28604
+2025/11/11-16:24:28.957003 6169227264 [db/db_impl/db_impl_secondary.cc:640] Last sequence is 28623
+2025/11/11-16:24:29.640837 6261239808 [db/db_impl/db_impl_secondary.cc:640] Last sequence is 28623
+2025/11/11-16:24:30.651468 6261239808 [db/db_impl/db_impl_secondary.cc:640] Last sequence is 28640
+2025/11/11-16:24:30.955668 6254800896 [db/db_impl/db_impl_secondary.cc:640] Last sequence is 28662
+2025/11/11-16:24:31.662575 6169227264 [db/db_impl/db_impl_secondary.cc:640] Last sequence is 28662
+2025/11/11-16:24:32.665654 6169227264 [db/db_impl/db_impl_secondary.cc:640] Last sequence is 28684
+2025/11/11-16:24:32.957207 6179958784 [db/db_impl/db_impl_secondary.cc:640] Last sequence is 28703
+2025/11/11-16:24:33.668347 6171373568 [db/db_impl/db_impl_secondary.cc:640] Last sequence is 28703
+2025/11/11-16:24:34.677611 6248361984 [db/db_impl/db_impl_secondary.cc:640] Last sequence is 28723
+2025/11/11-16:24:34.955543 6171373568 [db/db_impl/db_impl_secondary.cc:640] Last sequence is 28742
+2025/11/11-16:24:35.681467 6169227264 [db/db_impl/db_impl_secondary.cc:640] Last sequence is 28742
+2025/11/11-16:24:36.687573 6171373568 [db/db_impl/db_impl_secondary.cc:640] Last sequence is 28763
+2025/11/11-16:24:36.956064 6248361984 [db/db_impl/db_impl_secondary.cc:640] Last sequence is 28782
+2025/11/11-16:24:37.701690 6256947200 [db/db_impl/db_impl_secondary.cc:640] Last sequence is 28782
+2025/11/11-16:24:38.702150 6261239808 [db/db_impl/db_impl_secondary.cc:640] Last sequence is 28802
+2025/11/11-16:24:38.953428 6164934656 [db/db_impl/db_impl_secondary.cc:640] Last sequence is 28821
+2025/11/11-16:24:39.712404 6248361984 [db/db_impl/db_impl_secondary.cc:640] Last sequence is 28821
+2025/11/11-16:24:40.712961 6248361984 [db/db_impl/db_impl_secondary.cc:640] Last sequence is 28847
+2025/11/11-16:24:40.953618 6261239808 [db/db_impl/db_impl_secondary.cc:640] Last sequence is 28866
+2025/11/11-16:24:41.723702 6259093504 [db/db_impl/db_impl_secondary.cc:640] Last sequence is 28866
+2025/11/11-16:24:42.724146 6254800896 [db/db_impl/db_impl_secondary.cc:640] Last sequence is 28886
+2025/11/11-16:24:42.953886 6179958784 [db/db_impl/db_impl_secondary.cc:640] Last sequence is 28905
+2025/11/11-16:24:43.730039 6164934656 [db/db_impl/db_impl_secondary.cc:640] Last sequence is 28905
+2025/11/11-16:24:44.758927 6256947200 [db/db_impl/db_impl_secondary.cc:640] Last sequence is 28926
+2025/11/11-16:24:44.953863 6259093504 [db/db_impl/db_impl_secondary.cc:640] Last sequence is 28945
+2025/11/11-16:24:45.738657 6164934656 [db/db_impl/db_impl_secondary.cc:640] Last sequence is 28945
+2025/11/11-16:24:46.744198 6175666176 [db/db_impl/db_impl_secondary.cc:640] Last sequence is 28965
+2025/11/11-16:24:46.954730 6169227264 [db/db_impl/db_impl_secondary.cc:640] Last sequence is 28984
+2025/11/11-16:24:47.754187 6248361984 [db/db_impl/db_impl_secondary.cc:640] Last sequence is 28984
+2025/11/11-16:24:48.765959 6169227264 [db/db_impl/db_impl_secondary.cc:640] Last sequence is 29006
+2025/11/11-16:24:48.955391 6167080960 [db/db_impl/db_impl_secondary.cc:640] Last sequence is 29025
+2025/11/11-16:24:49.768033 6248361984 [db/db_impl/db_impl_secondary.cc:640] Last sequence is 29025
+2025/11/11-16:24:50.768503 6254800896 [db/db_impl/db_impl_secondary.cc:640] Last sequence is 29045
+2025/11/11-16:24:50.956017 6179958784 [db/db_impl/db_impl_secondary.cc:640] Last sequence is 29064
+2025/11/11-16:24:51.789563 6175666176 [db/db_impl/db_impl_secondary.cc:640] Last sequence is 29064
+2025/11/11-16:24:52.773181 6256947200 [db/db_impl/db_impl_secondary.cc:640] Last sequence is 29085
+2025/11/11-16:24:52.956338 6179958784 [db/db_impl/db_impl_secondary.cc:640] Last sequence is 29104
+2025/11/11-16:24:53.775983 6254800896 [db/db_impl/db_impl_secondary.cc:640] Last sequence is 29104
+2025/11/11-16:24:54.789358 6171373568 [db/db_impl/db_impl_secondary.cc:640] Last sequence is 29124
+2025/11/11-16:24:54.955629 6167080960 [db/db_impl/db_impl_secondary.cc:640] Last sequence is 29143
+2025/11/11-16:24:55.789130 6256947200 [db/db_impl/db_impl_secondary.cc:640] Last sequence is 29143
+2025/11/11-16:24:56.816723 6164934656 [db/db_impl/db_impl_secondary.cc:640] Last sequence is 29166
+2025/11/11-16:24:56.956045 6256947200 [db/db_impl/db_impl_secondary.cc:640] Last sequence is 29185
+2025/11/11-16:24:57.798309 6171373568 [db/db_impl/db_impl_secondary.cc:640] Last sequence is 29185
+2025/11/11-16:24:58.807006 6171373568 [db/db_impl/db_impl_secondary.cc:640] Last sequence is 29205
+2025/11/11-16:24:58.954632 6169227264 [db/db_impl/db_impl_secondary.cc:640] Last sequence is 29224
+2025/11/11-16:24:59.812067 6169227264 [db/db_impl/db_impl_secondary.cc:640] Last sequence is 29224
+2025/11/11-16:25:00.811669 6169227264 [db/db_impl/db_impl_secondary.cc:640] Last sequence is 29245
+2025/11/11-16:25:01.021547 6171373568 [db/db_impl/db_impl_secondary.cc:640] Last sequence is 29264
+2025/11/11-16:25:01.821804 6256947200 [db/db_impl/db_impl_secondary.cc:640] Last sequence is 29264
+2025/11/11-16:25:02.829951 6256947200 [db/db_impl/db_impl_secondary.cc:640] Last sequence is 29284
+2025/11/11-16:25:02.954440 6167080960 [db/db_impl/db_impl_secondary.cc:640] Last sequence is 29303
+2025/11/11-16:25:03.834695 6256947200 [db/db_impl/db_impl_secondary.cc:640] Last sequence is 29303
+2025/11/11-16:25:04.841012 6259093504 [db/db_impl/db_impl_secondary.cc:640] Last sequence is 29325
+2025/11/11-16:25:04.955945 6254800896 [db/db_impl/db_impl_secondary.cc:640] Last sequence is 29344
+2025/11/11-16:25:05.846974 6164934656 [db/db_impl/db_impl_secondary.cc:640] Last sequence is 29344
+2025/11/11-16:25:06.851148 6167080960 [db/db_impl/db_impl_secondary.cc:640] Last sequence is 29364
+2025/11/11-16:25:07.385582 6261239808 [db/db_impl/db_impl_secondary.cc:640] Last sequence is 29383
+2025/11/11-16:25:07.861961 6164934656 [db/db_impl/db_impl_secondary.cc:640] Last sequence is 29383
+2025/11/11-16:25:08.864730 6164934656 [db/db_impl/db_impl_secondary.cc:640] Last sequence is 29404
+2025/11/11-16:25:08.953649 6256947200 [db/db_impl/db_impl_secondary.cc:640] Last sequence is 29423
+2025/11/11-16:25:09.885497 6261239808 [db/db_impl/db_impl_secondary.cc:640] Last sequence is 29423
+2025/11/11-16:25:10.884139 6259093504 [db/db_impl/db_impl_secondary.cc:640] Last sequence is 29443
+2025/11/11-16:25:10.954698 6167080960 [db/db_impl/db_impl_secondary.cc:640] Last sequence is 29462
+2025/11/11-16:25:11.894963 6167080960 [db/db_impl/db_impl_secondary.cc:640] Last sequence is 29462
+2025/11/11-16:25:12.170321 6171373568 [db/db_impl/db_impl_secondary.cc:640] Last sequence is 29486
+2025/11/11-16:25:12.178470 6256947200 [db/db_impl/db_impl_secondary.cc:640] Last sequence is 29505
+2025/11/11-16:25:12.223323 6171373568 [db/db_impl/db_impl_secondary.cc:640] Last sequence is 29525
+2025/11/11-16:25:12.229669 6248361984 [db/db_impl/db_impl_secondary.cc:640] Last sequence is 29544
+2025/11/11-16:25:12.236383 6256947200 [db/db_impl/db_impl_secondary.cc:640] Last sequence is 29565
+2025/11/11-16:25:12.953114 6171373568 [db/db_impl/db_impl_secondary.cc:640] Last sequence is 29584
+2025/11/11-16:25:13.025262 6259093504 [db/db_impl/db_impl_secondary.cc:640] Last sequence is 29612
+2025/11/11-16:25:13.905543 6259093504 [db/db_impl/db_impl_secondary.cc:640] Last sequence is 29612
+2025/11/11-16:25:14.036622 6167080960 [db/db_impl/db_impl_secondary.cc:640] Last sequence is 29632
+2025/11/11-16:25:14.912250 6256947200 [db/db_impl/db_impl_secondary.cc:640] Last sequence is 29654
+2025/11/11-16:25:14.953466 6164934656 [db/db_impl/db_impl_secondary.cc:640] Last sequence is 29681
+2025/11/11-16:25:15.946388 6167080960 [db/db_impl/db_impl_secondary.cc:640] Last sequence is 29681
+2025/11/11-16:25:16.937404 6256947200 [db/db_impl/db_impl_secondary.cc:640] Last sequence is 29701
+2025/11/11-16:25:16.951966 6167080960 [db/db_impl/db_impl_secondary.cc:640] Last sequence is 29720
+2025/11/11-16:25:17.961529 6175666176 [db/db_impl/db_impl_secondary.cc:640] Last sequence is 29720
+2025/11/11-16:25:18.937842 6248361984 [db/db_impl/db_impl_secondary.cc:640] Last sequence is 29741
+2025/11/11-16:25:18.953380 6259093504 [db/db_impl/db_impl_secondary.cc:640] Last sequence is 29760
+2025/11/11-16:25:19.947533 6259093504 [db/db_impl/db_impl_secondary.cc:640] Last sequence is 29760
+2025/11/11-16:25:20.954909 6175666176 [db/db_impl/db_impl_secondary.cc:640] Last sequence is 29780
+2025/11/11-16:25:20.958522 6167080960 [db/db_impl/db_impl_secondary.cc:640] Last sequence is 29799
+2025/11/11-16:25:21.961522 6167080960 [db/db_impl/db_impl_secondary.cc:640] Last sequence is 29799
+2025/11/11-16:25:22.954633 6167080960 [db/db_impl/db_impl_secondary.cc:640] Last sequence is 29822
+2025/11/11-16:25:22.969865 6164934656 [db/db_impl/db_impl_secondary.cc:640] Last sequence is 29822
+2025/11/11-16:25:23.981496 6164934656 [db/db_impl/db_impl_secondary.cc:640] Last sequence is 29841
+2025/11/11-16:25:24.952707 6256947200 [db/db_impl/db_impl_secondary.cc:640] Last sequence is 29878
+2025/11/11-16:25:24.978324 6164934656 [db/db_impl/db_impl_secondary.cc:640] Last sequence is 29878
+2025/11/11-16:25:25.986630 6164934656 [db/db_impl/db_impl_secondary.cc:640] Last sequence is 29897
+2025/11/11-16:25:26.953945 6259093504 [db/db_impl/db_impl_secondary.cc:640] Last sequence is 29918
+2025/11/11-16:25:26.993471 6256947200 [db/db_impl/db_impl_secondary.cc:640] Last sequence is 29918
+2025/11/11-16:25:27.996191 6256947200 [db/db_impl/db_impl_secondary.cc:640] Last sequence is 29937
+2025/11/11-16:25:28.954513 6261239808 [db/db_impl/db_impl_secondary.cc:640] Last sequence is 29957
+2025/11/11-16:25:29.001414 6259093504 [db/db_impl/db_impl_secondary.cc:640] Last sequence is 29957
+2025/11/11-16:25:30.008624 6259093504 [db/db_impl/db_impl_secondary.cc:640] Last sequence is 29976
+2025/11/11-16:25:30.953526 6164934656 [db/db_impl/db_impl_secondary.cc:640] Last sequence is 29998
+2025/11/11-16:25:31.014611 6256947200 [db/db_impl/db_impl_secondary.cc:640] Last sequence is 29998
+2025/11/11-16:25:32.018756 6248361984 [db/db_impl/db_impl_secondary.cc:640] Last sequence is 30017
+2025/11/11-16:25:32.963247 6256947200 [db/db_impl/db_impl_secondary.cc:640] Last sequence is 30037
+2025/11/11-16:25:33.023683 6261239808 [db/db_impl/db_impl_secondary.cc:640] Last sequence is 30037
+2025/11/11-16:25:34.034267 6164934656 [db/db_impl/db_impl_secondary.cc:640] Last sequence is 30056
+2025/11/11-16:25:34.955306 6256947200 [db/db_impl/db_impl_secondary.cc:640] Last sequence is 30077
+2025/11/11-16:25:35.036977 6171373568 [db/db_impl/db_impl_secondary.cc:640] Last sequence is 30077
+2025/11/11-16:25:36.043920 6259093504 [db/db_impl/db_impl_secondary.cc:640] Last sequence is 30096
+2025/11/11-16:25:36.954464 6171373568 [db/db_impl/db_impl_secondary.cc:640] Last sequence is 30116
+2025/11/11-16:25:37.081730 6248361984 [db/db_impl/db_impl_secondary.cc:640] Last sequence is 30116
+2025/11/11-16:25:38.054725 6248361984 [db/db_impl/db_impl_secondary.cc:640] Last sequence is 30135
+2025/11/11-16:25:38.954374 6259093504 [db/db_impl/db_impl_secondary.cc:640] Last sequence is 30160
+2025/11/11-16:25:39.063636 6171373568 [db/db_impl/db_impl_secondary.cc:640] Last sequence is 30160
+2025/11/11-16:25:40.067052 6259093504 [db/db_impl/db_impl_secondary.cc:640] Last sequence is 30179
+2025/11/11-16:25:40.953668 6169227264 [db/db_impl/db_impl_secondary.cc:640] Last sequence is 30199
+2025/11/11-16:25:41.076352 6254800896 [db/db_impl/db_impl_secondary.cc:640] Last sequence is 30199
+2025/11/11-16:25:42.084575 6171373568 [db/db_impl/db_impl_secondary.cc:640] Last sequence is 30218
+2025/11/11-16:25:42.955248 6175666176 [db/db_impl/db_impl_secondary.cc:640] Last sequence is 30239
+2025/11/11-16:25:43.087638 6248361984 [db/db_impl/db_impl_secondary.cc:640] Last sequence is 30239
+2025/11/11-16:25:44.096860 6261239808 [db/db_impl/db_impl_secondary.cc:640] Last sequence is 30258
+2025/11/11-16:25:44.955232 6169227264 [db/db_impl/db_impl_secondary.cc:640] Last sequence is 30275
+2025/11/11-16:25:45.107854 6164934656 [db/db_impl/db_impl_secondary.cc:640] Last sequence is 30278
+2025/11/11-16:25:46.108787 6175666176 [db/db_impl/db_impl_secondary.cc:640] Last sequence is 30297
+2025/11/11-16:25:46.954762 6169227264 [db/db_impl/db_impl_secondary.cc:640] Last sequence is 30319
+2025/11/11-16:25:47.118491 6261239808 [db/db_impl/db_impl_secondary.cc:640] Last sequence is 30319
+2025/11/11-16:25:48.137439 6164934656 [db/db_impl/db_impl_secondary.cc:640] Last sequence is 30338
+2025/11/11-16:25:48.954279 6169227264 [db/db_impl/db_impl_secondary.cc:640] Last sequence is 30358
+2025/11/11-16:25:49.135101 6254800896 [db/db_impl/db_impl_secondary.cc:640] Last sequence is 30358
+2025/11/11-16:25:50.201475 6259093504 [db/db_impl/db_impl_secondary.cc:640] Last sequence is 30377
+2025/11/11-16:25:50.955082 6167080960 [db/db_impl/db_impl_secondary.cc:640] Last sequence is 30398
+2025/11/11-16:25:51.159416 6167080960 [db/db_impl/db_impl_secondary.cc:640] Last sequence is 30398
+2025/11/11-16:25:52.163800 6167080960 [db/db_impl/db_impl_secondary.cc:640] Last sequence is 30417
+2025/11/11-16:25:52.955427 6164934656 [db/db_impl/db_impl_secondary.cc:640] Last sequence is 30437
+2025/11/11-16:25:53.170594 6169227264 [db/db_impl/db_impl_secondary.cc:640] Last sequence is 30437
+2025/11/11-16:25:54.183433 6259093504 [db/db_impl/db_impl_secondary.cc:640] Last sequence is 30456
+2025/11/11-16:25:54.955124 6256947200 [db/db_impl/db_impl_secondary.cc:640] Last sequence is 30479
+2025/11/11-16:25:55.186256 6254800896 [db/db_impl/db_impl_secondary.cc:640] Last sequence is 30479
+2025/11/11-16:25:56.194497 6169227264 [db/db_impl/db_impl_secondary.cc:640] Last sequence is 30498
+2025/11/11-16:25:56.954155 6164934656 [db/db_impl/db_impl_secondary.cc:640] Last sequence is 30515
+2025/11/11-16:25:57.199505 6164934656 [db/db_impl/db_impl_secondary.cc:640] Last sequence is 30518
+2025/11/11-16:25:58.210952 6175666176 [db/db_impl/db_impl_secondary.cc:640] Last sequence is 30537
+2025/11/11-16:25:58.954583 6256947200 [db/db_impl/db_impl_secondary.cc:640] Last sequence is 30558
+2025/11/11-16:25:59.215573 6261239808 [db/db_impl/db_impl_secondary.cc:640] Last sequence is 30558
+2025/11/11-16:26:00.219428 6169227264 [db/db_impl/db_impl_secondary.cc:640] Last sequence is 30577
+2025/11/11-16:26:00.954216 6248361984 [db/db_impl/db_impl_secondary.cc:640] Last sequence is 30597
+2025/11/11-16:26:01.229791 6167080960 [db/db_impl/db_impl_secondary.cc:640] Last sequence is 30597
+2025/11/11-16:26:02.239639 6164934656 [db/db_impl/db_impl_secondary.cc:640] Last sequence is 30616
+2025/11/11-16:26:02.954554 6256947200 [db/db_impl/db_impl_secondary.cc:640] Last sequence is 30638
+2025/11/11-16:26:03.241228 6254800896 [db/db_impl/db_impl_secondary.cc:640] Last sequence is 30638
+2025/11/11-16:26:04.248865 6169227264 [db/db_impl/db_impl_secondary.cc:640] Last sequence is 30657
+2025/11/11-16:26:04.978360 6259093504 [db/db_impl/db_impl_secondary.cc:640] Last sequence is 30677
+2025/11/11-16:26:05.258853 6167080960 [db/db_impl/db_impl_secondary.cc:640] Last sequence is 30677
+2025/11/11-16:26:06.265220 6259093504 [db/db_impl/db_impl_secondary.cc:640] Last sequence is 30696
+2025/11/11-16:26:06.954017 6256947200 [db/db_impl/db_impl_secondary.cc:640] Last sequence is 30717
+2025/11/11-16:26:07.267928 6256947200 [db/db_impl/db_impl_secondary.cc:640] Last sequence is 30717
+2025/11/11-16:26:08.276075 6254800896 [db/db_impl/db_impl_secondary.cc:640] Last sequence is 30736
+2025/11/11-16:26:08.953892 6256947200 [db/db_impl/db_impl_secondary.cc:640] Last sequence is 30756
+2025/11/11-16:26:09.279534 6169227264 [db/db_impl/db_impl_secondary.cc:640] Last sequence is 30756
+2025/11/11-16:26:10.281365 6259093504 [db/db_impl/db_impl_secondary.cc:640] Last sequence is 30775
+2025/11/11-16:26:10.954152 6175666176 [db/db_impl/db_impl_secondary.cc:640] Last sequence is 30799
+2025/11/11-16:26:11.286712 6175666176 [db/db_impl/db_impl_secondary.cc:640] Last sequence is 30799
+2025/11/11-16:26:12.292873 6256947200 [db/db_impl/db_impl_secondary.cc:640] Last sequence is 30818
+2025/11/11-16:26:12.952471 6261239808 [db/db_impl/db_impl_secondary.cc:640] Last sequence is 30838
+2025/11/11-16:26:13.300862 6179958784 [db/db_impl/db_impl_secondary.cc:640] Last sequence is 30838
+2025/11/11-16:26:14.305629 6175666176 [db/db_impl/db_impl_secondary.cc:640] Last sequence is 30857
+2025/11/11-16:26:14.953432 6177812480 [db/db_impl/db_impl_secondary.cc:640] Last sequence is 30878
+2025/11/11-16:26:15.324908 6177812480 [db/db_impl/db_impl_secondary.cc:640] Last sequence is 30878
+2025/11/11-16:26:16.317674 6177812480 [db/db_impl/db_impl_secondary.cc:640] Last sequence is 30897
+2025/11/11-16:26:16.953197 6179958784 [db/db_impl/db_impl_secondary.cc:640] Last sequence is 30917
+2025/11/11-16:26:17.322268 6254800896 [db/db_impl/db_impl_secondary.cc:640] Last sequence is 30917
+2025/11/11-16:26:18.329052 6248361984 [db/db_impl/db_impl_secondary.cc:640] Last sequence is 30936
+2025/11/11-16:26:18.954396 6254800896 [db/db_impl/db_impl_secondary.cc:640] Last sequence is 30958
+2025/11/11-16:26:19.330450 6179958784 [db/db_impl/db_impl_secondary.cc:640] Last sequence is 30958
+2025/11/11-16:26:20.331669 6179958784 [db/db_impl/db_impl_secondary.cc:640] Last sequence is 30977
+2025/11/11-16:26:20.953632 6164934656 [db/db_impl/db_impl_secondary.cc:640] Last sequence is 30997
+2025/11/11-16:26:21.337300 6175666176 [db/db_impl/db_impl_secondary.cc:640] Last sequence is 30997
+2025/11/11-16:26:22.379658 6177812480 [db/db_impl/db_impl_secondary.cc:640] Last sequence is 31016
+2025/11/11-16:26:22.966253 6261239808 [db/db_impl/db_impl_secondary.cc:640] Last sequence is 31037
+2025/11/11-16:26:23.342414 6179958784 [db/db_impl/db_impl_secondary.cc:640] Last sequence is 31037
+2025/11/11-16:26:24.344860 6256947200 [db/db_impl/db_impl_secondary.cc:640] Last sequence is 31056
+2025/11/11-16:26:24.953806 6164934656 [db/db_impl/db_impl_secondary.cc:640] Last sequence is 31076
+2025/11/11-16:26:25.357102 6254800896 [db/db_impl/db_impl_secondary.cc:640] Last sequence is 31076
+2025/11/11-16:26:26.368423 6254800896 [db/db_impl/db_impl_secondary.cc:640] Last sequence is 31095
+2025/11/11-16:26:26.954942 6167080960 [db/db_impl/db_impl_secondary.cc:640] Last sequence is 31118
+2025/11/11-16:26:27.374356 6254800896 [db/db_impl/db_impl_secondary.cc:640] Last sequence is 31118
+2025/11/11-16:26:28.384275 6261239808 [db/db_impl/db_impl_secondary.cc:640] Last sequence is 31137
+2025/11/11-16:26:28.953051 6177812480 [db/db_impl/db_impl_secondary.cc:640] Last sequence is 31157
+2025/11/11-16:26:29.391080 6164934656 [db/db_impl/db_impl_secondary.cc:640] Last sequence is 31157
+2025/11/11-16:26:30.412394 6164934656 [db/db_impl/db_impl_secondary.cc:640] Last sequence is 31176
+2025/11/11-16:26:30.952135 6256947200 [db/db_impl/db_impl_secondary.cc:640] Last sequence is 31197
+2025/11/11-16:26:31.403497 6167080960 [db/db_impl/db_impl_secondary.cc:640] Last sequence is 31197
+2025/11/11-16:26:32.407693 6254800896 [db/db_impl/db_impl_secondary.cc:640] Last sequence is 31216
+2025/11/11-16:26:32.950805 6175666176 [db/db_impl/db_impl_secondary.cc:640] Last sequence is 31236
+2025/11/11-16:26:33.407006 6164934656 [db/db_impl/db_impl_secondary.cc:640] Last sequence is 31236
+2025/11/11-16:26:34.483506 6256947200 [db/db_impl/db_impl_secondary.cc:640] Last sequence is 31255
+2025/11/11-16:26:34.951576 6167080960 [db/db_impl/db_impl_secondary.cc:640] Last sequence is 31277
+2025/11/11-16:26:35.424475 6261239808 [db/db_impl/db_impl_secondary.cc:640] Last sequence is 31277
+2025/11/11-16:26:36.432035 6254800896 [db/db_impl/db_impl_secondary.cc:640] Last sequence is 31296
+2025/11/11-16:26:36.953317 6261239808 [db/db_impl/db_impl_secondary.cc:640] Last sequence is 31316
+2025/11/11-16:26:37.436923 6175666176 [db/db_impl/db_impl_secondary.cc:640] Last sequence is 31316
+2025/11/11-16:26:37.799837 6177812480 [db/db_impl/db_impl_secondary.cc:640] Last sequence is 31335
+2025/11/11-16:26:37.810209 6179958784 [db/db_impl/db_impl_secondary.cc:640] Last sequence is 31356
+2025/11/11-16:26:37.818125 6177812480 [db/db_impl/db_impl_secondary.cc:640] Last sequence is 31375
+2025/11/11-16:26:37.823003 6179958784 [db/db_impl/db_impl_secondary.cc:640] Last sequence is 31395
+2025/11/11-16:26:37.828640 6167080960 [db/db_impl/db_impl_secondary.cc:640] Last sequence is 31414
+2025/11/11-16:26:38.442438 6254800896 [db/db_impl/db_impl_secondary.cc:640] Last sequence is 31442
+2025/11/11-16:26:38.538339 6164934656 [db/db_impl/db_impl_secondary.cc:640] Last sequence is 31461
+2025/11/11-16:26:38.953709 6164934656 [db/db_impl/db_impl_secondary.cc:640] Last sequence is 31481
+2025/11/11-16:26:39.453963 6179958784 [db/db_impl/db_impl_secondary.cc:640] Last sequence is 31481
+2025/11/11-16:26:39.559605 6256947200 [db/db_impl/db_impl_secondary.cc:640] Last sequence is 31500
+2025/11/11-16:26:40.457049 6256947200 [db/db_impl/db_impl_secondary.cc:640] Last sequence is 31521
+2025/11/11-16:26:40.951870 6177812480 [db/db_impl/db_impl_secondary.cc:640] Last sequence is 31548
+2025/11/11-16:26:41.486148 6167080960 [db/db_impl/db_impl_secondary.cc:640] Last sequence is 31548
+2025/11/11-16:26:42.539764 6179958784 [db/db_impl/db_impl_secondary.cc:640] Last sequence is 31568
+2025/11/11-16:26:42.969123 6179958784 [db/db_impl/db_impl_secondary.cc:640] Last sequence is 31587
+2025/11/11-16:26:43.478279 6175666176 [db/db_impl/db_impl_secondary.cc:640] Last sequence is 31587
+2025/11/11-16:26:44.481078 6171373568 [db/db_impl/db_impl_secondary.cc:640] Last sequence is 31609
+2025/11/11-16:26:44.952908 6254800896 [db/db_impl/db_impl_secondary.cc:640] Last sequence is 31628
+2025/11/11-16:26:45.487213 6261239808 [db/db_impl/db_impl_secondary.cc:640] Last sequence is 31628
+2025/11/11-16:26:46.486099 6261239808 [db/db_impl/db_impl_secondary.cc:640] Last sequence is 31648
+2025/11/11-16:26:46.951188 6179958784 [db/db_impl/db_impl_secondary.cc:640] Last sequence is 31667
+2025/11/11-16:26:47.485223 6254800896 [db/db_impl/db_impl_secondary.cc:640] Last sequence is 31667
+2025/11/11-16:26:48.488398 6177812480 [db/db_impl/db_impl_secondary.cc:640] Last sequence is 31688
+2025/11/11-16:26:48.952353 6177812480 [db/db_impl/db_impl_secondary.cc:640] Last sequence is 31707
+2025/11/11-16:26:49.489771 6164934656 [db/db_impl/db_impl_secondary.cc:640] Last sequence is 31707
+2025/11/11-16:26:50.495895 6256947200 [db/db_impl/db_impl_secondary.cc:640] Last sequence is 31727
+2025/11/11-16:26:50.953137 6254800896 [db/db_impl/db_impl_secondary.cc:640] Last sequence is 31746
+2025/11/11-16:26:51.500501 6171373568 [db/db_impl/db_impl_secondary.cc:640] Last sequence is 31746
+2025/11/11-16:26:52.496131 6164934656 [db/db_impl/db_impl_secondary.cc:640] Last sequence is 31786
+2025/11/11-16:26:52.953151 6256947200 [db/db_impl/db_impl_secondary.cc:640] Last sequence is 31805
+2025/11/11-16:26:53.506820 6179958784 [db/db_impl/db_impl_secondary.cc:640] Last sequence is 31805
+2025/11/11-16:26:54.511672 6256947200 [db/db_impl/db_impl_secondary.cc:640] Last sequence is 31825
+2025/11/11-16:26:54.953429 6254800896 [db/db_impl/db_impl_secondary.cc:640] Last sequence is 31844
+2025/11/11-16:26:55.511734 6177812480 [db/db_impl/db_impl_secondary.cc:640] Last sequence is 31844
+2025/11/11-16:26:56.524636 6179958784 [db/db_impl/db_impl_secondary.cc:640] Last sequence is 31865
+2025/11/11-16:26:56.952532 6179958784 [db/db_impl/db_impl_secondary.cc:640] Last sequence is 31884
+2025/11/11-16:26:57.533282 6254800896 [db/db_impl/db_impl_secondary.cc:640] Last sequence is 31884
+2025/11/11-16:26:58.536566 6179958784 [db/db_impl/db_impl_secondary.cc:640] Last sequence is 31904
+2025/11/11-16:26:58.950285 6164934656 [db/db_impl/db_impl_secondary.cc:640] Last sequence is 31923
+2025/11/11-16:26:59.663980 6177812480 [db/db_impl/db_impl_secondary.cc:640] Last sequence is 31923
+2025/11/11-16:27:00.546609 6261239808 [db/db_impl/db_impl_secondary.cc:640] Last sequence is 31945
+2025/11/11-16:27:00.950737 6175666176 [db/db_impl/db_impl_secondary.cc:640] Last sequence is 31964
+2025/11/11-16:27:01.550537 6167080960 [db/db_impl/db_impl_secondary.cc:640] Last sequence is 31964
+2025/11/11-16:27:02.592732 6175666176 [db/db_impl/db_impl_secondary.cc:640] Last sequence is 31984
+2025/11/11-16:27:02.952413 6254800896 [db/db_impl/db_impl_secondary.cc:640] Last sequence is 32003
+2025/11/11-16:27:03.388615 6167080960 [db/db_impl/db_impl_secondary.cc:640] Last sequence is 32003
+2025/11/11-16:27:03.483548 6179958784 [db/db_impl/db_impl_secondary.cc:640] Last sequence is 32024
+2025/11/11-16:27:03.568595 6177812480 [db/db_impl/db_impl_secondary.cc:640] Last sequence is 32043
+2025/11/11-16:27:03.579779 6179958784 [db/db_impl/db_impl_secondary.cc:640] Last sequence is 32063
+2025/11/11-16:27:03.643219 6164934656 [db/db_impl/db_impl_secondary.cc:640] Last sequence is 32090
+2025/11/11-16:27:04.565541 6254800896 [db/db_impl/db_impl_secondary.cc:640] Last sequence is 32114
+2025/11/11-16:27:04.582881 6261239808 [db/db_impl/db_impl_secondary.cc:640] Last sequence is 32134
+2025/11/11-16:27:04.952064 6261239808 [db/db_impl/db_impl_secondary.cc:640] Last sequence is 32154
+2025/11/11-16:27:05.577779 6164934656 [db/db_impl/db_impl_secondary.cc:640] Last sequence is 32154
+2025/11/11-16:27:05.600709 6259093504 [db/db_impl/db_impl_secondary.cc:640] Last sequence is 32173
+2025/11/11-16:27:06.588205 6259093504 [db/db_impl/db_impl_secondary.cc:640] Last sequence is 32194
+2025/11/11-16:27:06.950732 6171373568 [db/db_impl/db_impl_secondary.cc:640] Last sequence is 32221
+2025/11/11-16:27:07.585840 6254800896 [db/db_impl/db_impl_secondary.cc:640] Last sequence is 32221
+2025/11/11-16:27:08.740733 6164934656 [db/db_impl/db_impl_secondary.cc:640] Last sequence is 32241
+2025/11/11-16:27:08.949296 6171373568 [db/db_impl/db_impl_secondary.cc:640] Last sequence is 32260
+2025/11/11-16:27:09.605605 6175666176 [db/db_impl/db_impl_secondary.cc:640] Last sequence is 32260
+2025/11/11-16:27:10.609240 6179958784 [db/db_impl/db_impl_secondary.cc:640] Last sequence is 32282
+2025/11/11-16:27:10.950340 6259093504 [db/db_impl/db_impl_secondary.cc:640] Last sequence is 32301
+2025/11/11-16:27:11.621489 6175666176 [db/db_impl/db_impl_secondary.cc:640] Last sequence is 32301
+2025/11/11-16:27:12.703364 6254800896 [db/db_impl/db_impl_secondary.cc:640] Last sequence is 32321
+2025/11/11-16:27:12.949433 6259093504 [db/db_impl/db_impl_secondary.cc:640] Last sequence is 32337
+2025/11/11-16:27:13.633705 6248361984 [db/db_impl/db_impl_secondary.cc:640] Last sequence is 32340
+2025/11/11-16:27:14.647836 6259093504 [db/db_impl/db_impl_secondary.cc:640] Last sequence is 32361
+2025/11/11-16:27:14.949798 6248361984 [db/db_impl/db_impl_secondary.cc:640] Last sequence is 32380
+2025/11/11-16:27:15.650098 6167080960 [db/db_impl/db_impl_secondary.cc:640] Last sequence is 32380
+2025/11/11-16:27:16.647230 6177812480 [db/db_impl/db_impl_secondary.cc:640] Last sequence is 32400
+2025/11/11-16:27:16.951757 6248361984 [db/db_impl/db_impl_secondary.cc:640] Last sequence is 32419
+2025/11/11-16:27:17.661979 6177812480 [db/db_impl/db_impl_secondary.cc:640] Last sequence is 32419
+2025/11/11-16:27:17.685592 6261239808 [db/db_impl/db_impl_secondary.cc:640] Last sequence is 32442
+2025/11/11-16:27:17.694393 6179958784 [db/db_impl/db_impl_secondary.cc:640] Last sequence is 32461
+2025/11/11-16:27:17.702185 6261239808 [db/db_impl/db_impl_secondary.cc:640] Last sequence is 32481
+2025/11/11-16:27:17.708159 6179958784 [db/db_impl/db_impl_secondary.cc:640] Last sequence is 32500
+2025/11/11-16:27:17.714550 6259093504 [db/db_impl/db_impl_secondary.cc:640] Last sequence is 32521
+2025/11/11-16:27:17.994415 6254800896 [db/db_impl/db_impl_secondary.cc:640] Last sequence is 32540
+2025/11/11-16:27:18.661516 6259093504 [db/db_impl/db_impl_secondary.cc:640] Last sequence is 32560
+2025/11/11-16:27:18.950349 6254800896 [db/db_impl/db_impl_secondary.cc:640] Last sequence is 32579
+2025/11/11-16:27:19.015765 6171373568 [db/db_impl/db_impl_secondary.cc:640] Last sequence is 32579
+2025/11/11-16:27:19.674681 6248361984 [db/db_impl/db_impl_secondary.cc:640] Last sequence is 32601
+2025/11/11-16:27:20.684169 6179958784 [db/db_impl/db_impl_secondary.cc:640] Last sequence is 32628
+2025/11/11-16:27:20.951491 6177812480 [db/db_impl/db_impl_secondary.cc:640] Last sequence is 32648
+2025/11/11-16:27:21.760014 6259093504 [db/db_impl/db_impl_secondary.cc:640] Last sequence is 32648
+2025/11/11-16:27:22.887272 6248361984 [db/db_impl/db_impl_secondary.cc:640] Last sequence is 32667
+2025/11/11-16:27:22.949175 6254800896 [db/db_impl/db_impl_secondary.cc:640] Last sequence is 32688
+2025/11/11-16:27:23.693998 6248361984 [db/db_impl/db_impl_secondary.cc:640] Last sequence is 32688
+2025/11/11-16:27:24.950140 6177812480 [db/db_impl/db_impl_secondary.cc:640] Last sequence is 32707
+2025/11/11-16:27:24.982859 6254800896 [db/db_impl/db_impl_secondary.cc:640] Last sequence is 32724
+2025/11/11-16:27:25.703036 6259093504 [db/db_impl/db_impl_secondary.cc:640] Last sequence is 32727
+2025/11/11-16:27:26.801641 6175666176 [db/db_impl/db_impl_secondary.cc:640] Last sequence is 32746
+2025/11/11-16:27:26.951526 6254800896 [db/db_impl/db_impl_secondary.cc:640] Last sequence is 32771
+2025/11/11-16:27:27.721418 6261239808 [db/db_impl/db_impl_secondary.cc:640] Last sequence is 32771
+2025/11/11-16:27:28.718597 6248361984 [db/db_impl/db_impl_secondary.cc:640] Last sequence is 32790
+2025/11/11-16:27:28.951099 6179958784 [db/db_impl/db_impl_secondary.cc:640] Last sequence is 32810
+2025/11/11-16:27:29.749016 6254800896 [db/db_impl/db_impl_secondary.cc:640] Last sequence is 32810
+2025/11/11-16:27:30.741064 6259093504 [db/db_impl/db_impl_secondary.cc:640] Last sequence is 32829
+2025/11/11-16:27:30.951956 6254800896 [db/db_impl/db_impl_secondary.cc:640] Last sequence is 32867
+2025/11/11-16:27:31.750034 6167080960 [db/db_impl/db_impl_secondary.cc:640] Last sequence is 32867
+2025/11/11-16:27:32.748596 6167080960 [db/db_impl/db_impl_secondary.cc:640] Last sequence is 32886
+2025/11/11-16:27:32.952685 6171373568 [db/db_impl/db_impl_secondary.cc:640] Last sequence is 32906
+2025/11/11-16:27:33.757354 6254800896 [db/db_impl/db_impl_secondary.cc:640] Last sequence is 32906
+2025/11/11-16:27:34.776909 6177812480 [db/db_impl/db_impl_secondary.cc:640] Last sequence is 32925
+2025/11/11-16:27:34.951696 6259093504 [db/db_impl/db_impl_secondary.cc:640] Last sequence is 32947
+2025/11/11-16:27:35.766309 6179958784 [db/db_impl/db_impl_secondary.cc:640] Last sequence is 32947
+2025/11/11-16:27:36.780888 6256947200 [db/db_impl/db_impl_secondary.cc:640] Last sequence is 32966
+2025/11/11-16:27:36.952146 6254800896 [db/db_impl/db_impl_secondary.cc:640] Last sequence is 32986
+2025/11/11-16:27:37.779626 6177812480 [db/db_impl/db_impl_secondary.cc:640] Last sequence is 32986
+2025/11/11-16:27:38.809231 6175666176 [db/db_impl/db_impl_secondary.cc:640] Last sequence is 33005
+2025/11/11-16:27:38.951758 6256947200 [db/db_impl/db_impl_secondary.cc:640] Last sequence is 33026
+2025/11/11-16:27:39.785729 6177812480 [db/db_impl/db_impl_secondary.cc:640] Last sequence is 33026
+2025/11/11-16:27:40.796561 6177812480 [db/db_impl/db_impl_secondary.cc:640] Last sequence is 33045
+2025/11/11-16:27:40.949973 6179958784 [db/db_impl/db_impl_secondary.cc:640] Last sequence is 33065
+2025/11/11-16:27:41.800651 6256947200 [db/db_impl/db_impl_secondary.cc:640] Last sequence is 33065
+2025/11/11-16:27:42.842405 6254800896 [db/db_impl/db_impl_secondary.cc:640] Last sequence is 33084
+2025/11/11-16:27:42.948527 6179958784 [db/db_impl/db_impl_secondary.cc:640] Last sequence is 33107
+2025/11/11-16:27:43.801715 6256947200 [db/db_impl/db_impl_secondary.cc:640] Last sequence is 33107
+2025/11/11-16:27:44.809656 6171373568 [db/db_impl/db_impl_secondary.cc:640] Last sequence is 33126
+2025/11/11-16:27:44.949647 6254800896 [db/db_impl/db_impl_secondary.cc:640] Last sequence is 33146
+2025/11/11-16:27:45.821439 6259093504 [db/db_impl/db_impl_secondary.cc:640] Last sequence is 33146
+2025/11/11-16:27:46.826714 6171373568 [db/db_impl/db_impl_secondary.cc:640] Last sequence is 33165
+2025/11/11-16:27:46.950608 6259093504 [db/db_impl/db_impl_secondary.cc:640] Last sequence is 33186
+2025/11/11-16:27:47.838267 6179958784 [db/db_impl/db_impl_secondary.cc:640] Last sequence is 33186
+2025/11/11-16:27:48.846554 6259093504 [db/db_impl/db_impl_secondary.cc:640] Last sequence is 33205
+2025/11/11-16:27:48.950938 6179958784 [db/db_impl/db_impl_secondary.cc:640] Last sequence is 33225
+2025/11/11-16:27:49.858538 6171373568 [db/db_impl/db_impl_secondary.cc:640] Last sequence is 33225
+2025/11/11-16:27:50.864762 6167080960 [db/db_impl/db_impl_secondary.cc:640] Last sequence is 33244
+2025/11/11-16:27:50.948624 6171373568 [db/db_impl/db_impl_secondary.cc:640] Last sequence is 33266
+2025/11/11-16:27:51.876192 6177812480 [db/db_impl/db_impl_secondary.cc:640] Last sequence is 33266
+2025/11/11-16:27:52.881572 6171373568 [db/db_impl/db_impl_secondary.cc:640] Last sequence is 33285
+2025/11/11-16:27:52.971743 6254800896 [db/db_impl/db_impl_secondary.cc:640] Last sequence is 33305
+2025/11/11-16:27:53.905432 6167080960 [db/db_impl/db_impl_secondary.cc:640] Last sequence is 33305
+2025/11/11-16:27:54.894657 6175666176 [db/db_impl/db_impl_secondary.cc:640] Last sequence is 33324
+2025/11/11-16:27:54.949574 6256947200 [db/db_impl/db_impl_secondary.cc:640] Last sequence is 33345
+2025/11/11-16:27:55.919010 6167080960 [db/db_impl/db_impl_secondary.cc:640] Last sequence is 33345
+2025/11/11-16:27:56.913345 6175666176 [db/db_impl/db_impl_secondary.cc:640] Last sequence is 33364
+2025/11/11-16:27:56.949041 6254800896 [db/db_impl/db_impl_secondary.cc:640] Last sequence is 33384
+2025/11/11-16:27:57.915271 6171373568 [db/db_impl/db_impl_secondary.cc:640] Last sequence is 33384
+2025/11/11-16:27:58.922290 6164934656 [db/db_impl/db_impl_secondary.cc:640] Last sequence is 33403
+2025/11/11-16:27:58.948966 6254800896 [db/db_impl/db_impl_secondary.cc:640] Last sequence is 33427
+2025/11/11-16:27:59.920199 6171373568 [db/db_impl/db_impl_secondary.cc:640] Last sequence is 33427
+2025/11/11-16:28:00.928585 6248361984 [db/db_impl/db_impl_secondary.cc:640] Last sequence is 33446
+2025/11/11-16:28:01.024822 6254800896 [db/db_impl/db_impl_secondary.cc:640] Last sequence is 33466
+2025/11/11-16:28:01.937468 6254800896 [db/db_impl/db_impl_secondary.cc:640] Last sequence is 33466
+2025/11/11-16:28:02.953400 6254800896 [db/db_impl/db_impl_secondary.cc:640] Last sequence is 33485
+2025/11/11-16:28:02.958084 6167080960 [db/db_impl/db_impl_secondary.cc:640] Last sequence is 33506
+2025/11/11-16:28:03.956722 6167080960 [db/db_impl/db_impl_secondary.cc:640] Last sequence is 33506
+2025/11/11-16:28:04.949546 6256947200 [db/db_impl/db_impl_secondary.cc:640] Last sequence is 33525
+2025/11/11-16:28:04.953811 6254800896 [db/db_impl/db_impl_secondary.cc:640] Last sequence is 33525
+2025/11/11-16:28:05.970302 6259093504 [db/db_impl/db_impl_secondary.cc:640] Last sequence is 33545
+2025/11/11-16:28:06.949081 6171373568 [db/db_impl/db_impl_secondary.cc:640] Last sequence is 33564
+2025/11/11-16:28:06.975096 6164934656 [db/db_impl/db_impl_secondary.cc:640] Last sequence is 33564
+2025/11/11-16:28:07.987881 6175666176 [db/db_impl/db_impl_secondary.cc:640] Last sequence is 33586
+2025/11/11-16:28:08.950481 6167080960 [db/db_impl/db_impl_secondary.cc:640] Last sequence is 33605
+2025/11/11-16:28:08.987376 6248361984 [db/db_impl/db_impl_secondary.cc:640] Last sequence is 33605
+2025/11/11-16:28:09.990794 6177812480 [db/db_impl/db_impl_secondary.cc:640] Last sequence is 33625
+2025/11/11-16:28:10.949862 6248361984 [db/db_impl/db_impl_secondary.cc:640] Last sequence is 33644
+2025/11/11-16:28:11.000770 6259093504 [db/db_impl/db_impl_secondary.cc:640] Last sequence is 33644
+2025/11/11-16:28:12.007936 6259093504 [db/db_impl/db_impl_secondary.cc:640] Last sequence is 33665
+2025/11/11-16:28:12.949939 6254800896 [db/db_impl/db_impl_secondary.cc:640] Last sequence is 33684
+2025/11/11-16:28:13.013210 6248361984 [db/db_impl/db_impl_secondary.cc:640] Last sequence is 33684
+2025/11/11-16:28:14.016317 6164934656 [db/db_impl/db_impl_secondary.cc:640] Last sequence is 33704
+2025/11/11-16:28:14.948441 6175666176 [db/db_impl/db_impl_secondary.cc:640] Last sequence is 33723
+2025/11/11-16:28:15.025639 6248361984 [db/db_impl/db_impl_secondary.cc:640] Last sequence is 33723
+2025/11/11-16:28:16.030217 6256947200 [db/db_impl/db_impl_secondary.cc:640] Last sequence is 33746
+2025/11/11-16:28:16.948025 6259093504 [db/db_impl/db_impl_secondary.cc:640] Last sequence is 33765
+2025/11/11-16:28:17.027634 6256947200 [db/db_impl/db_impl_secondary.cc:640] Last sequence is 33765
+2025/11/11-16:28:18.038089 6177812480 [db/db_impl/db_impl_secondary.cc:640] Last sequence is 33785
+2025/11/11-16:28:18.948992 6259093504 [db/db_impl/db_impl_secondary.cc:640] Last sequence is 33804
+2025/11/11-16:28:19.042308 6164934656 [db/db_impl/db_impl_secondary.cc:640] Last sequence is 33804
+2025/11/11-16:28:20.042773 6254800896 [db/db_impl/db_impl_secondary.cc:640] Last sequence is 33825
+2025/11/11-16:28:20.947914 6167080960 [db/db_impl/db_impl_secondary.cc:640] Last sequence is 33844
+2025/11/11-16:28:21.046647 6164934656 [db/db_impl/db_impl_secondary.cc:640] Last sequence is 33844
+2025/11/11-16:28:22.060236 6164934656 [db/db_impl/db_impl_secondary.cc:640] Last sequence is 33864
+2025/11/11-16:28:22.949510 6177812480 [db/db_impl/db_impl_secondary.cc:640] Last sequence is 33883
+2025/11/11-16:28:23.067754 6175666176 [db/db_impl/db_impl_secondary.cc:640] Last sequence is 33883
+2025/11/11-16:28:24.075706 6177812480 [db/db_impl/db_impl_secondary.cc:640] Last sequence is 33905
+2025/11/11-16:28:24.950769 6256947200 [db/db_impl/db_impl_secondary.cc:640] Last sequence is 33924
+2025/11/11-16:28:25.084546 6259093504 [db/db_impl/db_impl_secondary.cc:640] Last sequence is 33924
+2025/11/11-16:28:26.094947 6259093504 [db/db_impl/db_impl_secondary.cc:640] Last sequence is 33944
+2025/11/11-16:28:26.957533 6164934656 [db/db_impl/db_impl_secondary.cc:640] Last sequence is 33963
+2025/11/11-16:28:27.083224 6248361984 [db/db_impl/db_impl_secondary.cc:640] Last sequence is 33963
+2025/11/11-16:28:28.095251 6248361984 [db/db_impl/db_impl_secondary.cc:640] Last sequence is 33984
+2025/11/11-16:28:28.948625 6175666176 [db/db_impl/db_impl_secondary.cc:640] Last sequence is 34003
+2025/11/11-16:28:29.101158 6248361984 [db/db_impl/db_impl_secondary.cc:640] Last sequence is 34003
+2025/11/11-16:28:30.099130 6248361984 [db/db_impl/db_impl_secondary.cc:640] Last sequence is 34023
+2025/11/11-16:28:30.951541 6179958784 [db/db_impl/db_impl_secondary.cc:640] Last sequence is 34042
+2025/11/11-16:28:31.104677 6248361984 [db/db_impl/db_impl_secondary.cc:640] Last sequence is 34042
+2025/11/11-16:28:32.110421 6248361984 [db/db_impl/db_impl_secondary.cc:640] Last sequence is 34068
+2025/11/11-16:28:32.948285 6179958784 [db/db_impl/db_impl_secondary.cc:640] Last sequence is 34087
+2025/11/11-16:28:33.120095 6248361984 [db/db_impl/db_impl_secondary.cc:640] Last sequence is 34087
+2025/11/11-16:28:34.154055 6259093504 [db/db_impl/db_impl_secondary.cc:640] Last sequence is 34107
+2025/11/11-16:28:34.948627 6164934656 [db/db_impl/db_impl_secondary.cc:640] Last sequence is 34126
+2025/11/11-16:28:35.133502 6177812480 [db/db_impl/db_impl_secondary.cc:640] Last sequence is 34126
+2025/11/11-16:28:36.136961 6256947200 [db/db_impl/db_impl_secondary.cc:640] Last sequence is 34147
+2025/11/11-16:28:36.950904 6254800896 [db/db_impl/db_impl_secondary.cc:640] Last sequence is 34166
+2025/11/11-16:28:37.253404 6254800896 [db/db_impl/db_impl_secondary.cc:640] Last sequence is 34166
+2025/11/11-16:28:38.154229 6259093504 [db/db_impl/db_impl_secondary.cc:640] Last sequence is 34186
+2025/11/11-16:28:38.951085 6256947200 [db/db_impl/db_impl_secondary.cc:640] Last sequence is 34205
+2025/11/11-16:28:39.171824 6248361984 [db/db_impl/db_impl_secondary.cc:640] Last sequence is 34205
+2025/11/11-16:28:40.158185 6164934656 [db/db_impl/db_impl_secondary.cc:640] Last sequence is 34227
+2025/11/11-16:28:40.948082 6259093504 [db/db_impl/db_impl_secondary.cc:640] Last sequence is 34246
+2025/11/11-16:28:41.167182 6179958784 [db/db_impl/db_impl_secondary.cc:640] Last sequence is 34246
+2025/11/11-16:28:42.274884 6164934656 [db/db_impl/db_impl_secondary.cc:640] Last sequence is 34266
+2025/11/11-16:28:42.948705 6179958784 [db/db_impl/db_impl_secondary.cc:640] Last sequence is 34285
+2025/11/11-16:28:43.174610 6179958784 [db/db_impl/db_impl_secondary.cc:640] Last sequence is 34285
+2025/11/11-16:28:44.178970 6248361984 [db/db_impl/db_impl_secondary.cc:640] Last sequence is 34306
+2025/11/11-16:28:44.950996 6259093504 [db/db_impl/db_impl_secondary.cc:640] Last sequence is 34325
+2025/11/11-16:28:45.187111 6248361984 [db/db_impl/db_impl_secondary.cc:640] Last sequence is 34325
+2025/11/11-16:28:45.770092 6179958784 [db/db_impl/db_impl_secondary.cc:640] Last sequence is 34345
+2025/11/11-16:28:45.776650 6259093504 [db/db_impl/db_impl_secondary.cc:640] Last sequence is 34364
+2025/11/11-16:28:45.781721 6179958784 [db/db_impl/db_impl_secondary.cc:640] Last sequence is 34387
+2025/11/11-16:28:45.788048 6259093504 [db/db_impl/db_impl_secondary.cc:640] Last sequence is 34406
+2025/11/11-16:28:45.793053 6179958784 [db/db_impl/db_impl_secondary.cc:640] Last sequence is 34426
+2025/11/11-16:28:46.184865 6171373568 [db/db_impl/db_impl_secondary.cc:640] Last sequence is 34445
+2025/11/11-16:28:46.598207 6254800896 [db/db_impl/db_impl_secondary.cc:640] Last sequence is 34466
+2025/11/11-16:28:46.947644 6254800896 [db/db_impl/db_impl_secondary.cc:640] Last sequence is 34485
+2025/11/11-16:28:47.188406 6179958784 [db/db_impl/db_impl_secondary.cc:640] Last sequence is 34485
+2025/11/11-16:28:47.623602 6164934656 [db/db_impl/db_impl_secondary.cc:640] Last sequence is 34505
+2025/11/11-16:28:48.193510 6248361984 [db/db_impl/db_impl_secondary.cc:640] Last sequence is 34524
+2025/11/11-16:28:48.948655 6254800896 [db/db_impl/db_impl_secondary.cc:640] Last sequence is 34554
+2025/11/11-16:28:49.357908 6177812480 [db/db_impl/db_impl_secondary.cc:640] Last sequence is 34554
+2025/11/11-16:28:50.270375 6256947200 [db/db_impl/db_impl_secondary.cc:640] Last sequence is 34573
+2025/11/11-16:28:50.946953 6248361984 [db/db_impl/db_impl_secondary.cc:640] Last sequence is 34593
+2025/11/11-16:28:51.225182 6164934656 [db/db_impl/db_impl_secondary.cc:640] Last sequence is 34593
+2025/11/11-16:28:52.227878 6256947200 [db/db_impl/db_impl_secondary.cc:640] Last sequence is 34612
+2025/11/11-16:28:52.946898 6177812480 [db/db_impl/db_impl_secondary.cc:640] Last sequence is 34633
+2025/11/11-16:28:53.227114 6248361984 [db/db_impl/db_impl_secondary.cc:640] Last sequence is 34633
+2025/11/11-16:28:54.239083 6256947200 [db/db_impl/db_impl_secondary.cc:640] Last sequence is 34652
+2025/11/11-16:28:54.947863 6179958784 [db/db_impl/db_impl_secondary.cc:640] Last sequence is 34672
+2025/11/11-16:28:55.240663 6179958784 [db/db_impl/db_impl_secondary.cc:640] Last sequence is 34672
+2025/11/11-16:28:56.246346 6177812480 [db/db_impl/db_impl_secondary.cc:640] Last sequence is 34691
+2025/11/11-16:28:56.949782 6261239808 [db/db_impl/db_impl_secondary.cc:640] Last sequence is 34715
+2025/11/11-16:28:57.260266 6261239808 [db/db_impl/db_impl_secondary.cc:640] Last sequence is 34715
+2025/11/11-16:28:58.266836 6261239808 [db/db_impl/db_impl_secondary.cc:640] Last sequence is 34734
+2025/11/11-16:28:58.947313 6248361984 [db/db_impl/db_impl_secondary.cc:640] Last sequence is 34771
+2025/11/11-16:28:59.274319 6175666176 [db/db_impl/db_impl_secondary.cc:640] Last sequence is 34771
+2025/11/11-16:29:00.289983 6179958784 [db/db_impl/db_impl_secondary.cc:640] Last sequence is 34790
+2025/11/11-16:29:00.947309 6175666176 [db/db_impl/db_impl_secondary.cc:640] Last sequence is 34811
+2025/11/11-16:29:01.292472 6164934656 [db/db_impl/db_impl_secondary.cc:640] Last sequence is 34811
+2025/11/11-16:29:02.291857 6248361984 [db/db_impl/db_impl_secondary.cc:640] Last sequence is 34830
+2025/11/11-16:29:02.995227 6256947200 [db/db_impl/db_impl_secondary.cc:640] Last sequence is 34850
+2025/11/11-16:29:03.292920 6164934656 [db/db_impl/db_impl_secondary.cc:640] Last sequence is 34850
+2025/11/11-16:29:04.293942 6164934656 [db/db_impl/db_impl_secondary.cc:640] Last sequence is 34869
+2025/11/11-16:29:04.948771 6261239808 [db/db_impl/db_impl_secondary.cc:640] Last sequence is 34891
+2025/11/11-16:29:05.304624 6259093504 [db/db_impl/db_impl_secondary.cc:640] Last sequence is 34891
+2025/11/11-16:29:06.316432 6254800896 [db/db_impl/db_impl_secondary.cc:640] Last sequence is 34910
+2025/11/11-16:29:06.949267 6259093504 [db/db_impl/db_impl_secondary.cc:640] Last sequence is 34930
+2025/11/11-16:29:07.319605 6261239808 [db/db_impl/db_impl_secondary.cc:640] Last sequence is 34930
+2025/11/11-16:29:08.332632 6177812480 [db/db_impl/db_impl_secondary.cc:640] Last sequence is 34949
+2025/11/11-16:29:08.947634 6254800896 [db/db_impl/db_impl_secondary.cc:640] Last sequence is 34970
+2025/11/11-16:29:09.338190 6259093504 [db/db_impl/db_impl_secondary.cc:640] Last sequence is 34970
+2025/11/11-16:29:10.348394 6171373568 [db/db_impl/db_impl_secondary.cc:640] Last sequence is 34989
+2025/11/11-16:29:10.948321 6259093504 [db/db_impl/db_impl_secondary.cc:640] Last sequence is 35009
+2025/11/11-16:29:11.362112 6248361984 [db/db_impl/db_impl_secondary.cc:640] Last sequence is 35009
+2025/11/11-16:29:12.364664 6259093504 [db/db_impl/db_impl_secondary.cc:640] Last sequence is 35028
+2025/11/11-16:29:12.946741 6177812480 [db/db_impl/db_impl_secondary.cc:640] Last sequence is 35051
+2025/11/11-16:29:13.377280 6256947200 [db/db_impl/db_impl_secondary.cc:640] Last sequence is 35051
+2025/11/11-16:29:14.384831 6254800896 [db/db_impl/db_impl_secondary.cc:640] Last sequence is 35070
+2025/11/11-16:29:14.948046 6259093504 [db/db_impl/db_impl_secondary.cc:640] Last sequence is 35090
+2025/11/11-16:29:15.393387 6171373568 [db/db_impl/db_impl_secondary.cc:640] Last sequence is 35090
+2025/11/11-16:29:16.403166 6171373568 [db/db_impl/db_impl_secondary.cc:640] Last sequence is 35109
+2025/11/11-16:29:16.949698 6164934656 [db/db_impl/db_impl_secondary.cc:640] Last sequence is 35130
+2025/11/11-16:29:17.415692 6171373568 [db/db_impl/db_impl_secondary.cc:640] Last sequence is 35130
+2025/11/11-16:29:18.426941 6177812480 [db/db_impl/db_impl_secondary.cc:640] Last sequence is 35149
+2025/11/11-16:29:18.949340 6261239808 [db/db_impl/db_impl_secondary.cc:640] Last sequence is 35169
+2025/11/11-16:29:19.453336 6171373568 [db/db_impl/db_impl_secondary.cc:640] Last sequence is 35169
+2025/11/11-16:29:20.445684 6175666176 [db/db_impl/db_impl_secondary.cc:640] Last sequence is 35188
+2025/11/11-16:29:20.948741 6177812480 [db/db_impl/db_impl_secondary.cc:640] Last sequence is 35210
+2025/11/11-16:29:21.455219 6261239808 [db/db_impl/db_impl_secondary.cc:640] Last sequence is 35210
+2025/11/11-16:29:22.457690 6261239808 [db/db_impl/db_impl_secondary.cc:640] Last sequence is 35229
+2025/11/11-16:29:22.949106 6248361984 [db/db_impl/db_impl_secondary.cc:640] Last sequence is 35249
+2025/11/11-16:29:23.474543 6256947200 [db/db_impl/db_impl_secondary.cc:640] Last sequence is 35249
+2025/11/11-16:29:24.472829 6171373568 [db/db_impl/db_impl_secondary.cc:640] Last sequence is 35268
+2025/11/11-16:29:24.948514 6164934656 [db/db_impl/db_impl_secondary.cc:640] Last sequence is 35289
+2025/11/11-16:29:25.475056 6254800896 [db/db_impl/db_impl_secondary.cc:640] Last sequence is 35289
+2025/11/11-16:29:26.485323 6259093504 [db/db_impl/db_impl_secondary.cc:640] Last sequence is 35308
+2025/11/11-16:29:26.948902 6259093504 [db/db_impl/db_impl_secondary.cc:640] Last sequence is 35328
+2025/11/11-16:29:27.486481 6175666176 [db/db_impl/db_impl_secondary.cc:640] Last sequence is 35328
+2025/11/11-16:29:28.487297 6164934656 [db/db_impl/db_impl_secondary.cc:640] Last sequence is 35347
+2025/11/11-16:29:28.957705 6171373568 [db/db_impl/db_impl_secondary.cc:640] Last sequence is 35372
+2025/11/11-16:29:29.494074 6175666176 [db/db_impl/db_impl_secondary.cc:640] Last sequence is 35372
+2025/11/11-16:29:30.507226 6164934656 [db/db_impl/db_impl_secondary.cc:640] Last sequence is 35391
+2025/11/11-16:29:30.949810 6164934656 [db/db_impl/db_impl_secondary.cc:640] Last sequence is 35411
+2025/11/11-16:29:31.519517 6259093504 [db/db_impl/db_impl_secondary.cc:640] Last sequence is 35411
+2025/11/11-16:29:32.521258 6261239808 [db/db_impl/db_impl_secondary.cc:640] Last sequence is 35430
+2025/11/11-16:29:32.950120 6261239808 [db/db_impl/db_impl_secondary.cc:640] Last sequence is 35451
+2025/11/11-16:29:33.525822 6177812480 [db/db_impl/db_impl_secondary.cc:640] Last sequence is 35451
+2025/11/11-16:29:34.530680 6175666176 [db/db_impl/db_impl_secondary.cc:640] Last sequence is 35470
+2025/11/11-16:29:34.947895 6175666176 [db/db_impl/db_impl_secondary.cc:640] Last sequence is 35490
+2025/11/11-16:29:35.538282 6164934656 [db/db_impl/db_impl_secondary.cc:640] Last sequence is 35490
+2025/11/11-16:29:36.546786 6175666176 [db/db_impl/db_impl_secondary.cc:640] Last sequence is 35509
+2025/11/11-16:29:36.946371 6175666176 [db/db_impl/db_impl_secondary.cc:640] Last sequence is 35531
+2025/11/11-16:29:37.551403 6254800896 [db/db_impl/db_impl_secondary.cc:640] Last sequence is 35531
+2025/11/11-16:29:38.558329 6177812480 [db/db_impl/db_impl_secondary.cc:640] Last sequence is 35550
+2025/11/11-16:29:38.949002 6177812480 [db/db_impl/db_impl_secondary.cc:640] Last sequence is 35570
+2025/11/11-16:29:39.560935 6248361984 [db/db_impl/db_impl_secondary.cc:640] Last sequence is 35570
+2025/11/11-16:29:40.562310 6259093504 [db/db_impl/db_impl_secondary.cc:640] Last sequence is 35589
+2025/11/11-16:29:40.946657 6259093504 [db/db_impl/db_impl_secondary.cc:640] Last sequence is 35610
+2025/11/11-16:29:41.564997 6248361984 [db/db_impl/db_impl_secondary.cc:640] Last sequence is 35610
+2025/11/11-16:29:42.569191 6175666176 [db/db_impl/db_impl_secondary.cc:640] Last sequence is 35629
+2025/11/11-16:29:42.948083 6248361984 [db/db_impl/db_impl_secondary.cc:640] Last sequence is 35649
+2025/11/11-16:29:43.577148 6175666176 [db/db_impl/db_impl_secondary.cc:640] Last sequence is 35649
+2025/11/11-16:29:44.582288 6177812480 [db/db_impl/db_impl_secondary.cc:640] Last sequence is 35668
+2025/11/11-16:29:44.946547 6177812480 [db/db_impl/db_impl_secondary.cc:640] Last sequence is 35691
+2025/11/11-16:29:45.586798 6254800896 [db/db_impl/db_impl_secondary.cc:640] Last sequence is 35691
+2025/11/11-16:29:46.598766 6254800896 [db/db_impl/db_impl_secondary.cc:640] Last sequence is 35710
+2025/11/11-16:29:46.945727 6259093504 [db/db_impl/db_impl_secondary.cc:640] Last sequence is 35730
+2025/11/11-16:29:47.607643 6248361984 [db/db_impl/db_impl_secondary.cc:640] Last sequence is 35730
+2025/11/11-16:29:48.617227 6177812480 [db/db_impl/db_impl_secondary.cc:640] Last sequence is 35749
+2025/11/11-16:29:48.946874 6248361984 [db/db_impl/db_impl_secondary.cc:640] Last sequence is 35770
+2025/11/11-16:29:49.632587 6171373568 [db/db_impl/db_impl_secondary.cc:640] Last sequence is 35770
+2025/11/11-16:29:50.633908 6171373568 [db/db_impl/db_impl_secondary.cc:640] Last sequence is 35789
+2025/11/11-16:29:50.954307 6254800896 [db/db_impl/db_impl_secondary.cc:640] Last sequence is 35809
+2025/11/11-16:29:51.632191 6256947200 [db/db_impl/db_impl_secondary.cc:640] Last sequence is 35809
+2025/11/11-16:29:52.639970 6175666176 [db/db_impl/db_impl_secondary.cc:640] Last sequence is 35828
+2025/11/11-16:29:52.948643 6164934656 [db/db_impl/db_impl_secondary.cc:640] Last sequence is 35850
+2025/11/11-16:29:53.647558 6259093504 [db/db_impl/db_impl_secondary.cc:640] Last sequence is 35850
+2025/11/11-16:29:54.650512 6259093504 [db/db_impl/db_impl_secondary.cc:640] Last sequence is 35869
+2025/11/11-16:29:54.945991 6254800896 [db/db_impl/db_impl_secondary.cc:640] Last sequence is 35889
+2025/11/11-16:29:55.658319 6164934656 [db/db_impl/db_impl_secondary.cc:640] Last sequence is 35889
+2025/11/11-16:29:56.667961 6254800896 [db/db_impl/db_impl_secondary.cc:640] Last sequence is 35908
+2025/11/11-16:29:56.946746 6177812480 [db/db_impl/db_impl_secondary.cc:640] Last sequence is 35929
+2025/11/11-16:29:57.677337 6175666176 [db/db_impl/db_impl_secondary.cc:640] Last sequence is 35929
+2025/11/11-16:29:58.676067 6256947200 [db/db_impl/db_impl_secondary.cc:640] Last sequence is 35948
+2025/11/11-16:29:58.946036 6259093504 [db/db_impl/db_impl_secondary.cc:640] Last sequence is 35968
+2025/11/11-16:29:59.683041 6177812480 [db/db_impl/db_impl_secondary.cc:640] Last sequence is 35968
+2025/11/11-16:30:00.684209 6177812480 [db/db_impl/db_impl_secondary.cc:640] Last sequence is 35987
+2025/11/11-16:30:00.945217 6256947200 [db/db_impl/db_impl_secondary.cc:640] Last sequence is 36011
+2025/11/11-16:30:01.699509 6175666176 [db/db_impl/db_impl_secondary.cc:640] Last sequence is 36011
+2025/11/11-16:30:02.697333 6254800896 [db/db_impl/db_impl_secondary.cc:640] Last sequence is 36030
+2025/11/11-16:30:02.945852 6177812480 [db/db_impl/db_impl_secondary.cc:640] Last sequence is 36050
+2025/11/11-16:30:03.712616 6248361984 [db/db_impl/db_impl_secondary.cc:640] Last sequence is 36050
+2025/11/11-16:30:04.759005 6254800896 [db/db_impl/db_impl_secondary.cc:640] Last sequence is 36069
+2025/11/11-16:30:04.946044 6177812480 [db/db_impl/db_impl_secondary.cc:640] Last sequence is 36090
+2025/11/11-16:30:05.730210 6171373568 [db/db_impl/db_impl_secondary.cc:640] Last sequence is 36090
+2025/11/11-16:30:06.730868 6256947200 [db/db_impl/db_impl_secondary.cc:640] Last sequence is 36109
+2025/11/11-16:30:06.945793 6175666176 [db/db_impl/db_impl_secondary.cc:640] Last sequence is 36129
+2025/11/11-16:30:07.776516 6179958784 [db/db_impl/db_impl_secondary.cc:640] Last sequence is 36129
+2025/11/11-16:30:08.738039 6175666176 [db/db_impl/db_impl_secondary.cc:640] Last sequence is 36148
