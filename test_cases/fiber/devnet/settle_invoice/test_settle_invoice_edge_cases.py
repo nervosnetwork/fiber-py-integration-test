@@ -1,16 +1,3 @@
-# -*- coding: utf-8 -*-
-"""
-settle_invoice 边缘用例与集成点测试（补充 PR 覆盖）
-
-1. 并发 MPP 支付（Edge Case - Concurrent MPP Payments）
-2. 发票状态中途转换下的结算（Error Scenario - Invoice Status Transition Mid-Settlement）
-3. 数据库不一致风险下的过付处理（Integration Point - Database Inconsistency Risk）
-4. Hold TLC 过期处理（Hold TLC Expiration Handling）
-5. 非 MPP 多 TLC 拒绝逻辑（Non-MPP Multi-TLC Rejection Logic）
-6. 过付 MPP 的边缘拒绝（Overpaid MPP Rejection Edge Case）
-7. 新旧命令兼容性（Compatibility with Legacy Code）
-8. 无效 payment_hash 的结算尝试（Invalid Input Handling）
-"""
 import time
 import concurrent.futures
 import pytest

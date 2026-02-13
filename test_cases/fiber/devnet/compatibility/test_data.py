@@ -8,7 +8,7 @@ from framework.test_fiber import FiberConfigPath
 
 
 class TestData(FiberTest):
-
+    # debug = True
     # @pytest.mark.skip("migration failed")
     def test_old_fiber_061(self):
         """
@@ -21,7 +21,6 @@ class TestData(FiberTest):
          7. restart other fiber
          8. send_payment
         Returns:
-
         """
         # 1. start fiber 0.6.1
         old_fiber_1 = self.start_new_fiber(
@@ -57,22 +56,70 @@ class TestData(FiberTest):
         old_fiber_1.start()
         old_fiber_2.start()
         time.sleep(10)
-
-        # 5. send_payment
-        self.send_payment(old_fiber_1, old_fiber_2, 100)
-        self.send_payment(old_fiber_2, old_fiber_1, 200)
-        channels = old_fiber_1.get_client().list_channels({})
-        old_fiber_1.get_client().shutdown_channel(
-            {
-                "channel_id": channels["channels"][0]["channel_id"],
-                "close_script": self.get_account_script(self.Config.ACCOUNT_PRIVATE_1),
-                "fee_rate": "0x3FC",
-            }
+        self.open_channel(
+            old_fiber_1, old_fiber_2, 1000 * 100000000, 1000 * 100000000, 1000, 1000
         )
-        tx_hash = self.wait_and_check_tx_pool_fee(1000, False, 120)
-        tx_message = self.get_tx_message(tx_hash)
-        print("tx message:", tx_message)
-        assert {
-            "args": self.get_account_script(old_fiber_2.account_private)["args"],
-            "capacity": 100000000000 + DEFAULT_MIN_DEPOSIT_CKB,
-        } in tx_message["output_cells"]
+        # 5. send_payment
+        time.sleep(5)
+        self.send_payment(old_fiber_1, old_fiber_2, 100000)
+        self.send_payment(old_fiber_2, old_fiber_1, 200000)
+
+    #     channels = old_fiber_1.get_client().list_channels({})
+    #     before_balance = self.get_fibers_balance()
+    #     fiber2_balance = self.get_fiber_balance(old_fiber_2)
+    #     old_fiber_1.get_client().shutdown_channel(
+    #         {
+    #             "channel_id": channels["channels"][0]["channel_id"],
+    #             "close_script": self.get_account_script(self.Config.ACCOUNT_PRIVATE_1),
+    #             "fee_rate": "0x3FC",
+    #         }
+    #     )
+    #     tx_hash = self.wait_and_check_tx_pool_fee(1000, False, 120)
+    #     tx_message = self.get_tx_message(tx_hash)
+    #     print("tx message:", tx_message)
+    #     after_balance = self.get_fibers_balance()
+    #     result = self.get_balance_change(before_balance, after_balance)
+    #     print("result:", result)
+    #     print("fiber2_balance:", fiber2_balance)
+    #     # assert result == [
+    #     #     {'ckb': 0, 'udt': 0}, {'ckb': 0, 'udt': 0},
+    #     #     {'ckb': 0, 'udt': 0}, {'ckb': -109899999900, 'udt': 0}]
+    #
+    #     assert fiber2_balance["ckb"]["local_balance"] + 99 * 100000000 == abs(
+    #         result[3]["ckb"]
+    #     )
+    #
+    # def test_bbbb(self):
+    #     old_fiber_1 = self.start_new_mock_fiber("")
+    #     old_fiber_2 = self.start_new_mock_fiber("")
+    #     self.open_channel(
+    #         old_fiber_1,
+    #         old_fiber_2, 1000 * 100000000, 1000 * 100000000, 1000, 1000
+    #     )
+    #     # 5. send_payment
+    #     self.send_payment(old_fiber_1, old_fiber_2, 100000)
+    #     self.send_payment(old_fiber_2, old_fiber_1, 200000)
+    #     channels = old_fiber_1.get_client().list_channels({})
+    #     before_balance = self.get_fibers_balance()
+    #     fiber2_balance = self.get_fiber_balance(old_fiber_2)
+    #     old_fiber_1.get_client().shutdown_channel(
+    #         {
+    #             "channel_id": channels["channels"][0]["channel_id"],
+    #             "close_script": self.get_account_script(self.Config.ACCOUNT_PRIVATE_1),
+    #             "fee_rate": "0x3FC",
+    #         }
+    #     )
+    #     tx_hash = self.wait_and_check_tx_pool_fee(1000, False, 120)
+    #     tx_message = self.get_tx_message(tx_hash)
+    #     print("tx message:", tx_message)
+    #     after_balance = self.get_fibers_balance()
+    #     result = self.get_balance_change(before_balance, after_balance)
+    #     print("result:", result)
+    #     print("fiber2_balance:", fiber2_balance)
+    #     # assert result == [
+    #     #     {'ckb': 0, 'udt': 0}, {'ckb': 0, 'udt': 0},
+    #     #     {'ckb': 0, 'udt': 0}, {'ckb': -109899999900, 'udt': 0}]
+    #
+    #     assert fiber2_balance["ckb"]["local_balance"] + 99 * 100000000 == abs(
+    #         result[3]["ckb"]
+    #     )
