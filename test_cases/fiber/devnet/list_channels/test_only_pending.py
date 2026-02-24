@@ -26,9 +26,10 @@ class TestListChannelsOnlyPending(FiberTest):
 
         Steps:
         1. Open a channel between fiber1 and fiber2 (auto-accepted).
-        2. Wait until the channel reaches CHANNEL_READY.
-        3. Verify `only_pending=true` does NOT include CHANNEL_READY channels.
-        4. Verify `only_pending=false` (default) still shows the ready channel.
+        2. Wait until the channel reaches CHANNEL_READY on both sides.
+        3. Verify `only_pending=true` does NOT include CHANNEL_READY channels on fiber1.
+        4. Verify `only_pending=true` does NOT include CHANNEL_READY channels on fiber2.
+        5. Verify `only_pending=false` (default) still shows the ready channel on both sides.
         """
         # Step 1: Open channel (auto-accepted, large funding amount)
         self.fiber1.get_client().open_channel(
@@ -39,38 +40,62 @@ class TestListChannelsOnlyPending(FiberTest):
             }
         )
 
-        # Step 2: Wait for CHANNEL_READY
+        # Step 2: Wait for CHANNEL_READY on both sides
         self.wait_for_channel_state(
             self.fiber1.get_client(), self.fiber2.get_peer_id(), "CHANNEL_READY", 120
         )
+        self.wait_for_channel_state(
+            self.fiber2.get_client(), self.fiber1.get_peer_id(), "CHANNEL_READY", 120
+        )
 
-        # Step 3: only_pending=true should NOT include CHANNEL_READY channels
-        pending_channels = self.fiber1.get_client().list_channels(
+        # Step 3: only_pending=true should NOT include CHANNEL_READY channels on fiber1
+        pending_channels_fiber1 = self.fiber1.get_client().list_channels(
             {"only_pending": True}
         )
-        ready_in_pending = [
+        ready_in_pending_fiber1 = [
             ch
-            for ch in pending_channels["channels"]
+            for ch in pending_channels_fiber1["channels"]
             if ch["state"]["state_name"] == "CHANNEL_READY"
         ]
         assert (
-            len(ready_in_pending) == 0
-        ), "CHANNEL_READY channels should not appear when only_pending=true"
+            len(ready_in_pending_fiber1) == 0
+        ), "CHANNEL_READY channels should not appear when only_pending=true on fiber1"
 
-        # Step 4: Default list (only_pending=false) should still show the channel
-        all_channels = self.fiber1.get_client().list_channels({})
-        assert len(all_channels["channels"]) >= 1
-        assert all_channels["channels"][0]["state"]["state_name"] == "CHANNEL_READY"
+        # Step 4: only_pending=true should NOT include CHANNEL_READY channels on fiber2
+        pending_channels_fiber2 = self.fiber2.get_client().list_channels(
+            {"only_pending": True}
+        )
+        ready_in_pending_fiber2 = [
+            ch
+            for ch in pending_channels_fiber2["channels"]
+            if ch["state"]["state_name"] == "CHANNEL_READY"
+        ]
+        assert (
+            len(ready_in_pending_fiber2) == 0
+        ), "CHANNEL_READY channels should not appear when only_pending=true on fiber2"
+
+        # Step 5: Default list (only_pending=false) should still show the channel on both sides
+        all_channels_fiber1 = self.fiber1.get_client().list_channels({})
+        assert len(all_channels_fiber1["channels"]) >= 1
+        assert (
+            all_channels_fiber1["channels"][0]["state"]["state_name"] == "CHANNEL_READY"
+        )
+
+        all_channels_fiber2 = self.fiber2.get_client().list_channels({})
+        assert len(all_channels_fiber2["channels"]) >= 1
+        assert (
+            all_channels_fiber2["channels"][0]["state"]["state_name"] == "CHANNEL_READY"
+        )
 
     def test_only_pending_default_false(self):
         """
         Verify that the default behavior of `list_channels` (without `only_pending`)
-        is unchanged: it returns active channels.
+        is unchanged: it returns active channels on both sides.
 
         Steps:
-        1. Open a channel and wait for CHANNEL_READY.
-        2. Call list_channels with only_pending=false (explicit).
-        3. Verify the CHANNEL_READY channel is returned.
+        1. Open a channel and wait for CHANNEL_READY on both sides.
+        2. Call list_channels with only_pending=false (explicit) on both nodes.
+        3. Verify the CHANNEL_READY channel is returned on both sides.
         """
         self.fiber1.get_client().open_channel(
             {
@@ -82,27 +107,39 @@ class TestListChannelsOnlyPending(FiberTest):
         self.wait_for_channel_state(
             self.fiber1.get_client(), self.fiber2.get_peer_id(), "CHANNEL_READY", 120
         )
+        self.wait_for_channel_state(
+            self.fiber2.get_client(), self.fiber1.get_peer_id(), "CHANNEL_READY", 120
+        )
 
-        channels = self.fiber1.get_client().list_channels({"only_pending": False})
-        assert len(channels["channels"]) >= 1
-        assert channels["channels"][0]["state"]["state_name"] == "CHANNEL_READY"
+        # Check fiber1 side
+        channels_fiber1 = self.fiber1.get_client().list_channels(
+            {"only_pending": False}
+        )
+        assert len(channels_fiber1["channels"]) >= 1
+        assert channels_fiber1["channels"][0]["state"]["state_name"] == "CHANNEL_READY"
+
+        # Check fiber2 side
+        channels_fiber2 = self.fiber2.get_client().list_channels(
+            {"only_pending": False}
+        )
+        assert len(channels_fiber2["channels"]) >= 1
+        assert channels_fiber2["channels"][0]["state"]["state_name"] == "CHANNEL_READY"
 
     def test_only_pending_shows_inbound_waiting_for_accept(self):
         """
         When a channel is opened with a funding amount below the auto-accept
         threshold, the accepting node must manually call `accept_channel`.
-        Before acceptance, the channel should appear in the acceptor's
-        `list_channels(only_pending=true)` result as NegotiatingFunding with
-        is_acceptor=true.
+        Before acceptance, the channel should appear in both nodes'
+        `list_channels(only_pending=true)` results.
 
         Steps:
         1. Get the auto-accept min funding amount.
         2. Open a channel with funding_amount below the threshold (not auto-accepted).
-        3. On the acceptor node (fiber2), call list_channels(only_pending=true).
-        4. Verify the pending inbound channel is returned with is_acceptor=true
-           and state NegotiatingFunding.
-        5. Accept the channel and wait for CHANNEL_READY.
-        6. Verify only_pending=true no longer returns the channel.
+        3. On the initiator (fiber1), verify the pending outbound channel appears.
+        4. On the acceptor (fiber2), verify the pending inbound channel appears
+           with is_acceptor=true and state NegotiatingFunding.
+        5. Accept the channel and wait for CHANNEL_READY on both sides.
+        6. Verify only_pending=true no longer returns the channel on both sides.
         """
         # Step 1: Get auto-accept threshold
         node_info = self.fiber1.get_client().node_info()
@@ -120,25 +157,37 @@ class TestListChannelsOnlyPending(FiberTest):
         )
         time.sleep(2)
 
-        # Step 3: On the acceptor (fiber2), list_channels with only_pending=true
-        pending_channels = self.fiber2.get_client().list_channels(
+        # Step 3: On the initiator (fiber1), verify pending outbound channel
+        pending_channels_fiber1 = self.fiber1.get_client().list_channels(
             {"only_pending": True}
         )
+        outbound_pending = [
+            ch
+            for ch in pending_channels_fiber1["channels"]
+            if ch["is_acceptor"] is False
+        ]
+        assert len(outbound_pending) >= 1, (
+            "Initiator (fiber1) should see pending outbound channel "
+            "in list_channels(only_pending=true) before peer accepts"
+        )
 
-        # Step 4: Verify the inbound channel appears
+        # Step 4: On the acceptor (fiber2), verify pending inbound channel
+        pending_channels_fiber2 = self.fiber2.get_client().list_channels(
+            {"only_pending": True}
+        )
         inbound_pending = [
             ch
-            for ch in pending_channels["channels"]
+            for ch in pending_channels_fiber2["channels"]
             if ch["state"]["state_name"] == "NEGOTIATING_FUNDING"
             and ch["is_acceptor"] is True
         ]
         assert (
             len(inbound_pending) >= 1
-        ), "Inbound channel waiting for accept_channel should appear in only_pending=true"
+        ), "Inbound channel waiting for accept_channel should appear in only_pending=true on fiber2"
         # The remote_balance should reflect the initiator's funding amount
         assert int(inbound_pending[0]["remote_balance"], 16) > 0
 
-        # Step 5: Accept the channel
+        # Step 5: Accept the channel and wait for CHANNEL_READY on both sides
         self.fiber2.get_client().accept_channel(
             {
                 "temporary_channel_id": temporary_channel["temporary_channel_id"],
@@ -148,15 +197,34 @@ class TestListChannelsOnlyPending(FiberTest):
         self.wait_for_channel_state(
             self.fiber1.get_client(), self.fiber2.get_peer_id(), "CHANNEL_READY", 120
         )
+        self.wait_for_channel_state(
+            self.fiber2.get_client(), self.fiber1.get_peer_id(), "CHANNEL_READY", 120
+        )
 
-        # Step 6: only_pending=true should no longer return the (now ready) channel
-        pending_after = self.fiber2.get_client().list_channels({"only_pending": True})
-        ready_in_pending = [
+        # Step 6: only_pending=true should no longer return the channel on either side
+        pending_after_fiber1 = self.fiber1.get_client().list_channels(
+            {"only_pending": True}
+        )
+        ready_in_pending_fiber1 = [
             ch
-            for ch in pending_after["channels"]
+            for ch in pending_after_fiber1["channels"]
             if ch["state"]["state_name"] == "CHANNEL_READY"
         ]
-        assert len(ready_in_pending) == 0
+        assert (
+            len(ready_in_pending_fiber1) == 0
+        ), "CHANNEL_READY should not appear in only_pending=true on fiber1"
+
+        pending_after_fiber2 = self.fiber2.get_client().list_channels(
+            {"only_pending": True}
+        )
+        ready_in_pending_fiber2 = [
+            ch
+            for ch in pending_after_fiber2["channels"]
+            if ch["state"]["state_name"] == "CHANNEL_READY"
+        ]
+        assert (
+            len(ready_in_pending_fiber2) == 0
+        ), "CHANNEL_READY should not appear in only_pending=true on fiber2"
 
     def test_only_pending_initiator_sees_outbound_pending_channel(self):
         """
@@ -228,15 +296,16 @@ class TestListChannelsOnlyPending(FiberTest):
 
     def test_only_pending_shows_failed_channel_with_failure_detail(self):
         """
-        When an outbound channel opening fails (e.g. peer disconnects during
+        When an outbound channel opening fails (e.g. channel is abandoned during
         opening), the failed record should appear in `list_channels(only_pending=true)`
-        with `failure_detail` set.
+        with `failure_detail` set. Both the abandoning node and the peer should be checked.
 
         Steps:
         1. Start fiber3 and open a channel to fiber2 below auto-accept threshold.
         2. Abandon the channel on fiber3 to trigger a failure.
         3. Call list_channels(only_pending=true) on fiber3.
         4. Verify a failed channel record appears with appropriate close flags.
+        5. Call list_channels(only_pending=true) on fiber2 to verify peer side state.
         """
         # Step 1: Open channel below auto-accept threshold from fiber3 to fiber2
         # so that it requires manual accept, giving us time to abandon it
@@ -265,37 +334,53 @@ class TestListChannelsOnlyPending(FiberTest):
         )
         time.sleep(2)
 
-        # Step 3: Check only_pending=true on fiber3
-        pending_channels = fiber3.get_client().list_channels({"only_pending": True})
+        # Step 3: Check only_pending=true on fiber3 (the node that abandoned)
+        pending_channels_fiber3 = fiber3.get_client().list_channels(
+            {"only_pending": True}
+        )
 
         # There should be at least one failed/abandoned channel record
         # It may show as Closed(ABANDONED) or Closed(FUNDING_ABORTED) with failure_detail
-        failed_channels = [
+        failed_channels_fiber3 = [
             ch
-            for ch in pending_channels["channels"]
+            for ch in pending_channels_fiber3["channels"]
             if ch["state"]["state_name"] == "CLOSED"
         ]
         # The abandoned channel should appear with failure info
-        if len(failed_channels) > 0:
-            # If it has failure_detail, verify it's present
-            for fc in failed_channels:
+        if len(failed_channels_fiber3) > 0:
+            for fc in failed_channels_fiber3:
                 assert fc["state"]["state_flags"] in (
                     "ABANDONED",
                     "FUNDING_ABORTED",
-                ), f"Unexpected close flag: {fc['state']['state_flags']}"
+                ), f"Unexpected close flag on fiber3: {fc['state']['state_flags']}"
+
+        # Step 5: Check only_pending=true on fiber2 (the peer side)
+        # After fiber3 abandons, fiber2 should not have a CHANNEL_READY channel
+        pending_channels_fiber2 = self.fiber2.get_client().list_channels(
+            {"only_pending": True}
+        )
+        ready_in_pending_fiber2 = [
+            ch
+            for ch in pending_channels_fiber2["channels"]
+            if ch["state"]["state_name"] == "CHANNEL_READY"
+        ]
+        assert len(ready_in_pending_fiber2) == 0, (
+            "CHANNEL_READY should not appear in only_pending=true on fiber2 "
+            "after fiber3 abandoned the channel"
+        )
 
     def test_only_pending_with_peer_id_filter(self):
         """
-        Verify that `only_pending=true` respects the `peer_id` filter.
+        Verify that `only_pending=true` respects the `peer_id` filter on both sides.
 
         Steps:
-        1. Open channels with two different peers.
-        2. Wait for both to reach CHANNEL_READY.
-        3. Open a new channel below auto-accept threshold with one peer.
-        4. Call list_channels(only_pending=true, peer_id=...) to filter.
-        5. Verify only the matching peer's pending channel is returned.
+        1. Open channel with fiber2 and wait for CHANNEL_READY.
+        2. Create fiber3 and open a channel below auto-accept threshold to fiber1.
+        3. On fiber1, list only_pending with peer_id=fiber3 → should have pending channel.
+        4. On fiber1, list only_pending with peer_id=fiber2 → should have no pending.
+        5. On fiber3, list only_pending with peer_id=fiber1 → should have pending channel.
         """
-        # Step 1 & 2: Open channel with fiber2 (auto-accepted)
+        # Step 1: Open channel with fiber2 (auto-accepted)
         self.fiber1.get_client().open_channel(
             {
                 "peer_id": self.fiber2.get_peer_id(),
@@ -307,7 +392,7 @@ class TestListChannelsOnlyPending(FiberTest):
             self.fiber1.get_client(), self.fiber2.get_peer_id(), "CHANNEL_READY", 120
         )
 
-        # Create fiber3 and open a channel that needs manual accept
+        # Step 2: Create fiber3 and open a channel that needs manual accept
         account3_private_key = self.generate_account(1000)
         fiber3 = self.start_new_fiber(account3_private_key)
         fiber3.connect_peer(self.fiber1)
@@ -327,17 +412,15 @@ class TestListChannelsOnlyPending(FiberTest):
         )
         time.sleep(2)
 
-        # Step 4: On fiber1, list only_pending with peer_id=fiber3's peer_id
+        # Step 3: On fiber1, list only_pending with peer_id=fiber3's peer_id
         pending_from_fiber3 = self.fiber1.get_client().list_channels(
             {"only_pending": True, "peer_id": fiber3.get_peer_id()}
         )
-
-        # Step 5: Should have pending channel from fiber3 only
         assert len(pending_from_fiber3["channels"]) >= 1
         for ch in pending_from_fiber3["channels"]:
             assert ch["peer_id"] == fiber3.get_peer_id()
 
-        # Verify peer_id filter for fiber2 returns no pending (its channel is READY)
+        # Step 4: Verify peer_id filter for fiber2 returns no pending (its channel is READY)
         pending_from_fiber2 = self.fiber1.get_client().list_channels(
             {"only_pending": True, "peer_id": self.fiber2.get_peer_id()}
         )
@@ -350,15 +433,26 @@ class TestListChannelsOnlyPending(FiberTest):
             len(ready_channels) == 0
         ), "CHANNEL_READY channels should not appear in only_pending=true"
 
+        # Step 5: On fiber3 (initiator), list only_pending with peer_id=fiber1
+        pending_on_fiber3 = fiber3.get_client().list_channels(
+            {"only_pending": True, "peer_id": self.fiber1.get_peer_id()}
+        )
+        assert len(pending_on_fiber3["channels"]) >= 1, (
+            "Initiator (fiber3) should see pending outbound channel "
+            "in list_channels(only_pending=true, peer_id=fiber1)"
+        )
+        for ch in pending_on_fiber3["channels"]:
+            assert ch["peer_id"] == self.fiber1.get_peer_id()
+
     def test_failure_detail_null_for_ready_channels(self):
         """
         Verify that the `failure_detail` field is null for successfully
-        opened channels.
+        opened channels on both sides.
 
         Steps:
-        1. Open a channel and wait for CHANNEL_READY.
-        2. List channels (without only_pending).
-        3. Verify `failure_detail` is null.
+        1. Open a channel and wait for CHANNEL_READY on both sides.
+        2. List channels on both nodes (without only_pending).
+        3. Verify `failure_detail` is null on both sides.
         """
         self.fiber1.get_client().open_channel(
             {
@@ -370,23 +464,38 @@ class TestListChannelsOnlyPending(FiberTest):
         self.wait_for_channel_state(
             self.fiber1.get_client(), self.fiber2.get_peer_id(), "CHANNEL_READY", 120
         )
+        self.wait_for_channel_state(
+            self.fiber2.get_client(), self.fiber1.get_peer_id(), "CHANNEL_READY", 120
+        )
 
-        channels = self.fiber1.get_client().list_channels({})
-        assert len(channels["channels"]) >= 1
-        # failure_detail should be null for a successfully opened channel
-        assert channels["channels"][0]["failure_detail"] is None
+        # Check fiber1 side
+        channels_fiber1 = self.fiber1.get_client().list_channels({})
+        assert len(channels_fiber1["channels"]) >= 1
+        assert (
+            channels_fiber1["channels"][0]["failure_detail"] is None
+        ), "failure_detail should be null for a successfully opened channel on fiber1"
+
+        # Check fiber2 side
+        channels_fiber2 = self.fiber2.get_client().list_channels({})
+        assert len(channels_fiber2["channels"]) >= 1
+        assert (
+            channels_fiber2["channels"][0]["failure_detail"] is None
+        ), "failure_detail should be null for a successfully opened channel on fiber2"
 
     def test_only_pending_peer_disconnect_shows_failure(self):
         """
         When a peer disconnects during channel opening, the channel should
-        appear as failed in `list_channels(only_pending=true)` with failure_detail.
+        appear as failed in `list_channels(only_pending=true)`. Both sides
+        should be checked.
 
         Steps:
         1. Start fiber3 and connect to fiber2.
         2. Open a channel from fiber3 to fiber2 below auto-accept threshold.
-        3. Stop fiber2 to simulate disconnect before accept.
+        3. Disconnect fiber2 from fiber3 to simulate disconnect before accept.
         4. Wait for the channel actor to detect the disconnect and mark failure.
-        5. Verify list_channels(only_pending=true) on fiber3 shows the failed channel.
+        5. Verify list_channels(only_pending=true) on fiber3 has no CHANNEL_READY.
+        6. Verify list_channels(only_pending=true) on fiber2 has no CHANNEL_READY.
+        7. Verify normal list_channels on both sides has no CHANNEL_READY.
         """
         account3_private_key = self.generate_account(1000)
         fiber3 = self.start_new_fiber(account3_private_key)
@@ -412,26 +521,46 @@ class TestListChannelsOnlyPending(FiberTest):
         # Wait for channel to detect disconnection and fail
         time.sleep(5)
 
-        # Check pending channels on fiber3
-        pending_channels = fiber3.get_client().list_channels({"only_pending": True})
-
-        # The channel should appear (possibly as failed/closed or still pending)
-        # After disconnect, the channel actor may detect the disconnection and mark failure.
-        # We check that no CHANNEL_READY channels appear in the pending list.
-        ready_in_pending = [
+        # Step 5: Check pending channels on fiber3
+        pending_channels_fiber3 = fiber3.get_client().list_channels(
+            {"only_pending": True}
+        )
+        ready_in_pending_fiber3 = [
             ch
-            for ch in pending_channels["channels"]
+            for ch in pending_channels_fiber3["channels"]
             if ch["state"]["state_name"] == "CHANNEL_READY"
         ]
         assert (
-            len(ready_in_pending) == 0
-        ), "CHANNEL_READY channels should not appear when only_pending=true"
+            len(ready_in_pending_fiber3) == 0
+        ), "CHANNEL_READY channels should not appear when only_pending=true on fiber3"
 
-        # Also verify the channel doesn't show in the normal (non-pending) list
-        normal_channels = fiber3.get_client().list_channels({})
-        ready_channels = [
+        # Step 6: Check pending channels on fiber2 (the peer side)
+        pending_channels_fiber2 = self.fiber2.get_client().list_channels(
+            {"only_pending": True}
+        )
+        ready_in_pending_fiber2 = [
             ch
-            for ch in normal_channels["channels"]
+            for ch in pending_channels_fiber2["channels"]
             if ch["state"]["state_name"] == "CHANNEL_READY"
         ]
-        assert len(ready_channels) == 0
+        assert (
+            len(ready_in_pending_fiber2) == 0
+        ), "CHANNEL_READY channels should not appear when only_pending=true on fiber2"
+
+        # Step 7: Also verify no CHANNEL_READY in the normal list on both sides
+        normal_channels_fiber3 = fiber3.get_client().list_channels({})
+        ready_channels_fiber3 = [
+            ch
+            for ch in normal_channels_fiber3["channels"]
+            if ch["state"]["state_name"] == "CHANNEL_READY"
+        ]
+        assert len(ready_channels_fiber3) == 0
+
+        normal_channels_fiber2 = self.fiber2.get_client().list_channels({})
+        ready_channels_fiber2 = [
+            ch
+            for ch in normal_channels_fiber2["channels"]
+            if ch["state"]["state_name"] == "CHANNEL_READY"
+            and ch["peer_id"] == fiber3.get_peer_id()
+        ]
+        assert len(ready_channels_fiber2) == 0
