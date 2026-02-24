@@ -18,9 +18,9 @@ class TestInsufficientBalance(FiberTest):
     - MPP: sum(outbound_liquidity across all source channels) < amount
     """
 
-    def test_non_mpp_amount_exceeds_single_channel_capacity(self):
+    def test_non_mpp_amount_exceeds_single_channel_outbound(self):
         """
-        Non-MPP: source has one channel with capacity X.
+        Non-MPP: source has one channel with outbound liquidity X.
         Sending amount > X should fail early with InsufficientBalance.
         """
         self.open_channel(self.fiber1, self.fiber2, 1000 * 100000000, 0)
@@ -147,7 +147,7 @@ class TestInsufficientBalance(FiberTest):
         # (it may succeed or fail for other routing reasons, but not InsufficientBalance)
         self.send_invoice_payment(self.fiber1, self.fiber2, 800 * 100000000)
 
-    def test_non_mpp_dry_run_amount_exceeds_capacity(self):
+    def test_non_mpp_dry_run_amount_exceeds_outbound(self):
         """
         Non-MPP with dry_run: amount exceeds outbound liquidity should fail
         with InsufficientBalance even in dry_run mode.
