@@ -1,7 +1,5 @@
 import time
 
-import pytest
-
 from framework.basic_fiber import FiberTest
 
 
@@ -167,14 +165,13 @@ class TestListChannelsOnlyPending(FiberTest):
         with `failure_detail` set.
 
         Steps:
-        1. Open a channel from fiber1 to fiber2 (auto-accept).
-        2. Before the channel is ready, stop fiber2 to simulate peer disconnection.
-        3. Wait for the channel to fail.
-        4. Call list_channels(only_pending=true) on fiber1.
-        5. Verify a failed channel record appears with failure_detail.
+        1. Start fiber3 and open a channel to fiber2 below auto-accept threshold.
+        2. Abandon the channel on fiber3 to trigger a failure.
+        3. Call list_channels(only_pending=true) on fiber3.
+        4. Verify a failed channel record appears with appropriate close flags.
         """
         # Step 1: Open channel below auto-accept threshold from fiber3 to fiber2
-        # so that it requires manual accept, giving us time to disconnect
+        # so that it requires manual accept, giving us time to abandon it
         account3_private_key = self.generate_account(1000)
         fiber3 = self.start_new_fiber(account3_private_key)
         fiber3.connect_peer(self.fiber2)
@@ -351,9 +348,16 @@ class TestListChannelsOnlyPending(FiberTest):
         pending_channels = fiber3.get_client().list_channels({"only_pending": True})
 
         # The channel should appear (possibly as failed/closed or still pending)
-        # After disconnect, pending channels that haven't been accepted may
-        # show up with failure_detail or in a failed state
-        assert len(pending_channels["channels"]) >= 0  # May or may not have records
+        # After disconnect, the channel actor may detect the disconnection and mark failure.
+        # We check that no CHANNEL_READY channels appear in the pending list.
+        ready_in_pending = [
+            ch
+            for ch in pending_channels["channels"]
+            if ch["state"]["state_name"] == "CHANNEL_READY"
+        ]
+        assert (
+            len(ready_in_pending) == 0
+        ), "CHANNEL_READY channels should not appear when only_pending=true"
 
         # Also verify the channel doesn't show in the normal (non-pending) list
         normal_channels = fiber3.get_client().list_channels({})
