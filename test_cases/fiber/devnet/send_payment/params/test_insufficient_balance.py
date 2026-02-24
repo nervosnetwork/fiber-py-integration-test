@@ -23,7 +23,8 @@ class TestInsufficientBalance(FiberTest):
         Non-MPP: source has one channel with outbound liquidity X.
         Sending amount > X should fail early with InsufficientBalance.
         """
-        self.open_channel(self.fiber1, self.fiber2, 1000 * 100000000, 0)
+        self.open_channel(self.fiber1, self.fiber2, 1200 * 100000000, 120 * 100000000)
+
         time.sleep(1)
 
         with pytest.raises(Exception) as exc_info:
@@ -34,7 +35,26 @@ class TestInsufficientBalance(FiberTest):
                     "keysend": True,
                 }
             )
-        expected_error_message = "Insufficient balance"
+        expected_error_message = "max outbound liquidity 120000000000 is insufficient, required amount: 200000000000"
+        assert expected_error_message in exc_info.value.args[0], (
+            f"Expected substring '{expected_error_message}' "
+            f"not found in actual string '{exc_info.value.args[0]}'"
+        )
+
+        with pytest.raises(Exception) as exc_info:
+            self.fiber1.get_client().send_payment(
+                {
+                    "target_pubkey": self.fiber2.get_client().node_info()["node_id"],
+                    "amount": hex(2000 * 100000000),
+                    "keysend": True,
+                    "udt_type_script": self.get_account_udt_script(
+                        self.fiber1.account_private
+                    ),
+                }
+            )
+        expected_error_message = (
+            "max outbound liquidity 0 is insufficient, required amount: 200000000000"
+        )
         assert expected_error_message in exc_info.value.args[0], (
             f"Expected substring '{expected_error_message}' "
             f"not found in actual string '{exc_info.value.args[0]}'"
@@ -88,7 +108,7 @@ class TestInsufficientBalance(FiberTest):
         Sending 1500 (> total 1000) should also fail with InsufficientBalance.
         """
         self.open_channel(self.fiber1, self.fiber2, 500 * 100000000, 0)
-        self.open_channel(self.fiber1, self.fiber2, 500 * 100000000, 0)
+        self.open_channel(self.fiber1, self.fiber2, 600 * 100000000, 0)
         time.sleep(1)
 
         with pytest.raises(Exception) as exc_info:
@@ -99,7 +119,7 @@ class TestInsufficientBalance(FiberTest):
                     "keysend": True,
                 }
             )
-        expected_error_message = "Insufficient balance"
+        expected_error_message = "max outbound liquidity 60000000000 is insufficient, required amount: 150000000000"
         assert expected_error_message in exc_info.value.args[0], (
             f"Expected substring '{expected_error_message}' "
             f"not found in actual string '{exc_info.value.args[0]}'"
@@ -116,17 +136,8 @@ class TestInsufficientBalance(FiberTest):
         time.sleep(1)
 
         with pytest.raises(Exception) as exc_info:
-            self.fiber1.get_client().send_payment(
-                {
-                    "target_pubkey": self.fiber2.get_client().node_info()["node_id"],
-                    "amount": hex(1500 * 100000000),
-                    "keysend": True,
-                    "allow_self_payment": True,
-                    "max_parts": hex(4),
-                    "max_fee_rate": hex(1000000000000000),
-                }
-            )
-        expected_error_message = "Insufficient balance"
+            self.send_invoice_payment(self.fiber1, self.fiber2, 1500 * 100000000)
+        expected_error_message = "total outbound liquidity 100000000000 is insufficient, required amount: 150000000000"
         assert expected_error_message in exc_info.value.args[0], (
             f"Expected substring '{expected_error_message}' "
             f"not found in actual string '{exc_info.value.args[0]}'"
@@ -229,7 +240,9 @@ class TestInsufficientBalance(FiberTest):
                     "keysend": True,
                 }
             )
-        expected_error_message = "Insufficient balance"
+        expected_error_message = (
+            "max outbound liquidity 0 is insufficient, required amount: 10000000000"
+        )
         assert expected_error_message in exc_info.value.args[0], (
             f"Expected substring '{expected_error_message}' "
             f"not found in actual string '{exc_info.value.args[0]}'"
@@ -263,7 +276,6 @@ class TestInsufficientBalance(FiberTest):
                     "amount": hex(300 * 100000000),
                     "keysend": True,
                     "allow_self_payment": True,
-                    "max_parts": hex(4),
                     "max_fee_rate": hex(1000000000000000),
                 }
             )
