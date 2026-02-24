@@ -158,6 +158,74 @@ class TestListChannelsOnlyPending(FiberTest):
         ]
         assert len(ready_in_pending) == 0
 
+    def test_only_pending_initiator_sees_outbound_pending_channel(self):
+        """
+        When fiber1 opens a channel with a funding amount below the auto-accept
+        threshold, the channel is not auto-accepted and requires manual
+        `accept_channel` from fiber2. Before acceptance, the initiator (fiber1)
+        should also be able to see its own pending outbound channel via
+        `list_channels(only_pending=true)`.
+
+        This complements test_only_pending_shows_inbound_waiting_for_accept which
+        only verifies the acceptor (fiber2) side.
+
+        Steps:
+        1. Get the auto-accept min funding amount from fiber2.
+        2. fiber1 opens a channel with funding_amount below the threshold.
+        3. fiber1 calls list_channels(only_pending=true).
+        4. Verify the pending outbound channel is returned on the initiator side
+           (fiber1) with is_acceptor=false.
+        5. fiber2 calls list_channels(only_pending=true).
+        6. Verify fiber2 also sees the pending inbound channel.
+        """
+        # Step 1: Get auto-accept threshold
+        node_info = self.fiber2.get_client().node_info()
+        auto_accept_min = int(
+            node_info["open_channel_auto_accept_min_ckb_funding_amount"], 16
+        )
+
+        # Step 2: Open channel below threshold (requires manual accept)
+        self.fiber1.get_client().open_channel(
+            {
+                "peer_id": self.fiber2.get_peer_id(),
+                "funding_amount": hex(auto_accept_min - 1),
+                "public": True,
+            }
+        )
+        time.sleep(2)
+
+        # Step 3: On the initiator (fiber1), list_channels with only_pending=true
+        pending_channels_fiber1 = self.fiber1.get_client().list_channels(
+            {"only_pending": True}
+        )
+
+        # Step 4: Verify the outbound pending channel appears on the initiator side
+        outbound_pending = [
+            ch
+            for ch in pending_channels_fiber1["channels"]
+            if ch["is_acceptor"] is False
+        ]
+        assert len(outbound_pending) >= 1, (
+            "Initiator (fiber1) should see its own pending outbound channel "
+            "in list_channels(only_pending=true) before peer accepts"
+        )
+
+        # Step 5: On the acceptor (fiber2), list_channels with only_pending=true
+        pending_channels_fiber2 = self.fiber2.get_client().list_channels(
+            {"only_pending": True}
+        )
+
+        # Step 6: Verify fiber2 also sees the pending inbound channel
+        inbound_pending = [
+            ch
+            for ch in pending_channels_fiber2["channels"]
+            if ch["is_acceptor"] is True
+        ]
+        assert len(inbound_pending) >= 1, (
+            "Acceptor (fiber2) should see the pending inbound channel "
+            "in list_channels(only_pending=true)"
+        )
+
     def test_only_pending_shows_failed_channel_with_failure_detail(self):
         """
         When an outbound channel opening fails (e.g. peer disconnects during
