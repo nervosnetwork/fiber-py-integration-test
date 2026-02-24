@@ -304,7 +304,8 @@ class TestListChannelsOnlyPending(FiberTest):
         1. Start fiber3 and open a channel to fiber2 below auto-accept threshold.
         2. Abandon the channel on fiber3 to trigger a failure.
         3. Call list_channels(only_pending=true) on fiber3.
-        4. Verify a failed channel record appears with appropriate close flags.
+        4. Verify a failed channel record appears with appropriate close flags
+           and a non-empty failure_detail string.
         5. Call list_channels(only_pending=true) on fiber2 to verify peer side state.
         """
         # Step 1: Open channel below auto-accept threshold from fiber3 to fiber2
@@ -339,20 +340,32 @@ class TestListChannelsOnlyPending(FiberTest):
             {"only_pending": True}
         )
 
-        # There should be at least one failed/abandoned channel record
-        # It may show as Closed(ABANDONED) or Closed(FUNDING_ABORTED) with failure_detail
+        # Step 4: There MUST be at least one failed/abandoned channel record
         failed_channels_fiber3 = [
             ch
             for ch in pending_channels_fiber3["channels"]
             if ch["state"]["state_name"] == "CLOSED"
         ]
-        # The abandoned channel should appear with failure info
-        if len(failed_channels_fiber3) > 0:
-            for fc in failed_channels_fiber3:
-                assert fc["state"]["state_flags"] in (
-                    "ABANDONED",
-                    "FUNDING_ABORTED",
-                ), f"Unexpected close flag on fiber3: {fc['state']['state_flags']}"
+        assert (
+            len(failed_channels_fiber3) >= 1
+        ), "Abandoned channel should appear as CLOSED in only_pending=true on fiber3"
+
+        for fc in failed_channels_fiber3:
+            # Verify close flags
+            assert fc["state"]["state_flags"] in (
+                "ABANDONED",
+                "FUNDING_ABORTED",
+            ), f"Unexpected close flag on fiber3: {fc['state']['state_flags']}"
+            # Verify failure_detail is present and non-empty
+            assert (
+                fc["failure_detail"] is not None
+            ), "failure_detail must not be None for abandoned channel on fiber3"
+            assert isinstance(
+                fc["failure_detail"], str
+            ), f"failure_detail should be a string, got {type(fc['failure_detail'])}"
+            assert (
+                len(fc["failure_detail"]) > 0
+            ), "failure_detail must not be empty for abandoned channel on fiber3"
 
         # Step 5: Check only_pending=true on fiber2 (the peer side)
         # After fiber3 abandons, fiber2 should not have a CHANNEL_READY channel
@@ -564,3 +577,215 @@ class TestListChannelsOnlyPending(FiberTest):
             and ch["peer_id"] == fiber3.get_peer_id()
         ]
         assert len(ready_channels_fiber2) == 0
+
+    def test_only_pending_survives_restart_ready_channel(self):
+        """
+        After a channel reaches CHANNEL_READY, restarting both nodes should not
+        affect the `only_pending=true` query: the CHANNEL_READY channel should
+        still be excluded from `only_pending=true` and still visible in the
+        default `list_channels` on both sides.
+
+        Steps:
+        1. Open a channel and wait for CHANNEL_READY on both sides.
+        2. Verify only_pending=true excludes it on both sides before restart.
+        3. Restart fiber1 and fiber2.
+        4. Reconnect and wait for peers.
+        5. Verify only_pending=true still excludes the CHANNEL_READY channel
+           on both sides after restart.
+        6. Verify default list_channels still shows the CHANNEL_READY channel
+           on both sides after restart.
+        """
+        # Step 1: Open channel and wait for CHANNEL_READY
+        self.fiber1.get_client().open_channel(
+            {
+                "peer_id": self.fiber2.get_peer_id(),
+                "funding_amount": hex(1000 * 100000000),
+                "public": True,
+            }
+        )
+        self.wait_for_channel_state(
+            self.fiber1.get_client(), self.fiber2.get_peer_id(), "CHANNEL_READY", 120
+        )
+        self.wait_for_channel_state(
+            self.fiber2.get_client(), self.fiber1.get_peer_id(), "CHANNEL_READY", 120
+        )
+
+        # Step 2: Verify only_pending=true excludes CHANNEL_READY before restart
+        pending_fiber1_before = self.fiber1.get_client().list_channels(
+            {"only_pending": True}
+        )
+        assert all(
+            ch["state"]["state_name"] != "CHANNEL_READY"
+            for ch in pending_fiber1_before["channels"]
+        ), "CHANNEL_READY should not appear in only_pending=true on fiber1 before restart"
+
+        pending_fiber2_before = self.fiber2.get_client().list_channels(
+            {"only_pending": True}
+        )
+        assert all(
+            ch["state"]["state_name"] != "CHANNEL_READY"
+            for ch in pending_fiber2_before["channels"]
+        ), "CHANNEL_READY should not appear in only_pending=true on fiber2 before restart"
+
+        # Step 3: Restart both fiber nodes
+        self.fiber1.stop()
+        self.fiber2.stop()
+        self.fiber1.start()
+        self.fiber2.start()
+        time.sleep(3)
+
+        # Step 4: Reconnect peers
+        self.fiber1.connect_peer(self.fiber2)
+        time.sleep(3)
+
+        # Step 5: Verify only_pending=true still excludes CHANNEL_READY after restart
+        pending_fiber1_after = self.fiber1.get_client().list_channels(
+            {"only_pending": True}
+        )
+        assert all(
+            ch["state"]["state_name"] != "CHANNEL_READY"
+            for ch in pending_fiber1_after["channels"]
+        ), "CHANNEL_READY should not appear in only_pending=true on fiber1 after restart"
+
+        pending_fiber2_after = self.fiber2.get_client().list_channels(
+            {"only_pending": True}
+        )
+        assert all(
+            ch["state"]["state_name"] != "CHANNEL_READY"
+            for ch in pending_fiber2_after["channels"]
+        ), "CHANNEL_READY should not appear in only_pending=true on fiber2 after restart"
+
+        # Step 6: Verify default list still shows the CHANNEL_READY channel after restart
+        all_channels_fiber1 = self.fiber1.get_client().list_channels({})
+        ready_fiber1 = [
+            ch
+            for ch in all_channels_fiber1["channels"]
+            if ch["state"]["state_name"] == "CHANNEL_READY"
+        ]
+        assert (
+            len(ready_fiber1) >= 1
+        ), "CHANNEL_READY channel should still be visible in default list on fiber1 after restart"
+
+        all_channels_fiber2 = self.fiber2.get_client().list_channels({})
+        ready_fiber2 = [
+            ch
+            for ch in all_channels_fiber2["channels"]
+            if ch["state"]["state_name"] == "CHANNEL_READY"
+        ]
+        assert (
+            len(ready_fiber2) >= 1
+        ), "CHANNEL_READY channel should still be visible in default list on fiber2 after restart"
+
+    def test_only_pending_survives_restart_abandoned_channel(self):
+        """
+        After a channel is abandoned and visible in `only_pending=true` with
+        a non-empty `failure_detail`, restarting the node should preserve that
+        failed record: it should still appear in `only_pending=true` with the
+        same failure information.
+
+        Steps:
+        1. Start fiber3 and open a channel to fiber2 below auto-accept threshold.
+        2. Abandon the channel on fiber3.
+        3. Verify the abandoned channel appears in only_pending=true on fiber3
+           with failure_detail and correct close flags.
+        4. Restart fiber3.
+        5. After restart, verify the abandoned channel still appears in
+           only_pending=true on fiber3 with failure_detail and correct close flags.
+        """
+        # Step 1: Start fiber3 and open channel below auto-accept threshold
+        account3_private_key = self.generate_account(1000)
+        fiber3 = self.start_new_fiber(account3_private_key)
+        fiber3.connect_peer(self.fiber2)
+        time.sleep(1)
+
+        node_info = fiber3.get_client().node_info()
+        auto_accept_min = int(
+            node_info["open_channel_auto_accept_min_ckb_funding_amount"], 16
+        )
+
+        temporary_channel = fiber3.get_client().open_channel(
+            {
+                "peer_id": self.fiber2.get_peer_id(),
+                "funding_amount": hex(auto_accept_min - 1),
+                "public": True,
+            }
+        )
+        time.sleep(1)
+
+        # Step 2: Abandon the channel
+        fiber3.get_client().abandon_channel(
+            {"channel_id": temporary_channel["temporary_channel_id"]}
+        )
+        time.sleep(2)
+
+        # Step 3: Verify before restart — failed channel must appear with failure_detail
+        pending_before = fiber3.get_client().list_channels({"only_pending": True})
+        failed_before = [
+            ch
+            for ch in pending_before["channels"]
+            if ch["state"]["state_name"] == "CLOSED"
+        ]
+        assert (
+            len(failed_before) >= 1
+        ), "Abandoned channel should appear as CLOSED in only_pending=true on fiber3 before restart"
+
+        for fc in failed_before:
+            assert fc["state"]["state_flags"] in (
+                "ABANDONED",
+                "FUNDING_ABORTED",
+            ), f"Unexpected close flag before restart: {fc['state']['state_flags']}"
+            assert (
+                fc["failure_detail"] is not None
+            ), "failure_detail must not be None for abandoned channel before restart"
+            assert (
+                isinstance(fc["failure_detail"], str) and len(fc["failure_detail"]) > 0
+            ), "failure_detail must be a non-empty string before restart"
+
+        # Save channel info for comparison after restart
+        failed_channel_id_before = failed_before[0]["channel_id"]
+        failure_detail_before = failed_before[0]["failure_detail"]
+
+        # Step 4: Restart fiber3
+        fiber3.stop()
+        fiber3.start()
+        time.sleep(3)
+
+        # Step 5: After restart, verify the abandoned channel still appears
+        pending_after = fiber3.get_client().list_channels({"only_pending": True})
+        failed_after = [
+            ch
+            for ch in pending_after["channels"]
+            if ch["state"]["state_name"] == "CLOSED"
+        ]
+        assert (
+            len(failed_after) >= 1
+        ), "Abandoned channel should still appear as CLOSED in only_pending=true on fiber3 after restart"
+
+        for fc in failed_after:
+            assert fc["state"]["state_flags"] in (
+                "ABANDONED",
+                "FUNDING_ABORTED",
+            ), f"Unexpected close flag after restart: {fc['state']['state_flags']}"
+            assert (
+                fc["failure_detail"] is not None
+            ), "failure_detail must not be None for abandoned channel after restart"
+            assert (
+                isinstance(fc["failure_detail"], str) and len(fc["failure_detail"]) > 0
+            ), "failure_detail must be a non-empty string after restart"
+
+        # Verify same channel is present and failure_detail is preserved
+        failed_channel_ids_after = [fc["channel_id"] for fc in failed_after]
+        assert (
+            failed_channel_id_before in failed_channel_ids_after
+        ), "The same abandoned channel should be present after restart"
+        matching_channel = next(
+            (fc for fc in failed_after if fc["channel_id"] == failed_channel_id_before),
+            None,
+        )
+        assert (
+            matching_channel is not None
+        ), "Abandoned channel should be found by channel_id after restart"
+        assert matching_channel["failure_detail"] == failure_detail_before, (
+            f"failure_detail should be preserved after restart. "
+            f"Before: {failure_detail_before}, After: {matching_channel['failure_detail']}"
+        )
