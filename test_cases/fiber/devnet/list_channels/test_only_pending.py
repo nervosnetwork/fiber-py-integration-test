@@ -789,3 +789,93 @@ class TestListChannelsOnlyPending(FiberTest):
             f"failure_detail should be preserved after restart. "
             f"Before: {failure_detail_before}, After: {matching_channel['failure_detail']}"
         )
+
+    def test_only_pending_no_duplicate_channel_ids_before_accept(self):
+        """
+        When fiber1 opens a channel with funding_amount below the auto-accept
+        threshold (requiring manual accept_channel from fiber2), the
+        `list_channels(only_pending=true)` results on both sides should:
+
+        - Return exactly one channel entry per channel_id (no duplicates).
+        - On the initiator (fiber1), local_balance should reflect the
+          funding amount (not 0x0).
+        - On the acceptor (fiber2), remote_balance should reflect the
+          initiator's funding amount (not 0x0), and there should be
+          exactly one channel entry (not two with different remote_balance).
+
+        This reproduces a bug where fiber2 returned two channels with the
+        same channel_id: one with remote_balance=0x0 and another with
+        remote_balance != 0x0.
+
+        Steps:
+        1. Get the auto-accept min funding amount.
+        2. Open a channel with funding_amount below the threshold.
+        3. On both sides, call list_channels(only_pending=true).
+        4. Verify no duplicate channel_ids on either side.
+        5. Verify fiber1's local_balance matches funding_amount.
+        6. Verify fiber2's remote_balance matches funding_amount.
+        """
+        # Step 1: Get auto-accept threshold
+        node_info = self.fiber1.get_client().node_info()
+        auto_accept_min = int(
+            node_info["open_channel_auto_accept_min_ckb_funding_amount"], 16
+        )
+
+        # Step 2: Open channel below threshold (requires manual accept)
+        funding_amount = auto_accept_min - 1
+        self.fiber1.get_client().open_channel(
+            {
+                "peer_id": self.fiber2.get_peer_id(),
+                "funding_amount": hex(funding_amount),
+                "public": True,
+            }
+        )
+        time.sleep(2)
+
+        # Step 3: Query both sides
+        pending_fiber1 = self.fiber1.get_client().list_channels({"only_pending": True})
+        pending_fiber2 = self.fiber2.get_client().list_channels({"only_pending": True})
+
+        # Step 4a: Verify no duplicate channel_ids on fiber1
+        channel_ids_fiber1 = [ch["channel_id"] for ch in pending_fiber1["channels"]]
+        assert len(channel_ids_fiber1) == len(set(channel_ids_fiber1)), (
+            f"fiber1 list_channels(only_pending=true) returned duplicate channel_ids: "
+            f"{channel_ids_fiber1}"
+        )
+
+        # Step 4b: Verify no duplicate channel_ids on fiber2
+        channel_ids_fiber2 = [ch["channel_id"] for ch in pending_fiber2["channels"]]
+        assert len(channel_ids_fiber2) == len(set(channel_ids_fiber2)), (
+            f"fiber2 list_channels(only_pending=true) returned duplicate channel_ids: "
+            f"{channel_ids_fiber2}"
+        )
+
+        # Step 5: Verify fiber1 (initiator) has exactly one pending outbound channel
+        # and its local_balance reflects the funding_amount
+        outbound_pending = [
+            ch for ch in pending_fiber1["channels"] if ch["is_acceptor"] is False
+        ]
+        assert len(outbound_pending) == 1, (
+            f"fiber1 should have exactly 1 pending outbound channel, "
+            f"got {len(outbound_pending)}"
+        )
+        fiber1_local_balance = int(outbound_pending[0]["local_balance"], 16)
+        assert fiber1_local_balance > 0, (
+            f"Initiator (fiber1) local_balance should reflect the funding amount "
+            f"(expected > 0), got {hex(fiber1_local_balance)}"
+        )
+
+        # Step 6: Verify fiber2 (acceptor) has exactly one pending inbound channel
+        # and its remote_balance reflects the initiator's funding amount
+        inbound_pending = [
+            ch for ch in pending_fiber2["channels"] if ch["is_acceptor"] is True
+        ]
+        assert len(inbound_pending) == 1, (
+            f"fiber2 should have exactly 1 pending inbound channel, "
+            f"got {len(inbound_pending)}"
+        )
+        fiber2_remote_balance = int(inbound_pending[0]["remote_balance"], 16)
+        assert fiber2_remote_balance > 0, (
+            f"Acceptor (fiber2) remote_balance should reflect the initiator's "
+            f"funding amount (expected > 0), got {hex(fiber2_remote_balance)}"
+        )
