@@ -53,7 +53,10 @@ class TestRouter(FiberTest):
                 }
             )
         expected_error_message = "Insufficient balance"
-        assert expected_error_message in exc_info.value.args[0] or "no path found" in exc_info.value.args[0], (
+        assert (
+            expected_error_message in exc_info.value.args[0]
+            or "no path found" in exc_info.value.args[0]
+        ), (
             f"Expected substring '{expected_error_message}' or 'no path found' "
             f"not found in actual string '{exc_info.value.args[0]}'"
         )
