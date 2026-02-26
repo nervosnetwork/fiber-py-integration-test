@@ -10,9 +10,9 @@ from framework.test_fiber import FiberConfigPath
 class TestData(FiberTest):
     # debug = True
     # @pytest.mark.skip("migration failed")
-    def test_old_fiber_061(self):
+    def test_old_fiber(self):
         """
-         1. start fiber 0.6.1
+         1. start fiber
          2. open_channel with fiber
          3. stress test with fiber
          4. stop fiber
@@ -22,7 +22,7 @@ class TestData(FiberTest):
          8. send_payment
         Returns:
         """
-        # 1. start fiber 0.6.1
+        # 1. start fiber
         old_fiber_1 = self.start_new_fiber(
             self.generate_account(10000), fiber_version=FiberConfigPath.V061_DEV
         )
