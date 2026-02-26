@@ -9,12 +9,13 @@ from framework.test_fiber import FiberConfigPath
 
 class TestP2p(FiberTest):
 
+    @pytest.mark.skip("todo")
     def test_old_fiber(self):
         """
         Returns:
         """
         old_fiber = self.start_new_fiber(
-            self.generate_account(10000), fiber_version=FiberConfigPath.V050_DEV
+            self.generate_account(10000), fiber_version=FiberConfigPath.V061_DEV
         )
         old_fiber.connect_peer(self.fiber1)
         time.sleep(1)

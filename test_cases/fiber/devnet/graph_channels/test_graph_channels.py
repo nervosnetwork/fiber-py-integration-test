@@ -132,26 +132,15 @@ class TestGraphChannels(FiberTest):
 
         # Step 11: Check the graph channels for node1, node2, and node3
         time.sleep(1)
-        node1_channels = self.fiber1.get_client().graph_channels()
-        node2_channels = self.fiber2.get_client().graph_channels()
-        node3_channels = self.fiber3.get_client().graph_channels()
-        print("n2-n3 创建 私有 channel")
-        print("node1_channels:", node1_channels)
-        assert len(node1_channels["channels"]) == 2
-        print("node2_channels", node2_channels)
-        assert len(node2_channels["channels"]) == 2
-        print("node3_channels", node3_channels)
-        assert len(node3_channels["channels"]) == 2
+        self.wait_graph_channels_sync(self.fiber1, 2)
+        self.wait_graph_channels_sync(self.fiber2, 2)
+        self.wait_graph_channels_sync(self.fiber3, 2)
 
         # Step 12: Start a new fiber and connect it to fiber3
         fiber4 = self.start_new_fiber(self.generate_random_preimage())
         fiber4.connect_peer(self.fiber3)
-        time.sleep(5)
-
         # Step 13: Check the graph channels for node4
-        node4_channels = fiber4.get_client().graph_channels()
-        print("node4_channels", node4_channels)
-        assert len(node4_channels["channels"]) == 2
+        self.wait_graph_channels_sync(fiber4, 2)
 
     # @pytest.mark.skip("remove failed ")
     def test_remove_channels_with_force(self):
@@ -201,17 +190,10 @@ class TestGraphChannels(FiberTest):
         self.wait_tx_pool(1)
         for i in range(10):
             self.Miner.miner_with_version(self.node, "0x0")
-        time.sleep(5)
-        node1_channels = self.fiber1.get_client().graph_channels()
-        node2_channels = self.fiber2.get_client().graph_channels()
-        node3_channels = self.fiber3.get_client().graph_channels()
-        print("关闭 n12 channel")
-        print("node1_channels:", node1_channels)
-        assert len(node1_channels["channels"]) == 1
-        print("node2_channels", node2_channels)
-        assert len(node2_channels["channels"]) == 1
-        print("node3_channels", node3_channels)
-        assert len(node3_channels["channels"]) == 1
+
+        self.wait_graph_channels_sync(self.fiber1, 1, 60)
+        self.wait_graph_channels_sync(self.fiber2, 1, 60)
+        self.wait_graph_channels_sync(self.fiber3, 1, 60)
 
         # force 关闭  channel
         N2N3_CHANNEL_ID = self.fiber3.get_client().list_channels({})["channels"][0][
@@ -233,17 +215,9 @@ class TestGraphChannels(FiberTest):
             60 * 5 + 10,
             True,
         )
-        time.sleep(10)
-        node1_channels = self.fiber1.get_client().graph_channels()
-        node2_channels = self.fiber2.get_client().graph_channels()
-        node3_channels = self.fiber3.get_client().graph_channels()
-        print("关闭 n12 channel")
-        print("node1_channels:", node1_channels)
-        assert len(node1_channels["channels"]) == 0
-        print("node2_channels", node2_channels)
-        assert len(node2_channels["channels"]) == 0
-        print("node3_channels", node3_channels)
-        assert len(node3_channels["channels"]) == 0
+        self.wait_graph_channels_sync(self.fiber1, 0, 60)
+        self.wait_graph_channels_sync(self.fiber2, 0, 60)
+        self.wait_graph_channels_sync(self.fiber3, 0, 60)
 
     def test_update_channel_info(self):
         """"""
