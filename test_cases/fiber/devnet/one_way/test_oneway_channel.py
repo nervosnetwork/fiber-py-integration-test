@@ -39,9 +39,9 @@ class TestOneWayChannel(FiberTest):
         )
         time.sleep(1)
 
-    def _get_channel_id(self, client, peer_id, include_closed=False):
+    def _get_channel_id(self, client, pubkey, include_closed=False):
         channels = client.list_channels(
-            {"pubkey": peer_id, "include_closed": include_closed}
+            {"pubkey": pubkey, "include_closed": include_closed}
         )
         assert len(channels["channels"]) > 0, channels
         return channels["channels"][0]["channel_id"]
