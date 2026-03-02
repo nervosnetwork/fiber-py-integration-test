@@ -54,7 +54,7 @@
 #         # self.fiber1.get_client().node_info()
 #         temporary_channel_id = self.fiber1.get_client().open_channel(
 #             {
-#                 "pubkey": "QmXen3eUHhywmutEzydCsW4hXBoeVmdET2FJvMX69XJ1Eo",
+#                 "pubkey": "02a3bb31f957085a3837460d2c18bbb3186a76fce2a563dbed62ec1a0e58cef512",
 #                 "funding_amount": hex(500 * 100000000),
 #                 "public": True,
 #                 # "tlc_fee_proportional_millionths": "0x4B0",

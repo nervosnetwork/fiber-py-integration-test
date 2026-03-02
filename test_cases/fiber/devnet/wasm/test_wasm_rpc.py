@@ -55,16 +55,10 @@ class WasmRpcTest(FiberTest):
         )
 
         # accept_channel
-        # get wasm fiber peer_id
-        list_peers = self.fiber1.get_client().list_peers()
         wasm_node_id = wasmFiber.get_client().node_info()["pubkey"]
-        for peer in list_peers["peers"]:
-            if peer["pubkey"] == wasm_node_id:
-                wasm_fiber_peer_id = peer["pubkey"]
-                break
         temporary_channel = self.fiber1.get_client().open_channel(
             {
-                "pubkey": wasm_fiber_peer_id,
+                "pubkey": wasm_node_id,
                 "funding_amount": hex(100 + DEFAULT_MIN_DEPOSIT_CKB),
                 "public": True,
             }

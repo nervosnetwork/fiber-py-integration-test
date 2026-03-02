@@ -31,5 +31,5 @@ class TestDisconnectPeer(FiberTest):
 
         # Step 5: Attempt to disconnect from a non-existing peer
         self.fiber1.get_client().disconnect_peer(
-            {"pubkey": "02000000000000000000000000000000000000000000000000000000000000000000"}
+            {"pubkey": "02192d74d0cb94344c9569c2e77901507e6d9cafd1cd71d2342635e11eeb0b4aaf"}
         )

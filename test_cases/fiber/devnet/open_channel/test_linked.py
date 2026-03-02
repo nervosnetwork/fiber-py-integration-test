@@ -17,7 +17,7 @@ class LinkedTest(FiberTest):
         with pytest.raises(Exception) as exc_info:
             ret = self.fiber1.get_client().open_channel(
                 {
-                    "pubkey": "QmQTR428wfY8s5wFTwU6ZaNBCJg1RwWbDFdP2r1WPNBQX1",
+                    "pubkey": "02a3bb31f957085a3837460d2c18bbb3186a76fce2a563dbed62ec1a0e58cef512",
                     "funding_amount": hex(1000 * 100000000),
                     "public": True,
                     "funding_udt_type_script": {
