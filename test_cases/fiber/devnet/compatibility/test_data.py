@@ -33,14 +33,19 @@ class TestData(FiberTest):
         time.sleep(1)
 
         # 2. open_channel with fiber
-        self.open_channel(
-            old_fiber_1, old_fiber_2, 1000 * 100000000, 1000 * 100000000, 1000, 1000
-        )
-
+        # self.open_channel(
+        #     old_fiber_1, old_fiber_2, 1000 * 100000000, 1000 * 100000000, 1000, 1000
+        # )
+        old_fiber_1.get_client().open_channel({
+                "peer_id": old_fiber_1.get_client().list_peers()["peers"][0]['peer_id'],
+                "funding_amount": hex(1000 * 100000000 + DEFAULT_MIN_DEPOSIT_CKB),
+                "public": True,
+        })
+        time.sleep(30)
         # 3. stress test with fiber
         for i in range(20):
-            self.send_payment(old_fiber_1, old_fiber_2, 1, False)
-            self.send_payment(old_fiber_2, old_fiber_1, 1, False)
+            self.send_invoice_payment(old_fiber_1, old_fiber_2, 1, False)
+            self.send_invoice_payment(old_fiber_2, old_fiber_1, 1, False)
 
         old_fiber_1.stop()
         old_fiber_2.stop()
