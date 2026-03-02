@@ -238,12 +238,12 @@ class TestRestart(FiberTest):
         for i in range(1, 7):
             self.fiber1.connect_peer(self.fibers[i])
         time.sleep(1)
-        fiber1_peer_id = self.fiber1.get_pubkey()
+        fiber1_pubkey = self.fiber1.get_pubkey()
         for j in range(10):
             for i in range(1, 7):
                 self.fibers[i].get_client().open_channel(
                     {
-                        "pubkey": fiber1_peer_id,
+                        "pubkey": fiber1_pubkey,
                         "funding_amount": hex(1000 * 100000000),
                         "public": True,
                     }

@@ -55,10 +55,10 @@ class WasmRpcTest(FiberTest):
         )
 
         # accept_channel
-        wasm_node_id = wasmFiber.get_client().node_info()["pubkey"]
+        wasm_node_pubkey = wasmFiber.get_client().node_info()["pubkey"]
         temporary_channel = self.fiber1.get_client().open_channel(
             {
-                "pubkey": wasm_node_id,
+                "pubkey": wasm_node_pubkey,
                 "funding_amount": hex(100 + DEFAULT_MIN_DEPOSIT_CKB),
                 "public": True,
             }

@@ -79,12 +79,12 @@ class TestWasmWatchTower(FiberTest):
         )
 
         self.open_channel(wasmFiber, self.fiber1, 1000 * 100000000, 1000 * 100000000)
-        wasm_node_id = wasmFiber.get_client().node_info()["pubkey"]
+        wasm_node_pubkey = wasmFiber.get_client().node_info()["pubkey"]
         before_fiber1_balance = self.get_fiber_balance(self.fiber1)
         self.fiber2.stop()
         payment = self.fiber1.get_client().send_payment(
             {
-                "target_pubkey": wasm_node_id,
+                "target_pubkey": wasm_node_pubkey,
                 "amount": hex(1 * 100000000),
                 "keysend": True,
                 "allow_self_payment": True,

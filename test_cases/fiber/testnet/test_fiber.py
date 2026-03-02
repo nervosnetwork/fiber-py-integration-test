@@ -339,10 +339,10 @@ def send_payment(
     raise TimeoutError("payment timeout")
 
 
-def wait_for_channel_state(client, peer_id, expected_state, timeout=120):
+def wait_for_channel_state(client, pubkey, expected_state, timeout=120):
     """Wait for a channel to reach a specific state."""
     for _ in range(timeout):
-        channels = client.list_channels({"pubkey": peer_id, "include_closed": True})
+        channels = client.list_channels({"pubkey": pubkey, "include_closed": True})
         if channels["channels"][0]["state"]["state_name"] == expected_state:
             print(f"Channel reached expected state: {expected_state}")
             return channels["channels"][0]["channel_id"]

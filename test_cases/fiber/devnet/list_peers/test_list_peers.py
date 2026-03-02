@@ -16,7 +16,7 @@ class TestListPeers(FiberTest):
             peer["peers"][0]["address"]
             in self.fiber2.get_client().node_info()["addresses"]
         )
-        assert peer["peers"][0]["pubkey"] is not None
+        assert len(peer["peers"][0]["pubkey"]) == 66
         # https://github.com/nervosnetwork/fiber/issues/718
         peers = self.fiber2.get_client().list_peers()
         assert len(peers["peers"][0]["address"]) != None

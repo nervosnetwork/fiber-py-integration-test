@@ -66,8 +66,8 @@ class TestSendPaymentWithRouter(FiberTest):
             self.fibers[3].get_client(), self.fibers[0].get_pubkey(), "CHANNEL_READY"
         )
         # 查看d-a的channeloutpoint，预期能调用成功
-        print(f"a peer_id:{self.fibers[0].get_pubkey()}")
-        print(f"d peer_id:{self.fibers[3].get_pubkey()}")
+        print(f"a pubkey:{self.fibers[0].get_pubkey()}")
+        print(f"d pubkey:{self.fibers[3].get_pubkey()}")
         channels = (
             self.fibers[3]
             .get_client()
@@ -156,8 +156,8 @@ class TestSendPaymentWithRouter(FiberTest):
             self.fibers[3].get_client(), self.fibers[0].get_pubkey(), "CHANNEL_READY"
         )
         # 查看d-a的channeloutpoint，预期能调用成功
-        print(f"a peer_id:{self.fibers[0].get_pubkey()}")
-        print(f"d peer_id:{self.fibers[3].get_pubkey()}")
+        print(f"a pubkey:{self.fibers[0].get_pubkey()}")
+        print(f"d pubkey:{self.fibers[3].get_pubkey()}")
         channels = (
             self.fibers[3]
             .get_client()
