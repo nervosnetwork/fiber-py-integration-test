@@ -267,9 +267,7 @@ class TestAllowTrampolineRouting(FiberTest):
                     "keysend": True,
                     "max_fee_amount": hex(10000000),
                     "tlc_expiry_limit": hex(1000),
-                    "trampoline_hops": [
-                        self.fiber2.get_client().node_info()["pubkey"]
-                    ],
+                    "trampoline_hops": [self.fiber2.get_client().node_info()["pubkey"]],
                 }
             )
         error_str = str(exc_info.value).lower()
@@ -287,9 +285,7 @@ class TestAllowTrampolineRouting(FiberTest):
                     "amount": hex(10 * 100000000),
                     "keysend": True,
                     "max_fee_amount": hex(10000000),
-                    "trampoline_hops": [
-                        self.fiber1.get_client().node_info()["pubkey"]
-                    ],
+                    "trampoline_hops": [self.fiber1.get_client().node_info()["pubkey"]],
                 }
             )
         error_str = str(exc_info.value).lower()

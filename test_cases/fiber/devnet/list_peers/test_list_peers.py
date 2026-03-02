@@ -9,8 +9,7 @@ class TestListPeers(FiberTest):
     def test_01(self):
         peer = self.fiber1.get_client().list_peers()
         assert (
-            peer["peers"][0]["pubkey"]
-            == self.fiber2.get_client().node_info()["pubkey"]
+            peer["peers"][0]["pubkey"] == self.fiber2.get_client().node_info()["pubkey"]
         )
         assert (
             peer["peers"][0]["address"]

@@ -313,9 +313,7 @@ class TestAllowSelfPayment(FiberTest):
             try:
                 payment1 = self.fiber1.get_client().send_payment(
                     {
-                        "target_pubkey": self.fiber1.get_client().node_info()[
-                            "pubkey"
-                        ],
+                        "target_pubkey": self.fiber1.get_client().node_info()["pubkey"],
                         "amount": hex(6 * 10000000),
                         "keysend": True,
                         "allow_self_payment": True,

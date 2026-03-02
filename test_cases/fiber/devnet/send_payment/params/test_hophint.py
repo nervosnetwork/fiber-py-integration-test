@@ -190,9 +190,7 @@ class TestHopHint(FiberTest):  # a-b
                     "keysend": True,
                     "hop_hints": [
                         {
-                            "pubkey": self.fibers[3]
-                            .get_client()
-                            .node_info()["pubkey"],
+                            "pubkey": self.fibers[3].get_client().node_info()["pubkey"],
                             # 填的是 d 的 pubkey，表示在 d 节点使用 channel_outpoint 到 a
                             "channel_outpoint": da_channel_outpoint,
                             "fee_rate": hex(1000),

@@ -14,7 +14,7 @@ on:
         default: 'https://github.com/nervosnetwork/fiber.git'
       GitBranch:
         description: 'fiber -git branch'
-        default: 'develop'
+        default: 'quake/remove-peerid-from-rpc'
   schedule:
     - cron: '0 0 */7 * *'
 

@@ -82,9 +82,7 @@ class TestBuildRouter(FiberTest):
                     "udt_type_script": None,
                     "hops_info": [
                         {
-                            "pubkey": self.fibers[0]
-                            .get_client()
-                            .node_info()["pubkey"],
+                            "pubkey": self.fibers[0].get_client().node_info()["pubkey"],
                             "channel_outpoint": da_channel_outpoint,
                         },
                     ],
@@ -145,9 +143,7 @@ class TestBuildRouter(FiberTest):
                     "udt_type_script": None,
                     "hops_info": [
                         {
-                            "pubkey": self.fibers[1]
-                            .get_client()
-                            .node_info()["pubkey"],
+                            "pubkey": self.fibers[1].get_client().node_info()["pubkey"],
                             "channel_outpoint": channel_outpoint,
                         },
                     ],
@@ -169,9 +165,7 @@ class TestBuildRouter(FiberTest):
                     "udt_type_script": None,
                     "hops_info": [
                         {
-                            "pubkey": self.fibers[1]
-                            .get_client()
-                            .node_info()["pubkey"],
+                            "pubkey": self.fibers[1].get_client().node_info()["pubkey"],
                             "channel_outpoint": channel_outpoint,
                         },
                     ],
@@ -196,9 +190,7 @@ class TestBuildRouter(FiberTest):
                     "udt_type_script": None,
                     "hops_info": [
                         {
-                            "pubkey": self.fibers[1]
-                            .get_client()
-                            .node_info()["pubkey"],
+                            "pubkey": self.fibers[1].get_client().node_info()["pubkey"],
                             "channel_outpoint": channel_outpoint,
                         },
                     ],

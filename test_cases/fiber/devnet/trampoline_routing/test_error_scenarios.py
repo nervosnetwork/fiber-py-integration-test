@@ -157,9 +157,7 @@ class TestErrorScenarios(FiberTest):
                     "amount": hex(1 * 100000000),
                     "keysend": True,
                     "max_fee_amount": hex(1),  # 极低的费用预算
-                    "trampoline_hops": [
-                        self.fiber2.get_client().node_info()["pubkey"]
-                    ],
+                    "trampoline_hops": [self.fiber2.get_client().node_info()["pubkey"]],
                 }
             )
         expected_error_message = "max_fee_amount is too low"

@@ -86,9 +86,7 @@ class TestSendPaymentWithRouter(FiberTest):
                     "udt_type_script": None,
                     "hops_info": [
                         {
-                            "pubkey": self.fibers[0]
-                            .get_client()
-                            .node_info()["pubkey"],
+                            "pubkey": self.fibers[0].get_client().node_info()["pubkey"],
                             "channel_outpoint": da_channel_outpoint,
                         },
                     ],
@@ -176,9 +174,7 @@ class TestSendPaymentWithRouter(FiberTest):
                     "udt_type_script": None,
                     "hops_info": [
                         {
-                            "pubkey": self.fibers[0]
-                            .get_client()
-                            .node_info()["pubkey"],
+                            "pubkey": self.fibers[0].get_client().node_info()["pubkey"],
                             "channel_outpoint": da_channel_outpoint,
                         },
                     ],
@@ -266,9 +262,7 @@ class TestSendPaymentWithRouter(FiberTest):
                     "udt_type_script": None,
                     "hops_info": [
                         {
-                            "pubkey": self.fibers[2]
-                            .get_client()
-                            .node_info()["pubkey"],
+                            "pubkey": self.fibers[2].get_client().node_info()["pubkey"],
                             "channel_outpoint": bc_channel_outpoint,
                         },
                     ],
@@ -286,9 +280,7 @@ class TestSendPaymentWithRouter(FiberTest):
                     "udt_type_script": None,
                     "hops_info": [
                         {
-                            "pubkey": self.fibers[3]
-                            .get_client()
-                            .node_info()["pubkey"],
+                            "pubkey": self.fibers[3].get_client().node_info()["pubkey"],
                             "channel_outpoint": cd_channel_outpoint,
                         },
                     ],
@@ -306,9 +298,7 @@ class TestSendPaymentWithRouter(FiberTest):
                     "udt_type_script": None,
                     "hops_info": [
                         {
-                            "pubkey": self.fibers[0]
-                            .get_client()
-                            .node_info()["pubkey"],
+                            "pubkey": self.fibers[0].get_client().node_info()["pubkey"],
                             "channel_outpoint": da_channel_outpoint,
                         },
                     ],
@@ -326,9 +316,7 @@ class TestSendPaymentWithRouter(FiberTest):
                     "udt_type_script": None,
                     "hops_info": [
                         {
-                            "pubkey": self.fibers[1]
-                            .get_client()
-                            .node_info()["pubkey"],
+                            "pubkey": self.fibers[1].get_client().node_info()["pubkey"],
                             "channel_outpoint": ab_channel_outpoint,
                         },
                     ],
