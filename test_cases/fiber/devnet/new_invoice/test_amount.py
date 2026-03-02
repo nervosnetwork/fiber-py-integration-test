@@ -31,7 +31,7 @@ class TestAmount(FiberTest):
         # 1. open channel
         temporary_channel = self.fiber1.get_client().open_channel(
             {
-                "peer_id": self.fiber2.get_peer_id(),
+                "pubkey": self.fiber2.get_pubkey(),
                 "funding_amount": hex(1000 * 100000000),
                 "public": True,
             }
@@ -39,7 +39,7 @@ class TestAmount(FiberTest):
 
         # 2. check channel state
         self.wait_for_channel_state(
-            self.fiber1.get_client(), self.fiber2.get_peer_id(), "CHANNEL_READY"
+            self.fiber1.get_client(), self.fiber2.get_pubkey(), "CHANNEL_READY"
         )
 
         # 3. new invoice 0x0
@@ -159,7 +159,7 @@ class TestAmount(FiberTest):
         # 1. Open a channel between fiber1 and fiber2
         temporary_channel = self.fiber1.get_client().open_channel(
             {
-                "peer_id": self.fiber2.get_peer_id(),
+                "pubkey": self.fiber2.get_pubkey(),
                 "funding_amount": hex(1000 * 100000000),
                 "public": True,
             }
@@ -167,7 +167,7 @@ class TestAmount(FiberTest):
 
         # 2. Check the channel state to ensure it is ready
         self.wait_for_channel_state(
-            self.fiber1.get_client(), self.fiber2.get_peer_id(), "CHANNEL_READY"
+            self.fiber1.get_client(), self.fiber2.get_pubkey(), "CHANNEL_READY"
         )
 
         # 3. Create a new invoice with a normal amount

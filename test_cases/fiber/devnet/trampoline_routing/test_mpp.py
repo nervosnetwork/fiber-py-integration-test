@@ -63,7 +63,7 @@ class TestMpp(FiberTest):
                 {
                     "invoice": invoice["invoice_address"],
                     "trampoline_hops": [
-                        self.fiber2.get_client().node_info()["node_id"],
+                        self.fiber2.get_client().node_info()["pubkey"],
                     ],
                 }
             )
@@ -125,7 +125,7 @@ class TestMpp(FiberTest):
                 "invoice": invoice["invoice_address"],
                 "max_fee_amount": hex(100000000000),
                 "trampoline_hops": [
-                    self.fiber2.get_client().node_info()["node_id"],
+                    self.fiber2.get_client().node_info()["pubkey"],
                 ],
             }
         )
@@ -180,7 +180,7 @@ class TestMpp(FiberTest):
                 "invoice": invoice["invoice_address"],
                 "max_fee_amount": hex(100000000000),
                 "trampoline_hops": [
-                    self.fiber2.get_client().node_info()["node_id"],
+                    self.fiber2.get_client().node_info()["pubkey"],
                 ],
             }
         )

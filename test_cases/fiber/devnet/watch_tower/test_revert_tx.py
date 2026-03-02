@@ -20,7 +20,7 @@ class RevertTx(FiberTest):
         payment = self.fiber1.get_client().send_payment(
             {
                 "amount": hex(1000 * 100000000),
-                "target_pubkey": self.fiber2.get_client().node_info()["node_id"],
+                "target_pubkey": self.fiber2.get_client().node_info()["pubkey"],
                 "keysend": True,
             }
         )
@@ -65,7 +65,7 @@ class RevertTx(FiberTest):
         payment = self.fiber2.get_client().send_payment(
             {
                 "amount": hex(1000 * 100000000),
-                "target_pubkey": self.fiber1.get_client().node_info()["node_id"],
+                "target_pubkey": self.fiber1.get_client().node_info()["pubkey"],
                 "keysend": True,
             }
         )

@@ -17,23 +17,23 @@ class TestPaymentHash(FiberTest):
         self.fiber3.connect_peer(self.fiber2)
         self.fiber1.get_client().open_channel(
             {
-                "peer_id": self.fiber2.get_peer_id(),
+                "pubkey": self.fiber2.get_pubkey(),
                 "funding_amount": hex(500 * 100000000),
                 "public": True,
             }
         )
         self.wait_for_channel_state(
-            self.fiber1.get_client(), self.fiber2.get_peer_id(), "CHANNEL_READY"
+            self.fiber1.get_client(), self.fiber2.get_pubkey(), "CHANNEL_READY"
         )
         self.fiber2.get_client().open_channel(
             {
-                "peer_id": self.fiber3.get_peer_id(),
+                "pubkey": self.fiber3.get_pubkey(),
                 "funding_amount": hex(500 * 100000000),
                 "public": True,
             }
         )
         self.wait_for_channel_state(
-            self.fiber3.get_client(), self.fiber2.get_peer_id(), "CHANNEL_READY"
+            self.fiber3.get_client(), self.fiber2.get_pubkey(), "CHANNEL_READY"
         )
 
         invoice = self.fiber3.get_client().new_invoice(
@@ -69,23 +69,23 @@ class TestPaymentHash(FiberTest):
         self.fiber3.connect_peer(self.fiber2)
         self.fiber1.get_client().open_channel(
             {
-                "peer_id": self.fiber2.get_peer_id(),
+                "pubkey": self.fiber2.get_pubkey(),
                 "funding_amount": hex(500 * 100000000),
                 "public": True,
             }
         )
         self.wait_for_channel_state(
-            self.fiber1.get_client(), self.fiber2.get_peer_id(), "CHANNEL_READY"
+            self.fiber1.get_client(), self.fiber2.get_pubkey(), "CHANNEL_READY"
         )
         self.fiber2.get_client().open_channel(
             {
-                "peer_id": self.fiber3.get_peer_id(),
+                "pubkey": self.fiber3.get_pubkey(),
                 "funding_amount": hex(500 * 100000000),
                 "public": True,
             }
         )
         self.wait_for_channel_state(
-            self.fiber3.get_client(), self.fiber2.get_peer_id(), "CHANNEL_READY"
+            self.fiber3.get_client(), self.fiber2.get_pubkey(), "CHANNEL_READY"
         )
 
         invoice = self.fiber3.get_client().new_invoice(
@@ -137,13 +137,13 @@ class TestPaymentHash(FiberTest):
         """
         self.fiber1.get_client().open_channel(
             {
-                "peer_id": self.fiber2.get_peer_id(),
+                "pubkey": self.fiber2.get_pubkey(),
                 "funding_amount": hex(500 * 100000000),
                 "public": True,
             }
         )
         self.wait_for_channel_state(
-            self.fiber1.get_client(), self.fiber2.get_peer_id(), "CHANNEL_READY"
+            self.fiber1.get_client(), self.fiber2.get_pubkey(), "CHANNEL_READY"
         )
         time.sleep(1)
         invoice = self.fiber2.get_client().new_invoice(

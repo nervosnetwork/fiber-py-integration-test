@@ -57,7 +57,7 @@ class TestHtlcExpired(FiberTest):
         channels = self.fiber1.get_client().list_channels({})
         assert len(channels["channels"]) == 0
         channels = self.fiber2.get_client().list_channels(
-            {"peer_id": self.fibers[2].get_peer_id()}
+            {"pubkey": self.fibers[2].get_pubkey()}
         )
         assert len(channels["channels"]) == 0
         for i in range(6):
@@ -133,7 +133,7 @@ class TestHtlcExpired(FiberTest):
         channels = self.fiber1.get_client().list_channels({})
         assert len(channels["channels"]) == 0
         channels = self.fiber2.get_client().list_channels(
-            {"peer_id": self.fibers[2].get_peer_id()}
+            {"pubkey": self.fibers[2].get_pubkey()}
         )
         assert len(channels["channels"]) == 0
         for i in range(6):

@@ -34,7 +34,7 @@ class TestWatchTower(FiberTest):
         # Step 1: Open a channel from node1 to node2
         self.fiber1.get_client().open_channel(
             {
-                "peer_id": self.fiber2.get_peer_id(),
+                "pubkey": self.fiber2.get_pubkey(),
                 "funding_amount": hex(200 * 100000000),
                 "public": True,
             }
@@ -42,7 +42,7 @@ class TestWatchTower(FiberTest):
 
         # Step 2: Wait for the channel to be in the CHANNEL_READY state
         self.wait_for_channel_state(
-            self.fiber1.get_client(), self.fiber2.get_peer_id(), "CHANNEL_READY"
+            self.fiber1.get_client(), self.fiber2.get_pubkey(), "CHANNEL_READY"
         )
 
         # Step 3: Shutdown the channel from node1
@@ -140,7 +140,7 @@ class TestWatchTower(FiberTest):
         # Step 1: Open a channel from node1 to node2
         self.fiber1.get_client().open_channel(
             {
-                "peer_id": self.fiber2.get_peer_id(),
+                "pubkey": self.fiber2.get_pubkey(),
                 "funding_amount": hex(200 * 100000000),
                 "public": True,
                 "commitment_fee_rate": hex(1000000),
@@ -149,7 +149,7 @@ class TestWatchTower(FiberTest):
 
         # Step 2: Wait for the channel to be in the CHANNEL_READY state
         self.wait_for_channel_state(
-            self.fiber1.get_client(), self.fiber2.get_peer_id(), "CHANNEL_READY"
+            self.fiber1.get_client(), self.fiber2.get_pubkey(), "CHANNEL_READY"
         )
 
         # Step 3: Shutdown the channel from node2
@@ -245,7 +245,7 @@ class TestWatchTower(FiberTest):
         # Step 1: Open a channel from node1 to node2
         self.fiber1.get_client().open_channel(
             {
-                "peer_id": self.fiber2.get_peer_id(),
+                "pubkey": self.fiber2.get_pubkey(),
                 "funding_amount": hex(200 * 100000000),
                 "public": True,
             }
@@ -253,7 +253,7 @@ class TestWatchTower(FiberTest):
 
         # Step 2: Wait for the channel to be in the CHANNEL_READY state
         self.wait_for_channel_state(
-            self.fiber1.get_client(), self.fiber2.get_peer_id(), "CHANNEL_READY"
+            self.fiber1.get_client(), self.fiber2.get_pubkey(), "CHANNEL_READY"
         )
 
         # Step 3: Shutdown the channel from node2
@@ -345,7 +345,7 @@ class TestWatchTower(FiberTest):
         # Step 1: Open a channel from node1 to node2
         self.fiber1.get_client().open_channel(
             {
-                "peer_id": self.fiber2.get_peer_id(),
+                "pubkey": self.fiber2.get_pubkey(),
                 "funding_amount": hex(200 * 100000000),
                 "public": True,
             }
@@ -353,7 +353,7 @@ class TestWatchTower(FiberTest):
 
         # Step 2: Wait for the channel to be in the CHANNEL_READY state
         self.wait_for_channel_state(
-            self.fiber1.get_client(), self.fiber2.get_peer_id(), "CHANNEL_READY"
+            self.fiber1.get_client(), self.fiber2.get_pubkey(), "CHANNEL_READY"
         )
 
         # Step 3: Shutdown the channel from node1
@@ -444,7 +444,7 @@ class TestWatchTower(FiberTest):
         # Step 1: Open a channel from node1 to node2
         self.fiber1.get_client().open_channel(
             {
-                "peer_id": self.fiber2.get_peer_id(),
+                "pubkey": self.fiber2.get_pubkey(),
                 "funding_amount": hex(200 * 100000000),
                 "public": True,
             }
@@ -452,7 +452,7 @@ class TestWatchTower(FiberTest):
 
         # Step 2: Wait for the channel to be in the CHANNEL_READY state
         self.wait_for_channel_state(
-            self.fiber1.get_client(), self.fiber2.get_peer_id(), "CHANNEL_READY"
+            self.fiber1.get_client(), self.fiber2.get_pubkey(), "CHANNEL_READY"
         )
 
         # Step 3: Send a payment from node1 to node2
@@ -543,7 +543,7 @@ class TestWatchTower(FiberTest):
         # Step 1: Open a channel from node1 to node2
         self.fiber1.get_client().open_channel(
             {
-                "peer_id": self.fiber2.get_peer_id(),
+                "pubkey": self.fiber2.get_pubkey(),
                 "funding_amount": hex(200 * 100000000),
                 "public": True,
             }
@@ -551,7 +551,7 @@ class TestWatchTower(FiberTest):
 
         # Step 2: Wait for the channel to be in the CHANNEL_READY state
         self.wait_for_channel_state(
-            self.fiber1.get_client(), self.fiber2.get_peer_id(), "CHANNEL_READY"
+            self.fiber1.get_client(), self.fiber2.get_pubkey(), "CHANNEL_READY"
         )
 
         # Step 3: Send a payment from node1 to node2
@@ -643,7 +643,7 @@ class TestWatchTower(FiberTest):
         # Step 1: Open a channel from node1 to node2
         self.fiber1.get_client().open_channel(
             {
-                "peer_id": self.fiber2.get_peer_id(),
+                "pubkey": self.fiber2.get_pubkey(),
                 "funding_amount": hex(200 * 100000000),
                 "public": True,
             }
@@ -651,7 +651,7 @@ class TestWatchTower(FiberTest):
 
         # Step 2: Wait for the channel to be in the CHANNEL_READY state
         self.wait_for_channel_state(
-            self.fiber1.get_client(), self.fiber2.get_peer_id(), "CHANNEL_READY"
+            self.fiber1.get_client(), self.fiber2.get_pubkey(), "CHANNEL_READY"
         )
 
         # Step 3: Send a payment from node1 to node2
@@ -742,7 +742,7 @@ class TestWatchTower(FiberTest):
         # Step 1: Open a channel from node1 to node2
         self.fiber1.get_client().open_channel(
             {
-                "peer_id": self.fiber2.get_peer_id(),
+                "pubkey": self.fiber2.get_pubkey(),
                 "funding_amount": hex(200 * 100000000),
                 "public": True,
             }
@@ -750,7 +750,7 @@ class TestWatchTower(FiberTest):
 
         # Step 2: Wait for the channel to be in the CHANNEL_READY state
         self.wait_for_channel_state(
-            self.fiber1.get_client(), self.fiber2.get_peer_id(), "CHANNEL_READY"
+            self.fiber1.get_client(), self.fiber2.get_pubkey(), "CHANNEL_READY"
         )
 
         # Step 3: Send a payment from node1 to node2
@@ -841,7 +841,7 @@ class TestWatchTower(FiberTest):
         # Step 1: Open a channel from node1 to node2
         self.fiber1.get_client().open_channel(
             {
-                "peer_id": self.fiber2.get_peer_id(),
+                "pubkey": self.fiber2.get_pubkey(),
                 "funding_amount": hex(200 * 100000000),
                 "public": True,
             }
@@ -849,7 +849,7 @@ class TestWatchTower(FiberTest):
 
         # Step 2: Wait for the channel to be in the CHANNEL_READY state
         self.wait_for_channel_state(
-            self.fiber1.get_client(), self.fiber2.get_peer_id(), "CHANNEL_READY"
+            self.fiber1.get_client(), self.fiber2.get_pubkey(), "CHANNEL_READY"
         )
 
         # Step 3: Send payments between node1 and node2
@@ -944,7 +944,7 @@ class TestWatchTower(FiberTest):
         # Step 1: Open a channel from node1 to node2
         self.fiber1.get_client().open_channel(
             {
-                "peer_id": self.fiber2.get_peer_id(),
+                "pubkey": self.fiber2.get_pubkey(),
                 "funding_amount": hex(200 * 100000000),
                 "public": True,
             }
@@ -952,7 +952,7 @@ class TestWatchTower(FiberTest):
 
         # Step 2: Wait for the channel to be in the CHANNEL_READY state
         self.wait_for_channel_state(
-            self.fiber1.get_client(), self.fiber2.get_peer_id(), "CHANNEL_READY"
+            self.fiber1.get_client(), self.fiber2.get_pubkey(), "CHANNEL_READY"
         )
 
         # Step 3: Send payments between node1 and node2
@@ -1045,7 +1045,7 @@ class TestWatchTower(FiberTest):
         # Step 1: Open a channel from node1 to node2
         self.fiber1.get_client().open_channel(
             {
-                "peer_id": self.fiber2.get_peer_id(),
+                "pubkey": self.fiber2.get_pubkey(),
                 "funding_amount": hex(200 * 100000000),
                 "public": True,
             }
@@ -1053,7 +1053,7 @@ class TestWatchTower(FiberTest):
 
         # Step 2: Wait for the channel to be in the CHANNEL_READY state
         self.wait_for_channel_state(
-            self.fiber1.get_client(), self.fiber2.get_peer_id(), "CHANNEL_READY"
+            self.fiber1.get_client(), self.fiber2.get_pubkey(), "CHANNEL_READY"
         )
 
         # Step 3: Send payments between node1 and node2
@@ -1146,7 +1146,7 @@ class TestWatchTower(FiberTest):
         # Step 1: Open a channel from node1 to node2
         self.fiber1.get_client().open_channel(
             {
-                "peer_id": self.fiber2.get_peer_id(),
+                "pubkey": self.fiber2.get_pubkey(),
                 "funding_amount": hex(200 * 100000000),
                 "public": True,
             }
@@ -1154,7 +1154,7 @@ class TestWatchTower(FiberTest):
 
         # Step 2: Wait for the channel to be in the CHANNEL_READY state
         self.wait_for_channel_state(
-            self.fiber1.get_client(), self.fiber2.get_peer_id(), "CHANNEL_READY"
+            self.fiber1.get_client(), self.fiber2.get_pubkey(), "CHANNEL_READY"
         )
 
         # Step 3: Send payments between node1 and node2
@@ -1247,7 +1247,7 @@ class TestWatchTower(FiberTest):
         # Step 1: Open a channel from node1 to node2
         self.fiber1.get_client().open_channel(
             {
-                "peer_id": self.fiber2.get_peer_id(),
+                "pubkey": self.fiber2.get_pubkey(),
                 "funding_amount": hex(200 * 100000000),
                 "public": True,
             }
@@ -1255,7 +1255,7 @@ class TestWatchTower(FiberTest):
 
         # Step 2: Wait for the channel to be in the CHANNEL_READY state
         self.wait_for_channel_state(
-            self.fiber1.get_client(), self.fiber2.get_peer_id(), "CHANNEL_READY"
+            self.fiber1.get_client(), self.fiber2.get_pubkey(), "CHANNEL_READY"
         )
 
         # Step 3: Send multiple payments from node1 to node2
@@ -1347,7 +1347,7 @@ class TestWatchTower(FiberTest):
         # Step 1: Open a channel from node1 to node2
         self.fiber1.get_client().open_channel(
             {
-                "peer_id": self.fiber2.get_peer_id(),
+                "pubkey": self.fiber2.get_pubkey(),
                 "funding_amount": hex(200 * 100000000),
                 "public": True,
             }
@@ -1355,7 +1355,7 @@ class TestWatchTower(FiberTest):
 
         # Step 2: Wait for the channel to be in the CHANNEL_READY state
         self.wait_for_channel_state(
-            self.fiber1.get_client(), self.fiber2.get_peer_id(), "CHANNEL_READY"
+            self.fiber1.get_client(), self.fiber2.get_pubkey(), "CHANNEL_READY"
         )
 
         # Step 3: Send multiple payments between node1 and node2
@@ -1457,7 +1457,7 @@ class TestWatchTower(FiberTest):
         payment = src_fiber.get_client().send_payment(
             {
                 "amount": hex(amount),
-                "target_pubkey": to_fiber.get_client().node_info()["node_id"],
+                "target_pubkey": to_fiber.get_client().node_info()["pubkey"],
                 "keysend": True,
             }
         )

@@ -40,13 +40,13 @@ class TestSettleInvoice(FiberTest):
         # 打开通道
         self.fiber2.get_client().open_channel(
             {
-                "peer_id": self.fiber1.get_peer_id(),
+                "pubkey": self.fiber1.get_pubkey(),
                 "funding_amount": hex(1000 * 100000000),
                 "public": True,
             }
         )
         self.wait_for_channel_state(
-            self.fiber2.get_client(), self.fiber1.get_peer_id(), "CHANNEL_READY", 120
+            self.fiber2.get_client(), self.fiber1.get_pubkey(), "CHANNEL_READY", 120
         )
 
         # 创建 hold invoice（仅提供 payment_hash）
@@ -82,13 +82,13 @@ class TestSettleInvoice(FiberTest):
         # 打开通道
         self.fiber2.get_client().open_channel(
             {
-                "peer_id": self.fiber1.get_peer_id(),
+                "pubkey": self.fiber1.get_pubkey(),
                 "funding_amount": hex(1000 * 100000000),
                 "public": True,
             }
         )
         self.wait_for_channel_state(
-            self.fiber2.get_client(), self.fiber1.get_peer_id(), "CHANNEL_READY", 120
+            self.fiber2.get_client(), self.fiber1.get_pubkey(), "CHANNEL_READY", 120
         )
 
         # 创建 hold invoice（payment_hash 基于 preimage1）
@@ -139,13 +139,13 @@ class TestSettleInvoice(FiberTest):
         # 打开通道
         self.fiber2.get_client().open_channel(
             {
-                "peer_id": self.fiber1.get_peer_id(),
+                "pubkey": self.fiber1.get_pubkey(),
                 "funding_amount": hex(1000 * 100000000),
                 "public": True,
             }
         )
         self.wait_for_channel_state(
-            self.fiber2.get_client(), self.fiber1.get_peer_id(), "CHANNEL_READY", 120
+            self.fiber2.get_client(), self.fiber1.get_pubkey(), "CHANNEL_READY", 120
         )
 
         # 创建快过期的 hold invoice（先支付，后过期再结算）
@@ -195,13 +195,13 @@ class TestSettleInvoice(FiberTest):
         # 打开通道
         self.fiber2.get_client().open_channel(
             {
-                "peer_id": self.fiber1.get_peer_id(),
+                "pubkey": self.fiber1.get_pubkey(),
                 "funding_amount": hex(1000 * 100000000),
                 "public": True,
             }
         )
         self.wait_for_channel_state(
-            self.fiber2.get_client(), self.fiber1.get_peer_id(), "CHANNEL_READY", 120
+            self.fiber2.get_client(), self.fiber1.get_pubkey(), "CHANNEL_READY", 120
         )
 
         # 创建 hold invoice 并发送支付
@@ -239,13 +239,13 @@ class TestSettleInvoice(FiberTest):
     def test_settle_open_invoice_should_fail(self):
         self.fiber2.get_client().open_channel(
             {
-                "peer_id": self.fiber1.get_peer_id(),
+                "pubkey": self.fiber1.get_pubkey(),
                 "funding_amount": hex(1000 * 100000000),
                 "public": True,
             }
         )
         self.wait_for_channel_state(
-            self.fiber2.get_client(), self.fiber1.get_peer_id(), "CHANNEL_READY", 120
+            self.fiber2.get_client(), self.fiber1.get_pubkey(), "CHANNEL_READY", 120
         )
         preimage = self.generate_random_preimage()
         payment_hash = sha256_hex(preimage)
@@ -272,13 +272,13 @@ class TestSettleInvoice(FiberTest):
         # 创建发票后直接取消，再尝试结算
         self.fiber2.get_client().open_channel(
             {
-                "peer_id": self.fiber1.get_peer_id(),
+                "pubkey": self.fiber1.get_pubkey(),
                 "funding_amount": hex(1000 * 100000000),
                 "public": True,
             }
         )
         self.wait_for_channel_state(
-            self.fiber2.get_client(), self.fiber1.get_peer_id(), "CHANNEL_READY", 120
+            self.fiber2.get_client(), self.fiber1.get_pubkey(), "CHANNEL_READY", 120
         )
 
         preimage = self.generate_random_preimage()
@@ -308,13 +308,13 @@ class TestSettleInvoice(FiberTest):
         # 发票过期后尝试结算
         self.fiber2.get_client().open_channel(
             {
-                "peer_id": self.fiber1.get_peer_id(),
+                "pubkey": self.fiber1.get_pubkey(),
                 "funding_amount": hex(1000 * 100000000),
                 "public": True,
             }
         )
         self.wait_for_channel_state(
-            self.fiber2.get_client(), self.fiber1.get_peer_id(), "CHANNEL_READY", 120
+            self.fiber2.get_client(), self.fiber1.get_pubkey(), "CHANNEL_READY", 120
         )
 
         expiry_hex = "0x5"
@@ -342,13 +342,13 @@ class TestSettleInvoice(FiberTest):
         # 打开通道
         self.fiber2.get_client().open_channel(
             {
-                "peer_id": self.fiber1.get_peer_id(),
+                "pubkey": self.fiber1.get_pubkey(),
                 "funding_amount": hex(1000 * 100000000),
                 "public": True,
             }
         )
         self.wait_for_channel_state(
-            self.fiber2.get_client(), self.fiber1.get_peer_id(), "CHANNEL_READY", 120
+            self.fiber2.get_client(), self.fiber1.get_pubkey(), "CHANNEL_READY", 120
         )
 
         # 创建快过期的 hold invoice（先支付，后过期再结算）
@@ -397,13 +397,13 @@ class TestSettleInvoice(FiberTest):
         # 打开通道
         self.fiber2.get_client().open_channel(
             {
-                "peer_id": self.fiber1.get_peer_id(),
+                "pubkey": self.fiber1.get_pubkey(),
                 "funding_amount": hex(1000 * 100000000),
                 "public": True,
             }
         )
         self.wait_for_channel_state(
-            self.fiber2.get_client(), self.fiber1.get_peer_id(), "CHANNEL_READY", 120
+            self.fiber2.get_client(), self.fiber1.get_pubkey(), "CHANNEL_READY", 120
         )
 
         # 创建快过期的 hold invoice（先支付，后过期再结算）

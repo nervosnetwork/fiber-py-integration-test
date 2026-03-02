@@ -16,7 +16,7 @@
 #     def test_bbb12(self):
 #         self.get_fibers_balance_message()
 #         # self.send_payment(self.fiber1,self.fiber2,1)
-#         self.fiber1.get_client().list_channels({"peer_id": self.fiber2.get_peer_id()})
+#         self.fiber1.get_client().list_channels({"pubkey": self.fiber2.get_pubkey()})
 #
 #     def test_key_send(self):
 #
@@ -32,7 +32,7 @@
 #
 #                 payment_hashs.append(payment_hash)
 #             self.fiber1.get_client().disconnect_peer(
-#                 {"peer_id": self.fiber2.get_peer_id()}
+#                 {"pubkey": self.fiber2.get_pubkey()}
 #             )
 #             # self.fiber1.stop()
 #             # self.fiber2.stop()
@@ -84,7 +84,7 @@
 #                 )
 #                 payment_hashs.append(payment["payment_hash"])
 #             self.fiber1.get_client().disconnect_peer(
-#                 {"peer_id": self.fiber2.get_peer_id()}
+#                 {"pubkey": self.fiber2.get_pubkey()}
 #             )
 #             # self.fiber1.stop()
 #             # self.fiber2.stop()
@@ -137,7 +137,7 @@
 #                 )
 #                 payment_hashs.append(payment_hash)
 #             self.fiber1.get_client().disconnect_peer(
-#                 {"peer_id": self.fiber2.get_peer_id()}
+#                 {"pubkey": self.fiber2.get_pubkey()}
 #             )
 #             time.sleep(10)
 #             before_fiber1_balance = self.get_fiber_balance(self.fiber1)
@@ -164,13 +164,13 @@
 #         #         )
 #         #         payment3_hashs.append(payment_hash)
 #         #     self.fibers[0].get_client().disconnect_peer(
-#         #         {"peer_id": self.fibers[1].get_peer_id()}
+#         #         {"pubkey": self.fibers[1].get_pubkey()}
 #         #     )
 #         #     self.fibers[1].get_client().disconnect_peer(
-#         #         {"peer_id": self.fibers[2].get_peer_id()}
+#         #         {"pubkey": self.fibers[2].get_pubkey()}
 #         #     )
 #         #     self.fibers[2].get_client().disconnect_peer(
-#         #         {"peer_id": self.fibers[3].get_peer_id()}
+#         #         {"pubkey": self.fibers[3].get_pubkey()}
 #         #     )
 #         #     time.sleep(10)
 #         #     self.fibers[0].connect_peer(self.fibers[1])
@@ -205,16 +205,16 @@
 #         #         payment3_hashs.append(payment_hash)
 #         #
 #         #     self.fibers[0].get_client().disconnect_peer(
-#         #         {"peer_id": self.fibers[1].get_peer_id()}
+#         #         {"pubkey": self.fibers[1].get_pubkey()}
 #         #     )
 #         #     self.fibers[1].get_client().disconnect_peer(
-#         #         {"peer_id": self.fibers[2].get_peer_id()}
+#         #         {"pubkey": self.fibers[2].get_pubkey()}
 #         #     )
 #         #     self.fibers[2].get_client().disconnect_peer(
-#         #         {"peer_id": self.fibers[3].get_peer_id()}
+#         #         {"pubkey": self.fibers[3].get_pubkey()}
 #         #     )
 #         #     self.fibers[3].get_client().disconnect_peer(
-#         #         {"peer_id": self.fibers[0].get_peer_id()}
+#         #         {"pubkey": self.fibers[0].get_pubkey()}
 #         #     )
 #         #
 #         #     time.sleep(10)
@@ -251,7 +251,7 @@
 #                     self.fiber1, self.fiber2, 1 * 100000000, False
 #                 )
 #                 payment_hashs.append(payment_hash)
-#             # self.fiber1.get_client().disconnect_peer({"peer_id": self.fiber2.get_peer_id()})
+#             # self.fiber1.get_client().disconnect_peer({"pubkey": self.fiber2.get_pubkey()})
 #             self.fiber1.stop()
 #             self.fiber2.stop()
 #             self.fiber1.start()
@@ -351,7 +351,7 @@
 #                     self.fiber1, self.fiber2, 1 * 100000000, False
 #                 )
 #                 payment_hashs.append(payment_hash)
-#             # self.fiber1.get_client().disconnect_peer({"peer_id": self.fiber2.get_peer_id()})
+#             # self.fiber1.get_client().disconnect_peer({"pubkey": self.fiber2.get_pubkey()})
 #             self.fiber1.force_stop()
 #             self.fiber2.force_stop()
 #             self.fiber1.start()
@@ -450,7 +450,7 @@
 #                 )
 #                 payment_hashs.append(payment_hash)
 #             self.fiber1.get_client().disconnect_peer(
-#                 {"peer_id": self.fibers[3].get_peer_id()}
+#                 {"pubkey": self.fibers[3].get_pubkey()}
 #             )
 #             time.sleep(10)
 #
@@ -470,7 +470,7 @@
 #                 )
 #                 payment_hashs.append(payment_hash)
 #             self.fiber1.get_client().disconnect_peer(
-#                 {"peer_id": self.fibers[3].get_peer_id()}
+#                 {"pubkey": self.fibers[3].get_pubkey()}
 #             )
 #             time.sleep(10)
 #
@@ -484,7 +484,7 @@
 #                 )
 #                 payment_hashs.append(payment_hash)
 #             self.fiber2.get_client().disconnect_peer(
-#                 {"peer_id": self.fibers[2].get_peer_id()}
+#                 {"pubkey": self.fibers[2].get_pubkey()}
 #             )
 #             time.sleep(10)
 #             before_fiber2_balance = self.get_fiber_balance(self.fiber2)

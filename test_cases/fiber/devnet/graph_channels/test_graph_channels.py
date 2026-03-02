@@ -46,13 +46,13 @@ class TestGraphChannels(FiberTest):
         # Step 4: Open a new public channel with fiber1 as the client and fiber2 as the peer
         self.fiber1.get_client().open_channel(
             {
-                "peer_id": self.fiber2.get_peer_id(),
+                "pubkey": self.fiber2.get_pubkey(),
                 "funding_amount": hex(200 * 100000000),
                 "public": True,
             }
         )
         self.wait_for_channel_state(
-            self.fiber1.get_client(), self.fiber2.get_peer_id(), "CHANNEL_READY"
+            self.fiber1.get_client(), self.fiber2.get_pubkey(), "CHANNEL_READY"
         )
 
         # Step 5: Check the graph channels for node1, node2, and node3
@@ -71,13 +71,13 @@ class TestGraphChannels(FiberTest):
         # Step 6: Open a new private channel with fiber1 as the client and fiber2 as the peer
         self.fiber1.get_client().open_channel(
             {
-                "peer_id": self.fiber2.get_peer_id(),
+                "pubkey": self.fiber2.get_pubkey(),
                 "funding_amount": hex(200 * 100000000),
                 "public": False,
             }
         )
         self.wait_for_channel_state(
-            self.fiber1.get_client(), self.fiber2.get_peer_id(), "CHANNEL_READY"
+            self.fiber1.get_client(), self.fiber2.get_pubkey(), "CHANNEL_READY"
         )
 
         # Step 7: Check the graph channels for node1, node2, and node3
@@ -96,13 +96,13 @@ class TestGraphChannels(FiberTest):
         # Step 8: Open a new public channel with fiber2 as the client and fiber3 as the peer
         self.fiber2.get_client().open_channel(
             {
-                "peer_id": self.fiber3.get_peer_id(),
+                "pubkey": self.fiber3.get_pubkey(),
                 "funding_amount": hex(200 * 100000000),
                 "public": True,
             }
         )
         self.wait_for_channel_state(
-            self.fiber2.get_client(), self.fiber3.get_peer_id(), "CHANNEL_READY"
+            self.fiber2.get_client(), self.fiber3.get_pubkey(), "CHANNEL_READY"
         )
 
         # Step 9: Check the graph channels for node1, node2, and node3
@@ -121,13 +121,13 @@ class TestGraphChannels(FiberTest):
         # Step 10: Open a new private channel with fiber2 as the client and fiber3 as the peer
         self.fiber2.get_client().open_channel(
             {
-                "peer_id": self.fiber3.get_peer_id(),
+                "pubkey": self.fiber3.get_pubkey(),
                 "funding_amount": hex(200 * 100000000),
                 "public": False,
             }
         )
         self.wait_for_channel_state(
-            self.fiber2.get_client(), self.fiber3.get_peer_id(), "CHANNEL_READY"
+            self.fiber2.get_client(), self.fiber3.get_pubkey(), "CHANNEL_READY"
         )
 
         # Step 11: Check the graph channels for node1, node2, and node3
@@ -157,23 +157,23 @@ class TestGraphChannels(FiberTest):
         # n1-n2 创建 public channel
         self.fiber1.get_client().open_channel(
             {
-                "peer_id": self.fiber2.get_peer_id(),
+                "pubkey": self.fiber2.get_pubkey(),
                 "funding_amount": hex(200 * 100000000),
                 "public": True,
             }
         )
         self.wait_for_channel_state(
-            self.fiber1.get_client(), self.fiber2.get_peer_id(), "CHANNEL_READY"
+            self.fiber1.get_client(), self.fiber2.get_pubkey(), "CHANNEL_READY"
         )
         self.fiber2.get_client().open_channel(
             {
-                "peer_id": self.fiber3.get_peer_id(),
+                "pubkey": self.fiber3.get_pubkey(),
                 "funding_amount": hex(200 * 100000000),
                 "public": True,
             }
         )
         self.wait_for_channel_state(
-            self.fiber2.get_client(), self.fiber3.get_peer_id(), "CHANNEL_READY"
+            self.fiber2.get_client(), self.fiber3.get_pubkey(), "CHANNEL_READY"
         )
 
         # close channel 1
@@ -210,7 +210,7 @@ class TestGraphChannels(FiberTest):
             self.Miner.miner_with_version(self.node, "0x0")
         self.wait_for_channel_state(
             self.fiber3.get_client(),
-            self.fiber2.get_peer_id(),
+            self.fiber2.get_pubkey(),
             "CLOSED",
             60 * 5 + 10,
             True,
@@ -233,13 +233,13 @@ class TestGraphChannels(FiberTest):
         # n1-n2 创建 public channel
         self.fiber1.get_client().open_channel(
             {
-                "peer_id": self.fiber2.get_peer_id(),
+                "pubkey": self.fiber2.get_pubkey(),
                 "funding_amount": hex(200 * 100000000),
                 "public": True,
             }
         )
         self.wait_for_channel_state(
-            self.fiber1.get_client(), self.fiber2.get_peer_id(), "CHANNEL_READY"
+            self.fiber1.get_client(), self.fiber2.get_pubkey(), "CHANNEL_READY"
         )
         channel = self.fiber1.get_client().list_channels({})
         # 4. fiber2 call  update_channel (id,tlc_fee_proportional_millionths)
@@ -256,7 +256,7 @@ class TestGraphChannels(FiberTest):
         print("node1_channels:", node1_channels)
         key = (
             "update_info_of_node1"
-            if node3_channels["channels"][0]["node1"] == node_info["node_id"]
+            if node3_channels["channels"][0]["node1"] == node_info["pubkey"]
             else "update_info_of_node2"
         )
         print("key:", key)
@@ -267,7 +267,7 @@ class TestGraphChannels(FiberTest):
         print("node2_channels", node2_channels)
         key = (
             "update_info_of_node1"
-            if node3_channels["channels"][0]["node1"] == node_info["node_id"]
+            if node3_channels["channels"][0]["node1"] == node_info["pubkey"]
             else "update_info_of_node2"
         )
         assert (
@@ -277,7 +277,7 @@ class TestGraphChannels(FiberTest):
         print("node3_channels", node3_channels)
         key = (
             "update_info_of_node1"
-            if node3_channels["channels"][0]["node1"] == node_info["node_id"]
+            if node3_channels["channels"][0]["node1"] == node_info["pubkey"]
             else "update_info_of_node2"
         )
         assert (
@@ -293,22 +293,22 @@ class TestGraphChannels(FiberTest):
         # n1-n2 创建 public channel
         self.fiber1.get_client().open_channel(
             {
-                "peer_id": self.fiber2.get_peer_id(),
+                "pubkey": self.fiber2.get_pubkey(),
                 "funding_amount": hex(200 * 100000000),
                 "public": True,
             }
         )
         open_channel_tx_hash = self.wait_and_check_tx_pool_fee(1000, False)
         self.wait_for_channel_state(
-            self.fiber1.get_client(), self.fiber2.get_peer_id(), "CHANNEL_READY"
+            self.fiber1.get_client(), self.fiber2.get_pubkey(), "CHANNEL_READY"
         )
 
         # self.fiber2.get_client().open_channel({
-        #     "peer_id": self.fiber3.get_peer_id(),
+        #     "pubkey": self.fiber3.get_pubkey(),
         #     "funding_amount": hex(200 * 100000000),
         #     "public": True,
         # })
-        # self.wait_for_channel_state(self.fiber2.get_client(), self.fiber3.get_peer_id(), "CHANNEL_READY")
+        # self.wait_for_channel_state(self.fiber2.get_client(), self.fiber3.get_pubkey(), "CHANNEL_READY")
         time.sleep(1)
         node1_channels = self.fiber1.get_client().graph_channels()
         node2_channels = self.fiber2.get_client().graph_channels()
@@ -331,7 +331,7 @@ class TestGraphChannels(FiberTest):
         # node1
         node1_info = self.fiber1.get_client().node_info()
         node2_info = self.fiber2.get_client().node_info()
-        nodes = [node1_info["node_id"], node2_info["node_id"]]
+        nodes = [node1_info["pubkey"], node2_info["pubkey"]]
         # node2
         assert node1_channels["channels"][0]["node1"] in nodes
         assert node1_channels["channels"][0]["node2"] in nodes

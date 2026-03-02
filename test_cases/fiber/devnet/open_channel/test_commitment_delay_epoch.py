@@ -9,14 +9,14 @@ class TestCommitmentDelayEpoch(FiberTest):
     def test_epoch(self):
         self.fiber1.get_client().open_channel(
             {
-                "peer_id": self.fiber2.get_peer_id(),
+                "pubkey": self.fiber2.get_pubkey(),
                 "funding_amount": hex(1000 * 100000000),
                 "public": True,
                 "commitment_delay_epoch": "0x20001000001",
             }
         )
         self.wait_for_channel_state(
-            self.fiber1.get_client(), self.fiber2.get_peer_id(), "CHANNEL_READY", 120
+            self.fiber1.get_client(), self.fiber2.get_pubkey(), "CHANNEL_READY", 120
         )
         self.fiber1.get_client().shutdown_channel(
             {
@@ -49,7 +49,7 @@ class TestCommitmentDelayEpoch(FiberTest):
         before_balance = self.get_fibers_balance()
         self.fiber1.get_client().open_channel(
             {
-                "peer_id": self.fiber2.get_peer_id(),
+                "pubkey": self.fiber2.get_pubkey(),
                 "funding_amount": hex(1000 * 100000000),
                 "public": True,
                 "tlc_expiry_delta": hex(57600000),
@@ -57,7 +57,7 @@ class TestCommitmentDelayEpoch(FiberTest):
             }
         )
         self.wait_for_channel_state(
-            self.fiber1.get_client(), self.fiber2.get_peer_id(), "CHANNEL_READY", 120
+            self.fiber1.get_client(), self.fiber2.get_pubkey(), "CHANNEL_READY", 120
         )
 
         self.fiber1.get_client().shutdown_channel(
@@ -87,7 +87,7 @@ class TestCommitmentDelayEpoch(FiberTest):
         before_balance = self.get_fibers_balance()
         self.fiber1.get_client().open_channel(
             {
-                "peer_id": self.fiber2.get_peer_id(),
+                "pubkey": self.fiber2.get_pubkey(),
                 "funding_amount": hex(1000 * 100000000),
                 "public": True,
                 "tlc_expiry_delta": hex(57600000),
@@ -95,7 +95,7 @@ class TestCommitmentDelayEpoch(FiberTest):
             }
         )
         self.wait_for_channel_state(
-            self.fiber1.get_client(), self.fiber2.get_peer_id(), "CHANNEL_READY", 120
+            self.fiber1.get_client(), self.fiber2.get_pubkey(), "CHANNEL_READY", 120
         )
 
         self.fiber2.get_client().shutdown_channel(

@@ -16,7 +16,7 @@ class TestShutdownScript(FiberTest):
         with pytest.raises(Exception) as exc_info:
             temporary_channel_id = self.fiber1.get_client().open_channel(
                 {
-                    "peer_id": self.fiber2.get_peer_id(),
+                    "pubkey": self.fiber2.get_pubkey(),
                     "funding_amount": hex(200 * 100000000),
                     "public": True,
                     "shutdown_script": {
@@ -36,16 +36,16 @@ class TestShutdownScript(FiberTest):
     def test_script_none(self):
         temporary_channel_id = self.fiber1.get_client().open_channel(
             {
-                "peer_id": self.fiber2.get_peer_id(),
+                "pubkey": self.fiber2.get_pubkey(),
                 "funding_amount": hex(1651 * 100000000),
                 "public": True,
             }
         )
         self.wait_for_channel_state(
-            self.fiber1.get_client(), self.fiber2.get_peer_id(), "CHANNEL_READY", 120
+            self.fiber1.get_client(), self.fiber2.get_pubkey(), "CHANNEL_READY", 120
         )
         self.wait_for_channel_state(
-            self.fiber2.get_client(), self.fiber1.get_peer_id(), "CHANNEL_READY", 120
+            self.fiber2.get_client(), self.fiber1.get_pubkey(), "CHANNEL_READY", 120
         )
         channels = self.fiber1.get_client().list_channels({})
         assert channels["channels"][0]["local_balance"] == hex(
@@ -55,7 +55,7 @@ class TestShutdownScript(FiberTest):
     def test_script_udt_none(self):
         temporary_channel_id = self.fiber1.get_client().open_channel(
             {
-                "peer_id": self.fiber2.get_peer_id(),
+                "pubkey": self.fiber2.get_pubkey(),
                 "funding_amount": hex(100 * 100000000),
                 "public": True,
                 "funding_udt_type_script": self.get_account_udt_script(
@@ -64,15 +64,15 @@ class TestShutdownScript(FiberTest):
             }
         )
         self.wait_for_channel_state(
-            self.fiber1.get_client(), self.fiber2.get_peer_id(), "CHANNEL_READY", 120
+            self.fiber1.get_client(), self.fiber2.get_pubkey(), "CHANNEL_READY", 120
         )
         self.wait_for_channel_state(
-            self.fiber2.get_client(), self.fiber1.get_peer_id(), "CHANNEL_READY", 120
+            self.fiber2.get_client(), self.fiber1.get_pubkey(), "CHANNEL_READY", 120
         )
         channels = self.fiber1.get_client().list_channels({})
         assert channels["channels"][0]["local_balance"] == hex(100 * 100000000)
         channels = self.fiber1.get_client().list_channels(
-            {"peer_id": self.fiber2.get_peer_id()}
+            {"pubkey": self.fiber2.get_pubkey()}
         )
         N1N2_CHANNEL_ID = channels["channels"][0]["channel_id"]
         before_balance1 = self.node.getClient().get_cells_capacity(
@@ -126,7 +126,7 @@ class TestShutdownScript(FiberTest):
     def test_shutdown_script(self):
         temporary_channel_id = self.fiber1.get_client().open_channel(
             {
-                "peer_id": self.fiber2.get_peer_id(),
+                "pubkey": self.fiber2.get_pubkey(),
                 "funding_amount": hex(1651 * 100000000),
                 "public": True,
                 "shutdown_script": {
@@ -138,15 +138,15 @@ class TestShutdownScript(FiberTest):
             }
         )
         self.wait_for_channel_state(
-            self.fiber1.get_client(), self.fiber2.get_peer_id(), "CHANNEL_READY", 120
+            self.fiber1.get_client(), self.fiber2.get_pubkey(), "CHANNEL_READY", 120
         )
         self.wait_for_channel_state(
-            self.fiber2.get_client(), self.fiber1.get_peer_id(), "CHANNEL_READY", 120
+            self.fiber2.get_client(), self.fiber1.get_pubkey(), "CHANNEL_READY", 120
         )
         channels = self.fiber1.get_client().list_channels({})
         assert channels["channels"][0]["local_balance"] == hex(1000 * 100000000)
         channels = self.fiber1.get_client().list_channels(
-            {"peer_id": self.fiber2.get_peer_id()}
+            {"pubkey": self.fiber2.get_pubkey()}
         )
         N1N2_CHANNEL_ID = channels["channels"][0]["channel_id"]
         before_balance1 = self.node.getClient().get_cells_capacity(
@@ -196,7 +196,7 @@ class TestShutdownScript(FiberTest):
     def test_shutdown_script_udt(self):
         temporary_channel_id = self.fiber1.get_client().open_channel(
             {
-                "peer_id": self.fiber2.get_peer_id(),
+                "pubkey": self.fiber2.get_pubkey(),
                 "funding_amount": hex(100 * 100000000),
                 "public": True,
                 "shutdown_script": {
@@ -212,15 +212,15 @@ class TestShutdownScript(FiberTest):
         tx_hash = self.wait_and_check_tx_pool_fee(1000, False, 100)
         open_channel_message = self.get_tx_message(tx_hash)
         self.wait_for_channel_state(
-            self.fiber1.get_client(), self.fiber2.get_peer_id(), "CHANNEL_READY", 120
+            self.fiber1.get_client(), self.fiber2.get_pubkey(), "CHANNEL_READY", 120
         )
         self.wait_for_channel_state(
-            self.fiber2.get_client(), self.fiber1.get_peer_id(), "CHANNEL_READY", 120
+            self.fiber2.get_client(), self.fiber1.get_pubkey(), "CHANNEL_READY", 120
         )
         channels = self.fiber1.get_client().list_channels({})
         assert channels["channels"][0]["local_balance"] == hex(100 * 100000000)
         channels = self.fiber1.get_client().list_channels(
-            {"peer_id": self.fiber2.get_peer_id()}
+            {"pubkey": self.fiber2.get_pubkey()}
         )
         N1N2_CHANNEL_ID = channels["channels"][0]["channel_id"]
         before_balance1 = self.node.getClient().get_cells_capacity(

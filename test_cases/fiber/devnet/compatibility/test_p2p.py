@@ -22,7 +22,7 @@ class TestP2p(FiberTest):
         with pytest.raises(Exception) as exc_info:
             self.fiber1.get_client().open_channel(
                 {
-                    "peer_id": old_fiber.get_peer_id(),
+                    "pubkey": old_fiber.get_pubkey(),
                     "funding_amount": hex(1000 + DEFAULT_MIN_DEPOSIT_CKB),
                     "tlc_fee_proportional_millionths": hex(1000),
                     "public": True,
@@ -36,7 +36,7 @@ class TestP2p(FiberTest):
 
         old_fiber.get_client().open_channel(
             {
-                "peer_id": self.fiber1.get_peer_id(),
+                "pubkey": self.fiber1.get_pubkey(),
                 "funding_amount": hex(2000 * 100000000),
                 "tlc_fee_proportional_millionths": hex(1000),
                 "public": True,

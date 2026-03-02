@@ -10,7 +10,7 @@ class TestTlcFeeProportionalMillionths(FiberTest):
         # 1. Open a new channel with fiber1 as the client and fiber2 as the peer
         temporary_channel = self.fiber1.get_client().open_channel(
             {
-                "peer_id": self.fiber2.get_peer_id(),
+                "pubkey": self.fiber2.get_pubkey(),
                 "funding_amount": hex(DEFAULT_MIN_DEPOSIT_CKB),
                 "public": True,
             }
@@ -26,7 +26,7 @@ class TestTlcFeeProportionalMillionths(FiberTest):
         )
         # 3. Wait for the channel state to be "CHANNEL_READY"
         self.wait_for_channel_state(
-            self.fiber2.get_client(), self.fiber1.get_peer_id(), "CHANNEL_READY"
+            self.fiber2.get_client(), self.fiber1.get_pubkey(), "CHANNEL_READY"
         )
 
         self.fiber3 = self.start_new_fiber(self.generate_account(10000))

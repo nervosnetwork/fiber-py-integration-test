@@ -10,7 +10,7 @@ class TestChainStatus(FiberTest):
     def test_chain_status_pending(self):
         self.fiber1.get_client().open_channel(
             {
-                "peer_id": self.fiber2.get_peer_id(),
+                "pubkey": self.fiber2.get_pubkey(),
                 "funding_amount": hex(500 * 100000000),
                 "public": True,
             }
@@ -18,7 +18,7 @@ class TestChainStatus(FiberTest):
         # // AWAITING_TX_SIGNATURES
         self.wait_for_channel_state(
             self.fiber1.get_client(),
-            self.fiber2.get_peer_id(),
+            self.fiber2.get_pubkey(),
             "AWAITING_TX_SIGNATURES",
         )
 
@@ -31,7 +31,7 @@ class TestChainStatus(FiberTest):
             }
         )
         self.wait_for_channel_state(
-            self.fiber1.get_client(), self.fiber2.get_peer_id(), "CHANNEL_READY"
+            self.fiber1.get_client(), self.fiber2.get_pubkey(), "CHANNEL_READY"
         )
         channels = self.fiber1.get_client().list_channels({})
         assert channels["channels"][0]["tlc_fee_proportional_millionths"] == hex(2000)

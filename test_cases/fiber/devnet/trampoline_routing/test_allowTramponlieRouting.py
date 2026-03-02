@@ -35,7 +35,7 @@ class TestAllowTrampolineRouting(FiberTest):
     def _wait_node_in_graph(self, client, node_id, timeout=60):
         for _ in range(timeout):
             nodes = client.get_client().graph_nodes({}).get("nodes", [])
-            if any(n.get("node_id") == node_id for n in nodes):
+            if any(n.get("pubkey") == node_id for n in nodes):
                 return
             time.sleep(1)
         raise TimeoutError(f"node_id not found in graph_nodes: {node_id}")
@@ -47,27 +47,27 @@ class TestAllowTrampolineRouting(FiberTest):
 
         self.fiber1.get_client().open_channel(
             {
-                "peer_id": self.fiber2.get_peer_id(),
+                "pubkey": self.fiber2.get_pubkey(),
                 "funding_amount": hex(500 * 100000000),
                 "public": True,
             }
         )
         self.wait_for_channel_state(
-            self.fiber1.get_client(), self.fiber2.get_peer_id(), "CHANNEL_READY"
+            self.fiber1.get_client(), self.fiber2.get_pubkey(), "CHANNEL_READY"
         )
 
         self.fiber2.get_client().open_channel(
             {
-                "peer_id": self.fiber3.get_peer_id(),
+                "pubkey": self.fiber3.get_pubkey(),
                 "funding_amount": hex(500 * 100000000),
                 "public": False,
             }
         )
         self.wait_for_channel_state(
-            self.fiber2.get_client(), self.fiber3.get_peer_id(), "CHANNEL_READY"
+            self.fiber2.get_client(), self.fiber3.get_pubkey(), "CHANNEL_READY"
         )
         self._wait_node_in_graph(
-            self.fiber1, self.fiber2.get_client().node_info()["node_id"]
+            self.fiber1, self.fiber2.get_client().node_info()["pubkey"]
         )
         time.sleep(1)
 
@@ -86,7 +86,7 @@ class TestAllowTrampolineRouting(FiberTest):
             {
                 "invoice": invoice["invoice_address"],
                 "max_fee_amount": hex(20000000),
-                "trampoline_hops": [self.fiber2.get_client().node_info()["node_id"]],
+                "trampoline_hops": [self.fiber2.get_client().node_info()["pubkey"]],
             }
         )
         self.wait_payment_state(self.fiber1, payment["payment_hash"], "Success")
@@ -107,7 +107,7 @@ class TestAllowTrampolineRouting(FiberTest):
             {
                 "invoice": invoice["invoice_address"],
                 "max_fee_amount": hex(20000000),
-                "trampoline_hops": [self.fiber2.get_client().node_info()["node_id"]],
+                "trampoline_hops": [self.fiber2.get_client().node_info()["pubkey"]],
             }
         )
         try:
@@ -122,11 +122,11 @@ class TestAllowTrampolineRouting(FiberTest):
         self._build_tr001_topology()
         payment = self.fiber1.get_client().send_payment(
             {
-                "target_pubkey": self.fiber3.get_client().node_info()["node_id"],
+                "target_pubkey": self.fiber3.get_client().node_info()["pubkey"],
                 "amount": hex(10 * 100000000),
                 "keysend": True,
                 "max_fee_amount": hex(20000000),
-                "trampoline_hops": [self.fiber2.get_client().node_info()["node_id"]],
+                "trampoline_hops": [self.fiber2.get_client().node_info()["pubkey"]],
             }
         )
         self.wait_payment_state(self.fiber1, payment["payment_hash"], "Success")
@@ -140,51 +140,51 @@ class TestAllowTrampolineRouting(FiberTest):
 
         self.fiber1.get_client().open_channel(
             {
-                "peer_id": self.fiber2.get_peer_id(),
+                "pubkey": self.fiber2.get_pubkey(),
                 "funding_amount": hex(500 * 100000000),
                 "public": True,
             }
         )
         self.wait_for_channel_state(
-            self.fiber1.get_client(), self.fiber2.get_peer_id(), "CHANNEL_READY"
+            self.fiber1.get_client(), self.fiber2.get_pubkey(), "CHANNEL_READY"
         )
         self.fiber2.get_client().open_channel(
             {
-                "peer_id": self.fiber3.get_peer_id(),
+                "pubkey": self.fiber3.get_pubkey(),
                 "funding_amount": hex(500 * 100000000),
                 "public": True,
             }
         )
         self.wait_for_channel_state(
-            self.fiber2.get_client(), self.fiber3.get_peer_id(), "CHANNEL_READY"
+            self.fiber2.get_client(), self.fiber3.get_pubkey(), "CHANNEL_READY"
         )
         self.fiber3.get_client().open_channel(
             {
-                "peer_id": self.fiber4.get_peer_id(),
+                "pubkey": self.fiber4.get_pubkey(),
                 "funding_amount": hex(500 * 100000000),
                 "public": False,
             }
         )
         self.wait_for_channel_state(
-            self.fiber3.get_client(), self.fiber4.get_peer_id(), "CHANNEL_READY"
+            self.fiber3.get_client(), self.fiber4.get_pubkey(), "CHANNEL_READY"
         )
         self._wait_node_in_graph(
-            self.fiber1, self.fiber2.get_client().node_info()["node_id"]
+            self.fiber1, self.fiber2.get_client().node_info()["pubkey"]
         )
         self._wait_node_in_graph(
-            self.fiber1, self.fiber3.get_client().node_info()["node_id"]
+            self.fiber1, self.fiber3.get_client().node_info()["pubkey"]
         )
         time.sleep(1)
 
         payment = self.fiber1.get_client().send_payment(
             {
-                "target_pubkey": self.fiber4.get_client().node_info()["node_id"],
+                "target_pubkey": self.fiber4.get_client().node_info()["pubkey"],
                 "amount": hex(10 * 100000000),
                 "keysend": True,
                 "max_fee_amount": hex(20000000),
                 "trampoline_hops": [
-                    self.fiber2.get_client().node_info()["node_id"],
-                    self.fiber3.get_client().node_info()["node_id"],
+                    self.fiber2.get_client().node_info()["pubkey"],
+                    self.fiber3.get_client().node_info()["pubkey"],
                 ],
             }
         )
@@ -203,52 +203,52 @@ class TestAllowTrampolineRouting(FiberTest):
 
         self.fiber1.get_client().open_channel(
             {
-                "peer_id": self.fiber2.get_peer_id(),
+                "pubkey": self.fiber2.get_pubkey(),
                 "funding_amount": hex(500 * 100000000),
                 "public": True,
             }
         )
         self.wait_for_channel_state(
-            self.fiber1.get_client(), self.fiber2.get_peer_id(), "CHANNEL_READY"
+            self.fiber1.get_client(), self.fiber2.get_pubkey(), "CHANNEL_READY"
         )
         self.fiber2.get_client().open_channel(
             {
-                "peer_id": self.fiber3.get_peer_id(),
+                "pubkey": self.fiber3.get_pubkey(),
                 "funding_amount": hex(500 * 100000000),
                 "public": True,
             }
         )
         self.wait_for_channel_state(
-            self.fiber2.get_client(), self.fiber3.get_peer_id(), "CHANNEL_READY"
+            self.fiber2.get_client(), self.fiber3.get_pubkey(), "CHANNEL_READY"
         )
         self.fiber3.get_client().open_channel(
             {
-                "peer_id": self.fiber4.get_peer_id(),
+                "pubkey": self.fiber4.get_pubkey(),
                 "funding_amount": hex(500 * 100000000),
                 "public": False,
             }
         )
         self.wait_for_channel_state(
-            self.fiber3.get_client(), self.fiber4.get_peer_id(), "CHANNEL_READY"
+            self.fiber3.get_client(), self.fiber4.get_pubkey(), "CHANNEL_READY"
         )
         self._wait_node_in_graph(
-            self.fiber1, self.fiber2.get_client().node_info()["node_id"]
+            self.fiber1, self.fiber2.get_client().node_info()["pubkey"]
         )
         self._wait_node_in_graph(
-            self.fiber1, self.fiber3.get_client().node_info()["node_id"]
+            self.fiber1, self.fiber3.get_client().node_info()["pubkey"]
         )
         time.sleep(1)
 
         with pytest.raises(Exception) as exc_info:
             self.fiber1.get_client().send_payment(
                 {
-                    "target_pubkey": self.fiber4.get_client().node_info()["node_id"],
+                    "target_pubkey": self.fiber4.get_client().node_info()["pubkey"],
                     "amount": hex(10 * 100000000),
                     "keysend": True,
                     "max_fee_amount": hex(1),
                     "trampoline_hops": [
-                        self.fiber2.get_client().node_info()["node_id"],
-                        self.fiber3.get_client().node_info()["node_id"],
+                        self.fiber2.get_client().node_info()["pubkey"],
+                        self.fiber3.get_client().node_info()["pubkey"],
                     ],
                 }
             )
@@ -262,13 +262,13 @@ class TestAllowTrampolineRouting(FiberTest):
         with pytest.raises(Exception) as exc_info:
             self.fiber1.get_client().send_payment(
                 {
-                    "target_pubkey": self.fiber3.get_client().node_info()["node_id"],
+                    "target_pubkey": self.fiber3.get_client().node_info()["pubkey"],
                     "amount": hex(10 * 100000000),
                     "keysend": True,
                     "max_fee_amount": hex(10000000),
                     "tlc_expiry_limit": hex(1000),
                     "trampoline_hops": [
-                        self.fiber2.get_client().node_info()["node_id"]
+                        self.fiber2.get_client().node_info()["pubkey"]
                     ],
                 }
             )
@@ -283,12 +283,12 @@ class TestAllowTrampolineRouting(FiberTest):
         with pytest.raises(Exception) as exc_info:
             self.fiber1.get_client().send_payment(
                 {
-                    "target_pubkey": self.fiber3.get_client().node_info()["node_id"],
+                    "target_pubkey": self.fiber3.get_client().node_info()["pubkey"],
                     "amount": hex(10 * 100000000),
                     "keysend": True,
                     "max_fee_amount": hex(10000000),
                     "trampoline_hops": [
-                        self.fiber1.get_client().node_info()["node_id"]
+                        self.fiber1.get_client().node_info()["pubkey"]
                     ],
                 }
             )

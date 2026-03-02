@@ -197,7 +197,7 @@ class TestCancelInvoice(FiberTest):
         # Step 1: Open a new channel
         temporary_channel_id = self.fiber2.get_client().open_channel(
             {
-                "peer_id": self.fiber1.get_peer_id(),
+                "pubkey": self.fiber1.get_pubkey(),
                 "funding_amount": hex(1000 * 100000000),
                 "public": True,
                 # "tlc_fee_proportional_millionths": "0x4B0",
@@ -205,7 +205,7 @@ class TestCancelInvoice(FiberTest):
         )
         self.wait_for_channel_state(
             self.fiber2.get_client(),
-            self.fiber1.get_peer_id(),
+            self.fiber1.get_pubkey(),
             "CHANNEL_READY",
             120,
         )
@@ -286,7 +286,7 @@ class TestCancelInvoice(FiberTest):
         # Step 1: Open a new channel
         temporary_channel_id = self.fiber2.get_client().open_channel(
             {
-                "peer_id": self.fiber1.get_peer_id(),
+                "pubkey": self.fiber1.get_pubkey(),
                 "funding_amount": hex(1000 * 100000000),
                 "public": True,
                 # "tlc_fee_proportional_millionths": "0x4B0",
@@ -294,7 +294,7 @@ class TestCancelInvoice(FiberTest):
         )
         self.wait_for_channel_state(
             self.fiber2.get_client(),
-            self.fiber1.get_peer_id(),
+            self.fiber1.get_pubkey(),
             "CHANNEL_READY",
             120,
         )
@@ -360,7 +360,7 @@ class TestCancelInvoice(FiberTest):
         # Step 1: Open a new channel
         temporary_channel_id = self.fiber2.get_client().open_channel(
             {
-                "peer_id": self.fiber1.get_peer_id(),
+                "pubkey": self.fiber1.get_pubkey(),
                 "funding_amount": hex(1000 * 100000000),
                 "public": True,
                 # "tlc_fee_proportional_millionths": "0x4B0",
@@ -368,7 +368,7 @@ class TestCancelInvoice(FiberTest):
         )
         self.wait_for_channel_state(
             self.fiber2.get_client(),
-            self.fiber1.get_peer_id(),
+            self.fiber1.get_pubkey(),
             "CHANNEL_READY",
             120,
         )

@@ -18,14 +18,14 @@ class TestMaxTlcNumberInFlightDebug(FiberTest):
         time.sleep(5)
         temporary_channel_id = self.fiber1.get_client().open_channel(
             {
-                "peer_id": self.fiber2.get_peer_id(),
+                "pubkey": self.fiber2.get_pubkey(),
                 "funding_amount": hex(200 * 100000000),
                 "public": True,
             }
         )
         time.sleep(1)
         self.wait_for_channel_state(
-            self.fiber1.get_client(), self.fiber2.get_peer_id(), "CHANNEL_READY", 120
+            self.fiber1.get_client(), self.fiber2.get_pubkey(), "CHANNEL_READY", 120
         )
         time.sleep(5)
         # transfer
@@ -103,7 +103,7 @@ class TestMaxTlcNumberInFlightDebug(FiberTest):
         time.sleep(5)
         temporary_channel_id = self.fiber1.get_client().open_channel(
             {
-                "peer_id": self.fiber2.get_peer_id(),
+                "pubkey": self.fiber2.get_pubkey(),
                 "funding_amount": hex(200 * 100000000),
                 "public": True,
                 "max_tlc_number_in_flight": hex(16),
@@ -111,7 +111,7 @@ class TestMaxTlcNumberInFlightDebug(FiberTest):
         )
         time.sleep(1)
         self.wait_for_channel_state(
-            self.fiber1.get_client(), self.fiber2.get_peer_id(), "CHANNEL_READY", 120
+            self.fiber1.get_client(), self.fiber2.get_pubkey(), "CHANNEL_READY", 120
         )
         time.sleep(5)
         # transfer
@@ -187,7 +187,7 @@ class TestMaxTlcNumberInFlightDebug(FiberTest):
         time.sleep(5)
         temporary_channel_id = self.fiber1.get_client().open_channel(
             {
-                "peer_id": self.fiber2.get_peer_id(),
+                "pubkey": self.fiber2.get_pubkey(),
                 "funding_amount": hex(200 * 100000000),
                 "public": True,
                 "max_tlc_number_in_flight": hex(5),
@@ -195,7 +195,7 @@ class TestMaxTlcNumberInFlightDebug(FiberTest):
         )
         time.sleep(1)
         self.wait_for_channel_state(
-            self.fiber1.get_client(), self.fiber2.get_peer_id(), "CHANNEL_READY", 120
+            self.fiber1.get_client(), self.fiber2.get_pubkey(), "CHANNEL_READY", 120
         )
         time.sleep(5)
         # transfer

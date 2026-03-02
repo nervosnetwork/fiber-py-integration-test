@@ -55,7 +55,7 @@ class TestSendPaymentWithRouter(FiberTest):
         time.sleep(1)
         self.fibers[3].get_client().open_channel(  # d -a private channel
             {
-                "peer_id": self.fibers[0].get_peer_id(),
+                "pubkey": self.fibers[0].get_pubkey(),
                 "funding_amount": hex(fiber1_balance + DEFAULT_MIN_DEPOSIT_CKB),
                 "tlc_fee_proportional_millionths": hex(fiber1_fee),
                 "public": False,
@@ -63,15 +63,15 @@ class TestSendPaymentWithRouter(FiberTest):
         )
         time.sleep(1)
         self.wait_for_channel_state(
-            self.fibers[3].get_client(), self.fibers[0].get_peer_id(), "CHANNEL_READY"
+            self.fibers[3].get_client(), self.fibers[0].get_pubkey(), "CHANNEL_READY"
         )
         # 查看d-a的channeloutpoint，预期能调用成功
-        print(f"a peer_id:{self.fibers[0].get_peer_id()}")
-        print(f"d peer_id:{self.fibers[3].get_peer_id()}")
+        print(f"a peer_id:{self.fibers[0].get_pubkey()}")
+        print(f"d peer_id:{self.fibers[3].get_pubkey()}")
         channels = (
             self.fibers[3]
             .get_client()
-            .list_channels({"peer_id": self.fibers[0].get_peer_id()})
+            .list_channels({"pubkey": self.fibers[0].get_pubkey()})
         )
         print(f"d-a,channel:{channels}")
         da_channel_outpoint = channels["channels"][0]["channel_outpoint"]
@@ -88,7 +88,7 @@ class TestSendPaymentWithRouter(FiberTest):
                         {
                             "pubkey": self.fibers[0]
                             .get_client()
-                            .node_info()["node_id"],
+                            .node_info()["pubkey"],
                             "channel_outpoint": da_channel_outpoint,
                         },
                     ],
@@ -100,7 +100,7 @@ class TestSendPaymentWithRouter(FiberTest):
         hop = router_hops["router_hops"][0]
         print(f"hop:{hop}")
         assert hop["channel_outpoint"] == da_channel_outpoint
-        assert hop["target"] == self.fibers[0].get_client().node_info()["node_id"]
+        assert hop["target"] == self.fibers[0].get_client().node_info()["pubkey"]
         assert hop["amount_received"] == hex(1 + DEFAULT_MIN_DEPOSIT_CKB)
 
         # d call a ,route info: d-a channel outpoint
@@ -145,7 +145,7 @@ class TestSendPaymentWithRouter(FiberTest):
         time.sleep(1)
         self.fibers[3].get_client().open_channel(  # d -a private channel
             {
-                "peer_id": self.fibers[0].get_peer_id(),
+                "pubkey": self.fibers[0].get_pubkey(),
                 "funding_amount": hex(fiber1_balance + DEFAULT_MIN_DEPOSIT_CKB),
                 "tlc_fee_proportional_millionths": hex(fiber1_fee),
                 "public": False,
@@ -153,15 +153,15 @@ class TestSendPaymentWithRouter(FiberTest):
         )
         time.sleep(1)
         self.wait_for_channel_state(
-            self.fibers[3].get_client(), self.fibers[0].get_peer_id(), "CHANNEL_READY"
+            self.fibers[3].get_client(), self.fibers[0].get_pubkey(), "CHANNEL_READY"
         )
         # 查看d-a的channeloutpoint，预期能调用成功
-        print(f"a peer_id:{self.fibers[0].get_peer_id()}")
-        print(f"d peer_id:{self.fibers[3].get_peer_id()}")
+        print(f"a peer_id:{self.fibers[0].get_pubkey()}")
+        print(f"d peer_id:{self.fibers[3].get_pubkey()}")
         channels = (
             self.fibers[3]
             .get_client()
-            .list_channels({"peer_id": self.fibers[0].get_peer_id()})
+            .list_channels({"pubkey": self.fibers[0].get_pubkey()})
         )
         print(f"d-a,channel:{channels}")
         da_channel_outpoint = channels["channels"][0]["channel_outpoint"]
@@ -178,7 +178,7 @@ class TestSendPaymentWithRouter(FiberTest):
                         {
                             "pubkey": self.fibers[0]
                             .get_client()
-                            .node_info()["node_id"],
+                            .node_info()["pubkey"],
                             "channel_outpoint": da_channel_outpoint,
                         },
                     ],
@@ -190,7 +190,7 @@ class TestSendPaymentWithRouter(FiberTest):
         hop = router_hops["router_hops"][0]
         print(f"hop:{hop}")
         assert hop["channel_outpoint"] == da_channel_outpoint
-        assert hop["target"] == self.fibers[0].get_client().node_info()["node_id"]
+        assert hop["target"] == self.fibers[0].get_client().node_info()["pubkey"]
         assert hop["amount_received"] == hex(1 + DEFAULT_MIN_DEPOSIT_CKB)
 
         # b call a ,走route info: b-c-d-私-a网络（检查应该不支持自动拼接完整的路由）
@@ -237,7 +237,7 @@ class TestSendPaymentWithRouter(FiberTest):
         time.sleep(1)
         self.fibers[3].get_client().open_channel(  # d -a private channel
             {
-                "peer_id": self.fibers[0].get_peer_id(),
+                "pubkey": self.fibers[0].get_pubkey(),
                 "funding_amount": hex(fiber1_balance + DEFAULT_MIN_DEPOSIT_CKB),
                 "tlc_fee_proportional_millionths": hex(fiber1_fee),
                 "public": False,
@@ -245,7 +245,7 @@ class TestSendPaymentWithRouter(FiberTest):
         )
         time.sleep(1)
         self.wait_for_channel_state(
-            self.fibers[3].get_client(), self.fibers[0].get_peer_id(), "CHANNEL_READY"
+            self.fibers[3].get_client(), self.fibers[0].get_pubkey(), "CHANNEL_READY"
         )
 
         bc_channel_outpoint = self.get_channel_outpoint(self.fibers[1], self.fibers[2])
@@ -268,7 +268,7 @@ class TestSendPaymentWithRouter(FiberTest):
                         {
                             "pubkey": self.fibers[2]
                             .get_client()
-                            .node_info()["node_id"],
+                            .node_info()["pubkey"],
                             "channel_outpoint": bc_channel_outpoint,
                         },
                     ],
@@ -288,7 +288,7 @@ class TestSendPaymentWithRouter(FiberTest):
                         {
                             "pubkey": self.fibers[3]
                             .get_client()
-                            .node_info()["node_id"],
+                            .node_info()["pubkey"],
                             "channel_outpoint": cd_channel_outpoint,
                         },
                     ],
@@ -308,7 +308,7 @@ class TestSendPaymentWithRouter(FiberTest):
                         {
                             "pubkey": self.fibers[0]
                             .get_client()
-                            .node_info()["node_id"],
+                            .node_info()["pubkey"],
                             "channel_outpoint": da_channel_outpoint,
                         },
                     ],
@@ -328,7 +328,7 @@ class TestSendPaymentWithRouter(FiberTest):
                         {
                             "pubkey": self.fibers[1]
                             .get_client()
-                            .node_info()["node_id"],
+                            .node_info()["pubkey"],
                             "channel_outpoint": ab_channel_outpoint,
                         },
                     ],
@@ -390,11 +390,11 @@ class TestSendPaymentWithRouter(FiberTest):
             channel_outpoint: 通道outpoint
         """
         channels = from_fiber.get_client().list_channels(
-            {"peer_id": to_fiber.get_peer_id()}
+            {"pubkey": to_fiber.get_pubkey()}
         )
-        print(f"{from_fiber.get_peer_id()}-{to_fiber.get_peer_id()},channel:{channels}")
+        print(f"{from_fiber.get_pubkey()}-{to_fiber.get_pubkey()},channel:{channels}")
         channel_outpoint = channels["channels"][0]["channel_outpoint"]
         print(
-            f"{from_fiber.get_peer_id()}-{to_fiber.get_peer_id()}, channel_outpoint:{channel_outpoint}"
+            f"{from_fiber.get_pubkey()}-{to_fiber.get_pubkey()}, channel_outpoint:{channel_outpoint}"
         )
         return channel_outpoint

@@ -18,7 +18,7 @@ class TestNUser(FiberTest):
         for i in range(0, len(self.fibers) - 1):
             self.fibers[i].get_client().open_channel(
                 {
-                    "peer_id": self.fibers[-1].get_peer_id(),
+                    "pubkey": self.fibers[-1].get_pubkey(),
                     "funding_amount": hex(1000 * 100000000),
                     "public": True,
                 }
@@ -26,7 +26,7 @@ class TestNUser(FiberTest):
         for i in range(0, len(self.fibers) - 1):
             self.wait_for_channel_state(
                 self.fibers[i].get_client(),
-                self.fibers[-1].get_peer_id(),
+                self.fibers[-1].get_pubkey(),
                 "CHANNEL_READY",
                 120,
             )
@@ -39,7 +39,7 @@ class TestNUser(FiberTest):
                 {
                     "channel_id": self.fibers[i]
                     .get_client()
-                    .list_channels({"peer_id": self.fibers[-1].get_peer_id()})[
+                    .list_channels({"pubkey": self.fibers[-1].get_pubkey()})[
                         "channels"
                     ][0]["channel_id"],
                     "close_script": self.get_account_script(
@@ -50,5 +50,5 @@ class TestNUser(FiberTest):
             )
         for i in range(0, len(self.fibers) - 1):
             self.wait_for_channel_state(
-                self.fibers[i], self.fibers[-1].get_peer_id(), "CLOSED"
+                self.fibers[i], self.fibers[-1].get_pubkey(), "CLOSED"
             )

@@ -31,13 +31,13 @@ class WasmRpcTest(FiberTest):
         # abandon_channel
         wasmFiber.get_client().open_channel(
             {
-                "peer_id": self.fiber1.get_peer_id(),
+                "pubkey": self.fiber1.get_pubkey(),
                 "funding_amount": hex(1000 * 100000000 + DEFAULT_MIN_DEPOSIT_CKB),
                 "public": True,
             }
         )
         self.wait_for_channel_state(
-            wasmFiber.get_client(), self.fiber1.get_peer_id(), "AWAITING_TX_SIGNATURES"
+            wasmFiber.get_client(), self.fiber1.get_pubkey(), "AWAITING_TX_SIGNATURES"
         )
         pending_channel_id = wasmFiber.get_client().list_channels({})["channels"][0][
             "channel_id"
@@ -51,20 +51,20 @@ class WasmRpcTest(FiberTest):
         )
         time.sleep(1)
         self.wait_for_channel_state(
-            wasmFiber.get_client(), self.fiber1.get_peer_id(), "CHANNEL_READY"
+            wasmFiber.get_client(), self.fiber1.get_pubkey(), "CHANNEL_READY"
         )
 
         # accept_channel
         # get wasm fiber peer_id
         list_peers = self.fiber1.get_client().list_peers()
-        wasm_node_id = wasmFiber.get_client().node_info()["node_id"]
+        wasm_node_id = wasmFiber.get_client().node_info()["pubkey"]
         for peer in list_peers["peers"]:
             if peer["pubkey"] == wasm_node_id:
-                wasm_fiber_peer_id = peer["peer_id"]
+                wasm_fiber_peer_id = peer["pubkey"]
                 break
         temporary_channel = self.fiber1.get_client().open_channel(
             {
-                "peer_id": wasm_fiber_peer_id,
+                "pubkey": wasm_fiber_peer_id,
                 "funding_amount": hex(100 + DEFAULT_MIN_DEPOSIT_CKB),
                 "public": True,
             }
@@ -77,7 +77,7 @@ class WasmRpcTest(FiberTest):
             }
         )
         self.wait_for_channel_state(
-            wasmFiber.get_client(), self.fiber1.get_peer_id(), "CHANNEL_READY"
+            wasmFiber.get_client(), self.fiber1.get_pubkey(), "CHANNEL_READY"
         )
         # list_channels
         wasm_list_channel = wasmFiber.get_client().list_channels({})
@@ -120,7 +120,7 @@ class WasmRpcTest(FiberTest):
         print("tx_message:", tx_message)
         self.wait_for_channel_state(
             wasmFiber.get_client(),
-            self.fiber1.get_peer_id(),
+            self.fiber1.get_pubkey(),
             "CLOSED",
             include_closed=True,
             channel_id=shutdown_channel_id,
@@ -201,7 +201,7 @@ class WasmRpcTest(FiberTest):
                 "udt_type_script": None,
                 "hops_info": [
                     {
-                        "pubkey": self.fiber1.get_client().node_info()["node_id"],
+                        "pubkey": self.fiber1.get_client().node_info()["pubkey"],
                         "channel_outpoint": channel_outpoint,
                     },
                 ],
@@ -221,7 +221,7 @@ class WasmRpcTest(FiberTest):
         # connect_peer
 
         # disconnect_peer
-        wasmFiber.get_client().disconnect_peer({"peer_id": self.fiber1.get_peer_id()})
+        wasmFiber.get_client().disconnect_peer({"pubkey": self.fiber1.get_pubkey()})
         # list_peers
         time.sleep(1)
         peers = wasmFiber.get_client().list_peers()

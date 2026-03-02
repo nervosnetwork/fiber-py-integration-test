@@ -28,7 +28,7 @@ class TestForceRestart(FiberTest):
         # open channel for fiber1 fiber2
         self.fiber1.get_client().open_channel(
             {
-                "peer_id": self.fiber2.get_peer_id(),
+                "pubkey": self.fiber2.get_pubkey(),
                 "funding_amount": hex(200 * 100000000),
                 "public": True,
             }
@@ -42,7 +42,7 @@ class TestForceRestart(FiberTest):
         node_info = self.fiber1.get_client().node_info()
         assert int(node_info["peers_count"], 16) >= 1
         self.wait_for_channel_state(
-            self.fiber1.get_client(), self.fiber2.get_peer_id(), "CHANNEL_READY", 120
+            self.fiber1.get_client(), self.fiber2.get_pubkey(), "CHANNEL_READY", 120
         )
         channels = self.fiber1.get_client().list_channels({})
         print(f"after restart query channel info:{channels}")
@@ -50,7 +50,7 @@ class TestForceRestart(FiberTest):
         # open channel for fiber 2 fiber3
         self.fiber2.get_client().open_channel(
             {
-                "peer_id": self.fiber3.get_peer_id(),
+                "pubkey": self.fiber3.get_pubkey(),
                 "funding_amount": hex(200 * 100000000),
                 "public": True,
             }
@@ -62,7 +62,7 @@ class TestForceRestart(FiberTest):
         node_info = self.fiber2.get_client().node_info()
         assert int(node_info["peers_count"], 16) >= 1
         self.wait_for_channel_state(
-            self.fiber2.get_client(), self.fiber3.get_peer_id(), "CHANNEL_READY", 120
+            self.fiber2.get_client(), self.fiber3.get_pubkey(), "CHANNEL_READY", 120
         )
         channels = self.fiber3.get_client().list_channels({})
         print(f"after restart query channel info:{channels}")
@@ -81,7 +81,7 @@ class TestForceRestart(FiberTest):
         # open channel for fiber1 fiber2
         self.fiber1.get_client().open_channel(
             {
-                "peer_id": self.fiber2.get_peer_id(),
+                "pubkey": self.fiber2.get_pubkey(),
                 "funding_amount": hex(200 * 100000000),
                 "public": True,
             }
@@ -96,7 +96,7 @@ class TestForceRestart(FiberTest):
         node_info = self.fiber1.get_client().node_info()
         assert int(node_info["peers_count"], 16) >= 1
         self.wait_for_channel_state(
-            self.fiber1.get_client(), self.fiber2.get_peer_id(), "CHANNEL_READY", 120
+            self.fiber1.get_client(), self.fiber2.get_pubkey(), "CHANNEL_READY", 120
         )
         channels = self.fiber1.get_client().list_channels({})
         print(f"after restart query channel info:{channels}")
@@ -115,24 +115,24 @@ class TestForceRestart(FiberTest):
         # open channel for fiber1 fiber2
         self.fiber1.get_client().open_channel(
             {
-                "peer_id": self.fiber2.get_peer_id(),
+                "pubkey": self.fiber2.get_pubkey(),
                 "funding_amount": hex(200 * 100000000),
                 "public": True,
             }
         )
         self.wait_for_channel_state(
-            self.fiber1.get_client(), self.fiber2.get_peer_id(), "CHANNEL_READY", 120
+            self.fiber1.get_client(), self.fiber2.get_pubkey(), "CHANNEL_READY", 120
         )
         # open channel for fiber 2 fiber3
         self.fiber2.get_client().open_channel(
             {
-                "peer_id": self.fiber3.get_peer_id(),
+                "pubkey": self.fiber3.get_pubkey(),
                 "funding_amount": hex(200 * 100000000),
                 "public": True,
             }
         )
         self.wait_for_channel_state(
-            self.fiber2.get_client(), self.fiber3.get_peer_id(), "CHANNEL_READY", 120
+            self.fiber2.get_client(), self.fiber3.get_pubkey(), "CHANNEL_READY", 120
         )
         channels = self.fiber1.get_client().list_channels({})
         print(f"before restart query channel info:{channels}")

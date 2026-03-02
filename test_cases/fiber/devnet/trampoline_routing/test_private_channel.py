@@ -17,7 +17,7 @@ class TestPrivateChannel(FiberTest):
 
         channel = self.fiber2.get_client().list_channels(
             {
-                "peer_id": self.fiber3.get_peer_id(),
+                "pubkey": self.fiber3.get_pubkey(),
             }
         )
         self.fiber2.get_client().update_channel(
@@ -26,12 +26,12 @@ class TestPrivateChannel(FiberTest):
         time.sleep(1)
         payment = self.fiber1.get_client().send_payment(
             {
-                "target_pubkey": self.fiber4.get_client().node_info()["node_id"],
+                "target_pubkey": self.fiber4.get_client().node_info()["pubkey"],
                 "amount": hex(1 * 100000000),
                 "keysend": True,
                 "trampoline_hops": [
-                    self.fiber2.get_client().node_info()["node_id"],
-                    self.fiber3.get_client().node_info()["node_id"],
+                    self.fiber2.get_client().node_info()["pubkey"],
+                    self.fiber3.get_client().node_info()["pubkey"],
                 ],
             }
         )
@@ -40,11 +40,11 @@ class TestPrivateChannel(FiberTest):
         with pytest.raises(Exception) as exc_info:
             payment = self.fiber2.get_client().send_payment(
                 {
-                    "target_pubkey": self.fiber4.get_client().node_info()["node_id"],
+                    "target_pubkey": self.fiber4.get_client().node_info()["pubkey"],
                     "amount": hex(1 * 100000000),
                     "keysend": True,
                     "trampoline_hops": [
-                        self.fiber3.get_client().node_info()["node_id"],
+                        self.fiber3.get_client().node_info()["pubkey"],
                     ],
                 }
             )

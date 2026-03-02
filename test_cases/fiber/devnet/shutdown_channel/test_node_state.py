@@ -45,7 +45,7 @@ class TestNodeState(FiberTest):
         time.sleep(3)
         # node1 send payment to node4
         node4_info = self.fiber4.get_client().node_info()
-        fiber4_pub = node4_info["node_id"]
+        fiber4_pub = node4_info["pubkey"]
         for i in range(30):
             payment = self.fiber1.get_client().send_payment(
                 {
@@ -128,7 +128,7 @@ class TestNodeState(FiberTest):
         # } in tx_message["output_cells"]
         # payment = self.fiber1.get_client().send_payment(
         #     {
-        #         "target_pubkey": self.fiber3.get_client().node_info()["node_id"],
+        #         "target_pubkey": self.fiber3.get_client().node_info()["pubkey"],
         #         "amount": hex(1 * 100000000),
         #         "keysend": True,
         #         # "invoice": "0x123",

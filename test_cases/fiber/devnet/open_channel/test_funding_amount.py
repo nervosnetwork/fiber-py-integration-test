@@ -18,7 +18,7 @@ class FundingAmount(FiberTest):
         with pytest.raises(Exception) as exc_info:
             temporary_channel_id = self.fiber1.get_client().open_channel(
                 {
-                    "peer_id": self.fiber2.get_peer_id(),
+                    "pubkey": self.fiber2.get_pubkey(),
                     "funding_amount": hex(0),
                     "public": True,
                     # "tlc_fee_proportional_millionths": "0x4B0",
@@ -36,7 +36,7 @@ class FundingAmount(FiberTest):
     def test_funding_amount_udt_is_zero(self):
         temporary_channel_id = self.fiber1.get_client().open_channel(
             {
-                "peer_id": self.fiber2.get_peer_id(),
+                "pubkey": self.fiber2.get_pubkey(),
                 "funding_amount": hex(0),
                 "public": True,
                 "funding_udt_type_script": self.get_account_udt_script(
@@ -53,7 +53,7 @@ class FundingAmount(FiberTest):
         #     }
         # )
         self.wait_for_channel_state(
-            self.fiber1.get_client(), self.fiber2.get_peer_id(), "CHANNEL_READY", 120
+            self.fiber1.get_client(), self.fiber2.get_pubkey(), "CHANNEL_READY", 120
         )
 
     def test_funding_amount_ckb_lt_62(self):
@@ -68,7 +68,7 @@ class FundingAmount(FiberTest):
         with pytest.raises(Exception) as exc_info:
             temporary_channel_id = self.fiber1.get_client().open_channel(
                 {
-                    "peer_id": self.fiber2.get_peer_id(),
+                    "pubkey": self.fiber2.get_pubkey(),
                     "funding_amount": hex(DEFAULT_MIN_DEPOSIT_CKB - 1),
                     "public": True,
                     # "tlc_fee_proportional_millionths": "0x4B0",
@@ -91,7 +91,7 @@ class FundingAmount(FiberTest):
         with pytest.raises(Exception) as exc_info:
             temporary_channel_id = self.fiber1.get_client().open_channel(
                 {
-                    "peer_id": self.fiber2.get_peer_id(),
+                    "pubkey": self.fiber2.get_pubkey(),
                     "funding_amount": "0xfffffffffffffffffffffffffffffff",
                     "public": True,
                     # "tlc_fee_proportional_millionths": "0x4B0",
@@ -114,7 +114,7 @@ class FundingAmount(FiberTest):
         with pytest.raises(Exception) as exc_info:
             temporary_channel_id = self.fiber1.get_client().open_channel(
                 {
-                    "peer_id": self.fiber2.get_peer_id(),
+                    "pubkey": self.fiber2.get_pubkey(),
                     "funding_amount": "0xfffffffffffffffffffffffffffffffffffffffffffff",
                     "public": True,
                     "funding_udt_type_script": self.get_account_udt_script(
@@ -145,7 +145,7 @@ class FundingAmount(FiberTest):
         # with pytest.raises(Exception) as exc_info:
         temporary_channel_id = self.fiber1.get_client().open_channel(
             {
-                "peer_id": self.fiber2.get_peer_id(),
+                "pubkey": self.fiber2.get_pubkey(),
                 # "funding_amount": "0xfffffffffffffffffffffffffffffff",
                 "funding_amount": hex(
                     int("0xfffffffffffffffffffffffffffffff", 16) - 1000
@@ -158,7 +158,7 @@ class FundingAmount(FiberTest):
             }
         )
         self.wait_for_channel_state(
-            self.fiber1.get_client(), self.fiber2.get_peer_id(), "CHANNEL_READY"
+            self.fiber1.get_client(), self.fiber2.get_pubkey(), "CHANNEL_READY"
         )
 
     def test_funding_amount_udt_gt_account_balance(self):
@@ -170,7 +170,7 @@ class FundingAmount(FiberTest):
         time.sleep(1)
         temporary_channel_id = self.fiber3.get_client().open_channel(
             {
-                "peer_id": self.fiber1.get_peer_id(),
+                "pubkey": self.fiber1.get_pubkey(),
                 "funding_amount": hex(1000 * 100000000 + 1),
                 "public": True,
                 "funding_udt_type_script": self.get_account_udt_script(
@@ -182,7 +182,7 @@ class FundingAmount(FiberTest):
         time.sleep(3)
         # self.wait_for_channel_state(
         #     self.fiber3.get_client(),
-        #     self.fiber1.get_peer_id(),
+        #     self.fiber1.get_pubkey(),
         #     "NEGOTIATING_FUNDING",
         #     120,
         # )
@@ -201,7 +201,7 @@ class FundingAmount(FiberTest):
         capacity = self.Ckb_cli.wallet_get_capacity(self.account2["address"]["testnet"])
         temporary_channel_id = self.fiber2.get_client().open_channel(
             {
-                "peer_id": self.fiber1.get_peer_id(),
+                "pubkey": self.fiber1.get_pubkey(),
                 "funding_amount": hex(int(capacity) * 100000000 * 2),
                 "public": True,
                 # "tlc_fee_proportional_millionths": "0x4B0",
@@ -209,7 +209,7 @@ class FundingAmount(FiberTest):
         )
         self.wait_for_channel_state(
             self.fiber2.get_client(),
-            self.fiber1.get_peer_id(),
+            self.fiber1.get_pubkey(),
             "NEGOTIATING_FUNDING",
             120,
         )
@@ -222,7 +222,7 @@ class FundingAmount(FiberTest):
         capacity = self.Ckb_cli.wallet_get_capacity(self.account2["address"]["testnet"])
         temporary_channel_id = self.fiber2.get_client().open_channel(
             {
-                "peer_id": self.fiber1.get_peer_id(),
+                "pubkey": self.fiber1.get_pubkey(),
                 "funding_amount": hex(int(capacity) * 100000000),
                 "public": True,
                 # "tlc_fee_proportional_millionths": "0x4B0",
@@ -230,7 +230,7 @@ class FundingAmount(FiberTest):
         )
         self.wait_for_channel_state(
             self.fiber2.get_client(),
-            self.fiber1.get_peer_id(),
+            self.fiber1.get_pubkey(),
             "NEGOTIATING_FUNDING",
             120,
         )
@@ -244,7 +244,7 @@ class FundingAmount(FiberTest):
         time.sleep(1)
         temporary_channel_id = self.fiber3.get_client().open_channel(
             {
-                "peer_id": self.fiber1.get_peer_id(),
+                "pubkey": self.fiber1.get_pubkey(),
                 "funding_amount": hex(1000 * 100000000),
                 "public": True,
                 "funding_udt_type_script": self.get_account_udt_script(
@@ -255,7 +255,7 @@ class FundingAmount(FiberTest):
         )
         self.wait_for_channel_state(
             self.fiber3.get_client(),
-            self.fiber1.get_peer_id(),
+            self.fiber1.get_pubkey(),
             "CHANNEL_READY",
             120,
         )
@@ -269,7 +269,7 @@ class FundingAmount(FiberTest):
         time.sleep(1)
         temporary_channel_id = self.fiber3.get_client().open_channel(
             {
-                "peer_id": self.fiber1.get_peer_id(),
+                "pubkey": self.fiber1.get_pubkey(),
                 "funding_amount": hex(1000 * 100000000 - 1),
                 "public": True,
                 "funding_udt_type_script": self.get_account_udt_script(
@@ -280,7 +280,7 @@ class FundingAmount(FiberTest):
         )
         self.wait_for_channel_state(
             self.fiber3.get_client(),
-            self.fiber1.get_peer_id(),
+            self.fiber1.get_pubkey(),
             "CHANNEL_READY",
             120,
         )
@@ -313,7 +313,7 @@ class FundingAmount(FiberTest):
         with pytest.raises(Exception) as exc_info:
             temporary_channel_id = self.fiber1.get_client().open_channel(
                 {
-                    "peer_id": self.fiber2.get_peer_id(),
+                    "pubkey": self.fiber2.get_pubkey(),
                     "funding_amount": hex(18446744073709551616),
                     "public": True,
                     # "tlc_fee_proportional_millionths": "0x4B0",

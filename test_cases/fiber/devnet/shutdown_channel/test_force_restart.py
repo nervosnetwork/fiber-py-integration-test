@@ -17,17 +17,17 @@ class TestForceRestart(FiberTest):
         """
         self.fiber1.get_client().open_channel(
             {
-                "peer_id": self.fiber2.get_peer_id(),
+                "pubkey": self.fiber2.get_pubkey(),
                 "funding_amount": hex(1000 * 100000000),
                 "public": True,
             }
         )
         open_channel_tx_hash = self.wait_and_check_tx_pool_fee(1000, False)
         self.wait_for_channel_state(
-            self.fiber1.get_client(), self.fiber2.get_peer_id(), "CHANNEL_READY", 120
+            self.fiber1.get_client(), self.fiber2.get_pubkey(), "CHANNEL_READY", 120
         )
         channels = self.fiber1.get_client().list_channels(
-            {"peer_id": self.fiber2.get_peer_id()}
+            {"pubkey": self.fiber2.get_pubkey()}
         )
         N1N2_CHANNEL_ID = channels["channels"][0]["channel_id"]
         self.fiber1.get_client().graph_channels()

@@ -31,7 +31,7 @@ class TestFundingUdtTypeScript(FiberTest):
         time.sleep(1)
         self.fiber1.get_client().open_channel(
             {
-                "peer_id": self.fiber3.get_peer_id(),
+                "pubkey": self.fiber3.get_pubkey(),
                 "funding_amount": hex(1000 * 100000000),
                 "public": True,
                 "funding_udt_type_script": self.get_account_udt_script(
@@ -46,7 +46,7 @@ class TestFundingUdtTypeScript(FiberTest):
         with pytest.raises(Exception) as exc_info:
             self.fiber3.get_client().open_channel(
                 {
-                    "peer_id": self.fiber1.get_peer_id(),
+                    "pubkey": self.fiber1.get_pubkey(),
                     "funding_amount": hex(1000 * 100000000),
                     "public": True,
                     "funding_udt_type_script": self.get_account_udt_script(
@@ -78,7 +78,7 @@ class TestFundingUdtTypeScript(FiberTest):
         # open channel
         temporary_channel_id = self.fiber1.get_client().open_channel(
             {
-                "peer_id": self.fiber2.get_peer_id(),
+                "pubkey": self.fiber2.get_pubkey(),
                 "funding_amount": hex(1000 * 100000000),
                 "public": True,
                 "funding_udt_type_script": self.get_account_udt_script(
@@ -89,7 +89,7 @@ class TestFundingUdtTypeScript(FiberTest):
         )
         time.sleep(1)
         self.wait_for_channel_state(
-            self.fiber1.get_client(), self.fiber2.get_peer_id(), "CHANNEL_READY", 120
+            self.fiber1.get_client(), self.fiber2.get_pubkey(), "CHANNEL_READY", 120
         )
         # transfer
         self.fiber1.get_client().graph_channels()
@@ -126,7 +126,7 @@ class TestFundingUdtTypeScript(FiberTest):
         )
 
         channels = self.fiber1.get_client().list_channels(
-            {"peer_id": self.fiber2.get_peer_id()}
+            {"pubkey": self.fiber2.get_pubkey()}
         )
         N1N2_CHANNEL_ID = channels["channels"][0]["channel_id"]
         self.fiber1.get_client().graph_channels()
@@ -197,7 +197,7 @@ class TestFundingUdtTypeScript(FiberTest):
         #                   self.get_account_udt_script(self.fiber2.account_private))
         temporary_channel = self.fiber1.get_client().open_channel(
             {
-                "peer_id": self.fiber2.get_peer_id(),
+                "pubkey": self.fiber2.get_pubkey(),
                 "funding_amount": hex(340282366920938463463374607431768211400 + 1),
                 "tlc_fee_proportional_millionths": hex(1000),
                 "public": True,
@@ -279,7 +279,7 @@ class TestFundingUdtTypeScript(FiberTest):
         )
         temporary_channel = self.fiber1.get_client().open_channel(
             {
-                "peer_id": self.fiber2.get_peer_id(),
+                "pubkey": self.fiber2.get_pubkey(),
                 "funding_amount": hex(100000000 - 1),
                 "tlc_fee_proportional_millionths": hex(1000),
                 "public": True,

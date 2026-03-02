@@ -83,13 +83,13 @@ class TestSettleInvoiceEdgeCases(FiberTest):
         """
         self.fiber2.get_client().open_channel(
             {
-                "peer_id": self.fiber1.get_peer_id(),
+                "pubkey": self.fiber1.get_pubkey(),
                 "funding_amount": hex(1000 * 100000000),
                 "public": True,
             }
         )
         self.wait_for_channel_state(
-            self.fiber2.get_client(), self.fiber1.get_peer_id(), "CHANNEL_READY", 120
+            self.fiber2.get_client(), self.fiber1.get_pubkey(), "CHANNEL_READY", 120
         )
 
         preimage = self.generate_random_preimage()
@@ -130,13 +130,13 @@ class TestSettleInvoiceEdgeCases(FiberTest):
         """
         self.fiber2.get_client().open_channel(
             {
-                "peer_id": self.fiber1.get_peer_id(),
+                "pubkey": self.fiber1.get_pubkey(),
                 "funding_amount": hex(1000 * 100000000),
                 "public": True,
             }
         )
         self.wait_for_channel_state(
-            self.fiber2.get_client(), self.fiber1.get_peer_id(), "CHANNEL_READY", 120
+            self.fiber2.get_client(), self.fiber1.get_pubkey(), "CHANNEL_READY", 120
         )
 
         expiry_sec = 6
@@ -222,13 +222,13 @@ class TestSettleInvoiceEdgeCases(FiberTest):
         """
         self.fiber2.get_client().open_channel(
             {
-                "peer_id": self.fiber1.get_peer_id(),
+                "pubkey": self.fiber1.get_pubkey(),
                 "funding_amount": hex(1000 * 100000000),
                 "public": True,
             }
         )
         self.wait_for_channel_state(
-            self.fiber2.get_client(), self.fiber1.get_peer_id(), "CHANNEL_READY", 120
+            self.fiber2.get_client(), self.fiber1.get_pubkey(), "CHANNEL_READY", 120
         )
 
         expiry_hex = "0x6"
@@ -350,13 +350,13 @@ class TestSettleInvoiceEdgeCases(FiberTest):
         """
         self.fiber2.get_client().open_channel(
             {
-                "peer_id": self.fiber1.get_peer_id(),
+                "pubkey": self.fiber1.get_pubkey(),
                 "funding_amount": hex(1000 * 100000000),
                 "public": True,
             }
         )
         self.wait_for_channel_state(
-            self.fiber2.get_client(), self.fiber1.get_peer_id(), "CHANNEL_READY", 120
+            self.fiber2.get_client(), self.fiber1.get_pubkey(), "CHANNEL_READY", 120
         )
         preimage = self.generate_random_preimage()
         payment_hash = sha256_hex(preimage)
