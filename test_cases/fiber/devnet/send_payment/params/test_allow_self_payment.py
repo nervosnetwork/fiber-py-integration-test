@@ -22,20 +22,20 @@ class TestAllowSelfPayment(FiberTest):
         # open channel a1-b1
         self.fiber1.get_client().open_channel(
             {
-                "peer_id": self.fiber2.get_peer_id(),
+                "pubkey": self.fiber2.get_pubkey(),
                 "funding_amount": hex(1000 * 100000000),
                 "public": True,
             }
         )
         self.wait_for_channel_state(
-            self.fiber1.get_client(), self.fiber2.get_peer_id(), "CHANNEL_READY"
+            self.fiber1.get_client(), self.fiber2.get_pubkey(), "CHANNEL_READY"
         )
         time.sleep(1)
         # allow_self_payment is none
         with pytest.raises(Exception) as exc_info:
             payment1 = self.fiber1.get_client().send_payment(
                 {
-                    "target_pubkey": self.fiber1.get_client().node_info()["node_id"],
+                    "target_pubkey": self.fiber1.get_client().node_info()["pubkey"],
                     "amount": hex(500 * 10000000),
                     "keysend": True,
                     "dry_run": True,
@@ -72,7 +72,7 @@ class TestAllowSelfPayment(FiberTest):
         with pytest.raises(Exception) as exc_info:
             payment1 = self.fiber1.get_client().send_payment(
                 {
-                    "target_pubkey": self.fiber1.get_client().node_info()["node_id"],
+                    "target_pubkey": self.fiber1.get_client().node_info()["pubkey"],
                     "amount": hex(500 * 10000000),
                     "keysend": True,
                     "dry_run": True,
@@ -107,7 +107,7 @@ class TestAllowSelfPayment(FiberTest):
         # a1(1000 )->b1(100)  a1 send payment with self pay
         payment1 = self.fiber1.get_client().send_payment(
             {
-                "target_pubkey": self.fiber2.get_client().node_info()["node_id"],
+                "target_pubkey": self.fiber2.get_client().node_info()["pubkey"],
                 "amount": hex(100 * 10000000),
                 "keysend": True,
             }
@@ -118,7 +118,7 @@ class TestAllowSelfPayment(FiberTest):
         with pytest.raises(Exception) as exc_info:
             payment1 = self.fiber1.get_client().send_payment(
                 {
-                    "target_pubkey": self.fiber1.get_client().node_info()["node_id"],
+                    "target_pubkey": self.fiber1.get_client().node_info()["pubkey"],
                     "amount": hex(10 * 10000000),
                     "keysend": True,
                     "dry_run": True,
@@ -169,27 +169,27 @@ class TestAllowSelfPayment(FiberTest):
         # open channel a1-b1
         self.fiber1.get_client().open_channel(
             {
-                "peer_id": self.fiber2.get_peer_id(),
+                "pubkey": self.fiber2.get_pubkey(),
                 "funding_amount": hex(1000 * 100000000),
                 "public": True,
             }
         )
         self.wait_for_channel_state(
-            self.fiber1.get_client(), self.fiber2.get_peer_id(), "CHANNEL_READY"
+            self.fiber1.get_client(), self.fiber2.get_pubkey(), "CHANNEL_READY"
         )
         self.wait_for_channel_state(
-            self.fiber2.get_client(), self.fiber1.get_peer_id(), "CHANNEL_READY"
+            self.fiber2.get_client(), self.fiber1.get_pubkey(), "CHANNEL_READY"
         )
         self.fiber2.get_client().open_channel(
             {
-                "peer_id": self.fiber1.get_peer_id(),
+                "pubkey": self.fiber1.get_pubkey(),
                 "funding_amount": hex(1000 * 100000000),
                 "public": True,
             }
         )
         time.sleep(2)
         self.wait_for_channel_state(
-            self.fiber2.get_client(), self.fiber1.get_peer_id(), "CHANNEL_READY"
+            self.fiber2.get_client(), self.fiber1.get_pubkey(), "CHANNEL_READY"
         )
         time.sleep(1)
 
@@ -197,7 +197,7 @@ class TestAllowSelfPayment(FiberTest):
         with pytest.raises(Exception) as exc_info:
             payment1 = self.fiber1.get_client().send_payment(
                 {
-                    "target_pubkey": self.fiber1.get_client().node_info()["node_id"],
+                    "target_pubkey": self.fiber1.get_client().node_info()["pubkey"],
                     "amount": hex(500 * 10000000),
                     "keysend": True,
                     "dry_run": True,
@@ -235,7 +235,7 @@ class TestAllowSelfPayment(FiberTest):
         # a1(100000000 )->b1(0)  a1 send payment with self pay
         payment1 = self.fiber1.get_client().send_payment(
             {
-                "target_pubkey": self.fiber1.get_client().node_info()["node_id"],
+                "target_pubkey": self.fiber1.get_client().node_info()["pubkey"],
                 "amount": hex(500 * 10000000),
                 "keysend": True,
                 "dry_run": True,
@@ -272,36 +272,36 @@ class TestAllowSelfPayment(FiberTest):
         self.fiber3.connect_peer(self.fiber1)
         self.fiber1.get_client().open_channel(
             {
-                "peer_id": self.fiber2.get_peer_id(),
+                "pubkey": self.fiber2.get_pubkey(),
                 "funding_amount": hex(1000 * 100000000),
                 "public": True,
             }
         )
         self.wait_for_channel_state(
-            self.fiber1.get_client(), self.fiber2.get_peer_id(), "CHANNEL_READY"
+            self.fiber1.get_client(), self.fiber2.get_pubkey(), "CHANNEL_READY"
         )
         self.fiber2.get_client().open_channel(
             {
-                "peer_id": self.fiber3.get_peer_id(),
+                "pubkey": self.fiber3.get_pubkey(),
                 "funding_amount": hex(1000 * 100000000),
                 "public": True,
             }
         )
         self.wait_for_channel_state(
-            self.fiber2.get_client(), self.fiber3.get_peer_id(), "CHANNEL_READY"
+            self.fiber2.get_client(), self.fiber3.get_pubkey(), "CHANNEL_READY"
         )
         self.wait_for_channel_state(
-            self.fiber3.get_client(), self.fiber2.get_peer_id(), "CHANNEL_READY"
+            self.fiber3.get_client(), self.fiber2.get_pubkey(), "CHANNEL_READY"
         )
         self.fiber3.get_client().open_channel(
             {
-                "peer_id": self.fiber1.get_peer_id(),
+                "pubkey": self.fiber1.get_pubkey(),
                 "funding_amount": hex(1000 * 100000000),
                 "public": True,
             }
         )
         self.wait_for_channel_state(
-            self.fiber3.get_client(), self.fiber1.get_peer_id(), "CHANNEL_READY"
+            self.fiber3.get_client(), self.fiber1.get_pubkey(), "CHANNEL_READY"
         )
         # node1 send to self
         time.sleep(1)
@@ -314,7 +314,7 @@ class TestAllowSelfPayment(FiberTest):
                 payment1 = self.fiber1.get_client().send_payment(
                     {
                         "target_pubkey": self.fiber1.get_client().node_info()[
-                            "node_id"
+                            "pubkey"
                         ],
                         "amount": hex(6 * 10000000),
                         "keysend": True,
@@ -340,42 +340,42 @@ class TestAllowSelfPayment(FiberTest):
         self.fiber3.connect_peer(self.fiber1)
         self.fiber1.get_client().open_channel(
             {
-                "peer_id": self.fiber2.get_peer_id(),
+                "pubkey": self.fiber2.get_pubkey(),
                 "funding_amount": hex(1000 * 100000000),
                 "public": True,
             }
         )
         self.wait_for_channel_state(
-            self.fiber1.get_client(), self.fiber2.get_peer_id(), "CHANNEL_READY"
+            self.fiber1.get_client(), self.fiber2.get_pubkey(), "CHANNEL_READY"
         )
         self.fiber2.get_client().open_channel(
             {
-                "peer_id": self.fiber3.get_peer_id(),
+                "pubkey": self.fiber3.get_pubkey(),
                 "funding_amount": hex(1000 * 100000000),
                 "public": True,
             }
         )
         self.wait_for_channel_state(
-            self.fiber2.get_client(), self.fiber3.get_peer_id(), "CHANNEL_READY"
+            self.fiber2.get_client(), self.fiber3.get_pubkey(), "CHANNEL_READY"
         )
         self.wait_for_channel_state(
-            self.fiber3.get_client(), self.fiber2.get_peer_id(), "CHANNEL_READY"
+            self.fiber3.get_client(), self.fiber2.get_pubkey(), "CHANNEL_READY"
         )
         self.fiber3.get_client().open_channel(
             {
-                "peer_id": self.fiber1.get_peer_id(),
+                "pubkey": self.fiber1.get_pubkey(),
                 "funding_amount": hex(1000 * 100000000),
                 "public": True,
             }
         )
         self.wait_for_channel_state(
-            self.fiber3.get_client(), self.fiber1.get_peer_id(), "CHANNEL_READY"
+            self.fiber3.get_client(), self.fiber1.get_pubkey(), "CHANNEL_READY"
         )
         # node1 send to self
         time.sleep(1)
         payment1 = self.fiber1.get_client().send_payment(
             {
-                "target_pubkey": self.fiber1.get_client().node_info()["node_id"],
+                "target_pubkey": self.fiber1.get_client().node_info()["pubkey"],
                 "amount": hex(6 * 10000000),
                 "keysend": True,
                 "allow_self_payment": True,

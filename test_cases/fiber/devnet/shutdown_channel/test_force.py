@@ -23,7 +23,7 @@ class TestForce(FiberTest):
     def test_node_offline(self):
         temporary_channel_id = self.fiber1.get_client().open_channel(
             {
-                "peer_id": self.fiber2.get_peer_id(),
+                "pubkey": self.fiber2.get_pubkey(),
                 "funding_amount": hex(200 * 100000000),
                 "public": False,
                 # "tlc_fee_proportional_millionths": "0x4B0",
@@ -31,11 +31,11 @@ class TestForce(FiberTest):
         )
         time.sleep(1)
         self.wait_for_channel_state(
-            self.fiber1.get_client(), self.fiber2.get_peer_id(), "CHANNEL_READY", 120
+            self.fiber1.get_client(), self.fiber2.get_pubkey(), "CHANNEL_READY", 120
         )
 
         channels = self.fiber1.get_client().list_channels(
-            {"peer_id": self.fiber2.get_peer_id()}
+            {"pubkey": self.fiber2.get_pubkey()}
         )
         N1N2_CHANNEL_ID = channels["channels"][0]["channel_id"]
         self.fiber1.get_client().graph_channels()
@@ -91,7 +91,7 @@ class TestForce(FiberTest):
     def test_node_online(self):
         temporary_channel_id = self.fiber1.get_client().open_channel(
             {
-                "peer_id": self.fiber2.get_peer_id(),
+                "pubkey": self.fiber2.get_pubkey(),
                 "funding_amount": hex(200 * 100000000),
                 "public": True,
                 # "tlc_fee_proportional_millionths": "0x4B0",
@@ -99,7 +99,7 @@ class TestForce(FiberTest):
         )
         time.sleep(1)
         self.wait_for_channel_state(
-            self.fiber1.get_client(), self.fiber2.get_peer_id(), "CHANNEL_READY", 120
+            self.fiber1.get_client(), self.fiber2.get_pubkey(), "CHANNEL_READY", 120
         )
         invoice = self.fiber2.get_client().new_invoice(
             {
@@ -113,7 +113,7 @@ class TestForce(FiberTest):
             }
         )
         # payment = self.fiber1.get_client().send_payment({
-        #     "target_pubkey": self.fiber2.get_client().node_info()["node_id"],
+        #     "target_pubkey": self.fiber2.get_client().node_info()["pubkey"],
         #     "currency": "Fibd",
         #     "amount": hex(1 * 100000000),
         #     "keysend": True
@@ -137,7 +137,7 @@ class TestForce(FiberTest):
             }
         )
         # payment = self.fiber1.get_client().send_payment({
-        #     "target_pubkey": self.fiber2.get_client().node_info()["node_id"],
+        #     "target_pubkey": self.fiber2.get_client().node_info()["pubkey"],
         #     "currency": "Fibd",
         #     "amount": hex(1 * 100000000),
         #     "keysend": True
@@ -150,7 +150,7 @@ class TestForce(FiberTest):
         self.wait_payment_state(self.fiber2, payment["payment_hash"], "Success")
         time.sleep(5)
         channels = self.fiber1.get_client().list_channels(
-            {"peer_id": self.fiber2.get_peer_id()}
+            {"pubkey": self.fiber2.get_pubkey()}
         )
         N1N2_CHANNEL_ID = channels["channels"][0]["channel_id"]
         self.fiber1.get_client().graph_channels()
@@ -182,7 +182,7 @@ class TestForce(FiberTest):
     # def test_node_online(self):
     #     temporary_channel_id = self.fiber1.get_client().open_channel(
     #         {
-    #             "peer_id": self.fiber2.get_peer_id(),
+    #             "pubkey": self.fiber2.get_pubkey(),
     #             "funding_amount": hex(200 * 100000000),
     #             "public": True,
     #             # "tlc_fee_proportional_millionths": "0x4B0",
@@ -190,11 +190,11 @@ class TestForce(FiberTest):
     #     )
     #     time.sleep(1)
     #     self.wait_for_channel_state(
-    #         self.fiber1.get_client(), self.fiber2.get_peer_id(), "CHANNEL_READY", 120
+    #         self.fiber1.get_client(), self.fiber2.get_pubkey(), "CHANNEL_READY", 120
     #     )
     #
     #     channels = self.fiber1.get_client().list_channels(
-    #         {"peer_id": self.fiber2.get_peer_id()}
+    #         {"pubkey": self.fiber2.get_pubkey()}
     #     )
     #     N1N2_CHANNEL_ID = channels["channels"][0]["channel_id"]
     #     self.fiber1.get_client().graph_channels()
@@ -235,7 +235,7 @@ class TestForce(FiberTest):
     def test_AwaitingTxSignatures(self):
         temporary_channel_id = self.fiber1.get_client().open_channel(
             {
-                "peer_id": self.fiber2.get_peer_id(),
+                "pubkey": self.fiber2.get_pubkey(),
                 "funding_amount": hex(200 * 100000000),
                 "public": False,
                 # "tlc_fee_proportional_millionths": "0x4B0",
@@ -244,12 +244,12 @@ class TestForce(FiberTest):
         time.sleep(1)
         self.wait_for_channel_state(
             self.fiber1.get_client(),
-            self.fiber2.get_peer_id(),
+            self.fiber2.get_pubkey(),
             "AWAITING_TX_SIGNATURES",
             120,
         )
         channels = self.fiber1.get_client().list_channels(
-            {"peer_id": self.fiber2.get_peer_id()}
+            {"pubkey": self.fiber2.get_pubkey()}
         )
         N1N2_CHANNEL_ID = channels["channels"][0]["channel_id"]
 
@@ -275,7 +275,7 @@ class TestForce(FiberTest):
         """
         temporary_channel_id = self.fiber1.get_client().open_channel(
             {
-                "peer_id": self.fiber2.get_peer_id(),
+                "pubkey": self.fiber2.get_pubkey(),
                 "funding_amount": hex(200 * 100000000),
                 "public": False,
                 # "tlc_fee_proportional_millionths": "0x4B0",
@@ -284,12 +284,12 @@ class TestForce(FiberTest):
         time.sleep(1)
         self.wait_for_channel_state(
             self.fiber1.get_client(),
-            self.fiber2.get_peer_id(),
+            self.fiber2.get_pubkey(),
             "AWAITING_CHANNEL_READY",
             120,
         )
         channels = self.fiber1.get_client().list_channels(
-            {"peer_id": self.fiber2.get_peer_id()}
+            {"pubkey": self.fiber2.get_pubkey()}
         )
         N1N2_CHANNEL_ID = channels["channels"][0]["channel_id"]
 
@@ -333,7 +333,7 @@ class TestForce(FiberTest):
     def test_in_tx(self):
         temporary_channel_id = self.fiber1.get_client().open_channel(
             {
-                "peer_id": self.fiber2.get_peer_id(),
+                "pubkey": self.fiber2.get_pubkey(),
                 "funding_amount": hex(200 * 100000000),
                 "public": True,
                 # "tlc_fee_proportional_millionths": "0x4B0",
@@ -341,12 +341,12 @@ class TestForce(FiberTest):
         )
         time.sleep(1)
         self.wait_for_channel_state(
-            self.fiber1.get_client(), self.fiber2.get_peer_id(), "CHANNEL_READY", 120
+            self.fiber1.get_client(), self.fiber2.get_pubkey(), "CHANNEL_READY", 120
         )
         payment = self.fiber1.get_client().send_payment(
             {
                 "amount": hex(1 * 100000000),
-                "target_pubkey": self.fiber2.get_client().node_info()["node_id"],
+                "target_pubkey": self.fiber2.get_client().node_info()["pubkey"],
                 "keysend": True,
             }
         )
@@ -367,7 +367,7 @@ class TestForce(FiberTest):
         time.sleep(1)
 
         channels = self.fiber1.get_client().list_channels(
-            {"peer_id": self.fiber2.get_peer_id()}
+            {"pubkey": self.fiber2.get_pubkey()}
         )
         N1N2_CHANNEL_ID = channels["channels"][0]["channel_id"]
 
@@ -417,7 +417,7 @@ class TestForce(FiberTest):
     #         },
     #         "fee_rate": "0x3FC",
     #     })
-    #     self.wait_for_channel_state(self.fiber1.get_client(), self.fiber2.get_peer_id(), "CLOSED", 120, True)
+    #     self.wait_for_channel_state(self.fiber1.get_client(), self.fiber2.get_pubkey(), "CLOSED", 120, True)
 
     # def test_in_invoice_send_tx2(self):
     #     self.open_channel(self.fiber1, self.fiber2, 1000 * 100000000, 1)
@@ -449,7 +449,7 @@ class TestForce(FiberTest):
     #         },
     #         "fee_rate": "0x3FC",
     #     })
-    #     self.wait_for_channel_state(self.fiber1.get_client(), self.fiber2.get_peer_id(), "SHUTTING_DOWN", 120, True)
+    #     self.wait_for_channel_state(self.fiber1.get_client(), self.fiber2.get_pubkey(), "SHUTTING_DOWN", 120, True)
     #     self.fiber1.get_client().shutdown_channel({
     #         "channel_id": self.fiber1.get_client().list_channels({})["channels"][0]["channel_id"],
     #         "force": True
@@ -461,7 +461,7 @@ class TestForce(FiberTest):
     def test_in_tx_offline(self):
         temporary_channel_id = self.fiber1.get_client().open_channel(
             {
-                "peer_id": self.fiber2.get_peer_id(),
+                "pubkey": self.fiber2.get_pubkey(),
                 "funding_amount": hex(200 * 100000000),
                 "public": True,
                 # "tlc_fee_proportional_millionths": "0x4B0",
@@ -469,7 +469,7 @@ class TestForce(FiberTest):
         )
         time.sleep(1)
         self.wait_for_channel_state(
-            self.fiber1.get_client(), self.fiber2.get_peer_id(), "CHANNEL_READY", 120
+            self.fiber1.get_client(), self.fiber2.get_pubkey(), "CHANNEL_READY", 120
         )
 
         amount = 1
@@ -487,7 +487,7 @@ class TestForce(FiberTest):
         time.sleep(1)
 
         channels = self.fiber1.get_client().list_channels(
-            {"peer_id": self.fiber2.get_peer_id()}
+            {"pubkey": self.fiber2.get_pubkey()}
         )
         N1N2_CHANNEL_ID = channels["channels"][0]["channel_id"]
 
@@ -514,7 +514,7 @@ class TestForce(FiberTest):
     def test_ShuttingDown(self):
         temporary_channel_id = self.fiber1.get_client().open_channel(
             {
-                "peer_id": self.fiber2.get_peer_id(),
+                "pubkey": self.fiber2.get_pubkey(),
                 "funding_amount": hex(200 * 100000000),
                 "public": True,
                 # "tlc_fee_proportional_millionths": "0x4B0",
@@ -522,7 +522,7 @@ class TestForce(FiberTest):
         )
         time.sleep(1)
         self.wait_for_channel_state(
-            self.fiber1.get_client(), self.fiber2.get_peer_id(), "CHANNEL_READY", 120
+            self.fiber1.get_client(), self.fiber2.get_pubkey(), "CHANNEL_READY", 120
         )
 
         amount = 1
@@ -538,12 +538,12 @@ class TestForce(FiberTest):
             }
         )
         time.sleep(1)
-        fiber2_peer_id = self.fiber2.get_peer_id()
-        channels = self.fiber1.get_client().list_channels({"peer_id": fiber2_peer_id})
+        fiber2_peer_id = self.fiber2.get_pubkey()
+        channels = self.fiber1.get_client().list_channels({"pubkey": fiber2_peer_id})
         N1N2_CHANNEL_ID = channels["channels"][0]["channel_id"]
         self.fiber2.stop()
         time.sleep(5)
-        self.fiber1.get_client().disconnect_peer({"peer_id": self.fiber2.get_peer_id()})
+        self.fiber1.get_client().disconnect_peer({"pubkey": self.fiber2.get_pubkey()})
 
         self.fiber1.get_client().shutdown_channel(
             {
@@ -568,7 +568,7 @@ class TestForce(FiberTest):
     def test_force_ckb(self):
         temporary_channel_id = self.fiber1.get_client().open_channel(
             {
-                "peer_id": self.fiber2.get_peer_id(),
+                "pubkey": self.fiber2.get_pubkey(),
                 "funding_amount": hex(200 * 100000000),
                 "public": True,
                 # "tlc_fee_proportional_millionths": "0x4B0",
@@ -576,7 +576,7 @@ class TestForce(FiberTest):
         )
         time.sleep(1)
         self.wait_for_channel_state(
-            self.fiber1.get_client(), self.fiber2.get_peer_id(), "CHANNEL_READY", 120
+            self.fiber1.get_client(), self.fiber2.get_pubkey(), "CHANNEL_READY", 120
         )
         time.sleep(1)
 
@@ -606,7 +606,7 @@ class TestForce(FiberTest):
             after_channel["channels"][0]["local_balance"], 16
         ) == int(invoice_balance, 16)
         channels = self.fiber1.get_client().list_channels(
-            {"peer_id": self.fiber2.get_peer_id()}
+            {"pubkey": self.fiber2.get_pubkey()}
         )
         N1N2_CHANNEL_ID = channels["channels"][0]["channel_id"]
 
@@ -632,7 +632,7 @@ class TestForce(FiberTest):
     def test_force_udt(self):
         temporary_channel_id = self.fiber1.get_client().open_channel(
             {
-                "peer_id": self.fiber2.get_peer_id(),
+                "pubkey": self.fiber2.get_pubkey(),
                 "funding_amount": hex(200 * 100000000),
                 "public": True,
                 # "tlc_fee_proportional_millionths": "0x4B0",
@@ -643,7 +643,7 @@ class TestForce(FiberTest):
         )
         time.sleep(1)
         self.wait_for_channel_state(
-            self.fiber1.get_client(), self.fiber2.get_peer_id(), "CHANNEL_READY", 120
+            self.fiber1.get_client(), self.fiber2.get_pubkey(), "CHANNEL_READY", 120
         )
         time.sleep(1)
 
@@ -676,7 +676,7 @@ class TestForce(FiberTest):
             after_channel["channels"][0]["local_balance"], 16
         ) == int(invoice_balance, 16)
         channels = self.fiber1.get_client().list_channels(
-            {"peer_id": self.fiber2.get_peer_id()}
+            {"pubkey": self.fiber2.get_pubkey()}
         )
         N1N2_CHANNEL_ID = channels["channels"][0]["channel_id"]
 
@@ -701,7 +701,7 @@ class TestForce(FiberTest):
         self.open_channel(self.fiber1, self.fiber2, 1000 * 100000000, 1)
         self.fiber1.connect_peer(self.fiber3)
         self.fiber2.connect_peer(self.fiber3)
-        self.fiber1.get_client().disconnect_peer({"peer_id": self.fiber2.get_peer_id()})
+        self.fiber1.get_client().disconnect_peer({"pubkey": self.fiber2.get_pubkey()})
 
         self.fiber1.get_client().shutdown_channel(
             {
@@ -718,14 +718,14 @@ class TestForce(FiberTest):
         self.Miner.miner_until_tx_committed(self.node, tx_hash)
         self.wait_for_channel_state(
             self.fiber1.get_client(),
-            self.fiber2.get_peer_id(),
+            self.fiber2.get_pubkey(),
             "CLOSED",
             10 + 5 * 60,
             include_closed=True,
         )
         self.wait_for_channel_state(
             self.fiber2.get_client(),
-            self.fiber1.get_peer_id(),
+            self.fiber1.get_pubkey(),
             "CLOSED",
             10 + 5 * 60,
             include_closed=True,

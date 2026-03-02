@@ -23,7 +23,7 @@ class TestAbandonChannel(FiberTest):
     def test_tmp_id(self):
         channel = self.fiber1.get_client().open_channel(
             {
-                "peer_id": self.fiber2.get_peer_id(),
+                "pubkey": self.fiber2.get_pubkey(),
                 "funding_amount": hex(1 + 98 * 100000000),
                 "public": True,
             }
@@ -46,7 +46,7 @@ class TestAbandonChannel(FiberTest):
     def test_abandon_channel_accept(self):
         channel = self.fiber1.get_client().open_channel(
             {
-                "peer_id": self.fiber2.get_peer_id(),
+                "pubkey": self.fiber2.get_pubkey(),
                 "funding_amount": hex(1 + 98 * 100000000),
                 "public": True,
             }
@@ -78,7 +78,7 @@ class TestAbandonChannel(FiberTest):
     def test_abandon_channel_when_tx_send(self):
         channel = self.fiber1.get_client().open_channel(
             {
-                "peer_id": self.fiber2.get_peer_id(),
+                "pubkey": self.fiber2.get_pubkey(),
                 "funding_amount": hex(1000 * 100000000),
                 "public": True,
             }
@@ -134,7 +134,7 @@ class TestAbandonChannel(FiberTest):
         )
         # closed
         self.wait_for_channel_state(
-            self.fiber1.get_client(), self.fiber2.get_peer_id(), "CLOSED", 120, True
+            self.fiber1.get_client(), self.fiber2.get_pubkey(), "CLOSED", 120, True
         )
         with pytest.raises(Exception) as exc_info:
             response = self.fiber1.get_client().abandon_channel(

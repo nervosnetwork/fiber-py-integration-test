@@ -53,7 +53,7 @@ class TestTemporaryChannelId(FiberTest):
         # Step 2: Open a channel with a funding amount slightly less than the minimum auto-accept amount
         temporary_channel = self.fiber1.get_client().open_channel(
             {
-                "peer_id": self.fiber2.get_peer_id(),
+                "pubkey": self.fiber2.get_pubkey(),
                 "funding_amount": hex(
                     int(open_channel_auto_accept_min_ckb_funding_amount, 16) - 1
                 ),

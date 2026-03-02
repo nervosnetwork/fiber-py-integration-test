@@ -24,7 +24,7 @@ class TestFiberDemo(FiberTest):
         # open channel
         temporary_channel_id = self.fiber1.get_client().open_channel(
             {
-                "peer_id": self.fiber2.get_peer_id(),
+                "pubkey": self.fiber2.get_pubkey(),
                 "funding_amount": hex(1000 * 100000000),
                 "public": True,
                 "funding_udt_type_script": self.get_account_udt_script(
@@ -34,7 +34,7 @@ class TestFiberDemo(FiberTest):
         )
         time.sleep(1)
         self.wait_for_channel_state(
-            self.fiber1.get_client(), self.fiber2.get_peer_id(), "CHANNEL_READY", 120
+            self.fiber1.get_client(), self.fiber2.get_pubkey(), "CHANNEL_READY", 120
         )
         # transfer
         payment_preimage = self.generate_random_preimage()
@@ -69,7 +69,7 @@ class TestFiberDemo(FiberTest):
         )
 
         channels = self.fiber1.get_client().list_channels(
-            {"peer_id": self.fiber2.get_peer_id()}
+            {"pubkey": self.fiber2.get_pubkey()}
         )
         N1N2_CHANNEL_ID = channels["channels"][0]["channel_id"]
         self.fiber1.get_client().graph_channels()
@@ -122,7 +122,7 @@ class TestFiberDemo(FiberTest):
         # open channel
         temporary_channel_id = self.fiber1.get_client().open_channel(
             {
-                "peer_id": self.fiber2.get_peer_id(),
+                "pubkey": self.fiber2.get_pubkey(),
                 "funding_amount": hex(200 * 100000000),
                 "public": True,
                 # "tlc_fee_proportional_millionths": "0x4B0",
@@ -130,7 +130,7 @@ class TestFiberDemo(FiberTest):
         )
         time.sleep(1)
         self.wait_for_channel_state(
-            self.fiber1.get_client(), self.fiber2.get_peer_id(), "CHANNEL_READY", 120
+            self.fiber1.get_client(), self.fiber2.get_pubkey(), "CHANNEL_READY", 120
         )
         # transfer
         payment_preimage = self.generate_random_preimage()
@@ -162,7 +162,7 @@ class TestFiberDemo(FiberTest):
         )
 
         channels = self.fiber1.get_client().list_channels(
-            {"peer_id": self.fiber2.get_peer_id()}
+            {"pubkey": self.fiber2.get_pubkey()}
         )
         N1N2_CHANNEL_ID = channels["channels"][0]["channel_id"]
         self.fiber1.get_client().graph_channels()
@@ -222,24 +222,24 @@ class TestFiberDemo(FiberTest):
         #         3. 1 openchan 2
         self.fiber1.get_client().open_channel(
             {
-                "peer_id": self.fiber2.get_peer_id(),
+                "pubkey": self.fiber2.get_pubkey(),
                 "funding_amount": hex(200 * 100000000),
                 "public": True,
             }
         )
         self.wait_for_channel_state(
-            self.fiber1.get_client(), self.fiber2.get_peer_id(), "CHANNEL_READY", 120
+            self.fiber1.get_client(), self.fiber2.get_pubkey(), "CHANNEL_READY", 120
         )
         #         4 2 open channel 3
         self.fiber2.get_client().open_channel(
             {
-                "peer_id": fiber3.get_peer_id(),
+                "pubkey": fiber3.get_pubkey(),
                 "funding_amount": hex(200 * 100000000),
                 "public": True,
             }
         )
         self.wait_for_channel_state(
-            self.fiber2.get_client(), fiber3.get_peer_id(), "CHANNEL_READY", 120
+            self.fiber2.get_client(), fiber3.get_pubkey(), "CHANNEL_READY", 120
         )
         #         5. node3 new invoice
         payment_preimage = self.generate_random_preimage()

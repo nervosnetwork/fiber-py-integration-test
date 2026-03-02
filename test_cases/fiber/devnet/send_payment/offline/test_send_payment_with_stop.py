@@ -23,5 +23,5 @@ class TestSendPaymentWithStop(FiberTest):
     #         # self.send_payment(self.fibers[-1], self.fibers[0], 1, False)
     #     # self.fiber1.stop()
     #     self.fibers[1].get_client().list_channels({
-    #         "peer_id":self.fibers[2].get_peer_id()
+    #         "pubkey":self.fibers[2].get_pubkey()
     #     })

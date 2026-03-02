@@ -28,12 +28,12 @@ class TestComplexRouting(FiberTest):
         for target in [self.fiber3, self.fiber4, self.fiber5]:
             payment = self.fiber1.get_client().send_payment(
                 {
-                    "target_pubkey": target.get_client().node_info()["node_id"],
+                    "target_pubkey": target.get_client().node_info()["pubkey"],
                     "currency": "Fibd",
                     "amount": hex(1 * 100000000),
                     "keysend": True,
                     "trampoline_hops": [
-                        self.fiber2.get_client().node_info()["node_id"],
+                        self.fiber2.get_client().node_info()["pubkey"],
                     ],
                 }
             )
@@ -58,12 +58,12 @@ class TestComplexRouting(FiberTest):
         # 路径1: fiber1 -> fiber2 -> fiber4
         payment1 = self.fiber1.get_client().send_payment(
             {
-                "target_pubkey": self.fiber4.get_client().node_info()["node_id"],
+                "target_pubkey": self.fiber4.get_client().node_info()["pubkey"],
                 "currency": "Fibd",
                 "amount": hex(1 * 100000000),
                 "keysend": True,
                 "trampoline_hops": [
-                    self.fiber2.get_client().node_info()["node_id"],
+                    self.fiber2.get_client().node_info()["pubkey"],
                 ],
             }
         )
@@ -72,12 +72,12 @@ class TestComplexRouting(FiberTest):
         # 路径2: fiber1 -> fiber3 -> fiber4
         payment2 = self.fiber1.get_client().send_payment(
             {
-                "target_pubkey": self.fiber4.get_client().node_info()["node_id"],
+                "target_pubkey": self.fiber4.get_client().node_info()["pubkey"],
                 "currency": "Fibd",
                 "amount": hex(1 * 100000000),
                 "keysend": True,
                 "trampoline_hops": [
-                    self.fiber3.get_client().node_info()["node_id"],
+                    self.fiber3.get_client().node_info()["pubkey"],
                 ],
             }
         )
@@ -116,14 +116,14 @@ class TestComplexRouting(FiberTest):
         with pytest.raises(Exception) as exc_info:
             payment = self.fiber1.get_client().send_payment(
                 {
-                    "target_pubkey": self.fiber4.get_client().node_info()["node_id"],
+                    "target_pubkey": self.fiber4.get_client().node_info()["pubkey"],
                     "currency": "Fibd",
                     "amount": hex(1 * 100000000),
                     "keysend": True,
                     "udt_type_script": udt_script,
                     "trampoline_hops": [
-                        self.fiber2.get_client().node_info()["node_id"],
-                        self.fiber3.get_client().node_info()["node_id"],
+                        self.fiber2.get_client().node_info()["pubkey"],
+                        self.fiber3.get_client().node_info()["pubkey"],
                     ],
                 }
             )
@@ -163,13 +163,13 @@ class TestComplexRouting(FiberTest):
         # 通过私有通道路由
         payment = self.fiber1.get_client().send_payment(
             {
-                "target_pubkey": self.fiber4.get_client().node_info()["node_id"],
+                "target_pubkey": self.fiber4.get_client().node_info()["pubkey"],
                 "currency": "Fibd",
                 "amount": hex(1 * 100000000),
                 "keysend": True,
                 "trampoline_hops": [
-                    self.fiber2.get_client().node_info()["node_id"],
-                    self.fiber3.get_client().node_info()["node_id"],
+                    self.fiber2.get_client().node_info()["pubkey"],
+                    self.fiber3.get_client().node_info()["pubkey"],
                 ],
             }
         )
@@ -197,12 +197,12 @@ class TestComplexRouting(FiberTest):
         # 通过单向通道路由（应该成功，因为方向正确）
         payment = self.fiber1.get_client().send_payment(
             {
-                "target_pubkey": self.fiber3.get_client().node_info()["node_id"],
+                "target_pubkey": self.fiber3.get_client().node_info()["pubkey"],
                 "currency": "Fibd",
                 "amount": hex(1 * 100000000),
                 "keysend": True,
                 "trampoline_hops": [
-                    self.fiber2.get_client().node_info()["node_id"],
+                    self.fiber2.get_client().node_info()["pubkey"],
                 ],
             }
         )
@@ -222,12 +222,12 @@ class TestComplexRouting(FiberTest):
         # fiber1 -> fiber2 -> fiber3
         payment1 = self.fiber1.get_client().send_payment(
             {
-                "target_pubkey": self.fiber3.get_client().node_info()["node_id"],
+                "target_pubkey": self.fiber3.get_client().node_info()["pubkey"],
                 "currency": "Fibd",
                 "amount": hex(1 * 100000000),
                 "keysend": True,
                 "trampoline_hops": [
-                    self.fiber2.get_client().node_info()["node_id"],
+                    self.fiber2.get_client().node_info()["pubkey"],
                 ],
             }
         )
@@ -236,12 +236,12 @@ class TestComplexRouting(FiberTest):
         # fiber3 -> fiber2 -> fiber1（反向）
         payment2 = self.fiber3.get_client().send_payment(
             {
-                "target_pubkey": self.fiber1.get_client().node_info()["node_id"],
+                "target_pubkey": self.fiber1.get_client().node_info()["pubkey"],
                 "currency": "Fibd",
                 "amount": hex(1 * 100000000),
                 "keysend": True,
                 "trampoline_hops": [
-                    self.fiber2.get_client().node_info()["node_id"],
+                    self.fiber2.get_client().node_info()["pubkey"],
                 ],
             }
         )

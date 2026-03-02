@@ -41,7 +41,7 @@ class TestMutilToOne(FiberTest):
                 self.send_invoice_payment(
                     self.new_fibers[i], self.fiber2, 1 * 100000000, False
                 )
-        self.fiber1.get_client().disconnect_peer({"peer_id": self.fiber2.get_peer_id()})
+        self.fiber1.get_client().disconnect_peer({"pubkey": self.fiber2.get_pubkey()})
         for channel in self.fiber1.get_client().list_channels({})["channels"]:
             try:
                 self.fiber1.get_client().shutdown_channel(
@@ -124,7 +124,7 @@ class TestMutilToOne(FiberTest):
                     try_count=0,
                 )
 
-        self.fiber1.get_client().disconnect_peer({"peer_id": self.fiber2.get_peer_id()})
+        self.fiber1.get_client().disconnect_peer({"pubkey": self.fiber2.get_pubkey()})
         for channel in self.fiber1.get_client().list_channels({})["channels"]:
             try:
                 self.fiber1.get_client().shutdown_channel(

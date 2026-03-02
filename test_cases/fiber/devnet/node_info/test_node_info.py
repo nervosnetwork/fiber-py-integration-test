@@ -23,7 +23,7 @@ class TestNodeInfo(FiberTest):
         with pytest.raises(Exception) as exc_info:
             self.fiber1.get_client().send_payment(
                 {
-                    "target_pubkey": node_info["node_id"],
+                    "target_pubkey": node_info["pubkey"],
                     "amount": hex(10 * 100000000),
                     "keysend": True,
                     "dry_run": True,
@@ -37,11 +37,11 @@ class TestNodeInfo(FiberTest):
 
         # peer id -> use peer id open_channel
         # self.fiber2.get_client().open_channel({
-        #     "peer_id": node_info["peer_id"],
+        #     "pubkey": node_info["pubkey"],
         #     "funding_amount": hex(1000 * 100000000),
         #     "public": True,
         # })
-        # self.wait_for_channel_state(self.fiber2.get_client(), node_info["peer_id"], "CHANNEL_READY")
+        # self.wait_for_channel_state(self.fiber2.get_client(), node_info["pubkey"], "CHANNEL_READY")
         # addresses
         nodes = self.fiber1.get_client().graph_nodes({})
         assert (
@@ -91,7 +91,7 @@ class TestNodeInfo(FiberTest):
         # open channel
         self.fiber2.get_client().open_channel(
             {
-                "peer_id": self.fiber1.get_peer_id(),
+                "pubkey": self.fiber1.get_pubkey(),
                 "funding_amount": hex(1000 * 100000000),
                 "public": True,
             }
@@ -112,7 +112,7 @@ class TestNodeInfo(FiberTest):
         )
 
         self.wait_for_channel_state(
-            self.fiber2.get_client(), self.fiber1.get_peer_id(), "CHANNEL_READY"
+            self.fiber2.get_client(), self.fiber1.get_pubkey(), "CHANNEL_READY"
         )
         after_node1_info = self.fiber1.get_client().node_info()
         after_node2_info = self.fiber2.get_client().node_info()
@@ -173,7 +173,7 @@ class TestNodeInfo(FiberTest):
         # open udt channel
         self.fiber1.get_client().open_channel(
             {
-                "peer_id": self.fiber2.get_peer_id(),
+                "pubkey": self.fiber2.get_pubkey(),
                 "funding_amount": hex(1000 * 100000000),
                 "public": True,
                 "funding_udt_type_script": self.get_account_udt_script(
@@ -182,5 +182,5 @@ class TestNodeInfo(FiberTest):
             }
         )
         self.wait_for_channel_state(
-            self.fiber1.get_client(), self.fiber2.get_peer_id(), "CHANNEL_READY"
+            self.fiber1.get_client(), self.fiber2.get_pubkey(), "CHANNEL_READY"
         )

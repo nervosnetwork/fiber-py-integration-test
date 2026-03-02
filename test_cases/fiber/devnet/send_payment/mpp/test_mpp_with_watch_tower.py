@@ -39,7 +39,7 @@ class TestWatchToerWitMpp(FiberTest):
                     )
                 except Exception as e:
                     pass
-        self.fiber1.get_client().disconnect_peer({"peer_id": self.fiber2.get_peer_id()})
+        self.fiber1.get_client().disconnect_peer({"pubkey": self.fiber2.get_pubkey()})
 
         for fiber in self.fibers:
             try:

@@ -51,7 +51,7 @@ class TestBuildRouter(FiberTest):
         time.sleep(1)
         self.fibers[3].get_client().open_channel(  # d -a private channel
             {
-                "peer_id": self.fibers[0].get_peer_id(),
+                "pubkey": self.fibers[0].get_pubkey(),
                 "funding_amount": hex(fiber1_balance + DEFAULT_MIN_DEPOSIT_CKB),
                 "tlc_fee_proportional_millionths": hex(fiber1_fee),
                 "public": False,
@@ -59,15 +59,15 @@ class TestBuildRouter(FiberTest):
         )
         time.sleep(1)
         self.wait_for_channel_state(
-            self.fibers[3].get_client(), self.fibers[0].get_peer_id(), "CHANNEL_READY"
+            self.fibers[3].get_client(), self.fibers[0].get_pubkey(), "CHANNEL_READY"
         )
         # 查看d-a的channeloutpoint
-        print(f"a peer_id:{self.fibers[0].get_peer_id()}")
-        print(f"d peer_id:{self.fibers[3].get_peer_id()}")
+        print(f"a pubkey:{self.fibers[0].get_pubkey()}")
+        print(f"d pubkey:{self.fibers[3].get_pubkey()}")
         channels = (
             self.fibers[3]
             .get_client()
-            .list_channels({"peer_id": self.fibers[0].get_peer_id()})
+            .list_channels({"pubkey": self.fibers[0].get_pubkey()})
         )
         print(f"d-a,channel:{channels}")
         da_channel_outpoint = channels["channels"][0]["channel_outpoint"]
@@ -84,7 +84,7 @@ class TestBuildRouter(FiberTest):
                         {
                             "pubkey": self.fibers[0]
                             .get_client()
-                            .node_info()["node_id"],
+                            .node_info()["pubkey"],
                             "channel_outpoint": da_channel_outpoint,
                         },
                     ],
@@ -96,7 +96,7 @@ class TestBuildRouter(FiberTest):
         hop = router_hops["router_hops"][0]
         print(f"hop:{hop}")
         assert hop["channel_outpoint"] == da_channel_outpoint
-        assert hop["target"] == self.fibers[0].get_client().node_info()["node_id"]
+        assert hop["target"] == self.fibers[0].get_client().node_info()["pubkey"]
         assert hop["amount_received"] == hex(1 + DEFAULT_MIN_DEPOSIT_CKB)
 
     def test_amount_invalid(self):
@@ -118,7 +118,7 @@ class TestBuildRouter(FiberTest):
         time.sleep(1)
         self.fibers[0].get_client().open_channel(
             {
-                "peer_id": self.fibers[1].get_peer_id(),
+                "pubkey": self.fibers[1].get_pubkey(),
                 "funding_amount": hex(channel_balance),
                 "tlc_fee_proportional_millionths": hex(channel_fee),
                 "public": True,
@@ -126,14 +126,14 @@ class TestBuildRouter(FiberTest):
         )
         time.sleep(1)
         self.wait_for_channel_state(
-            self.fibers[0].get_client(), self.fibers[1].get_peer_id(), "CHANNEL_READY"
+            self.fibers[0].get_client(), self.fibers[1].get_pubkey(), "CHANNEL_READY"
         )
 
         # 获取通道outpoint
         channels = (
             self.fibers[0]
             .get_client()
-            .list_channels({"peer_id": self.fibers[1].get_peer_id()})
+            .list_channels({"pubkey": self.fibers[1].get_pubkey()})
         )
         channel_outpoint = channels["channels"][0]["channel_outpoint"]
 
@@ -147,7 +147,7 @@ class TestBuildRouter(FiberTest):
                         {
                             "pubkey": self.fibers[1]
                             .get_client()
-                            .node_info()["node_id"],
+                            .node_info()["pubkey"],
                             "channel_outpoint": channel_outpoint,
                         },
                     ],
@@ -171,7 +171,7 @@ class TestBuildRouter(FiberTest):
                         {
                             "pubkey": self.fibers[1]
                             .get_client()
-                            .node_info()["node_id"],
+                            .node_info()["pubkey"],
                             "channel_outpoint": channel_outpoint,
                         },
                     ],
@@ -198,7 +198,7 @@ class TestBuildRouter(FiberTest):
                         {
                             "pubkey": self.fibers[1]
                             .get_client()
-                            .node_info()["node_id"],
+                            .node_info()["pubkey"],
                             "channel_outpoint": channel_outpoint,
                         },
                     ],
@@ -212,4 +212,4 @@ class TestBuildRouter(FiberTest):
         assert len(router_hops["router_hops"]) == 1
         hop = router_hops["router_hops"][0]
         assert hop["channel_outpoint"] == channel_outpoint
-        assert hop["target"] == self.fibers[1].get_client().node_info()["node_id"]
+        assert hop["target"] == self.fibers[1].get_client().node_info()["pubkey"]

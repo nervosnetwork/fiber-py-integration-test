@@ -11,7 +11,7 @@ class TestOneWayChannel(FiberTest):
 
     def _open_private_one_way_channel(self, funding_amount_ckb=500):
         open_channel_params = {
-            "peer_id": self.fiber2.get_peer_id(),
+            "pubkey": self.fiber2.get_pubkey(),
             "funding_amount": hex(funding_amount_ckb * 100000000),
             "public": False,
             "one_way": True,
@@ -35,20 +35,20 @@ class TestOneWayChannel(FiberTest):
         if last_error is not None:
             raise last_error
         self.wait_for_channel_state(
-            self.fiber1.get_client(), self.fiber2.get_peer_id(), "CHANNEL_READY"
+            self.fiber1.get_client(), self.fiber2.get_pubkey(), "CHANNEL_READY"
         )
         time.sleep(1)
 
-    def _get_channel_id(self, client, peer_id, include_closed=False):
+    def _get_channel_id(self, client, pubkey, include_closed=False):
         channels = client.list_channels(
-            {"peer_id": peer_id, "include_closed": include_closed}
+            {"pubkey": pubkey, "include_closed": include_closed}
         )
         assert len(channels["channels"]) > 0, channels
         return channels["channels"][0]["channel_id"]
 
     def test_one_way_channel_cannot_be_public(self):
         open_channel_params = {
-            "peer_id": self.fiber2.get_peer_id(),
+            "pubkey": self.fiber2.get_pubkey(),
             "funding_amount": hex(500 * 100000000),
             "public": True,
             "one_way": True,
@@ -78,7 +78,7 @@ class TestOneWayChannel(FiberTest):
 
         payment = self.fiber1.get_client().send_payment(
             {
-                "target_pubkey": self.fiber2.get_client().node_info()["node_id"],
+                "target_pubkey": self.fiber2.get_client().node_info()["pubkey"],
                 "amount": hex(10 * 100000000),
                 "keysend": True,
             }
@@ -87,7 +87,7 @@ class TestOneWayChannel(FiberTest):
         with pytest.raises(Exception) as exc_info:
             self.fiber2.get_client().send_payment(
                 {
-                    "target_pubkey": self.fiber1.get_client().node_info()["node_id"],
+                    "target_pubkey": self.fiber1.get_client().node_info()["pubkey"],
                     "amount": hex(10 * 100000000),
                     "keysend": True,
                 }

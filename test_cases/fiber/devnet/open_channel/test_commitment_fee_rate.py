@@ -18,7 +18,7 @@ class TestCommitmentFeeRate(FiberTest):
         with pytest.raises(Exception) as exc_info:
             temporary_channel_id = self.fiber1.get_client().open_channel(
                 {
-                    "peer_id": self.fiber2.get_peer_id(),
+                    "pubkey": self.fiber2.get_pubkey(),
                     "funding_amount": hex(200 * 100000000),
                     "public": True,
                     "commitment_fee_rate": hex(18446744073709551615),
@@ -46,7 +46,7 @@ class TestCommitmentFeeRate(FiberTest):
         with pytest.raises(Exception) as exc_info:
             temporary_channel_id = self.fiber1.get_client().open_channel(
                 {
-                    "peer_id": self.fiber2.get_peer_id(),
+                    "pubkey": self.fiber2.get_pubkey(),
                     "funding_amount": hex(200 * 100000000),
                     "public": True,
                     "commitment_fee_rate": hex(0),
@@ -70,7 +70,7 @@ class TestCommitmentFeeRate(FiberTest):
         with pytest.raises(Exception) as exc_info:
             temporary_channel_id = self.fiber1.get_client().open_channel(
                 {
-                    "peer_id": self.fiber2.get_peer_id(),
+                    "pubkey": self.fiber2.get_pubkey(),
                     "funding_amount": hex(200 * 100000000),
                     "public": True,
                     "commitment_fee_rate": hex(1),
@@ -93,14 +93,14 @@ class TestCommitmentFeeRate(FiberTest):
         default_commitment_fee_rate = self.fiber1.get_client().node_info()
         temporary_channel_id = self.fiber1.get_client().open_channel(
             {
-                "peer_id": self.fiber2.get_peer_id(),
+                "pubkey": self.fiber2.get_pubkey(),
                 "funding_amount": hex(200 * 100000000),
                 "public": True,
                 # "commitment_fee_rate": hex(commitment_fee_rate),
             }
         )
         self.wait_for_channel_state(
-            self.fiber1.get_client(), self.fiber2.get_peer_id(), "CHANNEL_READY", 120
+            self.fiber1.get_client(), self.fiber2.get_pubkey(), "CHANNEL_READY", 120
         )
 
         # transfer
@@ -133,7 +133,7 @@ class TestCommitmentFeeRate(FiberTest):
         )
 
         channels = self.fiber1.get_client().list_channels(
-            {"peer_id": self.fiber2.get_peer_id()}
+            {"pubkey": self.fiber2.get_pubkey()}
         )
         N1N2_CHANNEL_ID = channels["channels"][0]["channel_id"]
         self.fiber1.get_client().graph_channels()
@@ -156,14 +156,14 @@ class TestCommitmentFeeRate(FiberTest):
         commitment_fee_rate = 2000
         temporary_channel_id = self.fiber1.get_client().open_channel(
             {
-                "peer_id": self.fiber2.get_peer_id(),
+                "pubkey": self.fiber2.get_pubkey(),
                 "funding_amount": hex(200 * 100000000),
                 "public": True,
                 "commitment_fee_rate": hex(commitment_fee_rate),
             }
         )
         self.wait_for_channel_state(
-            self.fiber1.get_client(), self.fiber2.get_peer_id(), "CHANNEL_READY", 120
+            self.fiber1.get_client(), self.fiber2.get_pubkey(), "CHANNEL_READY", 120
         )
 
         # transfer
@@ -196,7 +196,7 @@ class TestCommitmentFeeRate(FiberTest):
         )
 
         channels = self.fiber1.get_client().list_channels(
-            {"peer_id": self.fiber2.get_peer_id()}
+            {"pubkey": self.fiber2.get_pubkey()}
         )
         N1N2_CHANNEL_ID = channels["channels"][0]["channel_id"]
         self.fiber1.get_client().graph_channels()
@@ -217,14 +217,14 @@ class TestCommitmentFeeRate(FiberTest):
         commitment_fee_rate = 21978021
         temporary_channel_id = self.fiber1.get_client().open_channel(
             {
-                "peer_id": self.fiber2.get_peer_id(),
+                "pubkey": self.fiber2.get_pubkey(),
                 "funding_amount": hex(200 * 100000000),
                 "public": True,
                 "commitment_fee_rate": hex(commitment_fee_rate),
             }
         )
         self.wait_for_channel_state(
-            self.fiber1.get_client(), self.fiber2.get_peer_id(), "CHANNEL_READY", 120
+            self.fiber1.get_client(), self.fiber2.get_pubkey(), "CHANNEL_READY", 120
         )
 
         # transfer
@@ -257,7 +257,7 @@ class TestCommitmentFeeRate(FiberTest):
         )
 
         channels = self.fiber1.get_client().list_channels(
-            {"peer_id": self.fiber2.get_peer_id()}
+            {"pubkey": self.fiber2.get_pubkey()}
         )
         N1N2_CHANNEL_ID = channels["channels"][0]["channel_id"]
         self.fiber1.get_client().graph_channels()

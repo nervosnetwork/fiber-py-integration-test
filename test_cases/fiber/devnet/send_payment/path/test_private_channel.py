@@ -26,7 +26,7 @@ class TestPrivateChannel(FiberTest):
         fiber1_fee = 1000
         self.fiber1.get_client().open_channel(
             {
-                "peer_id": self.fiber2.get_peer_id(),
+                "pubkey": self.fiber2.get_pubkey(),
                 "funding_amount": hex(fiber1_balance + DEFAULT_MIN_DEPOSIT_CKB),
                 "tlc_fee_proportional_millionths": hex(fiber1_fee),
                 "public": False,
@@ -34,7 +34,7 @@ class TestPrivateChannel(FiberTest):
         )
         time.sleep(1)
         self.wait_for_channel_state(
-            self.fiber1.get_client(), self.fiber2.get_peer_id(), "CHANNEL_READY"
+            self.fiber1.get_client(), self.fiber2.get_pubkey(), "CHANNEL_READY"
         )
         self.open_channel(self.fibers[1], self.fibers[2], 1000 * 100000000, 1)
         self.open_channel(self.fibers[2], self.fibers[3], 1000 * 100000000, 1)
@@ -43,7 +43,7 @@ class TestPrivateChannel(FiberTest):
         time.sleep(1)
         self.fibers[3].get_client().open_channel(
             {
-                "peer_id": self.fibers[0].get_peer_id(),
+                "pubkey": self.fibers[0].get_pubkey(),
                 "funding_amount": hex(fiber1_balance + DEFAULT_MIN_DEPOSIT_CKB),
                 "tlc_fee_proportional_millionths": hex(fiber1_fee),
                 "public": False,
@@ -51,7 +51,7 @@ class TestPrivateChannel(FiberTest):
         )
         time.sleep(1)
         self.wait_for_channel_state(
-            self.fibers[3].get_client(), self.fibers[0].get_peer_id(), "CHANNEL_READY"
+            self.fibers[3].get_client(), self.fibers[0].get_pubkey(), "CHANNEL_READY"
         )
         time.sleep(1)
         for i in range(1, len(self.fibers)):

@@ -25,7 +25,7 @@ class TestStopMidNode(FiberTest):
             .get_client()
             .send_payment(
                 {
-                    "target_pubkey": self.fibers[3].get_client().node_info()["node_id"],
+                    "target_pubkey": self.fibers[3].get_client().node_info()["pubkey"],
                     "amount": hex(10 * 100000000),
                     "keysend": True,
                 }
@@ -40,7 +40,7 @@ class TestStopMidNode(FiberTest):
             .get_client()
             .send_payment(
                 {
-                    "target_pubkey": self.fibers[3].get_client().node_info()["node_id"],
+                    "target_pubkey": self.fibers[3].get_client().node_info()["pubkey"],
                     "amount": hex(10 * 100000000),
                     "keysend": True,
                 }
@@ -54,7 +54,7 @@ class TestStopMidNode(FiberTest):
             .get_client()
             .send_payment(
                 {
-                    "target_pubkey": self.fibers[3].get_client().node_info()["node_id"],
+                    "target_pubkey": self.fibers[3].get_client().node_info()["pubkey"],
                     "amount": hex(10 * 100000000),
                     "keysend": True,
                 }
