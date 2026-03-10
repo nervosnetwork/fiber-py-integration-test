@@ -16,7 +16,7 @@ on:
         default: 'develop'
       BuildFIBER:
         description: 'build fiber'
-        default: 'true'
+        default: 'false'
 
 permissions:
   contents: read
