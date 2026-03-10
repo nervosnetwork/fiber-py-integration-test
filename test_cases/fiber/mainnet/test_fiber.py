@@ -141,7 +141,7 @@ class TestFiber(CkbTest):
             120,
         )
         begin = time.time()
-        # wait graph channel ready 
+        # wait graph channel ready
         fiber1_channel_outpoint = self.fiber1.get_client().list_channels({})[
             "channels"
         ][0]["channel_outpoint"]
@@ -155,8 +155,7 @@ class TestFiber(CkbTest):
         wait_graph_channel_ready(self.fiber2.get_client(), fiber1_channel_outpoint)
         wait_graph_channel_ready(self.fiber2.get_client(), fiber2_channel_outpoint)
         wait_graph_end = time.time()
-        
-        
+
         send_payment(
             self.fiber1.get_client(), self.fiber2.get_client(), 1000, None, 20 * 60
         )
@@ -258,3 +257,18 @@ def wait_for_channel_state(client, peer_id, expected_state, timeout=120):
     raise TimeoutError(
         f"Channel did not reach state {expected_state} within timeout period."
     )
+
+
+def wait_payment_finished(client, payment_hash, timeout=300):
+    for i in range(timeout):
+        try:
+            payment = client.get_payment({"payment_hash": payment_hash})
+            if payment["status"] in ["Failed", "Success"]:
+                return payment
+            time.sleep(1)
+        except Exception as e:
+            print(e)
+            print(f"wait payment try count: {i}")
+            time.sleep(1)
+            continue
+    raise TimeoutError("payment status did not become final within timeout period.")
