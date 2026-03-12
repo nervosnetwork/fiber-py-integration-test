@@ -1,0 +1,96 @@
+fiber:
+  listening_addr: /ip4/127.0.0.1/tcp/8230
+  chain: dev.toml
+  announce_listening_addr: true
+  announce_private_addr: true
+  gossip_store_maintenance_interval_ms: 1000
+  gossip_network_maintenance_interval_ms: 1000
+  open_channel_auto_accept_min_ckb_funding_amount: 10000000000
+  watchtower_check_interval_seconds: 60
+  
+  
+  
+  scripts:
+    - name: FundingLock
+      script:
+        code_hash: 0xe7576045a47bb4cc172ffd0306ce01e232dc43805becb356e58f8bda9df51e26
+        hash_type: type
+        args: 0x
+      cell_deps:
+        - type_id:
+            code_hash: 0x00000000000000000000000000000000000000000000000000545950455f4944
+            hash_type: type
+            args: 0x9ae780bb5b9b7d67bf5a0003813db01952dc37a81d56ac366fa2a80f497bc23a
+        - cell_dep:
+            out_point:
+              tx_hash: 0x8b04bddc0dc0c471caff7c8ef88f8b91ee30b95a78f159eeb499208bb3bde710 # ckb_auth
+              index: 0x0
+            dep_type: code
+    - name: CommitmentLock
+      script:
+        code_hash: 0xf3775d5328de71717f2c5614fa06b9b93c48b7d90c1e135c0812c74ee3126453
+        hash_type: type
+        args: 0x
+      cell_deps:
+        - type_id:
+            code_hash: 0x00000000000000000000000000000000000000000000000000545950455f4944
+            hash_type: type
+            args: 0x082d30abbb75c3db217a78eee4f3e0d5a46c90b56c11dec77f3060319f323808
+        - cell_dep:
+            out_point:
+              tx_hash: 0x8b04bddc0dc0c471caff7c8ef88f8b91ee30b95a78f159eeb499208bb3bde710 #ckb_auth
+              index: 0x0
+            dep_type: code
+    - name: SimpleUDT
+      script:
+        code_hash: 0x102583443ba6cfe5a3ac268bbb4475fb63eb497dce077f126ad3b148d4f4f8f8
+        hash_type: type
+        args: 0x
+      cell_deps:
+        - type_id:
+            code_hash: 0x00000000000000000000000000000000000000000000000000545950455f4944
+            hash_type: type
+            args: 0x910391089634a0d2c716586f03e4c053f06e461c8d75a428ff045006e856a6a6
+        - cell_dep:
+            out_point:
+              tx_hash: 0x03c4475655a46dc4984c49fce03316f80bf666236bd95118112731082758d686
+              index: 0x0
+            dep_type: code
+
+rpc:
+  listening_addr: 127.0.0.1:8229
+  enabled_modules:
+    - cch
+    - channel
+    - payment
+    - graph
+    - info
+    - invoice
+    - peer
+    - pubsub
+    - dev
+    - watchtower
+
+
+ckb:
+  rpc_url: http://127.0.0.1:8114
+  
+  udt_whitelist:
+    - name: XUDT
+      script:
+        code_hash: 0x102583443ba6cfe5a3ac268bbb4475fb63eb497dce077f126ad3b148d4f4f8f8
+        hash_type: type
+        args: 0x.*
+      cell_deps:
+       - type_id:
+            code_hash: 0x00000000000000000000000000000000000000000000000000545950455f4944
+            hash_type: type
+            args: 0x910391089634a0d2c716586f03e4c053f06e461c8d75a428ff045006e856a6a6
+      auto_accept_amount: 0
+  
+
+services:
+  - fiber
+  - rpc
+  - ckb
+  

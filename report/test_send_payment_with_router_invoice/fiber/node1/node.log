@@ -1,0 +1,476 @@
+  [2m2026-03-12T08:41:45.446477Z[0m [32m INFO[0m [1;32mfnn[0m[32m: [32mStarting node with git version 2f907f6e (2f907f6 2026-03-12)[0m
+    [2;3mat[0m crates/fiber-bin/src/main.rs:73
+
+  [2m2026-03-12T08:41:45.503266Z[0m [32m INFO[0m [1;32mfiber_store::db_migrate[0m[32m: [32mbegin to init db version ...[0m
+    [2;3mat[0m crates/fiber-store/src/db_migrate.rs:62
+    [2;3min[0m fnn::[1mnode[0m [2;3mwith[0m node: ""
+
+  [2m2026-03-12T08:41:45.503294Z[0m [32m INFO[0m [1;32mfiber_store::migration[0m[32m: [32mInit database version 20260301103357[0m
+    [2;3mat[0m crates/fiber-store/src/migration.rs:126
+    [2;3min[0m fnn::[1mnode[0m [2;3mwith[0m node: ""
+
+  [2m2026-03-12T08:41:45.542002Z[0m [32m INFO[0m [1;32mfnn::ckb::contracts[0m[32m: [32mCreating ContractsContext for dev[0m
+    [2;3mat[0m crates/fiber-lib/src/ckb/contracts.rs:185
+    [2;3min[0m fnn::[1mnode[0m [2;3mwith[0m node: ""
+
+  [2m2026-03-12T08:41:45.553949Z[0m [32m INFO[0m [1;32mfnn::ckb::config[0m[32m: [32msecret key is using plain key format, start migrating to encrypted format[0m
+    [2;3mat[0m crates/fiber-lib/src/ckb/config.rs:134
+    [2;3min[0m ractor::actor::[1mActor[0m [2;3mwith[0m id: "0.1", name: "ckb"
+    [2;3min[0m fnn::[1mnode[0m [2;3mwith[0m node: ""
+
+  [2m2026-03-12T08:41:45.911059Z[0m [32m INFO[0m [1;32mfnn::ckb::config[0m[32m: [32msecret key migration done[0m
+    [2;3mat[0m crates/fiber-lib/src/ckb/config.rs:137
+    [2;3min[0m ractor::actor::[1mActor[0m [2;3mwith[0m id: "0.1", name: "ckb"
+    [2;3min[0m fnn::[1mnode[0m [2;3mwith[0m node: ""
+
+  [2m2026-03-12T08:41:46.461159Z[0m [32m INFO[0m [1;32mfnn[0m[32m: [32mStarting fiber[0m
+    [2;3mat[0m crates/fiber-bin/src/main.rs:169
+    [2;3min[0m fnn::[1mnode[0m [2;3mwith[0m node: ""
+
+  [2m2026-03-12T08:41:46.461630Z[0m [32m INFO[0m [1;32mfnn::fiber::network[0m[32m: [32mStarted listening tentacle on ["/ip4/127.0.0.1/tcp/8227/p2p/QmS5SEGCrcyvudYFU3FRraJXghwQhksHpxJzTqS4577XHC", "/ip4/127.0.0.1/tcp/8227/ws/p2p/QmS5SEGCrcyvudYFU3FRraJXghwQhksHpxJzTqS4577XHC"], peer id PeerId(QmS5SEGCrcyvudYFU3FRraJXghwQhksHpxJzTqS4577XHC), announced addresses ["/ip4/127.0.0.1/tcp/8227/p2p/QmS5SEGCrcyvudYFU3FRraJXghwQhksHpxJzTqS4577XHC", "/ip4/127.0.0.1/tcp/8227/ws/p2p/QmS5SEGCrcyvudYFU3FRraJXghwQhksHpxJzTqS4577XHC"][0m
+    [2;3mat[0m crates/fiber-lib/src/fiber/network.rs:4590
+    [2;3min[0m ractor::actor::[1mActor[0m [2;3mwith[0m id: "0.3", name: "Network 0x02bed82bb71c8ed226ae193945e344a9ec1eed16d8586bdb789a384f9d70b61087"
+    [2;3min[0m fnn::[1mnode[0m [2;3mwith[0m node: ""
+
+  [2m2026-03-12T08:41:46.461750Z[0m [34mDEBUG[0m [1;34mfnn::fiber::network[0m[34m: [34mService event: ListenStarted { address: "/ip4/127.0.0.1/tcp/8227" }[0m
+    [2;3mat[0m crates/fiber-lib/src/fiber/network.rs:4938
+
+  [2m2026-03-12T08:41:46.461767Z[0m [34mDEBUG[0m [1;34mfnn::fiber::network[0m[34m: [34mService event: ListenStarted { address: "/ip4/127.0.0.1/tcp/8227/ws" }[0m
+    [2;3mat[0m crates/fiber-lib/src/fiber/network.rs:4938
+
+  [2m2026-03-12T08:41:46.461802Z[0m [34mDEBUG[0m [1;34mfnn::fiber::network[0m[34m: [34mCreated new node announcement message: NodeAnnouncement { signature: Some(EcdsaSignature(3045022100dc49e729e6006ceafe6656b9b4f9ccd200e9e934d90aeae6542b0b7105274d360220565a971ec5e843be1a02643ae7c0cdb4a18747494dbc55527ecf5ef6b21ee1d1)), features: FeatureVector { features: ["GOSSIP_QUERIES_REQUIRED", "BASIC_MPP_REQUIRED", "TRAMPOLINE_ROUTING_REQUIRED"] }, timestamp: 1773304906461, node_id: Pubkey(02bed82bb71c8ed226ae193945e344a9ec1eed16d8586bdb789a384f9d70b61087), version: "0.7.1", node_name: AnnouncedNodeName(), addresses: ["/ip4/127.0.0.1/tcp/8227/p2p/QmS5SEGCrcyvudYFU3FRraJXghwQhksHpxJzTqS4577XHC", "/ip4/127.0.0.1/tcp/8227/ws/p2p/QmS5SEGCrcyvudYFU3FRraJXghwQhksHpxJzTqS4577XHC"], chain_hash: Hash256(0x12a852dcfeefe9dd9caf60fdcadb595a97bf56d854528319167ef8cfed26fdd2), auto_accept_min_ckb_funding_amount: 10000000000, udt_cfg_infos: UdtCfgInfos([UdtArgInfo { name: "XUDT", script: UdtScript { code_hash: H256 ( [ 0x10, 0x25, 0x83, 0x44, 0x3b, 0xa6, 0xcf, 0xe5, 0xa3, 0xac, 0x26, 0x8b, 0xbb, 0x44, 0x75, 0xfb, 0x63, 0xeb, 0x49, 0x7d, 0xce, 0x07, 0x7f, 0x12, 0x6a, 0xd3, 0xb1, 0x48, 0xd4, 0xf4, 0xf8, 0xf8 ] ), hash_type: Type, args: "0x.*" }, auto_accept_amount: Some(1000000000), cell_deps: [UdtDep { cell_dep: None, type_id: Some(Script { code_hash: H256 ( [ 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x54, 0x59, 0x50, 0x45, 0x5f, 0x49, 0x44 ] ), hash_type: Type, args: JsonBytes(b"\x91\x03\x91\x08\x964\xa0\xd2\xc7\x16Xo\x03\xe4\xc0S\xf0nF\x1c\x8du\xa4(\xff\x04P\x06\xe8V\xa6\xa6") }) }] }]) }, previous None[0m
+    [2;3mat[0m crates/fiber-lib/src/fiber/network.rs:3002
+    [2;3min[0m ractor::actor::[1mActor[0m [2;3mwith[0m id: "0.3", name: "Network 0x02bed82bb71c8ed226ae193945e344a9ec1eed16d8586bdb789a384f9d70b61087"
+    [2;3min[0m fnn::[1mnode[0m [2;3mwith[0m node: ""
+
+  [2m2026-03-12T08:41:46.461860Z[0m [34mDEBUG[0m [1;34mfnn::fiber::graph[0m[34m: [34mProcessing node announcement: NodeAnnouncement { signature: Some(EcdsaSignature(3045022100dc49e729e6006ceafe6656b9b4f9ccd200e9e934d90aeae6542b0b7105274d360220565a971ec5e843be1a02643ae7c0cdb4a18747494dbc55527ecf5ef6b21ee1d1)), features: FeatureVector { features: ["GOSSIP_QUERIES_REQUIRED", "BASIC_MPP_REQUIRED", "TRAMPOLINE_ROUTING_REQUIRED"] }, timestamp: 1773304906461, node_id: Pubkey(02bed82bb71c8ed226ae193945e344a9ec1eed16d8586bdb789a384f9d70b61087), version: "0.7.1", node_name: AnnouncedNodeName(), addresses: ["/ip4/127.0.0.1/tcp/8227/p2p/QmS5SEGCrcyvudYFU3FRraJXghwQhksHpxJzTqS4577XHC", "/ip4/127.0.0.1/tcp/8227/ws/p2p/QmS5SEGCrcyvudYFU3FRraJXghwQhksHpxJzTqS4577XHC"], chain_hash: Hash256(0x12a852dcfeefe9dd9caf60fdcadb595a97bf56d854528319167ef8cfed26fdd2), auto_accept_min_ckb_funding_amount: 10000000000, udt_cfg_infos: UdtCfgInfos([UdtArgInfo { name: "XUDT", script: UdtScript { code_hash: H256 ( [ 0x10, 0x25, 0x83, 0x44, 0x3b, 0xa6, 0xcf, 0xe5, 0xa3, 0xac, 0x26, 0x8b, 0xbb, 0x44, 0x75, 0xfb, 0x63, 0xeb, 0x49, 0x7d, 0xce, 0x07, 0x7f, 0x12, 0x6a, 0xd3, 0xb1, 0x48, 0xd4, 0xf4, 0xf8, 0xf8 ] ), hash_type: Type, args: "0x.*" }, auto_accept_amount: Some(1000000000), cell_deps: [UdtDep { cell_dep: None, type_id: Some(Script { code_hash: H256 ( [ 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x54, 0x59, 0x50, 0x45, 0x5f, 0x49, 0x44 ] ), hash_type: Type, args: JsonBytes(b"\x91\x03\x91\x08\x964\xa0\xd2\xc7\x16Xo\x03\xe4\xc0S\xf0nF\x1c\x8du\xa4(\xff\x04P\x06\xe8V\xa6\xa6") }) }] }]) }[0m
+    [2;3mat[0m crates/fiber-lib/src/fiber/graph.rs:836
+    [2;3min[0m ractor::actor::[1mActor[0m [2;3mwith[0m id: "0.3", name: "Network 0x02bed82bb71c8ed226ae193945e344a9ec1eed16d8586bdb789a384f9d70b61087"
+    [2;3min[0m fnn::[1mnode[0m [2;3mwith[0m node: ""
+
+  [2m2026-03-12T08:41:46.462004Z[0m [34mDEBUG[0m [1;34mfnn::fiber::network[0m[34m: [34mTrying to connect to peers with mutual channels[0m
+    [2;3mat[0m crates/fiber-lib/src/fiber/network.rs:1128
+    [2;3min[0m ractor::actor::[1mActor[0m [2;3mwith[0m id: "0.3", name: "Network 0x02bed82bb71c8ed226ae193945e344a9ec1eed16d8586bdb789a384f9d70b61087"
+
+  [2m2026-03-12T08:41:46.462024Z[0m [34mDEBUG[0m [1;34mfnn::fiber::network[0m[34m: [34mMaintaining network connections ticked: current num inbound peers 0, current num outbound peers 0[0m
+    [2;3mat[0m crates/fiber-lib/src/fiber/network.rs:1154
+    [2;3min[0m ractor::actor::[1mActor[0m [2;3mwith[0m id: "0.3", name: "Network 0x02bed82bb71c8ed226ae193945e344a9ec1eed16d8586bdb789a384f9d70b61087"
+
+  [2m2026-03-12T08:41:46.959959Z[0m [34mDEBUG[0m [1;34mfnn::rpc::server[0m[34m: [34mstarted listen to RPC addr "127.0.0.1:8228"[0m
+    [2;3mat[0m crates/fiber-lib/src/rpc/mod.rs:384
+    [2;3min[0m fnn::[1mnode[0m [2;3mwith[0m node: ""
+
+  [2m2026-03-12T08:41:48.505143Z[0m [34mDEBUG[0m [1;34mfnn::fiber::network[0m[34m: [34mQueued peer address "/ip4/127.0.0.1/tcp/8230/p2p/QmbZgf7mJ4k1NkaEYCbKKTkFLJZncc7ULaaUJtW9JxQpRN" for persistence after handshake[0m
+    [2;3mat[0m crates/fiber-lib/src/fiber/network.rs:3620
+    [2;3min[0m ractor::actor::[1mActor[0m [2;3mwith[0m id: "0.3", name: "Network 0x02bed82bb71c8ed226ae193945e344a9ec1eed16d8586bdb789a384f9d70b61087"
+
+  [2m2026-03-12T08:41:48.508103Z[0m [34mDEBUG[0m [1;34mfnn::fiber::network[0m[34m: [34mService event: SessionOpen { session_context: SessionContext { id: SessionId(1), address: "/ip4/127.0.0.1/tcp/8230/p2p/QmbZgf7mJ4k1NkaEYCbKKTkFLJZncc7ULaaUJtW9JxQpRN", ty: Outbound, remote_pubkey: Some(0x0338ada60c374bb965b1aa2eefd7049e38c1ab631d423e8dbc30aaad0ffe042535), closed: false, pending_data_size: 0 } }[0m
+    [2;3mat[0m crates/fiber-lib/src/fiber/network.rs:4938
+
+  [2m2026-03-12T08:41:48.509480Z[0m [34mDEBUG[0m [1;34mfnn::fiber::network[0m[34m: [34mPeer Pubkey(0338ada60c374bb965b1aa2eefd7049e38c1ab631d423e8dbc30aaad0ffe042535) connected[0m
+    [2;3mat[0m crates/fiber-lib/src/fiber/network.rs:3835
+    [2;3min[0m ractor::actor::[1mActor[0m [2;3mwith[0m id: "0.3", name: "Network 0x02bed82bb71c8ed226ae193945e344a9ec1eed16d8586bdb789a384f9d70b61087"
+
+  [2m2026-03-12T08:41:48.509653Z[0m [34mDEBUG[0m [1;34mfnn::fiber::network[0m[34m: [34mReturning old node announcement message as it is still valid[0m
+    [2;3mat[0m crates/fiber-lib/src/fiber/network.rs:2986
+    [2;3min[0m ractor::actor::[1mActor[0m [2;3mwith[0m id: "0.3", name: "Network 0x02bed82bb71c8ed226ae193945e344a9ec1eed16d8586bdb789a384f9d70b61087"
+
+  [2m2026-03-12T08:41:48.509662Z[0m [34mDEBUG[0m [1;34mfnn::fiber::network[0m[34m: [34mAuto announcing our node to peer Pubkey(0338ada60c374bb965b1aa2eefd7049e38c1ab631d423e8dbc30aaad0ffe042535) (message: NodeAnnouncement { signature: Some(EcdsaSignature(3045022100dc49e729e6006ceafe6656b9b4f9ccd200e9e934d90aeae6542b0b7105274d360220565a971ec5e843be1a02643ae7c0cdb4a18747494dbc55527ecf5ef6b21ee1d1)), features: FeatureVector { features: ["GOSSIP_QUERIES_REQUIRED", "BASIC_MPP_REQUIRED", "TRAMPOLINE_ROUTING_REQUIRED"] }, timestamp: 1773304906461, node_id: Pubkey(02bed82bb71c8ed226ae193945e344a9ec1eed16d8586bdb789a384f9d70b61087), version: "0.7.1", node_name: AnnouncedNodeName(), addresses: ["/ip4/127.0.0.1/tcp/8227/p2p/QmS5SEGCrcyvudYFU3FRraJXghwQhksHpxJzTqS4577XHC", "/ip4/127.0.0.1/tcp/8227/ws/p2p/QmS5SEGCrcyvudYFU3FRraJXghwQhksHpxJzTqS4577XHC"], chain_hash: Hash256(0x12a852dcfeefe9dd9caf60fdcadb595a97bf56d854528319167ef8cfed26fdd2), auto_accept_min_ckb_funding_amount: 10000000000, udt_cfg_infos: UdtCfgInfos([UdtArgInfo { name: "XUDT", script: UdtScript { code_hash: H256 ( [ 0x10, 0x25, 0x83, 0x44, 0x3b, 0xa6, 0xcf, 0xe5, 0xa3, 0xac, 0x26, 0x8b, 0xbb, 0x44, 0x75, 0xfb, 0x63, 0xeb, 0x49, 0x7d, 0xce, 0x07, 0x7f, 0x12, 0x6a, 0xd3, 0xb1, 0x48, 0xd4, 0xf4, 0xf8, 0xf8 ] ), hash_type: Type, args: "0x.*" }, auto_accept_amount: Some(1000000000), cell_deps: [UdtDep { cell_dep: None, type_id: Some(Script { code_hash: H256 ( [ 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x54, 0x59, 0x50, 0x45, 0x5f, 0x49, 0x44 ] ), hash_type: Type, args: JsonBytes(b"\x91\x03\x91\x08\x964\xa0\xd2\xc7\x16Xo\x03\xe4\xc0S\xf0nF\x1c\x8du\xa4(\xff\x04P\x06\xe8V\xa6\xa6") }) }] }]) })[0m
+    [2;3mat[0m crates/fiber-lib/src/fiber/network.rs:3861
+    [2;3min[0m ractor::actor::[1mActor[0m [2;3mwith[0m id: "0.3", name: "Network 0x02bed82bb71c8ed226ae193945e344a9ec1eed16d8586bdb789a384f9d70b61087"
+
+  [2m2026-03-12T08:41:48.509865Z[0m [34mDEBUG[0m [1;34mfnn::fiber::graph[0m[34m: [34mProcessing node announcement: NodeAnnouncement { signature: Some(EcdsaSignature(3045022100dc49e729e6006ceafe6656b9b4f9ccd200e9e934d90aeae6542b0b7105274d360220565a971ec5e843be1a02643ae7c0cdb4a18747494dbc55527ecf5ef6b21ee1d1)), features: FeatureVector { features: ["GOSSIP_QUERIES_REQUIRED", "BASIC_MPP_REQUIRED", "TRAMPOLINE_ROUTING_REQUIRED"] }, timestamp: 1773304906461, node_id: Pubkey(02bed82bb71c8ed226ae193945e344a9ec1eed16d8586bdb789a384f9d70b61087), version: "0.7.1", node_name: AnnouncedNodeName(), addresses: ["/ip4/127.0.0.1/tcp/8227/p2p/QmS5SEGCrcyvudYFU3FRraJXghwQhksHpxJzTqS4577XHC", "/ip4/127.0.0.1/tcp/8227/ws/p2p/QmS5SEGCrcyvudYFU3FRraJXghwQhksHpxJzTqS4577XHC"], chain_hash: Hash256(0x12a852dcfeefe9dd9caf60fdcadb595a97bf56d854528319167ef8cfed26fdd2), auto_accept_min_ckb_funding_amount: 10000000000, udt_cfg_infos: UdtCfgInfos([UdtArgInfo { name: "XUDT", script: UdtScript { code_hash: H256 ( [ 0x10, 0x25, 0x83, 0x44, 0x3b, 0xa6, 0xcf, 0xe5, 0xa3, 0xac, 0x26, 0x8b, 0xbb, 0x44, 0x75, 0xfb, 0x63, 0xeb, 0x49, 0x7d, 0xce, 0x07, 0x7f, 0x12, 0x6a, 0xd3, 0xb1, 0x48, 0xd4, 0xf4, 0xf8, 0xf8 ] ), hash_type: Type, args: "0x.*" }, auto_accept_amount: Some(1000000000), cell_deps: [UdtDep { cell_dep: None, type_id: Some(Script { code_hash: H256 ( [ 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x54, 0x59, 0x50, 0x45, 0x5f, 0x49, 0x44 ] ), hash_type: Type, args: JsonBytes(b"\x91\x03\x91\x08\x964\xa0\xd2\xc7\x16Xo\x03\xe4\xc0S\xf0nF\x1c\x8du\xa4(\xff\x04P\x06\xe8V\xa6\xa6") }) }] }]) }[0m
+    [2;3mat[0m crates/fiber-lib/src/fiber/graph.rs:836
+    [2;3min[0m ractor::actor::[1mActor[0m [2;3mwith[0m id: "0.3", name: "Network 0x02bed82bb71c8ed226ae193945e344a9ec1eed16d8586bdb789a384f9d70b61087"
+
+  [2m2026-03-12T08:41:49.464507Z[0m [34mDEBUG[0m [1;34mfnn::fiber::gossip[0m[34m: [34mActor { name: Some("gossip syncing actor to peer Pubkey(0338ada60c374bb965b1aa2eefd7049e38c1ab631d423e8dbc30aaad0ffe042535) supervised by Local(4)"), id: Local(7) } terminated[0m
+    [2;3mat[0m crates/fiber-lib/src/fiber/gossip.rs:2589
+    [2;3min[0m ractor::actor::[1mActor[0m [2;3mwith[0m id: "0.4", name: "gossip actor Pubkey(02bed82bb71c8ed226ae193945e344a9ec1eed16d8586bdb789a384f9d70b61087)"
+
+  [2m2026-03-12T08:41:49.527200Z[0m [34mDEBUG[0m [1;34mfnn::fiber::network[0m[34m: [34mSaved peer Pubkey(0338ada60c374bb965b1aa2eefd7049e38c1ab631d423e8dbc30aaad0ffe042535) with address "/ip4/127.0.0.1/tcp/8230/p2p/QmbZgf7mJ4k1NkaEYCbKKTkFLJZncc7ULaaUJtW9JxQpRN"[0m
+    [2;3mat[0m crates/fiber-lib/src/fiber/network.rs:3612
+    [2;3min[0m ractor::actor::[1mActor[0m [2;3mwith[0m id: "0.3", name: "Network 0x02bed82bb71c8ed226ae193945e344a9ec1eed16d8586bdb789a384f9d70b61087"
+
+  [2m2026-03-12T08:41:49.528775Z[0m [34mDEBUG[0m [1;34mfnn::fiber::network[0m[34m: [34mService error: DialerError { address: "/ip4/127.0.0.1/tcp/8230/p2p/QmbZgf7mJ4k1NkaEYCbKKTkFLJZncc7ULaaUJtW9JxQpRN", error: RepeatedConnection(SessionId(1)) }[0m
+    [2;3mat[0m crates/fiber-lib/src/fiber/network.rs:4922
+
+  [2m2026-03-12T08:41:50.463199Z[0m [34mDEBUG[0m [1;34mfnn::fiber::graph[0m[34m: [34mProcessing node announcement: NodeAnnouncement { signature: Some(EcdsaSignature(30440220480ecd7401aa1f1e5821a38ef95e3bb8e7579ba3050abf44f149e99fe0fd417002201c9b4e49deedb23979f3b4d69cb6a92d93b32864d33ee1726be6a3c78c65092d)), features: FeatureVector { features: ["GOSSIP_QUERIES_REQUIRED", "BASIC_MPP_REQUIRED", "TRAMPOLINE_ROUTING_REQUIRED"] }, timestamp: 1773304907850, node_id: Pubkey(0338ada60c374bb965b1aa2eefd7049e38c1ab631d423e8dbc30aaad0ffe042535), version: "0.7.1", node_name: AnnouncedNodeName(), addresses: ["/ip4/127.0.0.1/tcp/8230/p2p/QmbZgf7mJ4k1NkaEYCbKKTkFLJZncc7ULaaUJtW9JxQpRN", "/ip4/127.0.0.1/tcp/8230/ws/p2p/QmbZgf7mJ4k1NkaEYCbKKTkFLJZncc7ULaaUJtW9JxQpRN"], chain_hash: Hash256(0x12a852dcfeefe9dd9caf60fdcadb595a97bf56d854528319167ef8cfed26fdd2), auto_accept_min_ckb_funding_amount: 10000000000, udt_cfg_infos: UdtCfgInfos([UdtArgInfo { name: "XUDT", script: UdtScript { code_hash: H256 ( [ 0x10, 0x25, 0x83, 0x44, 0x3b, 0xa6, 0xcf, 0xe5, 0xa3, 0xac, 0x26, 0x8b, 0xbb, 0x44, 0x75, 0xfb, 0x63, 0xeb, 0x49, 0x7d, 0xce, 0x07, 0x7f, 0x12, 0x6a, 0xd3, 0xb1, 0x48, 0xd4, 0xf4, 0xf8, 0xf8 ] ), hash_type: Type, args: "0x.*" }, auto_accept_amount: Some(1000000000), cell_deps: [UdtDep { cell_dep: None, type_id: Some(Script { code_hash: H256 ( [ 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x54, 0x59, 0x50, 0x45, 0x5f, 0x49, 0x44 ] ), hash_type: Type, args: JsonBytes(b"\x91\x03\x91\x08\x964\xa0\xd2\xc7\x16Xo\x03\xe4\xc0S\xf0nF\x1c\x8du\xa4(\xff\x04P\x06\xe8V\xa6\xa6") }) }] }]) }[0m
+    [2;3mat[0m crates/fiber-lib/src/fiber/graph.rs:836
+    [2;3min[0m ractor::actor::[1mActor[0m [2;3mwith[0m id: "0.3", name: "Network 0x02bed82bb71c8ed226ae193945e344a9ec1eed16d8586bdb789a384f9d70b61087"
+
+  [2m2026-03-12T08:41:50.538933Z[0m [32m INFO[0m [1;32mfnn::fiber::channel[0m[32m: [32mTrying to open a channel to Pubkey(0338ada60c374bb965b1aa2eefd7049e38c1ab631d423e8dbc30aaad0ffe042535)[0m
+    [2;3mat[0m crates/fiber-lib/src/fiber/channel.rs:2719
+    [2;3min[0m ractor::actor::[1mActor[0m [2;3mwith[0m id: "0.9", name: "Channel-0 Pubkey(02bed82bb71c8ed226ae193945e344a9ec1eed16d8586bdb789a384f9d70b61087) <-> Pubkey(0338ada60c374bb965b1aa2eefd7049e38c1ab631d423e8dbc30aaad0ffe042535)"
+    [2;3min[0m ractor::actor::[1mActor[0m [2;3mwith[0m id: "0.3", name: "Network 0x02bed82bb71c8ed226ae193945e344a9ec1eed16d8586bdb789a384f9d70b61087"
+
+  [2m2026-03-12T08:41:50.539045Z[0m [34mDEBUG[0m [1;34mfnn::fiber::channel[0m[34m: [34m[ack] new_outbound_channel waiting_ack=false send_present=false verify_present=false next_present=false, [1;34mchannel[0m[34m: Hash256(0x6dd52c70a475b15ecb1b9a53b8810db5b845970fe931d041daf8efb00196b073)[0m
+    [2;3mat[0m crates/fiber-lib/src/fiber/channel.rs:3636
+    [2;3min[0m ractor::actor::[1mActor[0m [2;3mwith[0m id: "0.9", name: "Channel-0 Pubkey(02bed82bb71c8ed226ae193945e344a9ec1eed16d8586bdb789a384f9d70b61087) <-> Pubkey(0338ada60c374bb965b1aa2eefd7049e38c1ab631d423e8dbc30aaad0ffe042535)"
+    [2;3min[0m ractor::actor::[1mActor[0m [2;3mwith[0m id: "0.3", name: "Network 0x02bed82bb71c8ed226ae193945e344a9ec1eed16d8586bdb789a384f9d70b61087"
+
+  [2m2026-03-12T08:41:50.539411Z[0m [34mDEBUG[0m [1;34mfnn::fiber::channel[0m[34m: [34mCreated OpenChannel message to Pubkey(0338ada60c374bb965b1aa2eefd7049e38c1ab631d423e8dbc30aaad0ffe042535): ChannelInitialization(OpenChannel { chain_hash: Hash256(0x12a852dcfeefe9dd9caf60fdcadb595a97bf56d854528319167ef8cfed26fdd2), channel_id: Hash256(0x6dd52c70a475b15ecb1b9a53b8810db5b845970fe931d041daf8efb00196b073), funding_udt_type_script: None, funding_amount: 30000000000, shutdown_script: Script(0x490000001000000030000000310000009bd7e06f3ecf4be0f2fcd2188b23f1b9fcc88e5d4b65a8637b17723bbda3cce80114000000c8328aabcd9b9e8e64fbc566c4385c3bdeb219d7), reserved_ckb_amount: 9900000000, funding_fee_rate: 1000, commitment_fee_rate: 1000, commitment_delay_epoch: 1099511627777, max_tlc_value_in_flight: 340282366920938463463374607431768211455, max_tlc_number_in_flight: 125, funding_pubkey: Pubkey(02afed40378118064a70124c455b0ad67fff40f8c1ce4bf30f7c73a5f1b88b394d), tlc_basepoint: Pubkey(02fa7dab9f359f4e5ae45dc69c3baaf1d3da8d8d485bf9d72434bc7b6048dce554), first_per_commitment_point: Pubkey(02a86ebd7b6d20ecba5c5550ba0eb0e9058025ea39a4409af12365d008e8d7b02e), second_per_commitment_point: Pubkey(03cc667e446ef1d8b4840310af599cbd68a8f562576f3649712707e6fdfbd144b8), channel_announcement_nonce: Some(PubNonce { R1: Point(024306e12fe665eeca8853fea0a7c8a78d207b843ed51cd542fb7b4aac6416e6d5), R2: Point(0226b3b305d5cbcf048830526b08a5255adac7dca2ce95580756ee1f42f31abccd) }), next_commitment_nonce: PubNonce { R1: Point(031f8f56494c2e84487c77e481837f31659748d1897f7934697da4bad201537b7b), R2: Point(02d6d78ab1f8d72269bedbd83d6f1fed7bbae830cf9da33f29f2b3f6069622908a) }, next_revocation_nonce: PubNonce { R1: Point(0257e43a240f86276ad28c8ad9d08cd858a878e70d0ce8a615ce668bc8d6cdffa5), R2: Point(03f9772c0b7b7ed7c87f432fd2c7af4c3b3b52fbebe7bd3cc94a957d0d67da3bc4) }, channel_flags: ChannelFlags(PUBLIC) })[0m
+    [2;3mat[0m crates/fiber-lib/src/fiber/channel.rs:2807
+    [2;3min[0m ractor::actor::[1mActor[0m [2;3mwith[0m id: "0.9", name: "Channel-0 Pubkey(02bed82bb71c8ed226ae193945e344a9ec1eed16d8586bdb789a384f9d70b61087) <-> Pubkey(0338ada60c374bb965b1aa2eefd7049e38c1ab631d423e8dbc30aaad0ffe042535)"
+    [2;3min[0m ractor::actor::[1mActor[0m [2;3mwith[0m id: "0.3", name: "Network 0x02bed82bb71c8ed226ae193945e344a9ec1eed16d8586bdb789a384f9d70b61087"
+
+  [2m2026-03-12T08:41:50.539534Z[0m [34mDEBUG[0m [1;34mfnn::fiber::channel[0m[34m: [34mUpdating channel state from NegotiatingFunding(NegotiatingFundingFlags(0x0)) to NegotiatingFunding(NegotiatingFundingFlags(OUR_INIT_SENT))[0m
+    [2;3mat[0m crates/fiber-lib/src/fiber/channel.rs:4280
+    [2;3min[0m ractor::actor::[1mActor[0m [2;3mwith[0m id: "0.9", name: "Channel-0 Pubkey(02bed82bb71c8ed226ae193945e344a9ec1eed16d8586bdb789a384f9d70b61087) <-> Pubkey(0338ada60c374bb965b1aa2eefd7049e38c1ab631d423e8dbc30aaad0ffe042535)"
+    [2;3min[0m ractor::actor::[1mActor[0m [2;3mwith[0m id: "0.3", name: "Network 0x02bed82bb71c8ed226ae193945e344a9ec1eed16d8586bdb789a384f9d70b61087"
+
+  [2m2026-03-12T08:41:50.539547Z[0m [34mDEBUG[0m [1;34mfnn::fiber::channel[0m[34m: [34mChannel to peer Pubkey(0338ada60c374bb965b1aa2eefd7049e38c1ab631d423e8dbc30aaad0ffe042535) with id Hash256(0x6dd52c70a475b15ecb1b9a53b8810db5b845970fe931d041daf8efb00196b073) created[0m
+    [2;3mat[0m crates/fiber-lib/src/fiber/channel.rs:2825
+    [2;3min[0m ractor::actor::[1mActor[0m [2;3mwith[0m id: "0.9", name: "Channel-0 Pubkey(02bed82bb71c8ed226ae193945e344a9ec1eed16d8586bdb789a384f9d70b61087) <-> Pubkey(0338ada60c374bb965b1aa2eefd7049e38c1ab631d423e8dbc30aaad0ffe042535)"
+    [2;3min[0m ractor::actor::[1mActor[0m [2;3mwith[0m id: "0.3", name: "Network 0x02bed82bb71c8ed226ae193945e344a9ec1eed16d8586bdb789a384f9d70b61087"
+
+  [2m2026-03-12T08:41:50.539583Z[0m [34mDEBUG[0m [1;34mfnn::fiber::network[0m[34m: [34mChannel 6dd52c70a475b15ecb1b9a53b8810db5b845970fe931d041daf8efb00196b073 created[0m
+    [2;3mat[0m crates/fiber-lib/src/fiber/network.rs:3974
+    [2;3min[0m ractor::actor::[1mActor[0m [2;3mwith[0m id: "0.3", name: "Network 0x02bed82bb71c8ed226ae193945e344a9ec1eed16d8586bdb789a384f9d70b61087"
+
+  [2m2026-03-12T08:41:50.540931Z[0m [34mDEBUG[0m [1;34mfnn::fiber::channel[0m[34m: [34mUpdating channel state from NegotiatingFunding(NegotiatingFundingFlags(OUR_INIT_SENT)) to NegotiatingFunding(NegotiatingFundingFlags(OUR_INIT_SENT | THEIR_INIT_SENT))[0m
+    [2;3mat[0m crates/fiber-lib/src/fiber/channel.rs:4280
+    [2;3min[0m ractor::actor::[1mActor[0m [2;3mwith[0m id: "0.3", name: "Network 0x02bed82bb71c8ed226ae193945e344a9ec1eed16d8586bdb789a384f9d70b61087"
+
+  [2m2026-03-12T08:41:50.540945Z[0m [34mDEBUG[0m [1;34mfnn::fiber::channel[0m[34m: [34m[ack] handle_accept_channel_message waiting_ack=false send_present=true verify_present=true next_present=false, [1;34mchannel[0m[34m: Hash256(0x6dd52c70a475b15ecb1b9a53b8810db5b845970fe931d041daf8efb00196b073)[0m
+    [2;3mat[0m crates/fiber-lib/src/fiber/channel.rs:3636
+    [2;3min[0m ractor::actor::[1mActor[0m [2;3mwith[0m id: "0.3", name: "Network 0x02bed82bb71c8ed226ae193945e344a9ec1eed16d8586bdb789a384f9d70b61087"
+
+  [2m2026-03-12T08:41:50.540958Z[0m [34mDEBUG[0m [1;34mfnn::fiber::channel[0m[34m: [34mUpdating remote channel announcement nonce: PubNonce { R1: Point(02fffc04b931ae8ce58823f3b6cd18d7c2bb22b6598673e6f8d68a674c14ad5850), R2: Point(03adf83b36641e31770a04bb889b9a3f06a6bad816301aefeb38c500713900557d) }[0m
+    [2;3mat[0m crates/fiber-lib/src/fiber/channel.rs:5566
+    [2;3min[0m ractor::actor::[1mActor[0m [2;3mwith[0m id: "0.3", name: "Network 0x02bed82bb71c8ed226ae193945e344a9ec1eed16d8586bdb789a384f9d70b61087"
+
+  [2m2026-03-12T08:41:50.540964Z[0m [34mDEBUG[0m [1;34mfnn::fiber::channel[0m[34m: [34mSuccessfully processed AcceptChannel message AcceptChannel { channel_id: Hash256(0x6dd52c70a475b15ecb1b9a53b8810db5b845970fe931d041daf8efb00196b073), funding_amount: 0, reserved_ckb_amount: 9900000000, max_tlc_value_in_flight: 340282366920938463463374607431768211455, max_tlc_number_in_flight: 125, funding_pubkey: Pubkey(03ecfc5e4ca1d4af72a94f269e54f4da684b9b06ab068fae408848bb25d068f551), shutdown_script: Script(0x490000001000000030000000310000009bd7e06f3ecf4be0f2fcd2188b23f1b9fcc88e5d4b65a8637b17723bbda3cce80114000000470dcdc5e44064909650113a274b3b36aecb6dc7), tlc_basepoint: Pubkey(02c9ce26227cb7f3fd785b55b162f33889468a9f197aab8e04844c52db844c91d0), first_per_commitment_point: Pubkey(025d5d404b134a45b1c25a06c8b25950f23ce1afb91be1450956ad111d1e1f63e2), second_per_commitment_point: Pubkey(03db732fcb1a8b04e06d02334c21227ec01d7b9ae5be61d2dbd411478f9db62282), channel_announcement_nonce: Some(PubNonce { R1: Point(02fffc04b931ae8ce58823f3b6cd18d7c2bb22b6598673e6f8d68a674c14ad5850), R2: Point(03adf83b36641e31770a04bb889b9a3f06a6bad816301aefeb38c500713900557d) }), next_commitment_nonce: PubNonce { R1: Point(02d89616ddde6a540175c166c9f38deab7e49bde5c78ce989d694a68d2297d1677), R2: Point(03d2a4958d537584da4b6367627ffd7d743f7c6b4bee0d467ca384ab246a4e4985) }, next_revocation_nonce: PubNonce { R1: Point(028249d172f45a6057741bad5c1be64318639b61c498aa10f1e1a0231846a7e6bc), R2: Point(037e41b0a0a146f8568c8e96aa1cbaec5d2eee8315f068db12cfbf8b61530ed5dd) } }[0m
+    [2;3mat[0m crates/fiber-lib/src/fiber/channel.rs:5577
+    [2;3min[0m ractor::actor::[1mActor[0m [2;3mwith[0m id: "0.3", name: "Network 0x02bed82bb71c8ed226ae193945e344a9ec1eed16d8586bdb789a384f9d70b61087"
+
+  [2m2026-03-12T08:41:50.540988Z[0m [34mDEBUG[0m [1;34mfnn::fiber::channel[0m[34m: [34mChannel Id changed from Hash256(0x6dd52c70a475b15ecb1b9a53b8810db5b845970fe931d041daf8efb00196b073) to Hash256(0xdd8db776c12a88a3b8a399db36898bb1848de36fdc761e89018471e0d84c40d8)[0m
+    [2;3mat[0m crates/fiber-lib/src/fiber/channel.rs:6673
+    [2;3min[0m ractor::actor::[1mActor[0m [2;3mwith[0m id: "0.3", name: "Network 0x02bed82bb71c8ed226ae193945e344a9ec1eed16d8586bdb789a384f9d70b61087"
+
+  [2m2026-03-12T08:41:50.541109Z[0m [34mDEBUG[0m [1;34mfnn::fiber::network[0m[34m: [34mChannel accepted: Hash256(0x6dd52c70a475b15ecb1b9a53b8810db5b845970fe931d041daf8efb00196b073) -> Hash256(0xdd8db776c12a88a3b8a399db36898bb1848de36fdc761e89018471e0d84c40d8)[0m
+    [2;3mat[0m crates/fiber-lib/src/fiber/network.rs:819
+    [2;3min[0m ractor::actor::[1mActor[0m [2;3mwith[0m id: "0.3", name: "Network 0x02bed82bb71c8ed226ae193945e344a9ec1eed16d8586bdb789a384f9d70b61087"
+
+  [2m2026-03-12T08:41:50.541137Z[0m [34mDEBUG[0m [1;34mfnn::fiber::network[0m[34m: [34mStarting funding channel[0m
+    [2;3mat[0m crates/fiber-lib/src/fiber/network.rs:834
+    [2;3min[0m ractor::actor::[1mActor[0m [2;3mwith[0m id: "0.3", name: "Network 0x02bed82bb71c8ed226ae193945e344a9ec1eed16d8586bdb789a384f9d70b61087"
+
+  [2m2026-03-12T08:41:50.589549Z[0m [34mDEBUG[0m [1;34mfnn::ckb::funding::funding_tx[0m[34m: [34mfinal tx_builder: TransactionBuilder { version: Uint32(0x00000000), cell_deps: [CellDep(0x5f84f5252197cd3e7c4f6d07d4164e9867d6d83a667fdc7d344e6d709c08ddfe0000000001)], header_deps: [], inputs: [CellInput(0x0000000000000000094aaa27d07abe0070eec5d03b98e615c76470fc8b0d303d0bd07b51dd28ee4701000000)], outputs: [CellOutput(0x6100000010000000180000006100000000af394a0900000049000000100000003000000031000000e7576045a47bb4cc172ffd0306ce01e232dc43805becb356e58f8bda9df51e260114000000a5cbde5d37c644e9967f67a04ec30e1bda2bb28c), CellOutput(0x61000000100000001800000061000000e336bdfe0e6dc11b490000001000000030000000310000009bd7e06f3ecf4be0f2fcd2188b23f1b9fcc88e5d4b65a8637b17723bbda3cce80114000000c8328aabcd9b9e8e64fbc566c4385c3bdeb219d7)], witnesses: [Bytes(0xbe000000be00000010000000be000000be000000aa0000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000)], outputs_data: [Bytes(0x00000000), Bytes(0x00000000)] }[0m
+    [2;3mat[0m crates/fiber-lib/src/ckb/funding/funding_tx.rs:459
+    [2;3min[0m ractor::actor::[1mActor[0m [2;3mwith[0m id: "0.3", name: "Network 0x02bed82bb71c8ed226ae193945e344a9ec1eed16d8586bdb789a384f9d70b61087"
+
+  [2m2026-03-12T08:41:50.589640Z[0m [34mDEBUG[0m [1;34mfnn::fiber::network::funding[0m[34m: [34mFunding transaction updated on our part: {"version":"0x0","cell_deps":[{"out_point":{"tx_hash":"0x5f84f5252197cd3e7c4f6d07d4164e9867d6d83a667fdc7d344e6d709c08ddfe","index":"0x0"},"dep_type":"dep_group"}],"header_deps":[],"inputs":[{"since":"0x0","previous_output":{"tx_hash":"0x094aaa27d07abe0070eec5d03b98e615c76470fc8b0d303d0bd07b51dd28ee47","index":"0x1"}}],"outputs":[{"capacity":"0x94a39af00","lock":{"code_hash":"0xe7576045a47bb4cc172ffd0306ce01e232dc43805becb356e58f8bda9df51e26","hash_type":"type","args":"0xa5cbde5d37c644e9967f67a04ec30e1bda2bb28c"},"type":null},{"capacity":"0x1bc16d0efebd36e3","lock":{"code_hash":"0x9bd7e06f3ecf4be0f2fcd2188b23f1b9fcc88e5d4b65a8637b17723bbda3cce8","hash_type":"type","args":"0xc8328aabcd9b9e8e64fbc566c4385c3bdeb219d7"},"type":null}],"outputs_data":["0x","0x"],"witnesses":["0xbe00000010000000be000000be000000aa0000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000"]}[0m
+    [2;3mat[0m crates/fiber-lib/src/fiber/network.rs:1736
+    [2;3min[0m ractor::actor::[1mActor[0m [2;3mwith[0m id: "0.3", name: "Network 0x02bed82bb71c8ed226ae193945e344a9ec1eed16d8586bdb789a384f9d70b61087"
+
+  [2m2026-03-12T08:41:50.589666Z[0m [34mDEBUG[0m [1;34mfnn::fiber::channel[0m[34m: [34mHandling tx collaboration command: TxUpdate(TxUpdateCommand { transaction: Transaction(0x350200000c0000006b0100005f0100001c00000020000000490000004d0000007d0000004b01000000000000010000005f84f5252197cd3e7c4f6d07d4164e9867d6d83a667fdc7d344e6d709c08ddfe000000000100000000010000000000000000000000094aaa27d07abe0070eec5d03b98e615c76470fc8b0d303d0bd07b51dd28ee4701000000ce0000000c0000006d0000006100000010000000180000006100000000af394a0900000049000000100000003000000031000000e7576045a47bb4cc172ffd0306ce01e232dc43805becb356e58f8bda9df51e260114000000a5cbde5d37c644e9967f67a04ec30e1bda2bb28c61000000100000001800000061000000e336bdfe0e6dc11b490000001000000030000000310000009bd7e06f3ecf4be0f2fcd2188b23f1b9fcc88e5d4b65a8637b17723bbda3cce80114000000c8328aabcd9b9e8e64fbc566c4385c3bdeb219d7140000000c000000100000000000000000000000ca00000008000000be000000be00000010000000be000000be000000aa0000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000) })[0m
+    [2;3mat[0m crates/fiber-lib/src/fiber/channel.rs:2146
+    [2;3min[0m ractor::actor::[1mActor[0m [2;3mwith[0m id: "0.3", name: "Network 0x02bed82bb71c8ed226ae193945e344a9ec1eed16d8586bdb789a384f9d70b61087"
+
+  [2m2026-03-12T08:41:50.589678Z[0m [34mDEBUG[0m [1;34mfnn::fiber::channel[0m[34m: [34mBeginning processing tx collaboration command, and transitioning from NegotiatingFunding(NegotiatingFundingFlags(OUR_INIT_SENT | THEIR_INIT_SENT)) to CollaboratingFundingTx state[0m
+    [2;3mat[0m crates/fiber-lib/src/fiber/channel.rs:2166
+    [2;3min[0m ractor::actor::[1mActor[0m [2;3mwith[0m id: "0.3", name: "Network 0x02bed82bb71c8ed226ae193945e344a9ec1eed16d8586bdb789a384f9d70b61087"
+
+  [2m2026-03-12T08:41:50.589684Z[0m [34mDEBUG[0m [1;34mfnn::fiber::channel[0m[34m: [34mUpdating channel state from CollaboratingFundingTx(CollaboratingFundingTxFlags(0x0)) to CollaboratingFundingTx(CollaboratingFundingTxFlags(AWAITING_REMOTE_TX_COLLABORATION_MSG))[0m
+    [2;3mat[0m crates/fiber-lib/src/fiber/channel.rs:4280
+    [2;3min[0m ractor::actor::[1mActor[0m [2;3mwith[0m id: "0.3", name: "Network 0x02bed82bb71c8ed226ae193945e344a9ec1eed16d8586bdb789a384f9d70b61087"
+
+  [2m2026-03-12T08:41:50.589763Z[0m [34mDEBUG[0m [1;34mfnn::fiber::channel[0m[34m: [34mChecking if funding transaction Transaction(0x350200000c0000006b0100005f0100001c00000020000000490000004d0000007d0000004b01000000000000010000005f84f5252197cd3e7c4f6d07d4164e9867d6d83a667fdc7d344e6d709c08ddfe000000000100000000010000000000000000000000094aaa27d07abe0070eec5d03b98e615c76470fc8b0d303d0bd07b51dd28ee4701000000ce0000000c0000006d0000006100000010000000180000006100000000af394a0900000049000000100000003000000031000000e7576045a47bb4cc172ffd0306ce01e232dc43805becb356e58f8bda9df51e260114000000a5cbde5d37c644e9967f67a04ec30e1bda2bb28c61000000100000001800000061000000e336bdfe0e6dc11b490000001000000030000000310000009bd7e06f3ecf4be0f2fcd2188b23f1b9fcc88e5d4b65a8637b17723bbda3cce80114000000c8328aabcd9b9e8e64fbc566c4385c3bdeb219d7140000000c000000100000000000000000000000ca00000008000000be000000be00000010000000be000000be000000aa0000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000) is complete: false[0m
+    [2;3mat[0m crates/fiber-lib/src/fiber/channel.rs:6608
+    [2;3min[0m ractor::actor::[1mActor[0m [2;3mwith[0m id: "0.3", name: "Network 0x02bed82bb71c8ed226ae193945e344a9ec1eed16d8586bdb789a384f9d70b61087"
+
+  [2m2026-03-12T08:41:50.618086Z[0m [34mDEBUG[0m [1;34mfnn::fiber::channel[0m[34m: [34mProcessing tx collaboration message: TxUpdate(TxUpdate { channel_id: Hash256(0xdd8db776c12a88a3b8a399db36898bb1848de36fdc761e89018471e0d84c40d8), tx: Transaction(0x940300000c00000004020000f80100001c00000020000000490000004d000000a9000000dc01000000000000010000005f84f5252197cd3e7c4f6d07d4164e9867d6d83a667fdc7d344e6d709c08ddfe000000000100000000020000000000000000000000094aaa27d07abe0070eec5d03b98e615c76470fc8b0d303d0bd07b51dd28ee47010000000000000000000000094aaa27d07abe0070eec5d03b98e615c76470fc8b0d303d0bd07b51dd28ee4702000000330100001000000071000000d20000006100000010000000180000006100000000b24f980b00000049000000100000003000000031000000e7576045a47bb4cc172ffd0306ce01e232dc43805becb356e58f8bda9df51e260114000000a5cbde5d37c644e9967f67a04ec30e1bda2bb28c61000000100000001800000061000000e336bdfe0e6dc11b490000001000000030000000310000009bd7e06f3ecf4be0f2fcd2188b23f1b9fcc88e5d4b65a8637b17723bbda3cce80114000000c8328aabcd9b9e8e64fbc566c4385c3bdeb219d76100000010000000180000006100000067fe925922f63607490000001000000030000000310000009bd7e06f3ecf4be0f2fcd2188b23f1b9fcc88e5d4b65a8637b17723bbda3cce80114000000470dcdc5e44064909650113a274b3b36aecb6dc71c000000100000001400000018000000000000000000000000000000900100000c000000ce000000be000000be00000010000000be000000be000000aa0000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000be000000be00000010000000be000000be000000aa0000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000) })[0m
+    [2;3mat[0m crates/fiber-lib/src/fiber/channel.rs:5591
+    [2;3min[0m ractor::actor::[1mActor[0m [2;3mwith[0m id: "0.3", name: "Network 0x02bed82bb71c8ed226ae193945e344a9ec1eed16d8586bdb789a384f9d70b61087"
+
+  [2m2026-03-12T08:41:50.618115Z[0m [34mDEBUG[0m [1;34mfnn::fiber::channel[0m[34m: [34mProcessing tx collaboration message TxUpdate(TxUpdate { channel_id: Hash256(0xdd8db776c12a88a3b8a399db36898bb1848de36fdc761e89018471e0d84c40d8), tx: Transaction(0x940300000c00000004020000f80100001c00000020000000490000004d000000a9000000dc01000000000000010000005f84f5252197cd3e7c4f6d07d4164e9867d6d83a667fdc7d344e6d709c08ddfe000000000100000000020000000000000000000000094aaa27d07abe0070eec5d03b98e615c76470fc8b0d303d0bd07b51dd28ee47010000000000000000000000094aaa27d07abe0070eec5d03b98e615c76470fc8b0d303d0bd07b51dd28ee4702000000330100001000000071000000d20000006100000010000000180000006100000000b24f980b00000049000000100000003000000031000000e7576045a47bb4cc172ffd0306ce01e232dc43805becb356e58f8bda9df51e260114000000a5cbde5d37c644e9967f67a04ec30e1bda2bb28c61000000100000001800000061000000e336bdfe0e6dc11b490000001000000030000000310000009bd7e06f3ecf4be0f2fcd2188b23f1b9fcc88e5d4b65a8637b17723bbda3cce80114000000c8328aabcd9b9e8e64fbc566c4385c3bdeb219d76100000010000000180000006100000067fe925922f63607490000001000000030000000310000009bd7e06f3ecf4be0f2fcd2188b23f1b9fcc88e5d4b65a8637b17723bbda3cce80114000000470dcdc5e44064909650113a274b3b36aecb6dc71c000000100000001400000018000000000000000000000000000000900100000c000000ce000000be000000be00000010000000be000000be000000aa0000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000be000000be00000010000000be000000be000000aa0000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000) }) for state CollaboratingFundingTx(CollaboratingFundingTxFlags(AWAITING_REMOTE_TX_COLLABORATION_MSG))[0m
+    [2;3mat[0m crates/fiber-lib/src/fiber/channel.rs:5630
+    [2;3min[0m ractor::actor::[1mActor[0m [2;3mwith[0m id: "0.3", name: "Network 0x02bed82bb71c8ed226ae193945e344a9ec1eed16d8586bdb789a384f9d70b61087"
+
+  [2m2026-03-12T08:41:50.619401Z[0m [34mDEBUG[0m [1;34mfnn::fiber::channel[0m[34m: [34mChecking if funding transaction Transaction(0x940300000c00000004020000f80100001c00000020000000490000004d000000a9000000dc01000000000000010000005f84f5252197cd3e7c4f6d07d4164e9867d6d83a667fdc7d344e6d709c08ddfe000000000100000000020000000000000000000000094aaa27d07abe0070eec5d03b98e615c76470fc8b0d303d0bd07b51dd28ee47010000000000000000000000094aaa27d07abe0070eec5d03b98e615c76470fc8b0d303d0bd07b51dd28ee4702000000330100001000000071000000d20000006100000010000000180000006100000000b24f980b00000049000000100000003000000031000000e7576045a47bb4cc172ffd0306ce01e232dc43805becb356e58f8bda9df51e260114000000a5cbde5d37c644e9967f67a04ec30e1bda2bb28c61000000100000001800000061000000e336bdfe0e6dc11b490000001000000030000000310000009bd7e06f3ecf4be0f2fcd2188b23f1b9fcc88e5d4b65a8637b17723bbda3cce80114000000c8328aabcd9b9e8e64fbc566c4385c3bdeb219d76100000010000000180000006100000067fe925922f63607490000001000000030000000310000009bd7e06f3ecf4be0f2fcd2188b23f1b9fcc88e5d4b65a8637b17723bbda3cce80114000000470dcdc5e44064909650113a274b3b36aecb6dc71c000000100000001400000018000000000000000000000000000000900100000c000000ce000000be000000be00000010000000be000000be000000aa0000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000be000000be00000010000000be000000be000000aa0000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000) is complete: true[0m
+    [2;3mat[0m crates/fiber-lib/src/fiber/channel.rs:6608
+    [2;3min[0m ractor::actor::[1mActor[0m [2;3mwith[0m id: "0.3", name: "Network 0x02bed82bb71c8ed226ae193945e344a9ec1eed16d8586bdb789a384f9d70b61087"
+
+  [2m2026-03-12T08:41:50.619479Z[0m [34mDEBUG[0m [1;34mfnn::fiber::channel[0m[34m: [34mUpdating channel state from CollaboratingFundingTx(CollaboratingFundingTxFlags(AWAITING_REMOTE_TX_COLLABORATION_MSG)) to CollaboratingFundingTx(CollaboratingFundingTxFlags(AWAITING_REMOTE_TX_COLLABORATION_MSG | OUR_TX_COMPLETE_SENT))[0m
+    [2;3mat[0m crates/fiber-lib/src/fiber/channel.rs:4280
+    [2;3min[0m ractor::actor::[1mActor[0m [2;3mwith[0m id: "0.3", name: "Network 0x02bed82bb71c8ed226ae193945e344a9ec1eed16d8586bdb789a384f9d70b61087"
+
+  [2m2026-03-12T08:41:50.619535Z[0m [34mDEBUG[0m [1;34mfnn::fiber::channel[0m[34m: [34mProcessing tx collaboration message: TxComplete(TxComplete { channel_id: Hash256(0xdd8db776c12a88a3b8a399db36898bb1848de36fdc761e89018471e0d84c40d8), next_commitment_nonce: PubNonce { R1: Point(0305d1cb6c6b3743e81eaa9f1618da0c300bec0bac2e8dac37f94395613450d218), R2: Point(02ea88e99c03040af0d9117eab92f4bc9fcb90d19c0686b17ccaea8e1bba3105d1) } })[0m
+    [2;3mat[0m crates/fiber-lib/src/fiber/channel.rs:5591
+    [2;3min[0m ractor::actor::[1mActor[0m [2;3mwith[0m id: "0.3", name: "Network 0x02bed82bb71c8ed226ae193945e344a9ec1eed16d8586bdb789a384f9d70b61087"
+
+  [2m2026-03-12T08:41:50.619541Z[0m [34mDEBUG[0m [1;34mfnn::fiber::channel[0m[34m: [34mProcessing tx collaboration message TxComplete(TxComplete { channel_id: Hash256(0xdd8db776c12a88a3b8a399db36898bb1848de36fdc761e89018471e0d84c40d8), next_commitment_nonce: PubNonce { R1: Point(0305d1cb6c6b3743e81eaa9f1618da0c300bec0bac2e8dac37f94395613450d218), R2: Point(02ea88e99c03040af0d9117eab92f4bc9fcb90d19c0686b17ccaea8e1bba3105d1) } }) for state CollaboratingFundingTx(CollaboratingFundingTxFlags(AWAITING_REMOTE_TX_COLLABORATION_MSG | OUR_TX_COMPLETE_SENT))[0m
+    [2;3mat[0m crates/fiber-lib/src/fiber/channel.rs:5630
+    [2;3min[0m ractor::actor::[1mActor[0m [2;3mwith[0m id: "0.3", name: "Network 0x02bed82bb71c8ed226ae193945e344a9ec1eed16d8586bdb789a384f9d70b61087"
+
+  [2m2026-03-12T08:41:50.619547Z[0m [34mDEBUG[0m [1;34mfnn::fiber::channel[0m[34m: [34mReceived TxComplete message, funding tx is present Transaction(0x940300000c00000004020000f80100001c00000020000000490000004d000000a9000000dc01000000000000010000005f84f5252197cd3e7c4f6d07d4164e9867d6d83a667fdc7d344e6d709c08ddfe000000000100000000020000000000000000000000094aaa27d07abe0070eec5d03b98e615c76470fc8b0d303d0bd07b51dd28ee47010000000000000000000000094aaa27d07abe0070eec5d03b98e615c76470fc8b0d303d0bd07b51dd28ee4702000000330100001000000071000000d20000006100000010000000180000006100000000b24f980b00000049000000100000003000000031000000e7576045a47bb4cc172ffd0306ce01e232dc43805becb356e58f8bda9df51e260114000000a5cbde5d37c644e9967f67a04ec30e1bda2bb28c61000000100000001800000061000000e336bdfe0e6dc11b490000001000000030000000310000009bd7e06f3ecf4be0f2fcd2188b23f1b9fcc88e5d4b65a8637b17723bbda3cce80114000000c8328aabcd9b9e8e64fbc566c4385c3bdeb219d76100000010000000180000006100000067fe925922f63607490000001000000030000000310000009bd7e06f3ecf4be0f2fcd2188b23f1b9fcc88e5d4b65a8637b17723bbda3cce80114000000470dcdc5e44064909650113a274b3b36aecb6dc71c000000100000001400000018000000000000000000000000000000900100000c000000ce000000be000000be00000010000000be000000be000000aa0000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000be000000be00000010000000be000000be000000aa0000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000)[0m
+    [2;3mat[0m crates/fiber-lib/src/fiber/channel.rs:6654
+    [2;3min[0m ractor::actor::[1mActor[0m [2;3mwith[0m id: "0.3", name: "Network 0x02bed82bb71c8ed226ae193945e344a9ec1eed16d8586bdb789a384f9d70b61087"
+
+  [2m2026-03-12T08:41:50.619605Z[0m [34mDEBUG[0m [1;34mfnn::fiber::channel[0m[34m: [34mUpdating channel state from CollaboratingFundingTx(CollaboratingFundingTxFlags(AWAITING_REMOTE_TX_COLLABORATION_MSG | OUR_TX_COMPLETE_SENT)) to CollaboratingFundingTx(CollaboratingFundingTxFlags(AWAITING_REMOTE_TX_COLLABORATION_MSG | OUR_TX_COMPLETE_SENT | THEIR_TX_COMPLETE_SENT))[0m
+    [2;3mat[0m crates/fiber-lib/src/fiber/channel.rs:4280
+    [2;3min[0m ractor::actor::[1mActor[0m [2;3mwith[0m id: "0.3", name: "Network 0x02bed82bb71c8ed226ae193945e344a9ec1eed16d8586bdb789a384f9d70b61087"
+
+  [2m2026-03-12T08:41:50.620031Z[0m [34mDEBUG[0m [1;34mfnn::fiber::channel[0m[34m: [34mUpdating channel state from CollaboratingFundingTx(CollaboratingFundingTxFlags(AWAITING_REMOTE_TX_COLLABORATION_MSG | OUR_TX_COMPLETE_SENT | THEIR_TX_COMPLETE_SENT)) to SigningCommitment(SigningCommitmentFlags(OUR_COMMITMENT_SIGNED_SENT))[0m
+    [2;3mat[0m crates/fiber-lib/src/fiber/channel.rs:4280
+    [2;3min[0m ractor::actor::[1mActor[0m [2;3mwith[0m id: "0.3", name: "Network 0x02bed82bb71c8ed226ae193945e344a9ec1eed16d8586bdb789a384f9d70b61087"
+
+  [2m2026-03-12T08:41:50.623199Z[0m [34mDEBUG[0m [1;34mfnn::fiber::channel[0m[34m: [34mUpdating channel state from SigningCommitment(SigningCommitmentFlags(OUR_COMMITMENT_SIGNED_SENT)) to SigningCommitment(SigningCommitmentFlags(OUR_COMMITMENT_SIGNED_SENT | THEIR_COMMITMENT_SIGNED_SENT))[0m
+    [2;3mat[0m crates/fiber-lib/src/fiber/channel.rs:4280
+    [2;3min[0m ractor::actor::[1mActor[0m [2;3mwith[0m id: "0.3", name: "Network 0x02bed82bb71c8ed226ae193945e344a9ec1eed16d8586bdb789a384f9d70b61087"
+
+  [2m2026-03-12T08:41:50.626060Z[0m [34mDEBUG[0m [1;34mfnn::fiber::channel[0m[34m: [34mCommitment signed message sent by both sides, transitioning to AwaitingTxSignatures state[0m
+    [2;3mat[0m crates/fiber-lib/src/fiber/channel.rs:5813
+    [2;3min[0m ractor::actor::[1mActor[0m [2;3mwith[0m id: "0.3", name: "Network 0x02bed82bb71c8ed226ae193945e344a9ec1eed16d8586bdb789a384f9d70b61087"
+
+  [2m2026-03-12T08:41:50.626070Z[0m [34mDEBUG[0m [1;34mfnn::fiber::channel[0m[34m: [34mUpdating channel state from SigningCommitment(SigningCommitmentFlags(OUR_COMMITMENT_SIGNED_SENT | THEIR_COMMITMENT_SIGNED_SENT)) to AwaitingTxSignatures(AwaitingTxSignaturesFlags(0x0))[0m
+    [2;3mat[0m crates/fiber-lib/src/fiber/channel.rs:4280
+    [2;3min[0m ractor::actor::[1mActor[0m [2;3mwith[0m id: "0.3", name: "Network 0x02bed82bb71c8ed226ae193945e344a9ec1eed16d8586bdb789a384f9d70b61087"
+
+  [2m2026-03-12T08:41:50.626367Z[0m [34mDEBUG[0m [1;34mfnn::fiber::channel[0m[34m: [34mUpdating channel state from AwaitingTxSignatures(AwaitingTxSignaturesFlags(0x0)) to AwaitingTxSignatures(AwaitingTxSignaturesFlags(THEIR_TX_SIGNATURES_SENT))[0m
+    [2;3mat[0m crates/fiber-lib/src/fiber/channel.rs:4280
+    [2;3min[0m ractor::actor::[1mActor[0m [2;3mwith[0m id: "0.3", name: "Network 0x02bed82bb71c8ed226ae193945e344a9ec1eed16d8586bdb789a384f9d70b61087"
+
+  [2m2026-03-12T08:41:50.626421Z[0m [34mDEBUG[0m [1;34mfnn::fiber::network[0m[34m: [34mReceived SignFudningTx request with for transaction Transaction(0x940300000c00000004020000f80100001c00000020000000490000004d000000a9000000dc01000000000000010000005f84f5252197cd3e7c4f6d07d4164e9867d6d83a667fdc7d344e6d709c08ddfe000000000100000000020000000000000000000000094aaa27d07abe0070eec5d03b98e615c76470fc8b0d303d0bd07b51dd28ee47010000000000000000000000094aaa27d07abe0070eec5d03b98e615c76470fc8b0d303d0bd07b51dd28ee4702000000330100001000000071000000d20000006100000010000000180000006100000000b24f980b00000049000000100000003000000031000000e7576045a47bb4cc172ffd0306ce01e232dc43805becb356e58f8bda9df51e260114000000a5cbde5d37c644e9967f67a04ec30e1bda2bb28c61000000100000001800000061000000e336bdfe0e6dc11b490000001000000030000000310000009bd7e06f3ecf4be0f2fcd2188b23f1b9fcc88e5d4b65a8637b17723bbda3cce80114000000c8328aabcd9b9e8e64fbc566c4385c3bdeb219d76100000010000000180000006100000067fe925922f63607490000001000000030000000310000009bd7e06f3ecf4be0f2fcd2188b23f1b9fcc88e5d4b65a8637b17723bbda3cce80114000000470dcdc5e44064909650113a274b3b36aecb6dc71c000000100000001400000018000000000000000000000000000000900100000c000000ce000000be000000be00000010000000be000000be000000aa0000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000be000000be00000010000000be000000be000000aa0000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000) and partial witnesses ["be00000010000000be000000be000000aa0000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000", "5500000010000000550000005500000041000000358667b9ddcf0e6c3a021eff9e7ba3b4e4b239dfaa90aa63839aa82fa68c343214a0f748b79db28dd8588be6a7ce16d947e5ef7b047a8503ab2f36c6b1e227f900"][0m
+    [2;3mat[0m crates/fiber-lib/src/fiber/network.rs:1783
+    [2;3min[0m ractor::actor::[1mActor[0m [2;3mwith[0m id: "0.3", name: "Network 0x02bed82bb71c8ed226ae193945e344a9ec1eed16d8586bdb789a384f9d70b61087"
+
+  [2m2026-03-12T08:41:50.632605Z[0m [34mDEBUG[0m [1;34mfnn::fiber::network[0m[34m: [34mFunding transaction signed: FundingTx { tx: Some(TransactionView { data: Transaction(0xc20200000c00000004020000f80100001c00000020000000490000004d000000a9000000dc01000000000000010000005f84f5252197cd3e7c4f6d07d4164e9867d6d83a667fdc7d344e6d709c08ddfe000000000100000000020000000000000000000000094aaa27d07abe0070eec5d03b98e615c76470fc8b0d303d0bd07b51dd28ee47010000000000000000000000094aaa27d07abe0070eec5d03b98e615c76470fc8b0d303d0bd07b51dd28ee4702000000330100001000000071000000d20000006100000010000000180000006100000000b24f980b00000049000000100000003000000031000000e7576045a47bb4cc172ffd0306ce01e232dc43805becb356e58f8bda9df51e260114000000a5cbde5d37c644e9967f67a04ec30e1bda2bb28c61000000100000001800000061000000e336bdfe0e6dc11b490000001000000030000000310000009bd7e06f3ecf4be0f2fcd2188b23f1b9fcc88e5d4b65a8637b17723bbda3cce80114000000c8328aabcd9b9e8e64fbc566c4385c3bdeb219d76100000010000000180000006100000067fe925922f63607490000001000000030000000310000009bd7e06f3ecf4be0f2fcd2188b23f1b9fcc88e5d4b65a8637b17723bbda3cce80114000000470dcdc5e44064909650113a274b3b36aecb6dc71c000000100000001400000018000000000000000000000000000000be0000000c000000650000005500000055000000100000005500000055000000410000001f38680b17b8f0f99ed27c391f2b62bcf10cf3f943f4bf087bac9e748302e9a81575e49ec8ba2c44a66afd0b5bef572ba8ff03475aa31516edbb8a0da55e56b200550000005500000010000000550000005500000041000000358667b9ddcf0e6c3a021eff9e7ba3b4e4b239dfaa90aa63839aa82fa68c343214a0f748b79db28dd8588be6a7ce16d947e5ef7b047a8503ab2f36c6b1e227f900), hash: Byte32(0x00ca522c384e5c3948bf65778a5a62015dee5e96b2d8ef0528896af3ff1c5d39), witness_hash: Byte32(0xde251e8be90841406a6ab1ce90056530cc1884690bf6b9b90009965aeb351554) }) }[0m
+    [2;3mat[0m crates/fiber-lib/src/fiber/network.rs:1842
+    [2;3min[0m ractor::actor::[1mActor[0m [2;3mwith[0m id: "0.3", name: "Network 0x02bed82bb71c8ed226ae193945e344a9ec1eed16d8586bdb789a384f9d70b61087"
+
+  [2m2026-03-12T08:41:50.632649Z[0m [34mDEBUG[0m [1;34mfnn::fiber::network[0m[34m: [34mFully signed funding tx TransactionView { data: Transaction(0xc20200000c00000004020000f80100001c00000020000000490000004d000000a9000000dc01000000000000010000005f84f5252197cd3e7c4f6d07d4164e9867d6d83a667fdc7d344e6d709c08ddfe000000000100000000020000000000000000000000094aaa27d07abe0070eec5d03b98e615c76470fc8b0d303d0bd07b51dd28ee47010000000000000000000000094aaa27d07abe0070eec5d03b98e615c76470fc8b0d303d0bd07b51dd28ee4702000000330100001000000071000000d20000006100000010000000180000006100000000b24f980b00000049000000100000003000000031000000e7576045a47bb4cc172ffd0306ce01e232dc43805becb356e58f8bda9df51e260114000000a5cbde5d37c644e9967f67a04ec30e1bda2bb28c61000000100000001800000061000000e336bdfe0e6dc11b490000001000000030000000310000009bd7e06f3ecf4be0f2fcd2188b23f1b9fcc88e5d4b65a8637b17723bbda3cce80114000000c8328aabcd9b9e8e64fbc566c4385c3bdeb219d76100000010000000180000006100000067fe925922f63607490000001000000030000000310000009bd7e06f3ecf4be0f2fcd2188b23f1b9fcc88e5d4b65a8637b17723bbda3cce80114000000470dcdc5e44064909650113a274b3b36aecb6dc71c000000100000001400000018000000000000000000000000000000be0000000c000000650000005500000055000000100000005500000055000000410000001f38680b17b8f0f99ed27c391f2b62bcf10cf3f943f4bf087bac9e748302e9a81575e49ec8ba2c44a66afd0b5bef572ba8ff03475aa31516edbb8a0da55e56b200550000005500000010000000550000005500000041000000358667b9ddcf0e6c3a021eff9e7ba3b4e4b239dfaa90aa63839aa82fa68c343214a0f748b79db28dd8588be6a7ce16d947e5ef7b047a8503ab2f36c6b1e227f900), hash: Byte32(0x00ca522c384e5c3948bf65778a5a62015dee5e96b2d8ef0528896af3ff1c5d39), witness_hash: Byte32(0xde251e8be90841406a6ab1ce90056530cc1884690bf6b9b90009965aeb351554) }[0m
+    [2;3mat[0m crates/fiber-lib/src/fiber/network.rs:1865
+    [2;3min[0m ractor::actor::[1mActor[0m [2;3mwith[0m id: "0.3", name: "Network 0x02bed82bb71c8ed226ae193945e344a9ec1eed16d8586bdb789a384f9d70b61087"
+
+  [2m2026-03-12T08:41:50.632707Z[0m [34mDEBUG[0m [1;34mfnn::ckb::actor[0m[34m: [34m[ckb] trace transaction Hash256(0x00ca522c384e5c3948bf65778a5a62015dee5e96b2d8ef0528896af3ff1c5d39) with 4 confs[0m
+    [2;3mat[0m crates/fiber-lib/src/ckb/actor.rs:205
+    [2;3min[0m ractor::actor::[1mActor[0m [2;3mwith[0m id: "0.10"
+
+  [2m2026-03-12T08:41:50.632718Z[0m [34mDEBUG[0m [1;34mfnn::fiber::network[0m[34m: [34mFunding transaction (outpoint OutPoint(0x00ca522c384e5c3948bf65778a5a62015dee5e96b2d8ef0528896af3ff1c5d3900000000)) for channel Hash256(0xdd8db776c12a88a3b8a399db36898bb1848de36fdc761e89018471e0d84c40d8) is now ready. Broadcast it Byte32(0x00ca522c384e5c3948bf65778a5a62015dee5e96b2d8ef0528896af3ff1c5d39) now.[0m
+    [2;3mat[0m crates/fiber-lib/src/fiber/network.rs:4216
+    [2;3min[0m ractor::actor::[1mActor[0m [2;3mwith[0m id: "0.3", name: "Network 0x02bed82bb71c8ed226ae193945e344a9ec1eed16d8586bdb789a384f9d70b61087"
+
+  [2m2026-03-12T08:41:50.632747Z[0m [34mDEBUG[0m [1;34mfnn::fiber::in_flight_ckb_tx_actor[0m[34m: [34mExecuting send_tx_interval...[0m
+    [2;3mat[0m crates/fiber-lib/src/fiber/in_flight_ckb_tx_actor.rs:208
+    [2;3min[0m ractor::actor::[1mActor[0m [2;3mwith[0m id: "0.11"
+
+  [2m2026-03-12T08:41:50.632760Z[0m [34mDEBUG[0m [1;34mfnn::fiber::in_flight_ckb_tx_actor[0m[34m: [34mExecuting send_tx...[0m
+    [2;3mat[0m crates/fiber-lib/src/fiber/in_flight_ckb_tx_actor.rs:232
+    [2;3min[0m ractor::actor::[1mActor[0m [2;3mwith[0m id: "0.11"
+
+  [2m2026-03-12T08:41:50.632765Z[0m [34mDEBUG[0m [1;34mfnn::fiber::channel[0m[34m: [34mUpdating channel state from AwaitingTxSignatures(AwaitingTxSignaturesFlags(THEIR_TX_SIGNATURES_SENT)) to AwaitingTxSignatures(AwaitingTxSignaturesFlags(OUR_TX_SIGNATURES_SENT | THEIR_TX_SIGNATURES_SENT))[0m
+    [2;3mat[0m crates/fiber-lib/src/fiber/channel.rs:4280
+    [2;3min[0m ractor::actor::[1mActor[0m [2;3mwith[0m id: "0.3", name: "Network 0x02bed82bb71c8ed226ae193945e344a9ec1eed16d8586bdb789a384f9d70b61087"
+
+  [2m2026-03-12T08:41:50.632770Z[0m [34mDEBUG[0m [1;34mfnn::ckb::actor[0m[34m: [34m[ckb] trace transaction Hash256(0x00ca522c384e5c3948bf65778a5a62015dee5e96b2d8ef0528896af3ff1c5d39) with 4 confs[0m
+    [2;3mat[0m crates/fiber-lib/src/ckb/actor.rs:205
+    [2;3min[0m ractor::actor::[1mActor[0m [2;3mwith[0m id: "0.11"
+
+  [2m2026-03-12T08:41:50.640155Z[0m [33m WARN[0m [1;33mfnn::ckb::actor[0m[33m: [33m[ckb] transaction Byte32(0x00ca522c384e5c3948bf65778a5a62015dee5e96b2d8ef0528896af3ff1c5d39) already in pool[0m
+    [2;3mat[0m crates/fiber-lib/src/ckb/actor.rs:179
+    [2;3min[0m ractor::actor::[1mActor[0m [2;3mwith[0m id: "0.11"
+
+  [2m2026-03-12T08:41:58.205049Z[0m [34mDEBUG[0m [1;34mfnn::fiber::network[0m[34m: [34mActor Actor { name: None, id: Local(11) } terminated with reason Some("tx tracing result already fired")[0m
+    [2;3mat[0m crates/fiber-lib/src/fiber/network.rs:4808
+    [2;3min[0m ractor::actor::[1mActor[0m [2;3mwith[0m id: "0.3", name: "Network 0x02bed82bb71c8ed226ae193945e344a9ec1eed16d8586bdb789a384f9d70b61087"
+
+  [2m2026-03-12T08:41:58.205272Z[0m [34mDEBUG[0m [1;34mfnn::fiber::network[0m[34m: [34mFunding transaction is confirmed: OutPoint(0x00ca522c384e5c3948bf65778a5a62015dee5e96b2d8ef0528896af3ff1c5d3900000000)[0m
+    [2;3mat[0m crates/fiber-lib/src/fiber/network.rs:4236
+    [2;3min[0m ractor::actor::[1mActor[0m [2;3mwith[0m id: "0.11"
+
+  [2m2026-03-12T08:41:58.205294Z[0m [34mDEBUG[0m [1;34mfnn::fiber::channel[0m[34m: [34mFunding transaction confirmed[0m
+    [2;3mat[0m crates/fiber-lib/src/fiber/channel.rs:2362
+    [2;3min[0m ractor::actor::[1mActor[0m [2;3mwith[0m id: "0.11"
+
+  [2m2026-03-12T08:41:58.205301Z[0m [34mDEBUG[0m [1;34mfnn::fiber::channel[0m[34m: [34mUpdating channel state from AwaitingTxSignatures(AwaitingTxSignaturesFlags(OUR_TX_SIGNATURES_SENT | THEIR_TX_SIGNATURES_SENT)) to AwaitingChannelReady(AwaitingChannelReadyFlags(OUR_CHANNEL_READY))[0m
+    [2;3mat[0m crates/fiber-lib/src/fiber/channel.rs:4280
+    [2;3min[0m ractor::actor::[1mActor[0m [2;3mwith[0m id: "0.11"
+
+  [2m2026-03-12T08:41:58.205656Z[0m [34mDEBUG[0m [1;34mfnn::fiber::network[0m[34m: [34mActor Actor { name: None, id: Local(10) } terminated with reason Some("tx tracing result already fired")[0m
+    [2;3mat[0m crates/fiber-lib/src/fiber/network.rs:4808
+    [2;3min[0m ractor::actor::[1mActor[0m [2;3mwith[0m id: "0.3", name: "Network 0x02bed82bb71c8ed226ae193945e344a9ec1eed16d8586bdb789a384f9d70b61087"
+
+  [2m2026-03-12T08:41:58.205673Z[0m [34mDEBUG[0m [1;34mfnn::fiber::network[0m[34m: [34mFunding transaction is confirmed: OutPoint(0x00ca522c384e5c3948bf65778a5a62015dee5e96b2d8ef0528896af3ff1c5d3900000000)[0m
+    [2;3mat[0m crates/fiber-lib/src/fiber/network.rs:4236
+    [2;3min[0m ractor::actor::[1mActor[0m [2;3mwith[0m id: "0.10"
+
+  [2m2026-03-12T08:41:58.205680Z[0m [33m WARN[0m [1;33mfnn::fiber::network[0m[33m: [33mFunding transaction confirmed for outpoint OutPoint(0x00ca522c384e5c3948bf65778a5a62015dee5e96b2d8ef0528896af3ff1c5d3900000000) but no channel found[0m
+    [2;3mat[0m crates/fiber-lib/src/fiber/network.rs:4240
+    [2;3min[0m ractor::actor::[1mActor[0m [2;3mwith[0m id: "0.10"
+
+  [2m2026-03-12T08:41:59.621813Z[0m [34mDEBUG[0m [1;34mfnn::fiber::channel[0m[34m: [34mUpdating channel state from AwaitingChannelReady(AwaitingChannelReadyFlags(OUR_CHANNEL_READY)) to AwaitingChannelReady(AwaitingChannelReadyFlags(OUR_CHANNEL_READY | THEIR_CHANNEL_READY))[0m
+    [2;3mat[0m crates/fiber-lib/src/fiber/channel.rs:4280
+    [2;3min[0m ractor::actor::[1mActor[0m [2;3mwith[0m id: "0.3", name: "Network 0x02bed82bb71c8ed226ae193945e344a9ec1eed16d8586bdb789a384f9d70b61087"
+
+  [2m2026-03-12T08:41:59.621894Z[0m [34mDEBUG[0m [1;34mfnn::fiber::channel[0m[34m: [34mTrying to create channel announcement message for public channel[0m
+    [2;3mat[0m crates/fiber-lib/src/fiber/channel.rs:5896
+    [2;3min[0m ractor::actor::[1mActor[0m [2;3mwith[0m id: "0.3", name: "Network 0x02bed82bb71c8ed226ae193945e344a9ec1eed16d8586bdb789a384f9d70b61087"
+
+  [2m2026-03-12T08:41:59.622832Z[0m [34mDEBUG[0m [1;34mfnn::fiber::network[0m[34m: [34mSigning message with node private key: message [15, 161, 51, 89, 36, 125, 231, 71, 248, 245, 77, 31, 31, 55, 107, 51, 178, 175, 153, 225, 90, 18, 27, 28, 48, 141, 207, 67, 39, 104, 63, 8], public key Pubkey(02bed82bb71c8ed226ae193945e344a9ec1eed16d8586bdb789a384f9d70b61087)[0m
+    [2;3mat[0m crates/fiber-lib/src/fiber/network.rs:386
+    [2;3min[0m ractor::actor::[1mActor[0m [2;3mwith[0m id: "0.3", name: "Network 0x02bed82bb71c8ed226ae193945e344a9ec1eed16d8586bdb789a384f9d70b61087"
+
+  [2m2026-03-12T08:41:59.623091Z[0m [34mDEBUG[0m [1;34mfnn::fiber::channel[0m[34m: [34mTrying to create channel announcement message for public channel[0m
+    [2;3mat[0m crates/fiber-lib/src/fiber/channel.rs:5896
+    [2;3min[0m ractor::actor::[1mActor[0m [2;3mwith[0m id: "0.3", name: "Network 0x02bed82bb71c8ed226ae193945e344a9ec1eed16d8586bdb789a384f9d70b61087"
+
+  [2m2026-03-12T08:41:59.623546Z[0m [34mDEBUG[0m [1;34mfnn::fiber::channel[0m[34m: [34mGenerated channel update message for channel Hash256(0xdd8db776c12a88a3b8a399db36898bb1848de36fdc761e89018471e0d84c40d8): ChannelUpdate { signature: None, chain_hash: Hash256(0x12a852dcfeefe9dd9caf60fdcadb595a97bf56d854528319167ef8cfed26fdd2), channel_outpoint: OutPoint(0x00ca522c384e5c3948bf65778a5a62015dee5e96b2d8ef0528896af3ff1c5d3900000000), timestamp: 1773304919622, message_flags: ChannelUpdateMessageFlags(0x0), channel_flags: ChannelUpdateChannelFlags(0x0), tlc_expiry_delta: 14400000, tlc_minimum_value: 0, tlc_fee_proportional_millionths: 1000 }[0m
+    [2;3mat[0m crates/fiber-lib/src/fiber/channel.rs:3746
+    [2;3min[0m ractor::actor::[1mActor[0m [2;3mwith[0m id: "0.3", name: "Network 0x02bed82bb71c8ed226ae193945e344a9ec1eed16d8586bdb789a384f9d70b61087"
+
+  [2m2026-03-12T08:41:59.623628Z[0m [34mDEBUG[0m [1;34mfnn::fiber::network[0m[34m: [34mSigning message with node private key: message [65, 51, 136, 86, 165, 103, 131, 84, 230, 56, 14, 171, 92, 184, 127, 115, 93, 182, 73, 154, 189, 47, 56, 108, 245, 102, 65, 72, 157, 100, 145, 239], public key Pubkey(02bed82bb71c8ed226ae193945e344a9ec1eed16d8586bdb789a384f9d70b61087)[0m
+    [2;3mat[0m crates/fiber-lib/src/fiber/network.rs:386
+    [2;3min[0m ractor::actor::[1mActor[0m [2;3mwith[0m id: "0.3", name: "Network 0x02bed82bb71c8ed226ae193945e344a9ec1eed16d8586bdb789a384f9d70b61087"
+
+  [2m2026-03-12T08:41:59.623688Z[0m [34mDEBUG[0m [1;34mfnn::fiber::channel[0m[34m: [34mChannel announcement/update message for Hash256(0xdd8db776c12a88a3b8a399db36898bb1848de36fdc761e89018471e0d84c40d8) created, public channel is ready[0m
+    [2;3mat[0m crates/fiber-lib/src/fiber/channel.rs:5898
+    [2;3min[0m ractor::actor::[1mActor[0m [2;3mwith[0m id: "0.3", name: "Network 0x02bed82bb71c8ed226ae193945e344a9ec1eed16d8586bdb789a384f9d70b61087"
+
+  [2m2026-03-12T08:41:59.623697Z[0m [34mDEBUG[0m [1;34mfnn::fiber::channel[0m[34m: [34mUpdating channel state from AwaitingChannelReady(AwaitingChannelReadyFlags(OUR_CHANNEL_READY | THEIR_CHANNEL_READY)) to ChannelReady[0m
+    [2;3mat[0m crates/fiber-lib/src/fiber/channel.rs:4280
+    [2;3min[0m ractor::actor::[1mActor[0m [2;3mwith[0m id: "0.3", name: "Network 0x02bed82bb71c8ed226ae193945e344a9ec1eed16d8586bdb789a384f9d70b61087"
+
+  [2m2026-03-12T08:41:59.623710Z[0m [34mDEBUG[0m [1;34mfnn::fiber::channel[0m[34m: [34mGenerated channel update message for channel Hash256(0xdd8db776c12a88a3b8a399db36898bb1848de36fdc761e89018471e0d84c40d8): ChannelUpdate { signature: None, chain_hash: Hash256(0x12a852dcfeefe9dd9caf60fdcadb595a97bf56d854528319167ef8cfed26fdd2), channel_outpoint: OutPoint(0x00ca522c384e5c3948bf65778a5a62015dee5e96b2d8ef0528896af3ff1c5d3900000000), timestamp: 1773304919622, message_flags: ChannelUpdateMessageFlags(0x0), channel_flags: ChannelUpdateChannelFlags(0x0), tlc_expiry_delta: 14400000, tlc_minimum_value: 0, tlc_fee_proportional_millionths: 1000 }[0m
+    [2;3mat[0m crates/fiber-lib/src/fiber/channel.rs:3746
+    [2;3min[0m ractor::actor::[1mActor[0m [2;3mwith[0m id: "0.3", name: "Network 0x02bed82bb71c8ed226ae193945e344a9ec1eed16d8586bdb789a384f9d70b61087"
+
+  [2m2026-03-12T08:41:59.623766Z[0m [34mDEBUG[0m [1;34mfnn::fiber::network[0m[34m: [34mSigning message with node private key: message [65, 51, 136, 86, 165, 103, 131, 84, 230, 56, 14, 171, 92, 184, 127, 115, 93, 182, 73, 154, 189, 47, 56, 108, 245, 102, 65, 72, 157, 100, 145, 239], public key Pubkey(02bed82bb71c8ed226ae193945e344a9ec1eed16d8586bdb789a384f9d70b61087)[0m
+    [2;3mat[0m crates/fiber-lib/src/fiber/network.rs:386
+    [2;3min[0m ractor::actor::[1mActor[0m [2;3mwith[0m id: "0.3", name: "Network 0x02bed82bb71c8ed226ae193945e344a9ec1eed16d8586bdb789a384f9d70b61087"
+
+  [2m2026-03-12T08:41:59.623834Z[0m [34mDEBUG[0m [1;34mfnn::fiber::channel[0m[34m: [34mBroadcasting channel announcement ChannelAnnouncement { node1_signature: Some(EcdsaSignature(30440220205a6633326374976e207a3a659d82ab80c60799fb68a599412a2cee9e6677b70220604184ed72e0a26c635164f021103b75d3d96fbe3d647fbe2259e79d5892eab5)), node2_signature: Some(EcdsaSignature(3044022074fd28043caed3607db106a725cb7825842e117a282c294d5d3b4748eb3a3c960220098c35d68d41b999ce99aa53d0e4e02e2fe030a297b25d87626a14f11feb2636)), ckb_signature: Some(SchnorrSignature(Signature(7733a96ebf55571437cb201ad82f5485e88f3294b28fece6efe0199828ace9b718ec243c52e68aaf3348e59ec3d88e11049b814af61c7dfdd1a2d7415b81006a))), features: 0, chain_hash: Hash256(0x12a852dcfeefe9dd9caf60fdcadb595a97bf56d854528319167ef8cfed26fdd2), channel_outpoint: OutPoint(0x00ca522c384e5c3948bf65778a5a62015dee5e96b2d8ef0528896af3ff1c5d3900000000), node1_id: Pubkey(02bed82bb71c8ed226ae193945e344a9ec1eed16d8586bdb789a384f9d70b61087), node2_id: Pubkey(0338ada60c374bb965b1aa2eefd7049e38c1ab631d423e8dbc30aaad0ffe042535), ckb_key: f2621616f3277a53821e6c158ebb83ef1d7a46d2d389420c14d6c54fa59055f0, capacity: 30000000000, udt_type_script: None } and channel update ChannelUpdate { signature: Some(EcdsaSignature(3045022100db17fcb41b9851f49d1cddab71dcbcd2b125f8acc76870319bfc951e977274800220719ef03892552b7d38338649df06022f3c6e20db7723ec1379b8ff44d893dba3)), chain_hash: Hash256(0x12a852dcfeefe9dd9caf60fdcadb595a97bf56d854528319167ef8cfed26fdd2), channel_outpoint: OutPoint(0x00ca522c384e5c3948bf65778a5a62015dee5e96b2d8ef0528896af3ff1c5d3900000000), timestamp: 1773304919622, message_flags: ChannelUpdateMessageFlags(0x0), channel_flags: ChannelUpdateChannelFlags(0x0), tlc_expiry_delta: 14400000, tlc_minimum_value: 0, tlc_fee_proportional_millionths: 1000 }[0m
+    [2;3mat[0m crates/fiber-lib/src/fiber/channel.rs:5904
+    [2;3min[0m ractor::actor::[1mActor[0m [2;3mwith[0m id: "0.3", name: "Network 0x02bed82bb71c8ed226ae193945e344a9ec1eed16d8586bdb789a384f9d70b61087"
+
+  [2m2026-03-12T08:41:59.623941Z[0m [34mDEBUG[0m [1;34mfnn::fiber::network[0m[34m: [34mReceived owned channel update event: Up(ChannelInfo { channel_outpoint: OutPoint(0x00ca522c384e5c3948bf65778a5a62015dee5e96b2d8ef0528896af3ff1c5d3900000000), timestamp: 1773304911990, features: 0, node1: Pubkey(02bed82bb71c8ed226ae193945e344a9ec1eed16d8586bdb789a384f9d70b61087), node2: Pubkey(0338ada60c374bb965b1aa2eefd7049e38c1ab631d423e8dbc30aaad0ffe042535), capacity: 30000000000, udt_type_script: None, update_of_node1: Some(ChannelUpdateInfo { timestamp: 1773304910538, enabled: true, outbound_liquidity: Some(30000000000), tlc_expiry_delta: 14400000, tlc_minimum_value: 0, fee_rate: 1000 }), update_of_node2: None })[0m
+    [2;3mat[0m crates/fiber-lib/src/fiber/network.rs:1023
+    [2;3min[0m ractor::actor::[1mActor[0m [2;3mwith[0m id: "0.3", name: "Network 0x02bed82bb71c8ed226ae193945e344a9ec1eed16d8586bdb789a384f9d70b61087"
+
+  [2m2026-03-12T08:41:59.624072Z[0m [32m INFO[0m [1;32mfnn::fiber::network[0m[32m: [32mChannel (Hash256(0xdd8db776c12a88a3b8a399db36898bb1848de36fdc761e89018471e0d84c40d8)) to peer Pubkey(0338ada60c374bb965b1aa2eefd7049e38c1ab631d423e8dbc30aaad0ffe042535) is now ready[0m
+    [2;3mat[0m crates/fiber-lib/src/fiber/network.rs:858
+    [2;3min[0m ractor::actor::[1mActor[0m [2;3mwith[0m id: "0.3", name: "Network 0x02bed82bb71c8ed226ae193945e344a9ec1eed16d8586bdb789a384f9d70b61087"
+
+  [2m2026-03-12T08:41:59.624374Z[0m [34mDEBUG[0m [1;34mfnn::fiber::graph[0m[34m: [34mprocess channel update: ChannelUpdate { signature: Some(EcdsaSignature(3045022100db17fcb41b9851f49d1cddab71dcbcd2b125f8acc76870319bfc951e977274800220719ef03892552b7d38338649df06022f3c6e20db7723ec1379b8ff44d893dba3)), chain_hash: Hash256(0x12a852dcfeefe9dd9caf60fdcadb595a97bf56d854528319167ef8cfed26fdd2), channel_outpoint: OutPoint(0x00ca522c384e5c3948bf65778a5a62015dee5e96b2d8ef0528896af3ff1c5d3900000000), timestamp: 1773304919622, message_flags: ChannelUpdateMessageFlags(0x0), channel_flags: ChannelUpdateChannelFlags(0x0), tlc_expiry_delta: 14400000, tlc_minimum_value: 0, tlc_fee_proportional_millionths: 1000 }[0m
+    [2;3mat[0m crates/fiber-lib/src/fiber/graph.rs:591
+    [2;3min[0m ractor::actor::[1mActor[0m [2;3mwith[0m id: "0.3", name: "Network 0x02bed82bb71c8ed226ae193945e344a9ec1eed16d8586bdb789a384f9d70b61087"
+
+  [2m2026-03-12T08:41:59.624434Z[0m [34mDEBUG[0m [1;34mfnn::fiber::graph[0m[34m: [34mprocess channel update: ChannelUpdate { signature: Some(EcdsaSignature(3045022100db17fcb41b9851f49d1cddab71dcbcd2b125f8acc76870319bfc951e977274800220719ef03892552b7d38338649df06022f3c6e20db7723ec1379b8ff44d893dba3)), chain_hash: Hash256(0x12a852dcfeefe9dd9caf60fdcadb595a97bf56d854528319167ef8cfed26fdd2), channel_outpoint: OutPoint(0x00ca522c384e5c3948bf65778a5a62015dee5e96b2d8ef0528896af3ff1c5d3900000000), timestamp: 1773304919622, message_flags: ChannelUpdateMessageFlags(0x0), channel_flags: ChannelUpdateChannelFlags(0x0), tlc_expiry_delta: 14400000, tlc_minimum_value: 0, tlc_fee_proportional_millionths: 1000 }[0m
+    [2;3mat[0m crates/fiber-lib/src/fiber/graph.rs:591
+    [2;3min[0m ractor::actor::[1mActor[0m [2;3mwith[0m id: "0.3", name: "Network 0x02bed82bb71c8ed226ae193945e344a9ec1eed16d8586bdb789a384f9d70b61087"
+
+  [2m2026-03-12T08:41:59.625580Z[0m [34mDEBUG[0m [1;34mfnn::fiber::network[0m[34m: [34mReceived owned channel update event: Updated(OutPoint(0x00ca522c384e5c3948bf65778a5a62015dee5e96b2d8ef0528896af3ff1c5d3900000000), Pubkey(0338ada60c374bb965b1aa2eefd7049e38c1ab631d423e8dbc30aaad0ffe042535), ChannelUpdateInfo { timestamp: 1773304919625, enabled: true, outbound_liquidity: Some(0), tlc_expiry_delta: 14400000, tlc_minimum_value: 0, fee_rate: 1000 })[0m
+    [2;3mat[0m crates/fiber-lib/src/fiber/network.rs:1023
+    [2;3min[0m ractor::actor::[1mActor[0m [2;3mwith[0m id: "0.3", name: "Network 0x02bed82bb71c8ed226ae193945e344a9ec1eed16d8586bdb789a384f9d70b61087"
+
+  [2m2026-03-12T08:42:00.465062Z[0m [34mDEBUG[0m [1;34mfnn::fiber::graph[0m[34m: [34mprocess channel update: ChannelUpdate { signature: Some(EcdsaSignature(304402207153e40e602ead6eb48545ddbe5c9dd4c0f7e1419ce85d2d8abe7df206cb65da02205ba4db3506f00a10ddf6d6a5eb364869bdbb0cbc2ee9380c8ddaf9c8e65b22a4)), chain_hash: Hash256(0x12a852dcfeefe9dd9caf60fdcadb595a97bf56d854528319167ef8cfed26fdd2), channel_outpoint: OutPoint(0x00ca522c384e5c3948bf65778a5a62015dee5e96b2d8ef0528896af3ff1c5d3900000000), timestamp: 1773304919625, message_flags: ChannelUpdateMessageFlags(UPDATE_OF_NODE2), channel_flags: ChannelUpdateChannelFlags(0x0), tlc_expiry_delta: 14400000, tlc_minimum_value: 0, tlc_fee_proportional_millionths: 1000 }[0m
+    [2;3mat[0m crates/fiber-lib/src/fiber/graph.rs:591
+    [2;3min[0m ractor::actor::[1mActor[0m [2;3mwith[0m id: "0.3", name: "Network 0x02bed82bb71c8ed226ae193945e344a9ec1eed16d8586bdb789a384f9d70b61087"
+
+  [2m2026-03-12T08:42:00.638515Z[0m [34mDEBUG[0m [1;34mfnn::fiber::network[0m[34m: [34mPayment actor start Hash256(0x156d3dd2158ff9bd2655bb0b0bf44e24bc155928e0ec9cf59caee92e120a4485)[0m
+    [2;3mat[0m crates/fiber-lib/src/fiber/network.rs:2829
+    [2;3min[0m ractor::actor::[1mActor[0m [2;3mwith[0m id: "0.3", name: "Network 0x02bed82bb71c8ed226ae193945e344a9ec1eed16d8586bdb789a384f9d70b61087"
+
+  [2m2026-03-12T08:42:00.638648Z[0m [34mDEBUG[0m [1;34mfnn::fiber::payment[0m[34m: [34mbuild route iteration 1, target_amount: 10000000000 amount_low_bound: Some(1) remain_amount: 10000000000, max_parts: 1, max_fee: Some(10000000000000000000000)[0m
+    [2;3mat[0m crates/fiber-lib/src/fiber/payment.rs:1210
+    [2;3min[0m fnn::fiber::payment::[1mhandle_command[0m [2;3mwith[0m payment_hash: Hash256(0x156d3dd2158ff9bd2655bb0b0bf44e24bc155928e0ec9cf59caee92e120a4485)
+    [2;3min[0m ractor::actor::[1mActor[0m [2;3mwith[0m id: "0.12", name: "Payment-Hash256(0x156d3dd2158ff9bd2655bb0b0bf44e24bc155928e0ec9cf59caee92e120a4485) Node(Some(\"Network 0x02bed82bb71c8ed226ae193945e344a9ec1eed16d8586bdb789a384f9d70b61087\"))"
+
+  [2m2026-03-12T08:42:00.638720Z[0m [32m INFO[0m [1;32mfnn::fiber::graph[0m[32m: [32mentered build_route: amount: 10000000000, amount_low_bound: Some(1), max_fee_amount: Some(10000000000000000000000)[0m
+    [2;3mat[0m crates/fiber-lib/src/fiber/graph.rs:1200
+
+  [2m2026-03-12T08:42:00.638728Z[0m [34mDEBUG[0m [1;34mfnn::fiber::graph[0m[34m: [34mbegin find_path from Pubkey(02bed82bb71c8ed226ae193945e344a9ec1eed16d8586bdb789a384f9d70b61087) to Pubkey(0338ada60c374bb965b1aa2eefd7049e38c1ab631d423e8dbc30aaad0ffe042535) amount: Some(10000000000) allow_mpp: false[0m
+    [2;3mat[0m crates/fiber-lib/src/fiber/graph.rs:1959
+
+  [2m2026-03-12T08:42:00.638734Z[0m [34mDEBUG[0m [1;34mfnn::fiber::graph[0m[34m: [34mbegin inner_find_path from Pubkey(02bed82bb71c8ed226ae193945e344a9ec1eed16d8586bdb789a384f9d70b61087) to Pubkey(0338ada60c374bb965b1aa2eefd7049e38c1ab631d423e8dbc30aaad0ffe042535) amount: Some(10000000000) max_fee: Some(10000000000000000000000)[0m
+    [2;3mat[0m crates/fiber-lib/src/fiber/graph.rs:2119
+
+  [2m2026-03-12T08:42:00.638763Z[0m [34mDEBUG[0m [1;34mfnn::fiber::graph[0m[34m: [34mget_route: nodes visited: 2, edges expanded: 1, time: 24.875µs 
+result: [RouterHop { target: Pubkey(0338ada60c374bb965b1aa2eefd7049e38c1ab631d423e8dbc30aaad0ffe042535), channel_outpoint: OutPoint(0x00ca522c384e5c3948bf65778a5a62015dee5e96b2d8ef0528896af3ff1c5d3900000000), amount_received: 10000000000, incoming_tlc_expiry: 86400000 }][0m
+    [2;3mat[0m crates/fiber-lib/src/fiber/graph.rs:2394
+
+  [2m2026-03-12T08:42:00.639639Z[0m [34mDEBUG[0m [1;34mfnn::fiber::channel[0m[34m: [34m[ack] set_waiting_ack(true) waiting_ack=true send_present=true verify_present=true next_present=false, [1;34mchannel[0m[34m: Hash256(0xdd8db776c12a88a3b8a399db36898bb1848de36fdc761e89018471e0d84c40d8)[0m
+    [2;3mat[0m crates/fiber-lib/src/fiber/channel.rs:3636
+    [2;3min[0m fnn::fiber::payment::[1mhandle_command[0m [2;3mwith[0m payment_hash: Hash256(0x156d3dd2158ff9bd2655bb0b0bf44e24bc155928e0ec9cf59caee92e120a4485)
+    [2;3min[0m ractor::actor::[1mActor[0m [2;3mwith[0m id: "0.12", name: "Payment-Hash256(0x156d3dd2158ff9bd2655bb0b0bf44e24bc155928e0ec9cf59caee92e120a4485) Node(Some(\"Network 0x02bed82bb71c8ed226ae193945e344a9ec1eed16d8586bdb789a384f9d70b61087\"))"
+
+  [2m2026-03-12T08:42:00.643660Z[0m [34mDEBUG[0m [1;34mfnn::fiber::channel[0m[34m: [34m[ack] set_waiting_ack(false) waiting_ack=false send_present=true verify_present=true next_present=false, [1;34mchannel[0m[34m: Hash256(0xdd8db776c12a88a3b8a399db36898bb1848de36fdc761e89018471e0d84c40d8)[0m
+    [2;3mat[0m crates/fiber-lib/src/fiber/channel.rs:3636
+    [2;3min[0m ractor::actor::[1mActor[0m [2;3mwith[0m id: "0.3", name: "Network 0x02bed82bb71c8ed226ae193945e344a9ec1eed16d8586bdb789a384f9d70b61087"
+
+  [2m2026-03-12T08:42:00.643722Z[0m [32m INFO[0m [1;32mfnn::fiber::channel[0m[32m: [32mAfter RevokeAndAckReceived settlement data for commitment_number: 3, tlcs count: 1, tlc_state: [Outbound(Committed)][0m
+    [2;3mat[0m crates/fiber-lib/src/fiber/channel.rs:6197
+    [2;3min[0m ractor::actor::[1mActor[0m [2;3mwith[0m id: "0.3", name: "Network 0x02bed82bb71c8ed226ae193945e344a9ec1eed16d8586bdb789a384f9d70b61087"
+
+  [2m2026-03-12T08:42:00.643728Z[0m [34mDEBUG[0m [1;34mfnn::fiber::channel[0m[34m: [34m[ack] handle_revoke_and_ack_peer_message waiting_ack=false send_present=true verify_present=false next_present=true, [1;34mchannel[0m[34m: Hash256(0xdd8db776c12a88a3b8a399db36898bb1848de36fdc761e89018471e0d84c40d8)[0m
+    [2;3mat[0m crates/fiber-lib/src/fiber/channel.rs:3636
+    [2;3min[0m ractor::actor::[1mActor[0m [2;3mwith[0m id: "0.3", name: "Network 0x02bed82bb71c8ed226ae193945e344a9ec1eed16d8586bdb789a384f9d70b61087"
+
+  [2m2026-03-12T08:42:00.644914Z[0m [34mDEBUG[0m [1;34mfnn::fiber::channel[0m[34m: [34m[ack] send_revoke_and_ack_message waiting_ack=false send_present=true verify_present=true next_present=true, [1;34mchannel[0m[34m: Hash256(0xdd8db776c12a88a3b8a399db36898bb1848de36fdc761e89018471e0d84c40d8)[0m
+    [2;3mat[0m crates/fiber-lib/src/fiber/channel.rs:3636
+    [2;3min[0m ractor::actor::[1mActor[0m [2;3mwith[0m id: "0.3", name: "Network 0x02bed82bb71c8ed226ae193945e344a9ec1eed16d8586bdb789a384f9d70b61087"
+
+  [2m2026-03-12T08:42:00.648111Z[0m [34mDEBUG[0m [1;34mfnn::fiber::channel[0m[34m: [34m[ack] send_revoke_and_ack_message waiting_ack=false send_present=false verify_present=true next_present=true, [1;34mchannel[0m[34m: Hash256(0xdd8db776c12a88a3b8a399db36898bb1848de36fdc761e89018471e0d84c40d8)[0m
+    [2;3mat[0m crates/fiber-lib/src/fiber/channel.rs:3636
+    [2;3min[0m ractor::actor::[1mActor[0m [2;3mwith[0m id: "0.3", name: "Network 0x02bed82bb71c8ed226ae193945e344a9ec1eed16d8586bdb789a384f9d70b61087"
+
+  [2m2026-03-12T08:42:00.648552Z[0m [34mDEBUG[0m [1;34mfnn::fiber::channel[0m[34m: [34m[ack] set_waiting_ack(true) waiting_ack=true send_present=false verify_present=true next_present=true, [1;34mchannel[0m[34m: Hash256(0xdd8db776c12a88a3b8a399db36898bb1848de36fdc761e89018471e0d84c40d8)[0m
+    [2;3mat[0m crates/fiber-lib/src/fiber/channel.rs:3636
+    [2;3min[0m ractor::actor::[1mActor[0m [2;3mwith[0m id: "0.3", name: "Network 0x02bed82bb71c8ed226ae193945e344a9ec1eed16d8586bdb789a384f9d70b61087"
+
+  [2m2026-03-12T08:42:00.651361Z[0m [34mDEBUG[0m [1;34mfnn::fiber::channel[0m[34m: [34m[ack] set_waiting_ack(false) waiting_ack=false send_present=false verify_present=true next_present=true, [1;34mchannel[0m[34m: Hash256(0xdd8db776c12a88a3b8a399db36898bb1848de36fdc761e89018471e0d84c40d8)[0m
+    [2;3mat[0m crates/fiber-lib/src/fiber/channel.rs:3636
+    [2;3min[0m ractor::actor::[1mActor[0m [2;3mwith[0m id: "0.3", name: "Network 0x02bed82bb71c8ed226ae193945e344a9ec1eed16d8586bdb789a384f9d70b61087"
+
+  [2m2026-03-12T08:42:00.651375Z[0m [32m INFO[0m [1;32mfnn::fiber::channel[0m[32m: [32mAfter RevokeAndAckReceived settlement data for commitment_number: 4, tlcs count: 0, tlc_state: [Outbound(RemoveAckConfirmed)][0m
+    [2;3mat[0m crates/fiber-lib/src/fiber/channel.rs:6197
+    [2;3min[0m ractor::actor::[1mActor[0m [2;3mwith[0m id: "0.3", name: "Network 0x02bed82bb71c8ed226ae193945e344a9ec1eed16d8586bdb789a384f9d70b61087"
+
+  [2m2026-03-12T08:42:00.651380Z[0m [34mDEBUG[0m [1;34mfnn::fiber::channel[0m[34m: [34m[ack] handle_revoke_and_ack_peer_message waiting_ack=false send_present=true verify_present=true next_present=true, [1;34mchannel[0m[34m: Hash256(0xdd8db776c12a88a3b8a399db36898bb1848de36fdc761e89018471e0d84c40d8)[0m
+    [2;3mat[0m crates/fiber-lib/src/fiber/channel.rs:3636
+    [2;3min[0m ractor::actor::[1mActor[0m [2;3mwith[0m id: "0.3", name: "Network 0x02bed82bb71c8ed226ae193945e344a9ec1eed16d8586bdb789a384f9d70b61087"
+
+  [2m2026-03-12T08:42:00.651389Z[0m [34mDEBUG[0m [1;34mfnn::fiber::channel[0m[34m: [34mUpdated local balance to 20000000000 and remote balance to 10000000000 by removing tlc Offered(0) with reason RemoveTlcFulfill[0m
+    [2;3mat[0m crates/fiber-lib/src/fiber/channel.rs:4761
+    [2;3min[0m ractor::actor::[1mActor[0m [2;3mwith[0m id: "0.3", name: "Network 0x02bed82bb71c8ed226ae193945e344a9ec1eed16d8586bdb789a384f9d70b61087"
+
+  [2m2026-03-12T08:42:00.651395Z[0m [34mDEBUG[0m [1;34mfnn::fiber::channel[0m[34m: [34mRemoved tlc payment_hash Hash256(0x156d3dd2158ff9bd2655bb0b0bf44e24bc155928e0ec9cf59caee92e120a4485) with reason RemoveTlcFulfill[0m
+    [2;3mat[0m crates/fiber-lib/src/fiber/channel.rs:4765
+    [2;3min[0m ractor::actor::[1mActor[0m [2;3mwith[0m id: "0.3", name: "Network 0x02bed82bb71c8ed226ae193945e344a9ec1eed16d8586bdb789a384f9d70b61087"
+
+  [2m2026-03-12T08:42:00.651419Z[0m [34mDEBUG[0m [1;34mfnn::fiber::channel[0m[34m: [34mapply_retryable_tlc_operations start: remained_ops=0 waiting_tlc_ack=false reestablishing=false[0m
+    [2;3mat[0m crates/fiber-lib/src/fiber/channel.rs:2026
+    [2;3min[0m ractor::actor::[1mActor[0m [2;3mwith[0m id: "0.3", name: "Network 0x02bed82bb71c8ed226ae193945e344a9ec1eed16d8586bdb789a384f9d70b61087"
+
+  [2m2026-03-12T08:42:00.651423Z[0m [34mDEBUG[0m [1;34mfnn::fiber::channel[0m[34m: [34m[ack] retryable_ops_start waiting_ack=false send_present=true verify_present=true next_present=true, [1;34mchannel[0m[34m: Hash256(0xdd8db776c12a88a3b8a399db36898bb1848de36fdc761e89018471e0d84c40d8)[0m
+    [2;3mat[0m crates/fiber-lib/src/fiber/channel.rs:3636
+    [2;3min[0m ractor::actor::[1mActor[0m [2;3mwith[0m id: "0.3", name: "Network 0x02bed82bb71c8ed226ae193945e344a9ec1eed16d8586bdb789a384f9d70b61087"
+
+  [2m2026-03-12T08:42:00.651427Z[0m [34mDEBUG[0m [1;34mfnn::fiber::channel[0m[34m: [34mapply_retryable_tlc_operations empty queue, exiting[0m
+    [2;3mat[0m crates/fiber-lib/src/fiber/channel.rs:2044
+    [2;3min[0m ractor::actor::[1mActor[0m [2;3mwith[0m id: "0.3", name: "Network 0x02bed82bb71c8ed226ae193945e344a9ec1eed16d8586bdb789a384f9d70b61087"
+
+  [2m2026-03-12T08:42:00.651486Z[0m [34mDEBUG[0m [1;34mfnn::fiber::network[0m[34m: [34mReceived owned channel update event: Updated(OutPoint(0x00ca522c384e5c3948bf65778a5a62015dee5e96b2d8ef0528896af3ff1c5d3900000000), Pubkey(02bed82bb71c8ed226ae193945e344a9ec1eed16d8586bdb789a384f9d70b61087), ChannelUpdateInfo { timestamp: 1773304919623, enabled: true, outbound_liquidity: Some(20000000000), tlc_expiry_delta: 14400000, tlc_minimum_value: 0, fee_rate: 1000 })[0m
+    [2;3mat[0m crates/fiber-lib/src/fiber/network.rs:1023
+    [2;3min[0m ractor::actor::[1mActor[0m [2;3mwith[0m id: "0.3", name: "Network 0x02bed82bb71c8ed226ae193945e344a9ec1eed16d8586bdb789a384f9d70b61087"
+
+  [2m2026-03-12T08:42:00.651498Z[0m [34mDEBUG[0m [1;34mfnn::fiber::network[0m[34m: [34mReceived owned channel update event: Updated(OutPoint(0x00ca522c384e5c3948bf65778a5a62015dee5e96b2d8ef0528896af3ff1c5d3900000000), Pubkey(0338ada60c374bb965b1aa2eefd7049e38c1ab631d423e8dbc30aaad0ffe042535), ChannelUpdateInfo { timestamp: 1773304919625, enabled: true, outbound_liquidity: Some(10000000000), tlc_expiry_delta: 14400000, tlc_minimum_value: 0, fee_rate: 1000 })[0m
+    [2;3mat[0m crates/fiber-lib/src/fiber/network.rs:1023
+    [2;3min[0m ractor::actor::[1mActor[0m [2;3mwith[0m id: "0.3", name: "Network 0x02bed82bb71c8ed226ae193945e344a9ec1eed16d8586bdb789a384f9d70b61087"
+
+  [2m2026-03-12T08:42:00.651651Z[0m [34mDEBUG[0m [1;34mfnn::fiber::payment[0m[34m: [34mPayment actor is stopped Some("Payment-Hash256(0x156d3dd2158ff9bd2655bb0b0bf44e24bc155928e0ec9cf59caee92e120a4485) Node(Some(\"Network 0x02bed82bb71c8ed226ae193945e344a9ec1eed16d8586bdb789a384f9d70b61087\"))")[0m
+    [2;3mat[0m crates/fiber-lib/src/fiber/payment.rs:853
+    [2;3min[0m ractor::actor::[1mActor[0m [2;3mwith[0m id: "0.12", name: "Payment-Hash256(0x156d3dd2158ff9bd2655bb0b0bf44e24bc155928e0ec9cf59caee92e120a4485) Node(Some(\"Network 0x02bed82bb71c8ed226ae193945e344a9ec1eed16d8586bdb789a384f9d70b61087\"))"
+
+  [2m2026-03-12T08:42:00.651670Z[0m [34mDEBUG[0m [1;34mfnn::fiber::network[0m[34m: [34mActor Actor { name: Some("Payment-Hash256(0x156d3dd2158ff9bd2655bb0b0bf44e24bc155928e0ec9cf59caee92e120a4485) Node(Some(\"Network 0x02bed82bb71c8ed226ae193945e344a9ec1eed16d8586bdb789a384f9d70b61087\"))"), id: Local(12) } terminated with reason Some("Payment complete with status Success")[0m
+    [2;3mat[0m crates/fiber-lib/src/fiber/network.rs:4808
+    [2;3min[0m ractor::actor::[1mActor[0m [2;3mwith[0m id: "0.3", name: "Network 0x02bed82bb71c8ed226ae193945e344a9ec1eed16d8586bdb789a384f9d70b61087"
+
+  [2m2026-03-12T08:42:00.651678Z[0m [34mDEBUG[0m [1;34mfnn::fiber::network[0m[34m: [34mPayment actor stopped Hash256(0x156d3dd2158ff9bd2655bb0b0bf44e24bc155928e0ec9cf59caee92e120a4485)[0m
+    [2;3mat[0m crates/fiber-lib/src/fiber/network.rs:4258
+    [2;3min[0m ractor::actor::[1mActor[0m [2;3mwith[0m id: "0.12", name: "Payment-Hash256(0x156d3dd2158ff9bd2655bb0b0bf44e24bc155928e0ec9cf59caee92e120a4485) Node(Some(\"Network 0x02bed82bb71c8ed226ae193945e344a9ec1eed16d8586bdb789a384f9d70b61087\"))"
+
+  [2m2026-03-12T08:42:00.750807Z[0m [34mDEBUG[0m [1;34mfnn::fiber::graph[0m[34m: [34mprobability: 1 for channel_outpoint: OutPoint(0x00ca522c384e5c3948bf65778a5a62015dee5e96b2d8ef0528896af3ff1c5d3900000000) from: Pubkey(02bed82bb71c8ed226ae193945e344a9ec1eed16d8586bdb789a384f9d70b61087) => to: Pubkey(0338ada60c374bb965b1aa2eefd7049e38c1ab631d423e8dbc30aaad0ffe042535)[0m
+    [2;3mat[0m crates/fiber-lib/src/fiber/graph.rs:2633
+    [2;3min[0m ractor::actor::[1mActor[0m [2;3mwith[0m id: "0.3", name: "Network 0x02bed82bb71c8ed226ae193945e344a9ec1eed16d8586bdb789a384f9d70b61087"
+

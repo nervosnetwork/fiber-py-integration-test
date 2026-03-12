@@ -1,0 +1,63 @@
+# Fiber Chaos Test Cluster Configuration
+# 分布式混沌测试集群配置
+
+# Master节点配置
+master:
+  host: "0.0.0.0"
+  port: 5000
+  ckb_rpc_port: 8114
+  fiber_rpc_port: 8227
+  fiber_p2p_port: 8228
+  
+# 测试参数
+test_params:
+  # 每个账户的CKB资金（用于开启channel）
+  ckb_per_account: 3000
+  
+  # Channel资金（shannons）
+  channel_funding: 10000000000
+  
+  # 重启间隔（秒）
+  restart_interval: 10
+  
+  # 断开间隔（秒）
+  disconnect_interval: 5
+  
+  # 统计上报间隔（秒）
+  stats_interval: 10
+
+# Worker节点列表
+# 在实际部署时，每台机器运行一个worker，fiber_count表示该机器上的Fiber节点数量
+workers:
+  - id: "worker-1"
+    host: "192.168.1.101"
+    fiber_count: 5
+    base_rpc_port: 8500
+    base_p2p_port: 8600
+    
+  - id: "worker-2"
+    host: "192.168.1.102"
+    fiber_count: 5
+    base_rpc_port: 8500
+    base_p2p_port: 8600
+    
+  - id: "worker-3"
+    host: "192.168.1.103"
+    fiber_count: 5
+    base_rpc_port: 8500
+    base_p2p_port: 8600
+
+# 网络配置
+network:
+  # 是否需要通过SSH在worker上启动
+  use_ssh: false
+  
+  # SSH配置（如果使用）
+  ssh_user: "ubuntu"
+  ssh_key: "~/.ssh/id_rsa"
+  
+  # 代码路径（在worker机器上）
+  code_path: "/opt/fiber-py-integration-test"
+  
+  # Python解释器路径
+  python_path: "python3"

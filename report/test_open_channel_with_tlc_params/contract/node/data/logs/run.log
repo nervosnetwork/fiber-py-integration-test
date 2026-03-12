@@ -1,0 +1,523 @@
+2026-03-12 08:36:14.067 +00:00 main INFO sentry  sentry is disabled
+2026-03-12 08:36:14.141 +00:00 main INFO ckb_bin::subcommand::run  ckb version: 0.202.0 (d0a6c95 2025-06-11)
+2026-03-12 08:36:14.141 +00:00 main INFO ckb_bin::subcommand::run  run rpc server with 8 threads
+2026-03-12 08:36:14.502 +00:00 main INFO ckb_memory_tracker::process  track current process: unsupported
+2026-03-12 08:36:14.503 +00:00 main INFO ckb_launcher  chain genesis hash: 0x12a852dcfeefe9dd9caf60fdcadb595a97bf56d854528319167ef8cfed26fdd2
+2026-03-12 08:36:14.503 +00:00 init_load_unverified_blocks INFO ckb_chain::init_load_unverified  finding unverified blocks, current tip: 1144-Byte32(0x3d775e70815667a8b3a4880e7ccfa846d85387b8432f5e918d627716233dd667)
+2026-03-12 08:36:14.504 +00:00 main INFO ckb_sync::types  header_map.memory_limit 256MB
+2026-03-12 08:36:14.512 +00:00 init_load_unverified_blocks INFO ckb_chain::init_load_unverified  no unverified blocks found after tip, current tip: 1144-Byte32(0x3d775e70815667a8b3a4880e7ccfa846d85387b8432f5e918d627716233dd667)
+2026-03-12 08:36:14.512 +00:00 init_load_unverified_blocks INFO ckb_chain::init_load_unverified  find unverified blocks finished
+2026-03-12 08:36:14.520 +00:00 main INFO ckb_network::network  Loading the peer store. This process may take a few seconds to complete.
+2026-03-12 08:36:14.523 +00:00 main WARN ckb_network::network  Customized supported protocols: [Ping, Discovery, Identify, Feeler, DisconnectMessage, Sync, Relay, Time, Alert, LightClient, Filter]
+2026-03-12 08:36:14.523 +00:00 GlobalRt-1 INFO ckb_network::network  Listen on address: /ip4/0.0.0.0/tcp/8125
+2026-03-12 08:36:14.524 +00:00 GlobalRt-1 INFO ckb_network::network  Listen on address: /ip4/0.0.0.0/tcp/8125/ws
+2026-03-12 08:36:14.524 +00:00 GlobalRt-1 INFO ckb_network::network  p2p service event: ListenStarted { address: "/ip4/0.0.0.0/tcp/8125" }
+2026-03-12 08:36:14.524 +00:00 GlobalRt-1 INFO ckb_network::network  p2p service event: ListenStarted { address: "/ip4/0.0.0.0/tcp/8125/ws" }
+2026-03-12 08:36:14.703 +00:00 main INFO ckb_rpc::server  Listen HTTP RPCServer on address: 127.0.0.1:8114
+2026-03-12 08:36:14.712 +00:00 GlobalRt-6 INFO ckb_indexer_sync  initial_syncing finished
+2026-03-12 08:36:15.440 +00:00 main INFO ckb_bin::subcommand::run  CKB service started ...
+2026-03-12 08:36:15.440 +00:00 main INFO ckb_stop_handler::stop_register  Waiting exit signal...
+2026-03-12 08:36:17.530 +00:00 verify_blocks INFO ckb_chain::verify  [verify block] new best block found: 1145 => 0xab937a3c0599466a63d4306f14f3ee931e6f00c7eb69e8ee1834d874c0515be4, difficulty diff = 0x100, unverified_tip: 1145
+2026-03-12 08:36:17.531 +00:00 verify_blocks INFO ckb_chain::verify  block: 1145, hash: 0xab937a3c0599466a63d4306f14f3ee931e6f00c7eb69e8ee1834d874c0515be4, epoch: 1(145/1800), total_diff: 0x47a00, txs: 1
+2026-03-12 08:36:17.531 +00:00 GlobalRt-9 INFO ckb_rpc::module::miner  end to submit block, work_id = 0x1, is_new = true, block = #1145(Byte32(0xab937a3c0599466a63d4306f14f3ee931e6f00c7eb69e8ee1834d874c0515be4))
+2026-03-12 08:36:17.536 +00:00 GlobalRt-18 INFO ckb_indexer_sync  Indexer append 1145, Byte32(0xab937a3c0599466a63d4306f14f3ee931e6f00c7eb69e8ee1834d874c0515be4)
+2026-03-12 08:36:17.542 +00:00 verify_blocks INFO ckb_chain::verify  [verify block] new best block found: 1146 => 0xfc13c353f99defa279683a05ddaf14bc7561c97500a9e1eb3aefeb7df4901c24, difficulty diff = 0x100, unverified_tip: 1146
+2026-03-12 08:36:17.543 +00:00 verify_blocks INFO ckb_chain::verify  block: 1146, hash: 0xfc13c353f99defa279683a05ddaf14bc7561c97500a9e1eb3aefeb7df4901c24, epoch: 1(146/1800), total_diff: 0x47b00, txs: 1
+2026-03-12 08:36:17.543 +00:00 GlobalRt-15 INFO ckb_rpc::module::miner  end to submit block, work_id = 0x3, is_new = true, block = #1146(Byte32(0xfc13c353f99defa279683a05ddaf14bc7561c97500a9e1eb3aefeb7df4901c24))
+2026-03-12 08:36:17.547 +00:00 GlobalRt-18 INFO ckb_indexer_sync  Indexer append 1146, Byte32(0xfc13c353f99defa279683a05ddaf14bc7561c97500a9e1eb3aefeb7df4901c24)
+2026-03-12 08:36:17.552 +00:00 verify_blocks INFO ckb_chain::verify  [verify block] new best block found: 1147 => 0x59af42582296fa5417a63095be7e1339e23a6ea4164ecf7fc16f3b6ac4a4766a, difficulty diff = 0x100, unverified_tip: 1147
+2026-03-12 08:36:17.553 +00:00 verify_blocks INFO ckb_chain::verify  block: 1147, hash: 0x59af42582296fa5417a63095be7e1339e23a6ea4164ecf7fc16f3b6ac4a4766a, epoch: 1(147/1800), total_diff: 0x47c00, txs: 1
+2026-03-12 08:36:17.553 +00:00 GlobalRt-9 INFO ckb_rpc::module::miner  end to submit block, work_id = 0x5, is_new = true, block = #1147(Byte32(0x59af42582296fa5417a63095be7e1339e23a6ea4164ecf7fc16f3b6ac4a4766a))
+2026-03-12 08:36:17.556 +00:00 GlobalRt-18 INFO ckb_indexer_sync  Indexer append 1147, Byte32(0x59af42582296fa5417a63095be7e1339e23a6ea4164ecf7fc16f3b6ac4a4766a)
+2026-03-12 08:36:17.562 +00:00 verify_blocks INFO ckb_chain::verify  [verify block] new best block found: 1148 => 0x124b915ebc7089fc4a9259bcb407245e0463f1a1762bff811a0ed52ac06ee469, difficulty diff = 0x100, unverified_tip: 1148
+2026-03-12 08:36:17.562 +00:00 verify_blocks INFO ckb_chain::verify  block: 1148, hash: 0x124b915ebc7089fc4a9259bcb407245e0463f1a1762bff811a0ed52ac06ee469, epoch: 1(148/1800), total_diff: 0x47d00, txs: 1
+2026-03-12 08:36:17.562 +00:00 GlobalRt-15 INFO ckb_rpc::module::miner  end to submit block, work_id = 0x7, is_new = true, block = #1148(Byte32(0x124b915ebc7089fc4a9259bcb407245e0463f1a1762bff811a0ed52ac06ee469))
+2026-03-12 08:36:17.565 +00:00 GlobalRt-3 INFO ckb_indexer_sync  Indexer append 1148, Byte32(0x124b915ebc7089fc4a9259bcb407245e0463f1a1762bff811a0ed52ac06ee469)
+2026-03-12 08:36:17.569 +00:00 verify_blocks INFO ckb_chain::verify  [verify block] new best block found: 1149 => 0xe3272a8acaf9a1443ebe5ae42f60d934737bebbd4aaea822644620aa658ba4df, difficulty diff = 0x100, unverified_tip: 1149
+2026-03-12 08:36:17.570 +00:00 verify_blocks INFO ckb_chain::verify  block: 1149, hash: 0xe3272a8acaf9a1443ebe5ae42f60d934737bebbd4aaea822644620aa658ba4df, epoch: 1(149/1800), total_diff: 0x47e00, txs: 1
+2026-03-12 08:36:17.570 +00:00 GlobalRt-9 INFO ckb_rpc::module::miner  end to submit block, work_id = 0x9, is_new = true, block = #1149(Byte32(0xe3272a8acaf9a1443ebe5ae42f60d934737bebbd4aaea822644620aa658ba4df))
+2026-03-12 08:36:17.572 +00:00 GlobalRt-19 INFO ckb_indexer_sync  Indexer append 1149, Byte32(0xe3272a8acaf9a1443ebe5ae42f60d934737bebbd4aaea822644620aa658ba4df)
+2026-03-12 08:36:23.102 +00:00 verify_blocks INFO ckb_chain::verify  [verify block] new best block found: 1150 => 0x6656f5b2ba6b56b69ca13ecfb0ae0f429b3e4cadf1127050878f5229161ef85b, difficulty diff = 0x100, unverified_tip: 1150
+2026-03-12 08:36:23.102 +00:00 verify_blocks INFO ckb_chain::verify  block: 1150, hash: 0x6656f5b2ba6b56b69ca13ecfb0ae0f429b3e4cadf1127050878f5229161ef85b, epoch: 1(150/1800), total_diff: 0x47f00, txs: 1
+2026-03-12 08:36:23.103 +00:00 GlobalRt-9 INFO ckb_rpc::module::miner  end to submit block, work_id = 0xb, is_new = true, block = #1150(Byte32(0x6656f5b2ba6b56b69ca13ecfb0ae0f429b3e4cadf1127050878f5229161ef85b))
+2026-03-12 08:36:23.105 +00:00 GlobalRt-2 INFO ckb_indexer_sync  Indexer append 1150, Byte32(0x6656f5b2ba6b56b69ca13ecfb0ae0f429b3e4cadf1127050878f5229161ef85b)
+2026-03-12 08:36:24.117 +00:00 verify_blocks INFO ckb_chain::verify  [verify block] new best block found: 1151 => 0x26281f224d8c26dd6fcfdc1da4f6f4c140d28ad145e4f34e78c763b84b45f952, difficulty diff = 0x100, unverified_tip: 1151
+2026-03-12 08:36:24.118 +00:00 verify_blocks INFO ckb_chain::verify  block: 1151, hash: 0x26281f224d8c26dd6fcfdc1da4f6f4c140d28ad145e4f34e78c763b84b45f952, epoch: 1(151/1800), total_diff: 0x48000, txs: 1
+2026-03-12 08:36:24.118 +00:00 GlobalRt-9 INFO ckb_rpc::module::miner  end to submit block, work_id = 0xe, is_new = true, block = #1151(Byte32(0x26281f224d8c26dd6fcfdc1da4f6f4c140d28ad145e4f34e78c763b84b45f952))
+2026-03-12 08:36:24.120 +00:00 GlobalRt-20 INFO ckb_indexer_sync  Indexer append 1151, Byte32(0x26281f224d8c26dd6fcfdc1da4f6f4c140d28ad145e4f34e78c763b84b45f952)
+2026-03-12 08:36:25.141 +00:00 verify_blocks INFO ckb_chain::verify  [verify block] new best block found: 1152 => 0xfee69b06fcba29cc75fd7c25a87e2200f9a1eb3e1c9b75ed679c65556d9da1ab, difficulty diff = 0x100, unverified_tip: 1152
+2026-03-12 08:36:25.142 +00:00 verify_blocks INFO ckb_chain::verify  block: 1152, hash: 0xfee69b06fcba29cc75fd7c25a87e2200f9a1eb3e1c9b75ed679c65556d9da1ab, epoch: 1(152/1800), total_diff: 0x48100, txs: 1
+2026-03-12 08:36:25.142 +00:00 GlobalRt-9 INFO ckb_rpc::module::miner  end to submit block, work_id = 0x10, is_new = true, block = #1152(Byte32(0xfee69b06fcba29cc75fd7c25a87e2200f9a1eb3e1c9b75ed679c65556d9da1ab))
+2026-03-12 08:36:25.143 +00:00 GlobalRt-18 INFO ckb_tx_pool::pool  [get_block_template] candidate txs count: 1, size: 666/596365, cycles:1650987/10000000000
+2026-03-12 08:36:25.147 +00:00 GlobalRt-2 INFO ckb_indexer_sync  Indexer append 1152, Byte32(0xfee69b06fcba29cc75fd7c25a87e2200f9a1eb3e1c9b75ed679c65556d9da1ab)
+2026-03-12 08:36:26.161 +00:00 verify_blocks INFO ckb_chain::verify  [verify block] new best block found: 1153 => 0x87db1064775765e4b8b2a7b89fb76d15ac4664de7b542b1eefca3377906c8b46, difficulty diff = 0x100, unverified_tip: 1153
+2026-03-12 08:36:26.161 +00:00 verify_blocks INFO ckb_chain::verify  [block_verifier] block number: 1153, hash: Byte32(0x87db1064775765e4b8b2a7b89fb76d15ac4664de7b542b1eefca3377906c8b46), size:1301/597000, cycles: 1650987/10000000000
+2026-03-12 08:36:26.162 +00:00 verify_blocks INFO ckb_chain::verify  block: 1153, hash: 0x87db1064775765e4b8b2a7b89fb76d15ac4664de7b542b1eefca3377906c8b46, epoch: 1(153/1800), total_diff: 0x48200, txs: 2
+2026-03-12 08:36:26.162 +00:00 GlobalRt-9 INFO ckb_rpc::module::miner  end to submit block, work_id = 0x12, is_new = true, block = #1153(Byte32(0x87db1064775765e4b8b2a7b89fb76d15ac4664de7b542b1eefca3377906c8b46))
+2026-03-12 08:36:26.167 +00:00 GlobalRt-5 INFO ckb_indexer_sync  Indexer append 1153, Byte32(0x87db1064775765e4b8b2a7b89fb76d15ac4664de7b542b1eefca3377906c8b46)
+2026-03-12 08:36:28.208 +00:00 verify_blocks INFO ckb_chain::verify  [verify block] new best block found: 1154 => 0xcb98281a48da46dd67c2b3842aafac7ceb44130f4be1ada747035b84915b7ae1, difficulty diff = 0x100, unverified_tip: 1154
+2026-03-12 08:36:28.208 +00:00 verify_blocks INFO ckb_chain::verify  block: 1154, hash: 0xcb98281a48da46dd67c2b3842aafac7ceb44130f4be1ada747035b84915b7ae1, epoch: 1(154/1800), total_diff: 0x48300, txs: 1
+2026-03-12 08:36:28.208 +00:00 GlobalRt-9 INFO ckb_rpc::module::miner  end to submit block, work_id = 20, is_new = true, block = #1154(Byte32(0xcb98281a48da46dd67c2b3842aafac7ceb44130f4be1ada747035b84915b7ae1))
+2026-03-12 08:36:28.211 +00:00 GlobalRt-0 INFO ckb_indexer_sync  Indexer append 1154, Byte32(0xcb98281a48da46dd67c2b3842aafac7ceb44130f4be1ada747035b84915b7ae1)
+2026-03-12 08:36:30.214 +00:00 verify_blocks INFO ckb_chain::verify  [verify block] new best block found: 1155 => 0x51402233b25129f54a380348336c0cb5546e8ff1b523fe28cd2d32485deb7c89, difficulty diff = 0x100, unverified_tip: 1155
+2026-03-12 08:36:30.215 +00:00 verify_blocks INFO ckb_chain::verify  block: 1155, hash: 0x51402233b25129f54a380348336c0cb5546e8ff1b523fe28cd2d32485deb7c89, epoch: 1(155/1800), total_diff: 0x48400, txs: 1
+2026-03-12 08:36:30.215 +00:00 GlobalRt-17 INFO ckb_rpc::module::miner  end to submit block, work_id = 22, is_new = true, block = #1155(Byte32(0x51402233b25129f54a380348336c0cb5546e8ff1b523fe28cd2d32485deb7c89))
+2026-03-12 08:36:30.221 +00:00 GlobalRt-3 INFO ckb_indexer_sync  Indexer append 1155, Byte32(0x51402233b25129f54a380348336c0cb5546e8ff1b523fe28cd2d32485deb7c89)
+2026-03-12 08:36:31.221 +00:00 verify_blocks INFO ckb_chain::verify  [verify block] new best block found: 1156 => 0x243b0653605b90c8126803c3c4ba1ec125b34eff0170c0c8ed1d69d48dbca1ac, difficulty diff = 0x100, unverified_tip: 1156
+2026-03-12 08:36:31.221 +00:00 verify_blocks INFO ckb_chain::verify  block: 1156, hash: 0x243b0653605b90c8126803c3c4ba1ec125b34eff0170c0c8ed1d69d48dbca1ac, epoch: 1(156/1800), total_diff: 0x48500, txs: 1
+2026-03-12 08:36:31.221 +00:00 GlobalRt-17 INFO ckb_rpc::module::miner  end to submit block, work_id = 24, is_new = true, block = #1156(Byte32(0x243b0653605b90c8126803c3c4ba1ec125b34eff0170c0c8ed1d69d48dbca1ac))
+2026-03-12 08:36:31.224 +00:00 GlobalRt-2 INFO ckb_indexer_sync  Indexer append 1156, Byte32(0x243b0653605b90c8126803c3c4ba1ec125b34eff0170c0c8ed1d69d48dbca1ac)
+2026-03-12 08:36:32.224 +00:00 verify_blocks INFO ckb_chain::verify  [verify block] new best block found: 1157 => 0x4ae2bc5242e25059d7e8ab33bd407b8fa45ee06e05c574104f8fcd9515fbdf6d, difficulty diff = 0x100, unverified_tip: 1157
+2026-03-12 08:36:32.224 +00:00 verify_blocks INFO ckb_chain::verify  block: 1157, hash: 0x4ae2bc5242e25059d7e8ab33bd407b8fa45ee06e05c574104f8fcd9515fbdf6d, epoch: 1(157/1800), total_diff: 0x48600, txs: 1
+2026-03-12 08:36:32.224 +00:00 GlobalRt-17 INFO ckb_rpc::module::miner  end to submit block, work_id = 26, is_new = true, block = #1157(Byte32(0x4ae2bc5242e25059d7e8ab33bd407b8fa45ee06e05c574104f8fcd9515fbdf6d))
+2026-03-12 08:36:32.227 +00:00 GlobalRt-2 INFO ckb_indexer_sync  Indexer append 1157, Byte32(0x4ae2bc5242e25059d7e8ab33bd407b8fa45ee06e05c574104f8fcd9515fbdf6d)
+2026-03-12 08:36:33.225 +00:00 verify_blocks INFO ckb_chain::verify  [verify block] new best block found: 1158 => 0x7a2e3e1f96579f812e06b3a2f0cdee2191f4c42188b959ea154d4281011dd937, difficulty diff = 0x100, unverified_tip: 1158
+2026-03-12 08:36:33.225 +00:00 verify_blocks INFO ckb_chain::verify  block: 1158, hash: 0x7a2e3e1f96579f812e06b3a2f0cdee2191f4c42188b959ea154d4281011dd937, epoch: 1(158/1800), total_diff: 0x48700, txs: 1
+2026-03-12 08:36:33.226 +00:00 GlobalRt-17 INFO ckb_rpc::module::miner  end to submit block, work_id = 28, is_new = true, block = #1158(Byte32(0x7a2e3e1f96579f812e06b3a2f0cdee2191f4c42188b959ea154d4281011dd937))
+2026-03-12 08:36:33.229 +00:00 GlobalRt-5 INFO ckb_indexer_sync  Indexer append 1158, Byte32(0x7a2e3e1f96579f812e06b3a2f0cdee2191f4c42188b959ea154d4281011dd937)
+2026-03-12 08:36:34.236 +00:00 verify_blocks INFO ckb_chain::verify  [verify block] new best block found: 1159 => 0x11b50a3d2a862d8922ed057b91b53a60c33d983e7128fe2cb779059371ff2f9c, difficulty diff = 0x100, unverified_tip: 1159
+2026-03-12 08:36:34.236 +00:00 verify_blocks INFO ckb_chain::verify  block: 1159, hash: 0x11b50a3d2a862d8922ed057b91b53a60c33d983e7128fe2cb779059371ff2f9c, epoch: 1(159/1800), total_diff: 0x48800, txs: 1
+2026-03-12 08:36:34.236 +00:00 GlobalRt-17 INFO ckb_rpc::module::miner  end to submit block, work_id = 30, is_new = true, block = #1159(Byte32(0x11b50a3d2a862d8922ed057b91b53a60c33d983e7128fe2cb779059371ff2f9c))
+2026-03-12 08:36:34.241 +00:00 GlobalRt-0 INFO ckb_indexer_sync  Indexer append 1159, Byte32(0x11b50a3d2a862d8922ed057b91b53a60c33d983e7128fe2cb779059371ff2f9c)
+2026-03-12 08:36:35.238 +00:00 verify_blocks INFO ckb_chain::verify  [verify block] new best block found: 1160 => 0x8b1e74f97ca4e574b376707588d9ef2f2fc0b6ffc9809be8d249f7f6beaa3a58, difficulty diff = 0x100, unverified_tip: 1160
+2026-03-12 08:36:35.239 +00:00 verify_blocks INFO ckb_chain::verify  block: 1160, hash: 0x8b1e74f97ca4e574b376707588d9ef2f2fc0b6ffc9809be8d249f7f6beaa3a58, epoch: 1(160/1800), total_diff: 0x48900, txs: 1
+2026-03-12 08:36:35.239 +00:00 GlobalRt-17 INFO ckb_rpc::module::miner  end to submit block, work_id = 32, is_new = true, block = #1160(Byte32(0x8b1e74f97ca4e574b376707588d9ef2f2fc0b6ffc9809be8d249f7f6beaa3a58))
+2026-03-12 08:36:35.243 +00:00 GlobalRt-16 INFO ckb_indexer_sync  Indexer append 1160, Byte32(0x8b1e74f97ca4e574b376707588d9ef2f2fc0b6ffc9809be8d249f7f6beaa3a58)
+2026-03-12 08:36:36.245 +00:00 verify_blocks INFO ckb_chain::verify  [verify block] new best block found: 1161 => 0x91e2d83ff6660f01924facb9e9ca91359910b53c5fece9e2e2c8c85e276c2bd5, difficulty diff = 0x100, unverified_tip: 1161
+2026-03-12 08:36:36.245 +00:00 verify_blocks INFO ckb_chain::verify  block: 1161, hash: 0x91e2d83ff6660f01924facb9e9ca91359910b53c5fece9e2e2c8c85e276c2bd5, epoch: 1(161/1800), total_diff: 0x48a00, txs: 1
+2026-03-12 08:36:36.245 +00:00 GlobalRt-17 INFO ckb_rpc::module::miner  end to submit block, work_id = 34, is_new = true, block = #1161(Byte32(0x91e2d83ff6660f01924facb9e9ca91359910b53c5fece9e2e2c8c85e276c2bd5))
+2026-03-12 08:36:36.248 +00:00 GlobalRt-2 INFO ckb_indexer_sync  Indexer append 1161, Byte32(0x91e2d83ff6660f01924facb9e9ca91359910b53c5fece9e2e2c8c85e276c2bd5)
+2026-03-12 08:36:37.251 +00:00 verify_blocks INFO ckb_chain::verify  [verify block] new best block found: 1162 => 0x4b6d7e369c88f1074089d195ab49e2d06ec6e2bcd731d9470ad9b3a3f86731d4, difficulty diff = 0x100, unverified_tip: 1162
+2026-03-12 08:36:37.251 +00:00 verify_blocks INFO ckb_chain::verify  block: 1162, hash: 0x4b6d7e369c88f1074089d195ab49e2d06ec6e2bcd731d9470ad9b3a3f86731d4, epoch: 1(162/1800), total_diff: 0x48b00, txs: 1
+2026-03-12 08:36:37.251 +00:00 GlobalRt-17 INFO ckb_rpc::module::miner  end to submit block, work_id = 36, is_new = true, block = #1162(Byte32(0x4b6d7e369c88f1074089d195ab49e2d06ec6e2bcd731d9470ad9b3a3f86731d4))
+2026-03-12 08:36:37.256 +00:00 GlobalRt-3 INFO ckb_indexer_sync  Indexer append 1162, Byte32(0x4b6d7e369c88f1074089d195ab49e2d06ec6e2bcd731d9470ad9b3a3f86731d4)
+2026-03-12 08:36:38.162 +00:00 verify_blocks INFO ckb_chain::verify  [verify block] new best block found: 1163 => 0x8cde06a21790d5e430e95ab8f22d06c3d9dec2b38e1a36ebd46d04667562df58, difficulty diff = 0x100, unverified_tip: 1163
+2026-03-12 08:36:38.163 +00:00 verify_blocks INFO ckb_chain::verify  block: 1163, hash: 0x8cde06a21790d5e430e95ab8f22d06c3d9dec2b38e1a36ebd46d04667562df58, epoch: 1(163/1800), total_diff: 0x48c00, txs: 1
+2026-03-12 08:36:38.163 +00:00 GlobalRt-15 INFO ckb_rpc::module::miner  end to submit block, work_id = 0x27, is_new = true, block = #1163(Byte32(0x8cde06a21790d5e430e95ab8f22d06c3d9dec2b38e1a36ebd46d04667562df58))
+2026-03-12 08:36:38.167 +00:00 GlobalRt-18 INFO ckb_indexer_sync  Indexer append 1163, Byte32(0x8cde06a21790d5e430e95ab8f22d06c3d9dec2b38e1a36ebd46d04667562df58)
+2026-03-12 08:36:38.171 +00:00 verify_blocks INFO ckb_chain::verify  [verify block] new best block found: 1164 => 0x610e72997c777d48b447d46e54a8093d5857644922364b4ba6bfa3bb37bcd5f6, difficulty diff = 0x100, unverified_tip: 1164
+2026-03-12 08:36:38.171 +00:00 verify_blocks INFO ckb_chain::verify  block: 1164, hash: 0x610e72997c777d48b447d46e54a8093d5857644922364b4ba6bfa3bb37bcd5f6, epoch: 1(164/1800), total_diff: 0x48d00, txs: 1
+2026-03-12 08:36:38.172 +00:00 GlobalRt-17 INFO ckb_rpc::module::miner  end to submit block, work_id = 0x29, is_new = true, block = #1164(Byte32(0x610e72997c777d48b447d46e54a8093d5857644922364b4ba6bfa3bb37bcd5f6))
+2026-03-12 08:36:38.174 +00:00 GlobalRt-21 INFO ckb_indexer_sync  Indexer append 1164, Byte32(0x610e72997c777d48b447d46e54a8093d5857644922364b4ba6bfa3bb37bcd5f6)
+2026-03-12 08:36:38.178 +00:00 verify_blocks INFO ckb_chain::verify  [verify block] new best block found: 1165 => 0xd13fc96acac08c924691eb20af7fad57e03fa1180fcf6f3cb075af4861c9d330, difficulty diff = 0x100, unverified_tip: 1165
+2026-03-12 08:36:38.178 +00:00 verify_blocks INFO ckb_chain::verify  block: 1165, hash: 0xd13fc96acac08c924691eb20af7fad57e03fa1180fcf6f3cb075af4861c9d330, epoch: 1(165/1800), total_diff: 0x48e00, txs: 1
+2026-03-12 08:36:38.178 +00:00 GlobalRt-15 INFO ckb_rpc::module::miner  end to submit block, work_id = 0x2b, is_new = true, block = #1165(Byte32(0xd13fc96acac08c924691eb20af7fad57e03fa1180fcf6f3cb075af4861c9d330))
+2026-03-12 08:36:38.181 +00:00 GlobalRt-18 INFO ckb_indexer_sync  Indexer append 1165, Byte32(0xd13fc96acac08c924691eb20af7fad57e03fa1180fcf6f3cb075af4861c9d330)
+2026-03-12 08:36:38.184 +00:00 verify_blocks INFO ckb_chain::verify  [verify block] new best block found: 1166 => 0xb6b8368381841ada567e2db649a7afa9b0850b30c02fc3c61a417b308b01a41c, difficulty diff = 0x100, unverified_tip: 1166
+2026-03-12 08:36:38.184 +00:00 verify_blocks INFO ckb_chain::verify  block: 1166, hash: 0xb6b8368381841ada567e2db649a7afa9b0850b30c02fc3c61a417b308b01a41c, epoch: 1(166/1800), total_diff: 0x48f00, txs: 1
+2026-03-12 08:36:38.184 +00:00 GlobalRt-17 INFO ckb_rpc::module::miner  end to submit block, work_id = 0x2d, is_new = true, block = #1166(Byte32(0xb6b8368381841ada567e2db649a7afa9b0850b30c02fc3c61a417b308b01a41c))
+2026-03-12 08:36:38.187 +00:00 GlobalRt-6 INFO ckb_indexer_sync  Indexer append 1166, Byte32(0xb6b8368381841ada567e2db649a7afa9b0850b30c02fc3c61a417b308b01a41c)
+2026-03-12 08:36:38.190 +00:00 verify_blocks INFO ckb_chain::verify  [verify block] new best block found: 1167 => 0xc68ebd18fe7bbcce71618622857f23dfaee42c095bc7043ea95d301c5332bb78, difficulty diff = 0x100, unverified_tip: 1167
+2026-03-12 08:36:38.190 +00:00 verify_blocks INFO ckb_chain::verify  block: 1167, hash: 0xc68ebd18fe7bbcce71618622857f23dfaee42c095bc7043ea95d301c5332bb78, epoch: 1(167/1800), total_diff: 0x49000, txs: 1
+2026-03-12 08:36:38.190 +00:00 GlobalRt-15 INFO ckb_rpc::module::miner  end to submit block, work_id = 0x2f, is_new = true, block = #1167(Byte32(0xc68ebd18fe7bbcce71618622857f23dfaee42c095bc7043ea95d301c5332bb78))
+2026-03-12 08:36:38.192 +00:00 GlobalRt-18 INFO ckb_indexer_sync  Indexer append 1167, Byte32(0xc68ebd18fe7bbcce71618622857f23dfaee42c095bc7043ea95d301c5332bb78)
+2026-03-12 08:36:38.258 +00:00 verify_blocks INFO ckb_chain::verify  [verify block] new best block found: 1168 => 0xe0c426cc472ed8ea3ee56e435f73530f63ffe0fd4a78de76a1692b4157d0f09a, difficulty diff = 0x100, unverified_tip: 1168
+2026-03-12 08:36:38.259 +00:00 verify_blocks INFO ckb_chain::verify  block: 1168, hash: 0xe0c426cc472ed8ea3ee56e435f73530f63ffe0fd4a78de76a1692b4157d0f09a, epoch: 1(168/1800), total_diff: 0x49100, txs: 1
+2026-03-12 08:36:38.259 +00:00 GlobalRt-17 INFO ckb_rpc::module::miner  end to submit block, work_id = 49, is_new = true, block = #1168(Byte32(0xe0c426cc472ed8ea3ee56e435f73530f63ffe0fd4a78de76a1692b4157d0f09a))
+2026-03-12 08:36:38.261 +00:00 GlobalRt-5 INFO ckb_indexer_sync  Indexer append 1168, Byte32(0xe0c426cc472ed8ea3ee56e435f73530f63ffe0fd4a78de76a1692b4157d0f09a)
+2026-03-12 08:36:39.267 +00:00 verify_blocks INFO ckb_chain::verify  [verify block] new best block found: 1169 => 0x74b7c22c700f034e659aa13f4c9a13815951f72f359e85b16fed591d8167dbe2, difficulty diff = 0x100, unverified_tip: 1169
+2026-03-12 08:36:39.267 +00:00 verify_blocks INFO ckb_chain::verify  block: 1169, hash: 0x74b7c22c700f034e659aa13f4c9a13815951f72f359e85b16fed591d8167dbe2, epoch: 1(169/1800), total_diff: 0x49200, txs: 1
+2026-03-12 08:36:39.267 +00:00 GlobalRt-17 INFO ckb_rpc::module::miner  end to submit block, work_id = 51, is_new = true, block = #1169(Byte32(0x74b7c22c700f034e659aa13f4c9a13815951f72f359e85b16fed591d8167dbe2))
+2026-03-12 08:36:39.271 +00:00 GlobalRt-3 INFO ckb_indexer_sync  Indexer append 1169, Byte32(0x74b7c22c700f034e659aa13f4c9a13815951f72f359e85b16fed591d8167dbe2)
+2026-03-12 08:36:40.272 +00:00 verify_blocks INFO ckb_chain::verify  [verify block] new best block found: 1170 => 0x530c399b9030d775d2db863606d01f636311a03d3f63dab0001673a2a903e5bd, difficulty diff = 0x100, unverified_tip: 1170
+2026-03-12 08:36:40.273 +00:00 verify_blocks INFO ckb_chain::verify  block: 1170, hash: 0x530c399b9030d775d2db863606d01f636311a03d3f63dab0001673a2a903e5bd, epoch: 1(170/1800), total_diff: 0x49300, txs: 1
+2026-03-12 08:36:40.273 +00:00 GlobalRt-17 INFO ckb_rpc::module::miner  end to submit block, work_id = 53, is_new = true, block = #1170(Byte32(0x530c399b9030d775d2db863606d01f636311a03d3f63dab0001673a2a903e5bd))
+2026-03-12 08:36:40.278 +00:00 GlobalRt-3 INFO ckb_indexer_sync  Indexer append 1170, Byte32(0x530c399b9030d775d2db863606d01f636311a03d3f63dab0001673a2a903e5bd)
+2026-03-12 08:36:41.274 +00:00 verify_blocks INFO ckb_chain::verify  [verify block] new best block found: 1171 => 0x0533b690ccaa295d59272d6b9e600ca33f8507a681da13a119a692fdba61b9ef, difficulty diff = 0x100, unverified_tip: 1171
+2026-03-12 08:36:41.274 +00:00 verify_blocks INFO ckb_chain::verify  block: 1171, hash: 0x0533b690ccaa295d59272d6b9e600ca33f8507a681da13a119a692fdba61b9ef, epoch: 1(171/1800), total_diff: 0x49400, txs: 1
+2026-03-12 08:36:41.275 +00:00 GlobalRt-17 INFO ckb_rpc::module::miner  end to submit block, work_id = 55, is_new = true, block = #1171(Byte32(0x0533b690ccaa295d59272d6b9e600ca33f8507a681da13a119a692fdba61b9ef))
+2026-03-12 08:36:41.277 +00:00 GlobalRt-0 INFO ckb_indexer_sync  Indexer append 1171, Byte32(0x0533b690ccaa295d59272d6b9e600ca33f8507a681da13a119a692fdba61b9ef)
+2026-03-12 08:36:42.287 +00:00 verify_blocks INFO ckb_chain::verify  [verify block] new best block found: 1172 => 0xc7303c01704bd517e0c276991699a4c3b6da181420c1de227bf336aedd7bf0af, difficulty diff = 0x100, unverified_tip: 1172
+2026-03-12 08:36:42.287 +00:00 verify_blocks INFO ckb_chain::verify  block: 1172, hash: 0xc7303c01704bd517e0c276991699a4c3b6da181420c1de227bf336aedd7bf0af, epoch: 1(172/1800), total_diff: 0x49500, txs: 1
+2026-03-12 08:36:42.288 +00:00 GlobalRt-17 INFO ckb_rpc::module::miner  end to submit block, work_id = 57, is_new = true, block = #1172(Byte32(0xc7303c01704bd517e0c276991699a4c3b6da181420c1de227bf336aedd7bf0af))
+2026-03-12 08:36:42.293 +00:00 GlobalRt-5 INFO ckb_indexer_sync  Indexer append 1172, Byte32(0xc7303c01704bd517e0c276991699a4c3b6da181420c1de227bf336aedd7bf0af)
+2026-03-12 08:36:43.295 +00:00 verify_blocks INFO ckb_chain::verify  [verify block] new best block found: 1173 => 0xa3910efc358537b9aa37098b54d0e86d3a2022280e23852945574393ac1545b9, difficulty diff = 0x100, unverified_tip: 1173
+2026-03-12 08:36:43.295 +00:00 verify_blocks INFO ckb_chain::verify  block: 1173, hash: 0xa3910efc358537b9aa37098b54d0e86d3a2022280e23852945574393ac1545b9, epoch: 1(173/1800), total_diff: 0x49600, txs: 1
+2026-03-12 08:36:43.295 +00:00 GlobalRt-17 INFO ckb_rpc::module::miner  end to submit block, work_id = 59, is_new = true, block = #1173(Byte32(0xa3910efc358537b9aa37098b54d0e86d3a2022280e23852945574393ac1545b9))
+2026-03-12 08:36:43.298 +00:00 GlobalRt-19 INFO ckb_indexer_sync  Indexer append 1173, Byte32(0xa3910efc358537b9aa37098b54d0e86d3a2022280e23852945574393ac1545b9)
+2026-03-12 08:36:43.492 +00:00 verify_blocks INFO ckb_chain::verify  [verify block] new best block found: 1174 => 0xf0ef3973451bae8994c504a82338810baf6711eeda615ce11a1b60fc0016275b, difficulty diff = 0x100, unverified_tip: 1174
+2026-03-12 08:36:43.493 +00:00 verify_blocks INFO ckb_chain::verify  block: 1174, hash: 0xf0ef3973451bae8994c504a82338810baf6711eeda615ce11a1b60fc0016275b, epoch: 1(174/1800), total_diff: 0x49700, txs: 1
+2026-03-12 08:36:43.493 +00:00 GlobalRt-17 INFO ckb_rpc::module::miner  end to submit block, work_id = 0x3d, is_new = true, block = #1174(Byte32(0xf0ef3973451bae8994c504a82338810baf6711eeda615ce11a1b60fc0016275b))
+2026-03-12 08:36:43.495 +00:00 GlobalRt-5 INFO ckb_indexer_sync  Indexer append 1174, Byte32(0xf0ef3973451bae8994c504a82338810baf6711eeda615ce11a1b60fc0016275b)
+2026-03-12 08:36:44.302 +00:00 verify_blocks INFO ckb_chain::verify  [verify block] new best block found: 1175 => 0xaf043afd6c0e3dfbce92dee02cff348d949954e7d57177e6f7a02383d7075f6c, difficulty diff = 0x100, unverified_tip: 1175
+2026-03-12 08:36:44.302 +00:00 verify_blocks INFO ckb_chain::verify  block: 1175, hash: 0xaf043afd6c0e3dfbce92dee02cff348d949954e7d57177e6f7a02383d7075f6c, epoch: 1(175/1800), total_diff: 0x49800, txs: 1
+2026-03-12 08:36:44.302 +00:00 GlobalRt-15 INFO ckb_rpc::module::miner  end to submit block, work_id = 63, is_new = true, block = #1175(Byte32(0xaf043afd6c0e3dfbce92dee02cff348d949954e7d57177e6f7a02383d7075f6c))
+2026-03-12 08:36:44.306 +00:00 GlobalRt-5 INFO ckb_indexer_sync  Indexer append 1175, Byte32(0xaf043afd6c0e3dfbce92dee02cff348d949954e7d57177e6f7a02383d7075f6c)
+2026-03-12 08:36:44.510 +00:00 verify_blocks INFO ckb_chain::verify  [verify block] new best block found: 1176 => 0x32119e15a6d8964c15be9cf3252fec7c153c1fa321152c9ebae77e2f9fbb79ed, difficulty diff = 0x100, unverified_tip: 1176
+2026-03-12 08:36:44.510 +00:00 verify_blocks INFO ckb_chain::verify  block: 1176, hash: 0x32119e15a6d8964c15be9cf3252fec7c153c1fa321152c9ebae77e2f9fbb79ed, epoch: 1(176/1800), total_diff: 0x49900, txs: 1
+2026-03-12 08:36:44.510 +00:00 GlobalRt-17 INFO ckb_rpc::module::miner  end to submit block, work_id = 0x42, is_new = true, block = #1176(Byte32(0x32119e15a6d8964c15be9cf3252fec7c153c1fa321152c9ebae77e2f9fbb79ed))
+2026-03-12 08:36:44.510 +00:00 GlobalRt-18 INFO ckb_tx_pool::pool  [get_block_template] candidate txs count: 1, size: 666/596365, cycles:1669141/10000000000
+2026-03-12 08:36:44.513 +00:00 GlobalRt-5 INFO ckb_indexer_sync  Indexer append 1176, Byte32(0x32119e15a6d8964c15be9cf3252fec7c153c1fa321152c9ebae77e2f9fbb79ed)
+2026-03-12 08:36:45.304 +00:00 verify_blocks INFO ckb_chain::verify  [verify block] new best block found: 1177 => 0x407e25fa1c11382ae75ecf4047d96d1fe759bfb74553194c07ed1906e9cdd036, difficulty diff = 0x100, unverified_tip: 1177
+2026-03-12 08:36:45.304 +00:00 verify_blocks INFO ckb_chain::verify  [block_verifier] block number: 1177, hash: Byte32(0x407e25fa1c11382ae75ecf4047d96d1fe759bfb74553194c07ed1906e9cdd036), size:1301/597000, cycles: 1669141/10000000000
+2026-03-12 08:36:45.304 +00:00 verify_blocks INFO ckb_chain::verify  block: 1177, hash: 0x407e25fa1c11382ae75ecf4047d96d1fe759bfb74553194c07ed1906e9cdd036, epoch: 1(177/1800), total_diff: 0x49a00, txs: 2
+2026-03-12 08:36:45.305 +00:00 GlobalRt-17 INFO ckb_rpc::module::miner  end to submit block, work_id = 68, is_new = true, block = #1177(Byte32(0x407e25fa1c11382ae75ecf4047d96d1fe759bfb74553194c07ed1906e9cdd036))
+2026-03-12 08:36:45.309 +00:00 GlobalRt-3 INFO ckb_indexer_sync  Indexer append 1177, Byte32(0x407e25fa1c11382ae75ecf4047d96d1fe759bfb74553194c07ed1906e9cdd036)
+2026-03-12 08:36:46.310 +00:00 verify_blocks INFO ckb_chain::verify  [verify block] new best block found: 1178 => 0x601a3a3a8f455639d28e12abfe397324b7a1129b5db4b2b96ca9db8ccb624716, difficulty diff = 0x100, unverified_tip: 1178
+2026-03-12 08:36:46.310 +00:00 verify_blocks INFO ckb_chain::verify  block: 1178, hash: 0x601a3a3a8f455639d28e12abfe397324b7a1129b5db4b2b96ca9db8ccb624716, epoch: 1(178/1800), total_diff: 0x49b00, txs: 1
+2026-03-12 08:36:46.310 +00:00 GlobalRt-17 INFO ckb_rpc::module::miner  end to submit block, work_id = 70, is_new = true, block = #1178(Byte32(0x601a3a3a8f455639d28e12abfe397324b7a1129b5db4b2b96ca9db8ccb624716))
+2026-03-12 08:36:46.313 +00:00 GlobalRt-0 INFO ckb_indexer_sync  Indexer append 1178, Byte32(0x601a3a3a8f455639d28e12abfe397324b7a1129b5db4b2b96ca9db8ccb624716)
+2026-03-12 08:36:47.317 +00:00 verify_blocks INFO ckb_chain::verify  [verify block] new best block found: 1179 => 0x509514d15491b18f7776295ca8078748bf7493c7620065a26898e45886254027, difficulty diff = 0x100, unverified_tip: 1179
+2026-03-12 08:36:47.318 +00:00 verify_blocks INFO ckb_chain::verify  block: 1179, hash: 0x509514d15491b18f7776295ca8078748bf7493c7620065a26898e45886254027, epoch: 1(179/1800), total_diff: 0x49c00, txs: 1
+2026-03-12 08:36:47.318 +00:00 GlobalRt-15 INFO ckb_rpc::module::miner  end to submit block, work_id = 72, is_new = true, block = #1179(Byte32(0x509514d15491b18f7776295ca8078748bf7493c7620065a26898e45886254027))
+2026-03-12 08:36:47.320 +00:00 GlobalRt-21 INFO ckb_indexer_sync  Indexer append 1179, Byte32(0x509514d15491b18f7776295ca8078748bf7493c7620065a26898e45886254027)
+2026-03-12 08:36:48.329 +00:00 verify_blocks INFO ckb_chain::verify  [verify block] new best block found: 1180 => 0x41c19b560a963afc7f672753ca4380374e43bf39526a7c483cd9eb07540b4ddf, difficulty diff = 0x100, unverified_tip: 1180
+2026-03-12 08:36:48.330 +00:00 verify_blocks INFO ckb_chain::verify  block: 1180, hash: 0x41c19b560a963afc7f672753ca4380374e43bf39526a7c483cd9eb07540b4ddf, epoch: 1(180/1800), total_diff: 0x49d00, txs: 1
+2026-03-12 08:36:48.330 +00:00 GlobalRt-15 INFO ckb_rpc::module::miner  end to submit block, work_id = 74, is_new = true, block = #1180(Byte32(0x41c19b560a963afc7f672753ca4380374e43bf39526a7c483cd9eb07540b4ddf))
+2026-03-12 08:36:48.332 +00:00 GlobalRt-16 INFO ckb_indexer_sync  Indexer append 1180, Byte32(0x41c19b560a963afc7f672753ca4380374e43bf39526a7c483cd9eb07540b4ddf)
+2026-03-12 08:36:49.333 +00:00 verify_blocks INFO ckb_chain::verify  [verify block] new best block found: 1181 => 0xfc412192952394bd68bb18a65bb554d67ffdafebd1a91fa04cbc37dbdeb76c97, difficulty diff = 0x100, unverified_tip: 1181
+2026-03-12 08:36:49.333 +00:00 verify_blocks INFO ckb_chain::verify  block: 1181, hash: 0xfc412192952394bd68bb18a65bb554d67ffdafebd1a91fa04cbc37dbdeb76c97, epoch: 1(181/1800), total_diff: 0x49e00, txs: 1
+2026-03-12 08:36:49.333 +00:00 GlobalRt-15 INFO ckb_rpc::module::miner  end to submit block, work_id = 76, is_new = true, block = #1181(Byte32(0xfc412192952394bd68bb18a65bb554d67ffdafebd1a91fa04cbc37dbdeb76c97))
+2026-03-12 08:36:49.336 +00:00 GlobalRt-3 INFO ckb_indexer_sync  Indexer append 1181, Byte32(0xfc412192952394bd68bb18a65bb554d67ffdafebd1a91fa04cbc37dbdeb76c97)
+2026-03-12 08:36:50.340 +00:00 verify_blocks INFO ckb_chain::verify  [verify block] new best block found: 1182 => 0x942885933698dc46303deecf8a71d3179cf75f5651cd06b2174ac4a6d20fd384, difficulty diff = 0x100, unverified_tip: 1182
+2026-03-12 08:36:50.340 +00:00 verify_blocks INFO ckb_chain::verify  block: 1182, hash: 0x942885933698dc46303deecf8a71d3179cf75f5651cd06b2174ac4a6d20fd384, epoch: 1(182/1800), total_diff: 0x49f00, txs: 1
+2026-03-12 08:36:50.340 +00:00 GlobalRt-15 INFO ckb_rpc::module::miner  end to submit block, work_id = 78, is_new = true, block = #1182(Byte32(0x942885933698dc46303deecf8a71d3179cf75f5651cd06b2174ac4a6d20fd384))
+2026-03-12 08:36:50.344 +00:00 GlobalRt-18 INFO ckb_indexer_sync  Indexer append 1182, Byte32(0x942885933698dc46303deecf8a71d3179cf75f5651cd06b2174ac4a6d20fd384)
+2026-03-12 08:36:51.345 +00:00 verify_blocks INFO ckb_chain::verify  [verify block] new best block found: 1183 => 0xf722b9816fc4ca012c1f4f6f961371667ee54332c79c1b88db50bb1ccbb6b420, difficulty diff = 0x100, unverified_tip: 1183
+2026-03-12 08:36:51.346 +00:00 verify_blocks INFO ckb_chain::verify  block: 1183, hash: 0xf722b9816fc4ca012c1f4f6f961371667ee54332c79c1b88db50bb1ccbb6b420, epoch: 1(183/1800), total_diff: 0x4a000, txs: 1
+2026-03-12 08:36:51.346 +00:00 GlobalRt-15 INFO ckb_rpc::module::miner  end to submit block, work_id = 80, is_new = true, block = #1183(Byte32(0xf722b9816fc4ca012c1f4f6f961371667ee54332c79c1b88db50bb1ccbb6b420))
+2026-03-12 08:36:51.351 +00:00 GlobalRt-2 INFO ckb_indexer_sync  Indexer append 1183, Byte32(0xf722b9816fc4ca012c1f4f6f961371667ee54332c79c1b88db50bb1ccbb6b420)
+2026-03-12 08:36:51.877 +00:00 verify_blocks INFO ckb_chain::verify  [verify block] new best block found: 1184 => 0x15f60a5af820cc52a01f93e011c520a165a3f4eb44d34302c93cdc8f196ddde2, difficulty diff = 0x100, unverified_tip: 1184
+2026-03-12 08:36:51.877 +00:00 verify_blocks INFO ckb_chain::verify  block: 1184, hash: 0x15f60a5af820cc52a01f93e011c520a165a3f4eb44d34302c93cdc8f196ddde2, epoch: 1(184/1800), total_diff: 0x4a100, txs: 1
+2026-03-12 08:36:51.877 +00:00 GlobalRt-9 INFO ckb_rpc::module::miner  end to submit block, work_id = 0x53, is_new = true, block = #1184(Byte32(0x15f60a5af820cc52a01f93e011c520a165a3f4eb44d34302c93cdc8f196ddde2))
+2026-03-12 08:36:51.880 +00:00 GlobalRt-3 INFO ckb_indexer_sync  Indexer append 1184, Byte32(0x15f60a5af820cc52a01f93e011c520a165a3f4eb44d34302c93cdc8f196ddde2)
+2026-03-12 08:36:51.885 +00:00 verify_blocks INFO ckb_chain::verify  [verify block] new best block found: 1185 => 0x8032dbddf59f14848bc68f1f9b73c94af5042ded9dcf7bae4df7434c446e4652, difficulty diff = 0x100, unverified_tip: 1185
+2026-03-12 08:36:51.885 +00:00 verify_blocks INFO ckb_chain::verify  block: 1185, hash: 0x8032dbddf59f14848bc68f1f9b73c94af5042ded9dcf7bae4df7434c446e4652, epoch: 1(185/1800), total_diff: 0x4a200, txs: 1
+2026-03-12 08:36:51.885 +00:00 GlobalRt-15 INFO ckb_rpc::module::miner  end to submit block, work_id = 0x55, is_new = true, block = #1185(Byte32(0x8032dbddf59f14848bc68f1f9b73c94af5042ded9dcf7bae4df7434c446e4652))
+2026-03-12 08:36:51.888 +00:00 GlobalRt-16 INFO ckb_indexer_sync  Indexer append 1185, Byte32(0x8032dbddf59f14848bc68f1f9b73c94af5042ded9dcf7bae4df7434c446e4652)
+2026-03-12 08:36:51.891 +00:00 verify_blocks INFO ckb_chain::verify  [verify block] new best block found: 1186 => 0x737cedda18ab291c9bfe4d9b51733a6b7138b453ea0d6171d1950e2485e4f956, difficulty diff = 0x100, unverified_tip: 1186
+2026-03-12 08:36:51.891 +00:00 verify_blocks INFO ckb_chain::verify  block: 1186, hash: 0x737cedda18ab291c9bfe4d9b51733a6b7138b453ea0d6171d1950e2485e4f956, epoch: 1(186/1800), total_diff: 0x4a300, txs: 1
+2026-03-12 08:36:51.892 +00:00 GlobalRt-9 INFO ckb_rpc::module::miner  end to submit block, work_id = 0x57, is_new = true, block = #1186(Byte32(0x737cedda18ab291c9bfe4d9b51733a6b7138b453ea0d6171d1950e2485e4f956))
+2026-03-12 08:36:51.894 +00:00 GlobalRt-5 INFO ckb_indexer_sync  Indexer append 1186, Byte32(0x737cedda18ab291c9bfe4d9b51733a6b7138b453ea0d6171d1950e2485e4f956)
+2026-03-12 08:36:51.897 +00:00 verify_blocks INFO ckb_chain::verify  [verify block] new best block found: 1187 => 0xc6c9961e150ae7a1f0e35227bab723e5baadaafa51c5502205fde771e223c048, difficulty diff = 0x100, unverified_tip: 1187
+2026-03-12 08:36:51.897 +00:00 verify_blocks INFO ckb_chain::verify  block: 1187, hash: 0xc6c9961e150ae7a1f0e35227bab723e5baadaafa51c5502205fde771e223c048, epoch: 1(187/1800), total_diff: 0x4a400, txs: 1
+2026-03-12 08:36:51.897 +00:00 GlobalRt-15 INFO ckb_rpc::module::miner  end to submit block, work_id = 0x59, is_new = true, block = #1187(Byte32(0xc6c9961e150ae7a1f0e35227bab723e5baadaafa51c5502205fde771e223c048))
+2026-03-12 08:36:51.900 +00:00 GlobalRt-20 INFO ckb_indexer_sync  Indexer append 1187, Byte32(0xc6c9961e150ae7a1f0e35227bab723e5baadaafa51c5502205fde771e223c048)
+2026-03-12 08:36:51.903 +00:00 verify_blocks INFO ckb_chain::verify  [verify block] new best block found: 1188 => 0x9454bb8fb9d0a0c06809e31dd3c073ea36215befc378d5485e56c33fa124e5d8, difficulty diff = 0x100, unverified_tip: 1188
+2026-03-12 08:36:51.903 +00:00 verify_blocks INFO ckb_chain::verify  block: 1188, hash: 0x9454bb8fb9d0a0c06809e31dd3c073ea36215befc378d5485e56c33fa124e5d8, epoch: 1(188/1800), total_diff: 0x4a500, txs: 1
+2026-03-12 08:36:51.903 +00:00 GlobalRt-9 INFO ckb_rpc::module::miner  end to submit block, work_id = 0x5b, is_new = true, block = #1188(Byte32(0x9454bb8fb9d0a0c06809e31dd3c073ea36215befc378d5485e56c33fa124e5d8))
+2026-03-12 08:36:51.906 +00:00 GlobalRt-6 INFO ckb_indexer_sync  Indexer append 1188, Byte32(0x9454bb8fb9d0a0c06809e31dd3c073ea36215befc378d5485e56c33fa124e5d8)
+2026-03-12 08:36:52.351 +00:00 verify_blocks INFO ckb_chain::verify  [verify block] new best block found: 1189 => 0x5844569d8ec6044862f6771b972f4efce3742077cb0af7df7a494711b75ca08e, difficulty diff = 0x100, unverified_tip: 1189
+2026-03-12 08:36:52.351 +00:00 verify_blocks INFO ckb_chain::verify  block: 1189, hash: 0x5844569d8ec6044862f6771b972f4efce3742077cb0af7df7a494711b75ca08e, epoch: 1(189/1800), total_diff: 0x4a600, txs: 1
+2026-03-12 08:36:52.351 +00:00 GlobalRt-15 INFO ckb_rpc::module::miner  end to submit block, work_id = 93, is_new = true, block = #1189(Byte32(0x5844569d8ec6044862f6771b972f4efce3742077cb0af7df7a494711b75ca08e))
+2026-03-12 08:36:52.356 +00:00 GlobalRt-19 INFO ckb_indexer_sync  Indexer append 1189, Byte32(0x5844569d8ec6044862f6771b972f4efce3742077cb0af7df7a494711b75ca08e)
+2026-03-12 08:36:53.359 +00:00 verify_blocks INFO ckb_chain::verify  [verify block] new best block found: 1190 => 0xfd986a8b48e1bbc094bdd80b93939ec85ec2300d957ed274217745b41c3a7c2f, difficulty diff = 0x100, unverified_tip: 1190
+2026-03-12 08:36:53.360 +00:00 verify_blocks INFO ckb_chain::verify  block: 1190, hash: 0xfd986a8b48e1bbc094bdd80b93939ec85ec2300d957ed274217745b41c3a7c2f, epoch: 1(190/1800), total_diff: 0x4a700, txs: 1
+2026-03-12 08:36:53.360 +00:00 GlobalRt-15 INFO ckb_rpc::module::miner  end to submit block, work_id = 95, is_new = true, block = #1190(Byte32(0xfd986a8b48e1bbc094bdd80b93939ec85ec2300d957ed274217745b41c3a7c2f))
+2026-03-12 08:36:53.365 +00:00 GlobalRt-18 INFO ckb_indexer_sync  Indexer append 1190, Byte32(0xfd986a8b48e1bbc094bdd80b93939ec85ec2300d957ed274217745b41c3a7c2f)
+2026-03-12 08:36:54.363 +00:00 verify_blocks INFO ckb_chain::verify  [verify block] new best block found: 1191 => 0x5a2c517b42e0375db350bd61994cd5715cf0eecbda02526e574ab2a5f10e0c03, difficulty diff = 0x100, unverified_tip: 1191
+2026-03-12 08:36:54.363 +00:00 verify_blocks INFO ckb_chain::verify  block: 1191, hash: 0x5a2c517b42e0375db350bd61994cd5715cf0eecbda02526e574ab2a5f10e0c03, epoch: 1(191/1800), total_diff: 0x4a800, txs: 1
+2026-03-12 08:36:54.363 +00:00 GlobalRt-15 INFO ckb_rpc::module::miner  end to submit block, work_id = 97, is_new = true, block = #1191(Byte32(0x5a2c517b42e0375db350bd61994cd5715cf0eecbda02526e574ab2a5f10e0c03))
+2026-03-12 08:36:54.367 +00:00 GlobalRt-18 INFO ckb_indexer_sync  Indexer append 1191, Byte32(0x5a2c517b42e0375db350bd61994cd5715cf0eecbda02526e574ab2a5f10e0c03)
+2026-03-12 08:36:55.366 +00:00 verify_blocks INFO ckb_chain::verify  [verify block] new best block found: 1192 => 0x901409782381c170786a08cf511a6c8180f4ce85ccb6709ac371fd396bcadb4d, difficulty diff = 0x100, unverified_tip: 1192
+2026-03-12 08:36:55.367 +00:00 verify_blocks INFO ckb_chain::verify  block: 1192, hash: 0x901409782381c170786a08cf511a6c8180f4ce85ccb6709ac371fd396bcadb4d, epoch: 1(192/1800), total_diff: 0x4a900, txs: 1
+2026-03-12 08:36:55.368 +00:00 GlobalRt-15 INFO ckb_rpc::module::miner  end to submit block, work_id = 99, is_new = true, block = #1192(Byte32(0x901409782381c170786a08cf511a6c8180f4ce85ccb6709ac371fd396bcadb4d))
+2026-03-12 08:36:55.375 +00:00 GlobalRt-6 INFO ckb_indexer_sync  Indexer append 1192, Byte32(0x901409782381c170786a08cf511a6c8180f4ce85ccb6709ac371fd396bcadb4d)
+2026-03-12 08:36:56.366 +00:00 verify_blocks INFO ckb_chain::verify  [verify block] new best block found: 1193 => 0x59a60a9c2bdcc116e36b6ab741fd9ca9e26794f548147c72b994544bbb72a6d9, difficulty diff = 0x100, unverified_tip: 1193
+2026-03-12 08:36:56.366 +00:00 verify_blocks INFO ckb_chain::verify  block: 1193, hash: 0x59a60a9c2bdcc116e36b6ab741fd9ca9e26794f548147c72b994544bbb72a6d9, epoch: 1(193/1800), total_diff: 0x4aa00, txs: 1
+2026-03-12 08:36:56.366 +00:00 GlobalRt-15 INFO ckb_rpc::module::miner  end to submit block, work_id = 101, is_new = true, block = #1193(Byte32(0x59a60a9c2bdcc116e36b6ab741fd9ca9e26794f548147c72b994544bbb72a6d9))
+2026-03-12 08:36:56.370 +00:00 GlobalRt-0 INFO ckb_indexer_sync  Indexer append 1193, Byte32(0x59a60a9c2bdcc116e36b6ab741fd9ca9e26794f548147c72b994544bbb72a6d9)
+2026-03-12 08:36:57.375 +00:00 verify_blocks INFO ckb_chain::verify  [verify block] new best block found: 1194 => 0x70e00049ba683492926bb7e48ab5506b2741a94a39e3a0375970f9bd18ce87e7, difficulty diff = 0x100, unverified_tip: 1194
+2026-03-12 08:36:57.376 +00:00 verify_blocks INFO ckb_chain::verify  block: 1194, hash: 0x70e00049ba683492926bb7e48ab5506b2741a94a39e3a0375970f9bd18ce87e7, epoch: 1(194/1800), total_diff: 0x4ab00, txs: 1
+2026-03-12 08:36:57.376 +00:00 GlobalRt-15 INFO ckb_rpc::module::miner  end to submit block, work_id = 103, is_new = true, block = #1194(Byte32(0x70e00049ba683492926bb7e48ab5506b2741a94a39e3a0375970f9bd18ce87e7))
+2026-03-12 08:36:57.383 +00:00 GlobalRt-18 INFO ckb_indexer_sync  Indexer append 1194, Byte32(0x70e00049ba683492926bb7e48ab5506b2741a94a39e3a0375970f9bd18ce87e7)
+2026-03-12 08:36:57.847 +00:00 verify_blocks INFO ckb_chain::verify  [verify block] new best block found: 1195 => 0xfb64d87013b5d60b639365beeddd5f6d7f752b2c7ff1147ef9c21034332a5844, difficulty diff = 0x100, unverified_tip: 1195
+2026-03-12 08:36:57.847 +00:00 verify_blocks INFO ckb_chain::verify  block: 1195, hash: 0xfb64d87013b5d60b639365beeddd5f6d7f752b2c7ff1147ef9c21034332a5844, epoch: 1(195/1800), total_diff: 0x4ac00, txs: 1
+2026-03-12 08:36:57.848 +00:00 GlobalRt-15 INFO ckb_rpc::module::miner  end to submit block, work_id = 0x69, is_new = true, block = #1195(Byte32(0xfb64d87013b5d60b639365beeddd5f6d7f752b2c7ff1147ef9c21034332a5844))
+2026-03-12 08:36:57.850 +00:00 GlobalRt-21 INFO ckb_indexer_sync  Indexer append 1195, Byte32(0xfb64d87013b5d60b639365beeddd5f6d7f752b2c7ff1147ef9c21034332a5844)
+2026-03-12 08:36:58.376 +00:00 verify_blocks INFO ckb_chain::verify  [verify block] new best block found: 1196 => 0x5a67fb99e0d98c77bb785cf8c9bc2da683c187f73c8b813bade5c4bd32cfbc16, difficulty diff = 0x100, unverified_tip: 1196
+2026-03-12 08:36:58.378 +00:00 verify_blocks INFO ckb_chain::verify  block: 1196, hash: 0x5a67fb99e0d98c77bb785cf8c9bc2da683c187f73c8b813bade5c4bd32cfbc16, epoch: 1(196/1800), total_diff: 0x4ad00, txs: 1
+2026-03-12 08:36:58.378 +00:00 GlobalRt-17 INFO ckb_rpc::module::miner  end to submit block, work_id = 107, is_new = true, block = #1196(Byte32(0x5a67fb99e0d98c77bb785cf8c9bc2da683c187f73c8b813bade5c4bd32cfbc16))
+2026-03-12 08:36:58.383 +00:00 GlobalRt-18 INFO ckb_indexer_sync  Indexer append 1196, Byte32(0x5a67fb99e0d98c77bb785cf8c9bc2da683c187f73c8b813bade5c4bd32cfbc16)
+2026-03-12 08:36:58.861 +00:00 verify_blocks INFO ckb_chain::verify  [verify block] new best block found: 1197 => 0x0b7cf597c402f2d2cf3afd1ec3874a7f843e7bb9e2c78085a295da794769857f, difficulty diff = 0x100, unverified_tip: 1197
+2026-03-12 08:36:58.861 +00:00 verify_blocks INFO ckb_chain::verify  block: 1197, hash: 0x0b7cf597c402f2d2cf3afd1ec3874a7f843e7bb9e2c78085a295da794769857f, epoch: 1(197/1800), total_diff: 0x4ae00, txs: 1
+2026-03-12 08:36:58.861 +00:00 GlobalRt-15 INFO ckb_rpc::module::miner  end to submit block, work_id = 0x6e, is_new = true, block = #1197(Byte32(0x0b7cf597c402f2d2cf3afd1ec3874a7f843e7bb9e2c78085a295da794769857f))
+2026-03-12 08:36:58.862 +00:00 GlobalRt-20 INFO ckb_tx_pool::pool  [get_block_template] candidate txs count: 1, size: 666/596365, cycles:1645511/10000000000
+2026-03-12 08:36:58.865 +00:00 GlobalRt-16 INFO ckb_indexer_sync  Indexer append 1197, Byte32(0x0b7cf597c402f2d2cf3afd1ec3874a7f843e7bb9e2c78085a295da794769857f)
+2026-03-12 08:36:59.383 +00:00 verify_blocks INFO ckb_chain::verify  [verify block] new best block found: 1198 => 0xe064d7d75e6cc79d1ebd2eedb06b6ca3f18e55639d82b1415393886e51c3d7fc, difficulty diff = 0x100, unverified_tip: 1198
+2026-03-12 08:36:59.384 +00:00 verify_blocks INFO ckb_chain::verify  [block_verifier] block number: 1198, hash: Byte32(0xe064d7d75e6cc79d1ebd2eedb06b6ca3f18e55639d82b1415393886e51c3d7fc), size:1301/597000, cycles: 1645511/10000000000
+2026-03-12 08:36:59.384 +00:00 verify_blocks INFO ckb_chain::verify  block: 1198, hash: 0xe064d7d75e6cc79d1ebd2eedb06b6ca3f18e55639d82b1415393886e51c3d7fc, epoch: 1(198/1800), total_diff: 0x4af00, txs: 2
+2026-03-12 08:36:59.384 +00:00 GlobalRt-17 INFO ckb_rpc::module::miner  end to submit block, work_id = 112, is_new = true, block = #1198(Byte32(0xe064d7d75e6cc79d1ebd2eedb06b6ca3f18e55639d82b1415393886e51c3d7fc))
+2026-03-12 08:36:59.388 +00:00 GlobalRt-21 INFO ckb_indexer_sync  Indexer append 1198, Byte32(0xe064d7d75e6cc79d1ebd2eedb06b6ca3f18e55639d82b1415393886e51c3d7fc)
+2026-03-12 08:37:00.385 +00:00 verify_blocks INFO ckb_chain::verify  [verify block] new best block found: 1199 => 0x8f2f20b2b6033a81a1d9299e343b7e7cacaf5b31511c59e412c01629eb519eed, difficulty diff = 0x100, unverified_tip: 1199
+2026-03-12 08:37:00.385 +00:00 verify_blocks INFO ckb_chain::verify  block: 1199, hash: 0x8f2f20b2b6033a81a1d9299e343b7e7cacaf5b31511c59e412c01629eb519eed, epoch: 1(199/1800), total_diff: 0x4b000, txs: 1
+2026-03-12 08:37:00.385 +00:00 GlobalRt-9 INFO ckb_rpc::module::miner  end to submit block, work_id = 114, is_new = true, block = #1199(Byte32(0x8f2f20b2b6033a81a1d9299e343b7e7cacaf5b31511c59e412c01629eb519eed))
+2026-03-12 08:37:00.387 +00:00 GlobalRt-16 INFO ckb_indexer_sync  Indexer append 1199, Byte32(0x8f2f20b2b6033a81a1d9299e343b7e7cacaf5b31511c59e412c01629eb519eed)
+2026-03-12 08:37:01.387 +00:00 verify_blocks INFO ckb_chain::verify  [verify block] new best block found: 1200 => 0x6e4fb30f143ccd657b2f38fa5138e982dc03a28ecc61fd461d25f1cb371dd9cd, difficulty diff = 0x100, unverified_tip: 1200
+2026-03-12 08:37:01.387 +00:00 verify_blocks INFO ckb_chain::verify  block: 1200, hash: 0x6e4fb30f143ccd657b2f38fa5138e982dc03a28ecc61fd461d25f1cb371dd9cd, epoch: 1(200/1800), total_diff: 0x4b100, txs: 1
+2026-03-12 08:37:01.387 +00:00 GlobalRt-17 INFO ckb_rpc::module::miner  end to submit block, work_id = 116, is_new = true, block = #1200(Byte32(0x6e4fb30f143ccd657b2f38fa5138e982dc03a28ecc61fd461d25f1cb371dd9cd))
+2026-03-12 08:37:01.392 +00:00 GlobalRt-3 INFO ckb_indexer_sync  Indexer append 1200, Byte32(0x6e4fb30f143ccd657b2f38fa5138e982dc03a28ecc61fd461d25f1cb371dd9cd)
+2026-03-12 08:37:02.389 +00:00 verify_blocks INFO ckb_chain::verify  [verify block] new best block found: 1201 => 0x9e78e55d78542bbc4a75cb605ce11e727540332d0ac688593d90d68f0da09050, difficulty diff = 0x100, unverified_tip: 1201
+2026-03-12 08:37:02.389 +00:00 verify_blocks INFO ckb_chain::verify  block: 1201, hash: 0x9e78e55d78542bbc4a75cb605ce11e727540332d0ac688593d90d68f0da09050, epoch: 1(201/1800), total_diff: 0x4b200, txs: 1
+2026-03-12 08:37:02.389 +00:00 GlobalRt-17 INFO ckb_rpc::module::miner  end to submit block, work_id = 118, is_new = true, block = #1201(Byte32(0x9e78e55d78542bbc4a75cb605ce11e727540332d0ac688593d90d68f0da09050))
+2026-03-12 08:37:02.392 +00:00 GlobalRt-16 INFO ckb_indexer_sync  Indexer append 1201, Byte32(0x9e78e55d78542bbc4a75cb605ce11e727540332d0ac688593d90d68f0da09050)
+2026-03-12 08:37:03.394 +00:00 verify_blocks INFO ckb_chain::verify  [verify block] new best block found: 1202 => 0x6f91a18096cec9afe15b2614d99fa1c116eb14a1f164a3465ec2bf983a434d0d, difficulty diff = 0x100, unverified_tip: 1202
+2026-03-12 08:37:03.395 +00:00 verify_blocks INFO ckb_chain::verify  block: 1202, hash: 0x6f91a18096cec9afe15b2614d99fa1c116eb14a1f164a3465ec2bf983a434d0d, epoch: 1(202/1800), total_diff: 0x4b300, txs: 1
+2026-03-12 08:37:03.395 +00:00 GlobalRt-17 INFO ckb_rpc::module::miner  end to submit block, work_id = 120, is_new = true, block = #1202(Byte32(0x6f91a18096cec9afe15b2614d99fa1c116eb14a1f164a3465ec2bf983a434d0d))
+2026-03-12 08:37:03.401 +00:00 GlobalRt-3 INFO ckb_indexer_sync  Indexer append 1202, Byte32(0x6f91a18096cec9afe15b2614d99fa1c116eb14a1f164a3465ec2bf983a434d0d)
+2026-03-12 08:37:04.400 +00:00 verify_blocks INFO ckb_chain::verify  [verify block] new best block found: 1203 => 0x6a6a2952fc91d103460d4b50b1970289400acbab13b0032c6ab5bca3f0b2bb25, difficulty diff = 0x100, unverified_tip: 1203
+2026-03-12 08:37:04.401 +00:00 verify_blocks INFO ckb_chain::verify  block: 1203, hash: 0x6a6a2952fc91d103460d4b50b1970289400acbab13b0032c6ab5bca3f0b2bb25, epoch: 1(203/1800), total_diff: 0x4b400, txs: 1
+2026-03-12 08:37:04.401 +00:00 GlobalRt-23 INFO ckb_rpc::module::miner  end to submit block, work_id = 122, is_new = true, block = #1203(Byte32(0x6a6a2952fc91d103460d4b50b1970289400acbab13b0032c6ab5bca3f0b2bb25))
+2026-03-12 08:37:04.405 +00:00 GlobalRt-20 INFO ckb_indexer_sync  Indexer append 1203, Byte32(0x6a6a2952fc91d103460d4b50b1970289400acbab13b0032c6ab5bca3f0b2bb25)
+2026-03-12 08:37:05.404 +00:00 verify_blocks INFO ckb_chain::verify  [verify block] new best block found: 1204 => 0x65cb7456821b334bf5a61120ebcdc8b8408a152b8e859c75203284e2a6a9c846, difficulty diff = 0x100, unverified_tip: 1204
+2026-03-12 08:37:05.405 +00:00 verify_blocks INFO ckb_chain::verify  block: 1204, hash: 0x65cb7456821b334bf5a61120ebcdc8b8408a152b8e859c75203284e2a6a9c846, epoch: 1(204/1800), total_diff: 0x4b500, txs: 1
+2026-03-12 08:37:05.405 +00:00 GlobalRt-17 INFO ckb_rpc::module::miner  end to submit block, work_id = 125, is_new = true, block = #1204(Byte32(0x65cb7456821b334bf5a61120ebcdc8b8408a152b8e859c75203284e2a6a9c846))
+2026-03-12 08:37:05.407 +00:00 GlobalRt-2 INFO ckb_indexer_sync  Indexer append 1204, Byte32(0x65cb7456821b334bf5a61120ebcdc8b8408a152b8e859c75203284e2a6a9c846)
+2026-03-12 08:37:06.318 +00:00 verify_blocks INFO ckb_chain::verify  [verify block] new best block found: 1205 => 0xc66768766915977ae775cb9704e10795147ab4ef0c1d4d543283499b2c06d732, difficulty diff = 0x100, unverified_tip: 1205
+2026-03-12 08:37:06.319 +00:00 verify_blocks INFO ckb_chain::verify  block: 1205, hash: 0xc66768766915977ae775cb9704e10795147ab4ef0c1d4d543283499b2c06d732, epoch: 1(205/1800), total_diff: 0x4b600, txs: 1
+2026-03-12 08:37:06.319 +00:00 GlobalRt-17 INFO ckb_rpc::module::miner  end to submit block, work_id = 0x80, is_new = true, block = #1205(Byte32(0xc66768766915977ae775cb9704e10795147ab4ef0c1d4d543283499b2c06d732))
+2026-03-12 08:37:06.321 +00:00 GlobalRt-0 INFO ckb_indexer_sync  Indexer append 1205, Byte32(0xc66768766915977ae775cb9704e10795147ab4ef0c1d4d543283499b2c06d732)
+2026-03-12 08:37:06.327 +00:00 verify_blocks INFO ckb_chain::verify  [verify block] new best block found: 1206 => 0x75a6e50c77e0625b2e3d1a60227dbd81ee785b8b4f205dc13460439ccdc10edd, difficulty diff = 0x100, unverified_tip: 1206
+2026-03-12 08:37:06.327 +00:00 verify_blocks INFO ckb_chain::verify  block: 1206, hash: 0x75a6e50c77e0625b2e3d1a60227dbd81ee785b8b4f205dc13460439ccdc10edd, epoch: 1(206/1800), total_diff: 0x4b700, txs: 1
+2026-03-12 08:37:06.327 +00:00 GlobalRt-9 INFO ckb_rpc::module::miner  end to submit block, work_id = 0x82, is_new = true, block = #1206(Byte32(0x75a6e50c77e0625b2e3d1a60227dbd81ee785b8b4f205dc13460439ccdc10edd))
+2026-03-12 08:37:06.329 +00:00 GlobalRt-6 INFO ckb_indexer_sync  Indexer append 1206, Byte32(0x75a6e50c77e0625b2e3d1a60227dbd81ee785b8b4f205dc13460439ccdc10edd)
+2026-03-12 08:37:06.334 +00:00 verify_blocks INFO ckb_chain::verify  [verify block] new best block found: 1207 => 0x05d68fe9f0ae36f6c394ff90eaf6726c251a2badf420321411189e55b79739aa, difficulty diff = 0x100, unverified_tip: 1207
+2026-03-12 08:37:06.334 +00:00 verify_blocks INFO ckb_chain::verify  block: 1207, hash: 0x05d68fe9f0ae36f6c394ff90eaf6726c251a2badf420321411189e55b79739aa, epoch: 1(207/1800), total_diff: 0x4b800, txs: 1
+2026-03-12 08:37:06.334 +00:00 GlobalRt-23 INFO ckb_rpc::module::miner  end to submit block, work_id = 0x84, is_new = true, block = #1207(Byte32(0x05d68fe9f0ae36f6c394ff90eaf6726c251a2badf420321411189e55b79739aa))
+2026-03-12 08:37:06.336 +00:00 GlobalRt-20 INFO ckb_indexer_sync  Indexer append 1207, Byte32(0x05d68fe9f0ae36f6c394ff90eaf6726c251a2badf420321411189e55b79739aa)
+2026-03-12 08:37:06.340 +00:00 verify_blocks INFO ckb_chain::verify  [verify block] new best block found: 1208 => 0x3099c2859d02db78e2af13f6926f5da881206a6918a55b7f7c7caaa057fcae12, difficulty diff = 0x100, unverified_tip: 1208
+2026-03-12 08:37:06.340 +00:00 verify_blocks INFO ckb_chain::verify  block: 1208, hash: 0x3099c2859d02db78e2af13f6926f5da881206a6918a55b7f7c7caaa057fcae12, epoch: 1(208/1800), total_diff: 0x4b900, txs: 1
+2026-03-12 08:37:06.341 +00:00 GlobalRt-17 INFO ckb_rpc::module::miner  end to submit block, work_id = 0x86, is_new = true, block = #1208(Byte32(0x3099c2859d02db78e2af13f6926f5da881206a6918a55b7f7c7caaa057fcae12))
+2026-03-12 08:37:06.343 +00:00 GlobalRt-2 INFO ckb_indexer_sync  Indexer append 1208, Byte32(0x3099c2859d02db78e2af13f6926f5da881206a6918a55b7f7c7caaa057fcae12)
+2026-03-12 08:37:06.348 +00:00 verify_blocks INFO ckb_chain::verify  [verify block] new best block found: 1209 => 0x3c83e480ed482f0e8ce9765b0ef1189c1fc05ed70b7f03b4662b5ad293c22b83, difficulty diff = 0x100, unverified_tip: 1209
+2026-03-12 08:37:06.348 +00:00 verify_blocks INFO ckb_chain::verify  block: 1209, hash: 0x3c83e480ed482f0e8ce9765b0ef1189c1fc05ed70b7f03b4662b5ad293c22b83, epoch: 1(209/1800), total_diff: 0x4ba00, txs: 1
+2026-03-12 08:37:06.348 +00:00 GlobalRt-9 INFO ckb_rpc::module::miner  end to submit block, work_id = 0x88, is_new = true, block = #1209(Byte32(0x3c83e480ed482f0e8ce9765b0ef1189c1fc05ed70b7f03b4662b5ad293c22b83))
+2026-03-12 08:37:06.350 +00:00 GlobalRt-20 INFO ckb_indexer_sync  Indexer append 1209, Byte32(0x3c83e480ed482f0e8ce9765b0ef1189c1fc05ed70b7f03b4662b5ad293c22b83)
+2026-03-12 08:37:06.411 +00:00 verify_blocks INFO ckb_chain::verify  [verify block] uncle: 1205, hash: 0x41a1377a13552c58db03ffd8cdf5862c521b8f34372af655615f3a73a9c421f4, epoch: 1(205/1800), total_diff: 0x4b600, txs: 1
+2026-03-12 08:37:06.411 +00:00 GlobalRt-23 INFO ckb_rpc::module::miner  end to submit block, work_id = 127, is_new = true, block = #1205(Byte32(0x41a1377a13552c58db03ffd8cdf5862c521b8f34372af655615f3a73a9c421f4))
+2026-03-12 08:37:07.422 +00:00 verify_blocks INFO ckb_chain::verify  [verify block] new best block found: 1210 => 0xc59057234da8bf88924753e4a20983711e9718fdbf35b7898fabc4de9f199b9d, difficulty diff = 0x100, unverified_tip: 1210
+2026-03-12 08:37:07.422 +00:00 verify_blocks INFO ckb_chain::verify  block: 1210, hash: 0xc59057234da8bf88924753e4a20983711e9718fdbf35b7898fabc4de9f199b9d, epoch: 1(210/1800), total_diff: 0x4bb00, txs: 1
+2026-03-12 08:37:07.422 +00:00 GlobalRt-9 INFO ckb_rpc::module::miner  end to submit block, work_id = 139, is_new = true, block = #1210(Byte32(0xc59057234da8bf88924753e4a20983711e9718fdbf35b7898fabc4de9f199b9d))
+2026-03-12 08:37:07.427 +00:00 GlobalRt-21 INFO ckb_indexer_sync  Indexer append 1210, Byte32(0xc59057234da8bf88924753e4a20983711e9718fdbf35b7898fabc4de9f199b9d)
+2026-03-12 08:37:08.426 +00:00 verify_blocks INFO ckb_chain::verify  [verify block] new best block found: 1211 => 0x02808c8e39b3f3ea45f132f9e7c8160014875493ccb3ab0614a4ab26123fa447, difficulty diff = 0x100, unverified_tip: 1211
+2026-03-12 08:37:08.426 +00:00 verify_blocks INFO ckb_chain::verify  block: 1211, hash: 0x02808c8e39b3f3ea45f132f9e7c8160014875493ccb3ab0614a4ab26123fa447, epoch: 1(211/1800), total_diff: 0x4bc00, txs: 1
+2026-03-12 08:37:08.426 +00:00 GlobalRt-23 INFO ckb_rpc::module::miner  end to submit block, work_id = 141, is_new = true, block = #1211(Byte32(0x02808c8e39b3f3ea45f132f9e7c8160014875493ccb3ab0614a4ab26123fa447))
+2026-03-12 08:37:08.429 +00:00 GlobalRt-20 INFO ckb_indexer_sync  Indexer append 1211, Byte32(0x02808c8e39b3f3ea45f132f9e7c8160014875493ccb3ab0614a4ab26123fa447)
+2026-03-12 08:37:09.431 +00:00 verify_blocks INFO ckb_chain::verify  [verify block] new best block found: 1212 => 0x8a5f67afb431e65579c463e6bf1abcbffd970b2926333cf9acc351ad16898bed, difficulty diff = 0x100, unverified_tip: 1212
+2026-03-12 08:37:09.431 +00:00 verify_blocks INFO ckb_chain::verify  block: 1212, hash: 0x8a5f67afb431e65579c463e6bf1abcbffd970b2926333cf9acc351ad16898bed, epoch: 1(212/1800), total_diff: 0x4bd00, txs: 1
+2026-03-12 08:37:09.431 +00:00 GlobalRt-9 INFO ckb_rpc::module::miner  end to submit block, work_id = 143, is_new = true, block = #1212(Byte32(0x8a5f67afb431e65579c463e6bf1abcbffd970b2926333cf9acc351ad16898bed))
+2026-03-12 08:37:09.435 +00:00 GlobalRt-20 INFO ckb_indexer_sync  Indexer append 1212, Byte32(0x8a5f67afb431e65579c463e6bf1abcbffd970b2926333cf9acc351ad16898bed)
+2026-03-12 08:37:10.440 +00:00 verify_blocks INFO ckb_chain::verify  [verify block] new best block found: 1213 => 0x576e6eb30a3851dfe135d71d324e56e66770b7ab0e1b151702b96550eb24ff9c, difficulty diff = 0x100, unverified_tip: 1213
+2026-03-12 08:37:10.441 +00:00 verify_blocks INFO ckb_chain::verify  block: 1213, hash: 0x576e6eb30a3851dfe135d71d324e56e66770b7ab0e1b151702b96550eb24ff9c, epoch: 1(213/1800), total_diff: 0x4be00, txs: 1
+2026-03-12 08:37:10.441 +00:00 GlobalRt-23 INFO ckb_rpc::module::miner  end to submit block, work_id = 145, is_new = true, block = #1213(Byte32(0x576e6eb30a3851dfe135d71d324e56e66770b7ab0e1b151702b96550eb24ff9c))
+2026-03-12 08:37:10.446 +00:00 GlobalRt-2 INFO ckb_indexer_sync  Indexer append 1213, Byte32(0x576e6eb30a3851dfe135d71d324e56e66770b7ab0e1b151702b96550eb24ff9c)
+2026-03-12 08:37:11.165 +00:00 verify_blocks INFO ckb_chain::verify  [verify block] new best block found: 1214 => 0x68b67f94012e40f19641931acc5ab34873c38fc93c2869d6f82b65f0d3ab54b8, difficulty diff = 0x100, unverified_tip: 1214
+2026-03-12 08:37:11.166 +00:00 verify_blocks INFO ckb_chain::verify  block: 1214, hash: 0x68b67f94012e40f19641931acc5ab34873c38fc93c2869d6f82b65f0d3ab54b8, epoch: 1(214/1800), total_diff: 0x4bf00, txs: 1
+2026-03-12 08:37:11.166 +00:00 GlobalRt-23 INFO ckb_rpc::module::miner  end to submit block, work_id = 0x93, is_new = true, block = #1214(Byte32(0x68b67f94012e40f19641931acc5ab34873c38fc93c2869d6f82b65f0d3ab54b8))
+2026-03-12 08:37:11.168 +00:00 GlobalRt-18 INFO ckb_indexer_sync  Indexer append 1214, Byte32(0x68b67f94012e40f19641931acc5ab34873c38fc93c2869d6f82b65f0d3ab54b8)
+2026-03-12 08:37:11.440 +00:00 verify_blocks INFO ckb_chain::verify  [verify block] new best block found: 1215 => 0x597581e4328521321ce331970223651e24d68ac54807f14fb8caea882bed0123, difficulty diff = 0x100, unverified_tip: 1215
+2026-03-12 08:37:11.440 +00:00 verify_blocks INFO ckb_chain::verify  block: 1215, hash: 0x597581e4328521321ce331970223651e24d68ac54807f14fb8caea882bed0123, epoch: 1(215/1800), total_diff: 0x4c000, txs: 1
+2026-03-12 08:37:11.440 +00:00 GlobalRt-17 INFO ckb_rpc::module::miner  end to submit block, work_id = 149, is_new = true, block = #1215(Byte32(0x597581e4328521321ce331970223651e24d68ac54807f14fb8caea882bed0123))
+2026-03-12 08:37:11.443 +00:00 GlobalRt-16 INFO ckb_indexer_sync  Indexer append 1215, Byte32(0x597581e4328521321ce331970223651e24d68ac54807f14fb8caea882bed0123)
+2026-03-12 08:37:12.185 +00:00 verify_blocks INFO ckb_chain::verify  [verify block] new best block found: 1216 => 0x2f85fcf0ec6cc656b3e2e4cd537400504624c74da053ae9408705dabee187ad0, difficulty diff = 0x100, unverified_tip: 1216
+2026-03-12 08:37:12.185 +00:00 verify_blocks INFO ckb_chain::verify  block: 1216, hash: 0x2f85fcf0ec6cc656b3e2e4cd537400504624c74da053ae9408705dabee187ad0, epoch: 1(216/1800), total_diff: 0x4c100, txs: 1
+2026-03-12 08:37:12.185 +00:00 GlobalRt-9 INFO ckb_rpc::module::miner  end to submit block, work_id = 0x98, is_new = true, block = #1216(Byte32(0x2f85fcf0ec6cc656b3e2e4cd537400504624c74da053ae9408705dabee187ad0))
+2026-03-12 08:37:12.186 +00:00 GlobalRt-19 INFO ckb_tx_pool::pool  [get_block_template] candidate txs count: 1, size: 666/596365, cycles:1652838/10000000000
+2026-03-12 08:37:12.191 +00:00 GlobalRt-18 INFO ckb_indexer_sync  Indexer append 1216, Byte32(0x2f85fcf0ec6cc656b3e2e4cd537400504624c74da053ae9408705dabee187ad0)
+2026-03-12 08:37:12.451 +00:00 verify_blocks INFO ckb_chain::verify  [verify block] new best block found: 1217 => 0xb5c4df3b604ac472a4e0d2c088c3710fb63fe8eed72373cca4ef920d301b57c8, difficulty diff = 0x100, unverified_tip: 1217
+2026-03-12 08:37:12.452 +00:00 verify_blocks INFO ckb_chain::verify  [block_verifier] block number: 1217, hash: Byte32(0xb5c4df3b604ac472a4e0d2c088c3710fb63fe8eed72373cca4ef920d301b57c8), size:1301/597000, cycles: 1652838/10000000000
+2026-03-12 08:37:12.452 +00:00 verify_blocks INFO ckb_chain::verify  block: 1217, hash: 0xb5c4df3b604ac472a4e0d2c088c3710fb63fe8eed72373cca4ef920d301b57c8, epoch: 1(217/1800), total_diff: 0x4c200, txs: 2
+2026-03-12 08:37:12.453 +00:00 GlobalRt-22 INFO ckb_rpc::module::miner  end to submit block, work_id = 154, is_new = true, block = #1217(Byte32(0xb5c4df3b604ac472a4e0d2c088c3710fb63fe8eed72373cca4ef920d301b57c8))
+2026-03-12 08:37:12.457 +00:00 GlobalRt-18 INFO ckb_indexer_sync  Indexer append 1217, Byte32(0xb5c4df3b604ac472a4e0d2c088c3710fb63fe8eed72373cca4ef920d301b57c8)
+2026-03-12 08:37:13.457 +00:00 verify_blocks INFO ckb_chain::verify  [verify block] new best block found: 1218 => 0xc32284dee088a8088f27e6f93c50e4f04a4f0b2d5a3eee6c82c0704bd3887c3f, difficulty diff = 0x100, unverified_tip: 1218
+2026-03-12 08:37:13.457 +00:00 verify_blocks INFO ckb_chain::verify  block: 1218, hash: 0xc32284dee088a8088f27e6f93c50e4f04a4f0b2d5a3eee6c82c0704bd3887c3f, epoch: 1(218/1800), total_diff: 0x4c300, txs: 1
+2026-03-12 08:37:13.457 +00:00 GlobalRt-15 INFO ckb_rpc::module::miner  end to submit block, work_id = 156, is_new = true, block = #1218(Byte32(0xc32284dee088a8088f27e6f93c50e4f04a4f0b2d5a3eee6c82c0704bd3887c3f))
+2026-03-12 08:37:13.460 +00:00 GlobalRt-2 INFO ckb_indexer_sync  Indexer append 1218, Byte32(0xc32284dee088a8088f27e6f93c50e4f04a4f0b2d5a3eee6c82c0704bd3887c3f)
+2026-03-12 08:37:14.463 +00:00 verify_blocks INFO ckb_chain::verify  [verify block] new best block found: 1219 => 0x91c5a2b5b78cf3b3e3867e54fdfefd10a1bd0702d14f309d4208ead931270547, difficulty diff = 0x100, unverified_tip: 1219
+2026-03-12 08:37:14.463 +00:00 verify_blocks INFO ckb_chain::verify  block: 1219, hash: 0x91c5a2b5b78cf3b3e3867e54fdfefd10a1bd0702d14f309d4208ead931270547, epoch: 1(219/1800), total_diff: 0x4c400, txs: 1
+2026-03-12 08:37:14.463 +00:00 GlobalRt-22 INFO ckb_rpc::module::miner  end to submit block, work_id = 158, is_new = true, block = #1219(Byte32(0x91c5a2b5b78cf3b3e3867e54fdfefd10a1bd0702d14f309d4208ead931270547))
+2026-03-12 08:37:14.465 +00:00 GlobalRt-2 INFO ckb_indexer_sync  Indexer append 1219, Byte32(0x91c5a2b5b78cf3b3e3867e54fdfefd10a1bd0702d14f309d4208ead931270547)
+2026-03-12 08:37:15.465 +00:00 verify_blocks INFO ckb_chain::verify  [verify block] new best block found: 1220 => 0xdf3da858daf13ffb6b9ba39b8982ce1b7a0d7f7650c0df461666501400165320, difficulty diff = 0x100, unverified_tip: 1220
+2026-03-12 08:37:15.466 +00:00 verify_blocks INFO ckb_chain::verify  block: 1220, hash: 0xdf3da858daf13ffb6b9ba39b8982ce1b7a0d7f7650c0df461666501400165320, epoch: 1(220/1800), total_diff: 0x4c500, txs: 1
+2026-03-12 08:37:15.466 +00:00 GlobalRt-9 INFO ckb_rpc::module::miner  end to submit block, work_id = 160, is_new = true, block = #1220(Byte32(0xdf3da858daf13ffb6b9ba39b8982ce1b7a0d7f7650c0df461666501400165320))
+2026-03-12 08:37:15.468 +00:00 GlobalRt-18 INFO ckb_indexer_sync  Indexer append 1220, Byte32(0xdf3da858daf13ffb6b9ba39b8982ce1b7a0d7f7650c0df461666501400165320)
+2026-03-12 08:37:16.467 +00:00 verify_blocks INFO ckb_chain::verify  [verify block] new best block found: 1221 => 0x57cfd91ada9975abdae721cc3935e40584ba09c9f991c32643d92f2e91ba672d, difficulty diff = 0x100, unverified_tip: 1221
+2026-03-12 08:37:16.467 +00:00 verify_blocks INFO ckb_chain::verify  block: 1221, hash: 0x57cfd91ada9975abdae721cc3935e40584ba09c9f991c32643d92f2e91ba672d, epoch: 1(221/1800), total_diff: 0x4c600, txs: 1
+2026-03-12 08:37:16.467 +00:00 GlobalRt-17 INFO ckb_rpc::module::miner  end to submit block, work_id = 162, is_new = true, block = #1221(Byte32(0x57cfd91ada9975abdae721cc3935e40584ba09c9f991c32643d92f2e91ba672d))
+2026-03-12 08:37:16.471 +00:00 GlobalRt-6 INFO ckb_indexer_sync  Indexer append 1221, Byte32(0x57cfd91ada9975abdae721cc3935e40584ba09c9f991c32643d92f2e91ba672d)
+2026-03-12 08:37:17.468 +00:00 verify_blocks INFO ckb_chain::verify  [verify block] new best block found: 1222 => 0x0b7c0f3ada3025a93f9ddfe39f89f44435b1cb32b83e5004c9af4f16023f8c16, difficulty diff = 0x100, unverified_tip: 1222
+2026-03-12 08:37:17.468 +00:00 verify_blocks INFO ckb_chain::verify  block: 1222, hash: 0x0b7c0f3ada3025a93f9ddfe39f89f44435b1cb32b83e5004c9af4f16023f8c16, epoch: 1(222/1800), total_diff: 0x4c700, txs: 1
+2026-03-12 08:37:17.468 +00:00 GlobalRt-22 INFO ckb_rpc::module::miner  end to submit block, work_id = 164, is_new = true, block = #1222(Byte32(0x0b7c0f3ada3025a93f9ddfe39f89f44435b1cb32b83e5004c9af4f16023f8c16))
+2026-03-12 08:37:17.474 +00:00 GlobalRt-0 INFO ckb_indexer_sync  Indexer append 1222, Byte32(0x0b7c0f3ada3025a93f9ddfe39f89f44435b1cb32b83e5004c9af4f16023f8c16)
+2026-03-12 08:37:18.470 +00:00 verify_blocks INFO ckb_chain::verify  [verify block] new best block found: 1223 => 0xaf2e504ed8b3bf69ab1e4248618a0ac88cfd847ca84ba3a4e499bb2c1818f3b8, difficulty diff = 0x100, unverified_tip: 1223
+2026-03-12 08:37:18.471 +00:00 verify_blocks INFO ckb_chain::verify  block: 1223, hash: 0xaf2e504ed8b3bf69ab1e4248618a0ac88cfd847ca84ba3a4e499bb2c1818f3b8, epoch: 1(223/1800), total_diff: 0x4c800, txs: 1
+2026-03-12 08:37:18.471 +00:00 GlobalRt-17 INFO ckb_rpc::module::miner  end to submit block, work_id = 167, is_new = true, block = #1223(Byte32(0xaf2e504ed8b3bf69ab1e4248618a0ac88cfd847ca84ba3a4e499bb2c1818f3b8))
+2026-03-12 08:37:18.476 +00:00 GlobalRt-16 INFO ckb_indexer_sync  Indexer append 1223, Byte32(0xaf2e504ed8b3bf69ab1e4248618a0ac88cfd847ca84ba3a4e499bb2c1818f3b8)
+2026-03-12 08:37:19.470 +00:00 verify_blocks INFO ckb_chain::verify  [verify block] new best block found: 1224 => 0x73dfb093f717aefa08c01d528a38f5af970b06fa0808646b14cc2a11907758bf, difficulty diff = 0x100, unverified_tip: 1224
+2026-03-12 08:37:19.470 +00:00 verify_blocks INFO ckb_chain::verify  block: 1224, hash: 0x73dfb093f717aefa08c01d528a38f5af970b06fa0808646b14cc2a11907758bf, epoch: 1(224/1800), total_diff: 0x4c900, txs: 1
+2026-03-12 08:37:19.470 +00:00 GlobalRt-22 INFO ckb_rpc::module::miner  end to submit block, work_id = 169, is_new = true, block = #1224(Byte32(0x73dfb093f717aefa08c01d528a38f5af970b06fa0808646b14cc2a11907758bf))
+2026-03-12 08:37:19.470 +00:00 GlobalRt-21 INFO ckb_tx_pool::pool  [get_block_template] candidate txs count: 1, size: 710/596365, cycles:3253180/10000000000
+2026-03-12 08:37:19.473 +00:00 GlobalRt-19 INFO ckb_indexer_sync  Indexer append 1224, Byte32(0x73dfb093f717aefa08c01d528a38f5af970b06fa0808646b14cc2a11907758bf)
+2026-03-12 08:37:19.708 +00:00 verify_blocks INFO ckb_chain::verify  [verify block] new best block found: 1225 => 0xf8d9edf6946302fe82bb020788b4cdb2a3c5ef0ed7b4adfe026bd74826c8d110, difficulty diff = 0x100, unverified_tip: 1225
+2026-03-12 08:37:19.708 +00:00 verify_blocks INFO ckb_chain::verify  block: 1225, hash: 0xf8d9edf6946302fe82bb020788b4cdb2a3c5ef0ed7b4adfe026bd74826c8d110, epoch: 1(225/1800), total_diff: 0x4ca00, txs: 1
+2026-03-12 08:37:19.708 +00:00 GlobalRt-15 INFO ckb_rpc::module::miner  end to submit block, work_id = 0xac, is_new = true, block = #1225(Byte32(0xf8d9edf6946302fe82bb020788b4cdb2a3c5ef0ed7b4adfe026bd74826c8d110))
+2026-03-12 08:37:19.711 +00:00 GlobalRt-2 INFO ckb_indexer_sync  Indexer append 1225, Byte32(0xf8d9edf6946302fe82bb020788b4cdb2a3c5ef0ed7b4adfe026bd74826c8d110)
+2026-03-12 08:37:19.715 +00:00 verify_blocks INFO ckb_chain::verify  [verify block] new best block found: 1226 => 0x3dcd0710914604e13a0273c8224e76a0ea4ec047d579cb4f6c19e544856d79fc, difficulty diff = 0x100, unverified_tip: 1226
+2026-03-12 08:37:19.715 +00:00 verify_blocks INFO ckb_chain::verify  block: 1226, hash: 0x3dcd0710914604e13a0273c8224e76a0ea4ec047d579cb4f6c19e544856d79fc, epoch: 1(226/1800), total_diff: 0x4cb00, txs: 1
+2026-03-12 08:37:19.715 +00:00 GlobalRt-17 INFO ckb_rpc::module::miner  end to submit block, work_id = 0xae, is_new = true, block = #1226(Byte32(0x3dcd0710914604e13a0273c8224e76a0ea4ec047d579cb4f6c19e544856d79fc))
+2026-03-12 08:37:19.717 +00:00 GlobalRt-6 INFO ckb_indexer_sync  Indexer append 1226, Byte32(0x3dcd0710914604e13a0273c8224e76a0ea4ec047d579cb4f6c19e544856d79fc)
+2026-03-12 08:37:19.721 +00:00 verify_blocks INFO ckb_chain::verify  [verify block] new best block found: 1227 => 0x11f52eff0bee922f9bc4967da0481d800e3005ae8ae748d459068b2a2ee023a1, difficulty diff = 0x100, unverified_tip: 1227
+2026-03-12 08:37:19.721 +00:00 verify_blocks INFO ckb_chain::verify  block: 1227, hash: 0x11f52eff0bee922f9bc4967da0481d800e3005ae8ae748d459068b2a2ee023a1, epoch: 1(227/1800), total_diff: 0x4cc00, txs: 1
+2026-03-12 08:37:19.721 +00:00 GlobalRt-14 INFO ckb_rpc::module::miner  end to submit block, work_id = 0xb0, is_new = true, block = #1227(Byte32(0x11f52eff0bee922f9bc4967da0481d800e3005ae8ae748d459068b2a2ee023a1))
+2026-03-12 08:37:19.723 +00:00 GlobalRt-20 INFO ckb_indexer_sync  Indexer append 1227, Byte32(0x11f52eff0bee922f9bc4967da0481d800e3005ae8ae748d459068b2a2ee023a1)
+2026-03-12 08:37:19.727 +00:00 verify_blocks INFO ckb_chain::verify  [verify block] new best block found: 1228 => 0xf81c60e30e913a53d2a9c15e7ab9f40cf208fa717ce6cd492a245e71687d1375, difficulty diff = 0x100, unverified_tip: 1228
+2026-03-12 08:37:19.727 +00:00 verify_blocks INFO ckb_chain::verify  block: 1228, hash: 0xf81c60e30e913a53d2a9c15e7ab9f40cf208fa717ce6cd492a245e71687d1375, epoch: 1(228/1800), total_diff: 0x4cd00, txs: 1
+2026-03-12 08:37:19.727 +00:00 GlobalRt-22 INFO ckb_rpc::module::miner  end to submit block, work_id = 0xb2, is_new = true, block = #1228(Byte32(0xf81c60e30e913a53d2a9c15e7ab9f40cf208fa717ce6cd492a245e71687d1375))
+2026-03-12 08:37:19.729 +00:00 GlobalRt-18 INFO ckb_indexer_sync  Indexer append 1228, Byte32(0xf81c60e30e913a53d2a9c15e7ab9f40cf208fa717ce6cd492a245e71687d1375)
+2026-03-12 08:37:19.732 +00:00 verify_blocks INFO ckb_chain::verify  [verify block] new best block found: 1229 => 0xcef1e75ad49056e2bf381886f0d848fbfbfc11ea010b671a4444feb9c0018e8c, difficulty diff = 0x100, unverified_tip: 1229
+2026-03-12 08:37:19.733 +00:00 verify_blocks INFO ckb_chain::verify  block: 1229, hash: 0xcef1e75ad49056e2bf381886f0d848fbfbfc11ea010b671a4444feb9c0018e8c, epoch: 1(229/1800), total_diff: 0x4ce00, txs: 1
+2026-03-12 08:37:19.733 +00:00 GlobalRt-15 INFO ckb_rpc::module::miner  end to submit block, work_id = 0xb4, is_new = true, block = #1229(Byte32(0xcef1e75ad49056e2bf381886f0d848fbfbfc11ea010b671a4444feb9c0018e8c))
+2026-03-12 08:37:19.735 +00:00 GlobalRt-6 INFO ckb_indexer_sync  Indexer append 1229, Byte32(0xcef1e75ad49056e2bf381886f0d848fbfbfc11ea010b671a4444feb9c0018e8c)
+2026-03-12 08:37:20.478 +00:00 verify_blocks INFO ckb_chain::verify  [verify block] new best block found: 1230 => 0x7b10527cd9eb45e8b11e2a88f238d193127eca5b35220c9a5ed8345a7e299ca6, difficulty diff = 0x100, unverified_tip: 1230
+2026-03-12 08:37:20.478 +00:00 verify_blocks INFO ckb_chain::verify  block: 1230, hash: 0x7b10527cd9eb45e8b11e2a88f238d193127eca5b35220c9a5ed8345a7e299ca6, epoch: 1(230/1800), total_diff: 0x4cf00, txs: 1
+2026-03-12 08:37:20.479 +00:00 GlobalRt-23 INFO ckb_rpc::module::miner  end to submit block, work_id = 182, is_new = true, block = #1230(Byte32(0x7b10527cd9eb45e8b11e2a88f238d193127eca5b35220c9a5ed8345a7e299ca6))
+2026-03-12 08:37:20.483 +00:00 GlobalRt-20 INFO ckb_indexer_sync  Indexer append 1230, Byte32(0x7b10527cd9eb45e8b11e2a88f238d193127eca5b35220c9a5ed8345a7e299ca6)
+2026-03-12 08:37:21.483 +00:00 verify_blocks INFO ckb_chain::verify  [verify block] new best block found: 1231 => 0xe623a83533d35a359cbd8639534fe080718833bd6434dc08a8b7df3b3ed9a323, difficulty diff = 0x100, unverified_tip: 1231
+2026-03-12 08:37:21.483 +00:00 verify_blocks INFO ckb_chain::verify  block: 1231, hash: 0xe623a83533d35a359cbd8639534fe080718833bd6434dc08a8b7df3b3ed9a323, epoch: 1(231/1800), total_diff: 0x4d000, txs: 1
+2026-03-12 08:37:21.484 +00:00 GlobalRt-22 INFO ckb_rpc::module::miner  end to submit block, work_id = 184, is_new = true, block = #1231(Byte32(0xe623a83533d35a359cbd8639534fe080718833bd6434dc08a8b7df3b3ed9a323))
+2026-03-12 08:37:21.489 +00:00 GlobalRt-19 INFO ckb_indexer_sync  Indexer append 1231, Byte32(0xe623a83533d35a359cbd8639534fe080718833bd6434dc08a8b7df3b3ed9a323)
+2026-03-12 08:37:22.487 +00:00 verify_blocks INFO ckb_chain::verify  [verify block] new best block found: 1232 => 0x74574712cb0983bc57fdec547096c5e4d835b3cfc2525e378aa197d39700e596, difficulty diff = 0x100, unverified_tip: 1232
+2026-03-12 08:37:22.487 +00:00 verify_blocks INFO ckb_chain::verify  block: 1232, hash: 0x74574712cb0983bc57fdec547096c5e4d835b3cfc2525e378aa197d39700e596, epoch: 1(232/1800), total_diff: 0x4d100, txs: 1
+2026-03-12 08:37:22.488 +00:00 GlobalRt-23 INFO ckb_rpc::module::miner  end to submit block, work_id = 186, is_new = true, block = #1232(Byte32(0x74574712cb0983bc57fdec547096c5e4d835b3cfc2525e378aa197d39700e596))
+2026-03-12 08:37:22.491 +00:00 GlobalRt-0 INFO ckb_indexer_sync  Indexer append 1232, Byte32(0x74574712cb0983bc57fdec547096c5e4d835b3cfc2525e378aa197d39700e596)
+2026-03-12 08:37:23.490 +00:00 verify_blocks INFO ckb_chain::verify  [verify block] new best block found: 1233 => 0x4c6971add82979b1df346d130f5dc33ddd5837dfc6c1c5d1d1b7579c4ddb366c, difficulty diff = 0x100, unverified_tip: 1233
+2026-03-12 08:37:23.491 +00:00 verify_blocks INFO ckb_chain::verify  block: 1233, hash: 0x4c6971add82979b1df346d130f5dc33ddd5837dfc6c1c5d1d1b7579c4ddb366c, epoch: 1(233/1800), total_diff: 0x4d200, txs: 1
+2026-03-12 08:37:23.492 +00:00 GlobalRt-22 INFO ckb_rpc::module::miner  end to submit block, work_id = 188, is_new = true, block = #1233(Byte32(0x4c6971add82979b1df346d130f5dc33ddd5837dfc6c1c5d1d1b7579c4ddb366c))
+2026-03-12 08:37:23.497 +00:00 GlobalRt-0 INFO ckb_indexer_sync  Indexer append 1233, Byte32(0x4c6971add82979b1df346d130f5dc33ddd5837dfc6c1c5d1d1b7579c4ddb366c)
+2026-03-12 08:37:24.500 +00:00 verify_blocks INFO ckb_chain::verify  [verify block] new best block found: 1234 => 0x9b662cb272ba25ce3f36ddffcf8d10a0160c7ee68ebec72f561359fa4ea558e3, difficulty diff = 0x100, unverified_tip: 1234
+2026-03-12 08:37:24.500 +00:00 verify_blocks INFO ckb_chain::verify  block: 1234, hash: 0x9b662cb272ba25ce3f36ddffcf8d10a0160c7ee68ebec72f561359fa4ea558e3, epoch: 1(234/1800), total_diff: 0x4d300, txs: 1
+2026-03-12 08:37:24.500 +00:00 GlobalRt-14 INFO ckb_rpc::module::miner  end to submit block, work_id = 190, is_new = true, block = #1234(Byte32(0x9b662cb272ba25ce3f36ddffcf8d10a0160c7ee68ebec72f561359fa4ea558e3))
+2026-03-12 08:37:24.505 +00:00 GlobalRt-0 INFO ckb_indexer_sync  Indexer append 1234, Byte32(0x9b662cb272ba25ce3f36ddffcf8d10a0160c7ee68ebec72f561359fa4ea558e3)
+2026-03-12 08:37:25.513 +00:00 verify_blocks INFO ckb_chain::verify  [verify block] new best block found: 1235 => 0x5687ec658767d1c2eb1b669119d5ee3c567f5e913010dab44c0462212704cba5, difficulty diff = 0x100, unverified_tip: 1235
+2026-03-12 08:37:25.513 +00:00 verify_blocks INFO ckb_chain::verify  block: 1235, hash: 0x5687ec658767d1c2eb1b669119d5ee3c567f5e913010dab44c0462212704cba5, epoch: 1(235/1800), total_diff: 0x4d400, txs: 1
+2026-03-12 08:37:25.513 +00:00 GlobalRt-17 INFO ckb_rpc::module::miner  end to submit block, work_id = 192, is_new = true, block = #1235(Byte32(0x5687ec658767d1c2eb1b669119d5ee3c567f5e913010dab44c0462212704cba5))
+2026-03-12 08:37:25.519 +00:00 GlobalRt-16 INFO ckb_indexer_sync  Indexer append 1235, Byte32(0x5687ec658767d1c2eb1b669119d5ee3c567f5e913010dab44c0462212704cba5)
+2026-03-12 08:37:26.508 +00:00 verify_blocks INFO ckb_chain::verify  [verify block] new best block found: 1236 => 0xb812acc6b071f22cfeb052303da2924bd5966eba5f1855dc524271d10a3a89f8, difficulty diff = 0x100, unverified_tip: 1236
+2026-03-12 08:37:26.508 +00:00 verify_blocks INFO ckb_chain::verify  block: 1236, hash: 0xb812acc6b071f22cfeb052303da2924bd5966eba5f1855dc524271d10a3a89f8, epoch: 1(236/1800), total_diff: 0x4d500, txs: 1
+2026-03-12 08:37:26.509 +00:00 GlobalRt-14 INFO ckb_rpc::module::miner  end to submit block, work_id = 194, is_new = true, block = #1236(Byte32(0xb812acc6b071f22cfeb052303da2924bd5966eba5f1855dc524271d10a3a89f8))
+2026-03-12 08:37:26.511 +00:00 GlobalRt-19 INFO ckb_indexer_sync  Indexer append 1236, Byte32(0xb812acc6b071f22cfeb052303da2924bd5966eba5f1855dc524271d10a3a89f8)
+2026-03-12 08:37:26.556 +00:00 verify_blocks INFO ckb_chain::verify  [verify block] new best block found: 1237 => 0xdb975cacff19a4c878bb3a2b78171859ca13238ff6425a58179d258f8ad8de36, difficulty diff = 0x100, unverified_tip: 1237
+2026-03-12 08:37:26.556 +00:00 verify_blocks INFO ckb_chain::verify  block: 1237, hash: 0xdb975cacff19a4c878bb3a2b78171859ca13238ff6425a58179d258f8ad8de36, epoch: 1(237/1800), total_diff: 0x4d600, txs: 1
+2026-03-12 08:37:26.556 +00:00 GlobalRt-14 INFO ckb_rpc::module::miner  end to submit block, work_id = 0xc4, is_new = true, block = #1237(Byte32(0xdb975cacff19a4c878bb3a2b78171859ca13238ff6425a58179d258f8ad8de36))
+2026-03-12 08:37:26.558 +00:00 GlobalRt-6 INFO ckb_indexer_sync  Indexer append 1237, Byte32(0xdb975cacff19a4c878bb3a2b78171859ca13238ff6425a58179d258f8ad8de36)
+2026-03-12 08:37:27.519 +00:00 verify_blocks INFO ckb_chain::verify  [verify block] new best block found: 1238 => 0x477e3ac9e84ca1a45c7fd4276a3a23fd906aae4c6f56557b0c2ab2704a8b10a4, difficulty diff = 0x100, unverified_tip: 1238
+2026-03-12 08:37:27.519 +00:00 verify_blocks INFO ckb_chain::verify  block: 1238, hash: 0x477e3ac9e84ca1a45c7fd4276a3a23fd906aae4c6f56557b0c2ab2704a8b10a4, epoch: 1(238/1800), total_diff: 0x4d700, txs: 1
+2026-03-12 08:37:27.520 +00:00 GlobalRt-22 INFO ckb_rpc::module::miner  end to submit block, work_id = 199, is_new = true, block = #1238(Byte32(0x477e3ac9e84ca1a45c7fd4276a3a23fd906aae4c6f56557b0c2ab2704a8b10a4))
+2026-03-12 08:37:27.524 +00:00 GlobalRt-16 INFO ckb_indexer_sync  Indexer append 1238, Byte32(0x477e3ac9e84ca1a45c7fd4276a3a23fd906aae4c6f56557b0c2ab2704a8b10a4)
+2026-03-12 08:37:27.567 +00:00 verify_blocks INFO ckb_chain::verify  [verify block] new best block found: 1239 => 0x8a697ef13a9b536c7e7ecebb85d90ac79834e6913d7bb19902d624443e11386e, difficulty diff = 0x100, unverified_tip: 1239
+2026-03-12 08:37:27.567 +00:00 verify_blocks INFO ckb_chain::verify  block: 1239, hash: 0x8a697ef13a9b536c7e7ecebb85d90ac79834e6913d7bb19902d624443e11386e, epoch: 1(239/1800), total_diff: 0x4d800, txs: 1
+2026-03-12 08:37:27.567 +00:00 GlobalRt-17 INFO ckb_rpc::module::miner  end to submit block, work_id = 0xc9, is_new = true, block = #1239(Byte32(0x8a697ef13a9b536c7e7ecebb85d90ac79834e6913d7bb19902d624443e11386e))
+2026-03-12 08:37:27.567 +00:00 GlobalRt-18 INFO ckb_tx_pool::pool  [get_block_template] candidate txs count: 1, size: 666/596365, cycles:1662776/10000000000
+2026-03-12 08:37:27.571 +00:00 GlobalRt-19 INFO ckb_indexer_sync  Indexer append 1239, Byte32(0x8a697ef13a9b536c7e7ecebb85d90ac79834e6913d7bb19902d624443e11386e)
+2026-03-12 08:37:28.527 +00:00 verify_blocks INFO ckb_chain::verify  [verify block] new best block found: 1240 => 0x086fa2ff2e3e86d76cffed7b1927896512b1bd95f8a503eaa707bf5c0fa2b4ed, difficulty diff = 0x100, unverified_tip: 1240
+2026-03-12 08:37:28.528 +00:00 verify_blocks INFO ckb_chain::verify  [block_verifier] block number: 1240, hash: Byte32(0x086fa2ff2e3e86d76cffed7b1927896512b1bd95f8a503eaa707bf5c0fa2b4ed), size:1301/597000, cycles: 1662776/10000000000
+2026-03-12 08:37:28.528 +00:00 verify_blocks INFO ckb_chain::verify  block: 1240, hash: 0x086fa2ff2e3e86d76cffed7b1927896512b1bd95f8a503eaa707bf5c0fa2b4ed, epoch: 1(240/1800), total_diff: 0x4d900, txs: 2
+2026-03-12 08:37:28.528 +00:00 GlobalRt-9 INFO ckb_rpc::module::miner  end to submit block, work_id = 203, is_new = true, block = #1240(Byte32(0x086fa2ff2e3e86d76cffed7b1927896512b1bd95f8a503eaa707bf5c0fa2b4ed))
+2026-03-12 08:37:28.532 +00:00 GlobalRt-20 INFO ckb_indexer_sync  Indexer append 1240, Byte32(0x086fa2ff2e3e86d76cffed7b1927896512b1bd95f8a503eaa707bf5c0fa2b4ed)
+2026-03-12 08:37:29.528 +00:00 verify_blocks INFO ckb_chain::verify  [verify block] new best block found: 1241 => 0xc7a2445646bb4c90ae0654e16a2e58a4ab4211e96584525e0791fde20cd97084, difficulty diff = 0x100, unverified_tip: 1241
+2026-03-12 08:37:29.528 +00:00 verify_blocks INFO ckb_chain::verify  block: 1241, hash: 0xc7a2445646bb4c90ae0654e16a2e58a4ab4211e96584525e0791fde20cd97084, epoch: 1(241/1800), total_diff: 0x4da00, txs: 1
+2026-03-12 08:37:29.528 +00:00 GlobalRt-22 INFO ckb_rpc::module::miner  end to submit block, work_id = 205, is_new = true, block = #1241(Byte32(0xc7a2445646bb4c90ae0654e16a2e58a4ab4211e96584525e0791fde20cd97084))
+2026-03-12 08:37:29.530 +00:00 GlobalRt-20 INFO ckb_indexer_sync  Indexer append 1241, Byte32(0xc7a2445646bb4c90ae0654e16a2e58a4ab4211e96584525e0791fde20cd97084)
+2026-03-12 08:37:30.530 +00:00 verify_blocks INFO ckb_chain::verify  [verify block] new best block found: 1242 => 0xeb13e717690859fb546ff7aee40b6997b7269c48a46110f1d63d625d2d032291, difficulty diff = 0x100, unverified_tip: 1242
+2026-03-12 08:37:30.530 +00:00 verify_blocks INFO ckb_chain::verify  block: 1242, hash: 0xeb13e717690859fb546ff7aee40b6997b7269c48a46110f1d63d625d2d032291, epoch: 1(242/1800), total_diff: 0x4db00, txs: 1
+2026-03-12 08:37:30.530 +00:00 GlobalRt-9 INFO ckb_rpc::module::miner  end to submit block, work_id = 207, is_new = true, block = #1242(Byte32(0xeb13e717690859fb546ff7aee40b6997b7269c48a46110f1d63d625d2d032291))
+2026-03-12 08:37:30.533 +00:00 GlobalRt-21 INFO ckb_indexer_sync  Indexer append 1242, Byte32(0xeb13e717690859fb546ff7aee40b6997b7269c48a46110f1d63d625d2d032291)
+2026-03-12 08:37:31.536 +00:00 verify_blocks INFO ckb_chain::verify  [verify block] new best block found: 1243 => 0x5f935b0798babfc6253dbe4f0bd6e5a4fb0821e713f3be3222b40661d71d1561, difficulty diff = 0x100, unverified_tip: 1243
+2026-03-12 08:37:31.536 +00:00 verify_blocks INFO ckb_chain::verify  block: 1243, hash: 0x5f935b0798babfc6253dbe4f0bd6e5a4fb0821e713f3be3222b40661d71d1561, epoch: 1(243/1800), total_diff: 0x4dc00, txs: 1
+2026-03-12 08:37:31.536 +00:00 GlobalRt-17 INFO ckb_rpc::module::miner  end to submit block, work_id = 209, is_new = true, block = #1243(Byte32(0x5f935b0798babfc6253dbe4f0bd6e5a4fb0821e713f3be3222b40661d71d1561))
+2026-03-12 08:37:31.539 +00:00 GlobalRt-3 INFO ckb_indexer_sync  Indexer append 1243, Byte32(0x5f935b0798babfc6253dbe4f0bd6e5a4fb0821e713f3be3222b40661d71d1561)
+2026-03-12 08:37:32.542 +00:00 verify_blocks INFO ckb_chain::verify  [verify block] new best block found: 1244 => 0xf54bd93b0d9b67ab8ca85b8c419b08440a95e8b099e0bf12685ac08c7fbb5877, difficulty diff = 0x100, unverified_tip: 1244
+2026-03-12 08:37:32.542 +00:00 verify_blocks INFO ckb_chain::verify  block: 1244, hash: 0xf54bd93b0d9b67ab8ca85b8c419b08440a95e8b099e0bf12685ac08c7fbb5877, epoch: 1(244/1800), total_diff: 0x4dd00, txs: 1
+2026-03-12 08:37:32.542 +00:00 GlobalRt-9 INFO ckb_rpc::module::miner  end to submit block, work_id = 211, is_new = true, block = #1244(Byte32(0xf54bd93b0d9b67ab8ca85b8c419b08440a95e8b099e0bf12685ac08c7fbb5877))
+2026-03-12 08:37:32.546 +00:00 GlobalRt-2 INFO ckb_indexer_sync  Indexer append 1244, Byte32(0xf54bd93b0d9b67ab8ca85b8c419b08440a95e8b099e0bf12685ac08c7fbb5877)
+2026-03-12 08:37:33.547 +00:00 verify_blocks INFO ckb_chain::verify  [verify block] new best block found: 1245 => 0x21a31b0397303a8e28f62b7076ae51d41e4e1a384d29f0c3e87bc242461e2ba6, difficulty diff = 0x100, unverified_tip: 1245
+2026-03-12 08:37:33.547 +00:00 verify_blocks INFO ckb_chain::verify  block: 1245, hash: 0x21a31b0397303a8e28f62b7076ae51d41e4e1a384d29f0c3e87bc242461e2ba6, epoch: 1(245/1800), total_diff: 0x4de00, txs: 1
+2026-03-12 08:37:33.547 +00:00 GlobalRt-9 INFO ckb_rpc::module::miner  end to submit block, work_id = 214, is_new = true, block = #1245(Byte32(0x21a31b0397303a8e28f62b7076ae51d41e4e1a384d29f0c3e87bc242461e2ba6))
+2026-03-12 08:37:33.552 +00:00 GlobalRt-20 INFO ckb_indexer_sync  Indexer append 1245, Byte32(0x21a31b0397303a8e28f62b7076ae51d41e4e1a384d29f0c3e87bc242461e2ba6)
+2026-03-12 08:37:34.552 +00:00 verify_blocks INFO ckb_chain::verify  [verify block] new best block found: 1246 => 0x2cece6b608f527c7005a093366cc1381a20be9cae281d5fe49316d6729fbc560, difficulty diff = 0x100, unverified_tip: 1246
+2026-03-12 08:37:34.552 +00:00 verify_blocks INFO ckb_chain::verify  block: 1246, hash: 0x2cece6b608f527c7005a093366cc1381a20be9cae281d5fe49316d6729fbc560, epoch: 1(246/1800), total_diff: 0x4df00, txs: 1
+2026-03-12 08:37:34.552 +00:00 GlobalRt-15 INFO ckb_rpc::module::miner  end to submit block, work_id = 216, is_new = true, block = #1246(Byte32(0x2cece6b608f527c7005a093366cc1381a20be9cae281d5fe49316d6729fbc560))
+2026-03-12 08:37:34.552 +00:00 GlobalRt-16 INFO ckb_tx_pool::pool  [get_block_template] candidate txs count: 1, size: 710/596365, cycles:3290591/10000000000
+2026-03-12 08:37:34.558 +00:00 GlobalRt-2 INFO ckb_indexer_sync  Indexer append 1246, Byte32(0x2cece6b608f527c7005a093366cc1381a20be9cae281d5fe49316d6729fbc560)
+2026-03-12 08:37:35.027 +00:00 verify_blocks INFO ckb_chain::verify  [verify block] new best block found: 1247 => 0x9ae1c92e8fef59b863759ea4dbb51147b6aa17fc2696cd156a5db48aa8005776, difficulty diff = 0x100, unverified_tip: 1247
+2026-03-12 08:37:35.027 +00:00 verify_blocks INFO ckb_chain::verify  block: 1247, hash: 0x9ae1c92e8fef59b863759ea4dbb51147b6aa17fc2696cd156a5db48aa8005776, epoch: 1(247/1800), total_diff: 0x4e000, txs: 1
+2026-03-12 08:37:35.027 +00:00 GlobalRt-9 INFO ckb_rpc::module::miner  end to submit block, work_id = 0xdb, is_new = true, block = #1247(Byte32(0x9ae1c92e8fef59b863759ea4dbb51147b6aa17fc2696cd156a5db48aa8005776))
+2026-03-12 08:37:35.030 +00:00 GlobalRt-20 INFO ckb_indexer_sync  Indexer append 1247, Byte32(0x9ae1c92e8fef59b863759ea4dbb51147b6aa17fc2696cd156a5db48aa8005776)
+2026-03-12 08:37:35.036 +00:00 verify_blocks INFO ckb_chain::verify  [verify block] new best block found: 1248 => 0x7f364eba222947bb84a6484a9cf74cc365683f1bbe3cad7c05c3da5d08e0c4b7, difficulty diff = 0x100, unverified_tip: 1248
+2026-03-12 08:37:35.036 +00:00 verify_blocks INFO ckb_chain::verify  block: 1248, hash: 0x7f364eba222947bb84a6484a9cf74cc365683f1bbe3cad7c05c3da5d08e0c4b7, epoch: 1(248/1800), total_diff: 0x4e100, txs: 1
+2026-03-12 08:37:35.036 +00:00 GlobalRt-17 INFO ckb_rpc::module::miner  end to submit block, work_id = 0xdd, is_new = true, block = #1248(Byte32(0x7f364eba222947bb84a6484a9cf74cc365683f1bbe3cad7c05c3da5d08e0c4b7))
+2026-03-12 08:37:35.039 +00:00 GlobalRt-16 INFO ckb_indexer_sync  Indexer append 1248, Byte32(0x7f364eba222947bb84a6484a9cf74cc365683f1bbe3cad7c05c3da5d08e0c4b7)
+2026-03-12 08:37:35.043 +00:00 verify_blocks INFO ckb_chain::verify  [verify block] new best block found: 1249 => 0x1b40865427a735da7f1e7bfc3f9c7b0668785e6e8614bb87c174c3ec5ae7528a, difficulty diff = 0x100, unverified_tip: 1249
+2026-03-12 08:37:35.044 +00:00 verify_blocks INFO ckb_chain::verify  block: 1249, hash: 0x1b40865427a735da7f1e7bfc3f9c7b0668785e6e8614bb87c174c3ec5ae7528a, epoch: 1(249/1800), total_diff: 0x4e200, txs: 1
+2026-03-12 08:37:35.044 +00:00 GlobalRt-14 INFO ckb_rpc::module::miner  end to submit block, work_id = 0xdf, is_new = true, block = #1249(Byte32(0x1b40865427a735da7f1e7bfc3f9c7b0668785e6e8614bb87c174c3ec5ae7528a))
+2026-03-12 08:37:35.046 +00:00 GlobalRt-18 INFO ckb_indexer_sync  Indexer append 1249, Byte32(0x1b40865427a735da7f1e7bfc3f9c7b0668785e6e8614bb87c174c3ec5ae7528a)
+2026-03-12 08:37:35.050 +00:00 verify_blocks INFO ckb_chain::verify  [verify block] new best block found: 1250 => 0xa43ae09f5dc5e04b8a4aab4bed795d41270b3ba896489d6de359648626f3ce7b, difficulty diff = 0x100, unverified_tip: 1250
+2026-03-12 08:37:35.050 +00:00 verify_blocks INFO ckb_chain::verify  block: 1250, hash: 0xa43ae09f5dc5e04b8a4aab4bed795d41270b3ba896489d6de359648626f3ce7b, epoch: 1(250/1800), total_diff: 0x4e300, txs: 1
+2026-03-12 08:37:35.051 +00:00 GlobalRt-15 INFO ckb_rpc::module::miner  end to submit block, work_id = 0xe1, is_new = true, block = #1250(Byte32(0xa43ae09f5dc5e04b8a4aab4bed795d41270b3ba896489d6de359648626f3ce7b))
+2026-03-12 08:37:35.053 +00:00 GlobalRt-0 INFO ckb_indexer_sync  Indexer append 1250, Byte32(0xa43ae09f5dc5e04b8a4aab4bed795d41270b3ba896489d6de359648626f3ce7b)
+2026-03-12 08:37:35.057 +00:00 verify_blocks INFO ckb_chain::verify  [verify block] new best block found: 1251 => 0xda1a8cbb66cf24eefb9e441971667fbeea1c89d66d2714de268e2677886b7a29, difficulty diff = 0x100, unverified_tip: 1251
+2026-03-12 08:37:35.057 +00:00 verify_blocks INFO ckb_chain::verify  block: 1251, hash: 0xda1a8cbb66cf24eefb9e441971667fbeea1c89d66d2714de268e2677886b7a29, epoch: 1(251/1800), total_diff: 0x4e400, txs: 1
+2026-03-12 08:37:35.058 +00:00 GlobalRt-17 INFO ckb_rpc::module::miner  end to submit block, work_id = 0xe3, is_new = true, block = #1251(Byte32(0xda1a8cbb66cf24eefb9e441971667fbeea1c89d66d2714de268e2677886b7a29))
+2026-03-12 08:37:35.060 +00:00 GlobalRt-0 INFO ckb_indexer_sync  Indexer append 1251, Byte32(0xda1a8cbb66cf24eefb9e441971667fbeea1c89d66d2714de268e2677886b7a29)
+2026-03-12 08:37:35.559 +00:00 verify_blocks INFO ckb_chain::verify  [verify block] new best block found: 1252 => 0x86f7ba24389707aa98f43fa39337212b279ffce37d2e16acc49189d9b5ff231f, difficulty diff = 0x100, unverified_tip: 1252
+2026-03-12 08:37:35.560 +00:00 verify_blocks INFO ckb_chain::verify  block: 1252, hash: 0x86f7ba24389707aa98f43fa39337212b279ffce37d2e16acc49189d9b5ff231f, epoch: 1(252/1800), total_diff: 0x4e500, txs: 1
+2026-03-12 08:37:35.560 +00:00 GlobalRt-9 INFO ckb_rpc::module::miner  end to submit block, work_id = 229, is_new = true, block = #1252(Byte32(0x86f7ba24389707aa98f43fa39337212b279ffce37d2e16acc49189d9b5ff231f))
+2026-03-12 08:37:35.565 +00:00 GlobalRt-21 INFO ckb_indexer_sync  Indexer append 1252, Byte32(0x86f7ba24389707aa98f43fa39337212b279ffce37d2e16acc49189d9b5ff231f)
+2026-03-12 08:37:36.564 +00:00 verify_blocks INFO ckb_chain::verify  [verify block] new best block found: 1253 => 0x104324e97847e765a0fec9e8403a4207e44204af6c1e38ec0174bdf9789b03d3, difficulty diff = 0x100, unverified_tip: 1253
+2026-03-12 08:37:36.564 +00:00 verify_blocks INFO ckb_chain::verify  block: 1253, hash: 0x104324e97847e765a0fec9e8403a4207e44204af6c1e38ec0174bdf9789b03d3, epoch: 1(253/1800), total_diff: 0x4e600, txs: 1
+2026-03-12 08:37:36.564 +00:00 GlobalRt-15 INFO ckb_rpc::module::miner  end to submit block, work_id = 231, is_new = true, block = #1253(Byte32(0x104324e97847e765a0fec9e8403a4207e44204af6c1e38ec0174bdf9789b03d3))
+2026-03-12 08:37:36.568 +00:00 GlobalRt-20 INFO ckb_indexer_sync  Indexer append 1253, Byte32(0x104324e97847e765a0fec9e8403a4207e44204af6c1e38ec0174bdf9789b03d3)
+2026-03-12 08:37:37.560 +00:00 verify_blocks INFO ckb_chain::verify  [verify block] new best block found: 1254 => 0x98ed3f8270f6a506ffa34dfda6cd87e96923790c4da1f1c2d2c7982516abd3d5, difficulty diff = 0x100, unverified_tip: 1254
+2026-03-12 08:37:37.561 +00:00 verify_blocks INFO ckb_chain::verify  block: 1254, hash: 0x98ed3f8270f6a506ffa34dfda6cd87e96923790c4da1f1c2d2c7982516abd3d5, epoch: 1(254/1800), total_diff: 0x4e700, txs: 1
+2026-03-12 08:37:37.561 +00:00 GlobalRt-9 INFO ckb_rpc::module::miner  end to submit block, work_id = 233, is_new = true, block = #1254(Byte32(0x98ed3f8270f6a506ffa34dfda6cd87e96923790c4da1f1c2d2c7982516abd3d5))
+2026-03-12 08:37:37.563 +00:00 GlobalRt-20 INFO ckb_indexer_sync  Indexer append 1254, Byte32(0x98ed3f8270f6a506ffa34dfda6cd87e96923790c4da1f1c2d2c7982516abd3d5)
+2026-03-12 08:37:38.563 +00:00 verify_blocks INFO ckb_chain::verify  [verify block] new best block found: 1255 => 0x613fb34d2129967e5eef2e3c017af85b0f1df8d51ea87b042ed221a8b9076a7c, difficulty diff = 0x100, unverified_tip: 1255
+2026-03-12 08:37:38.563 +00:00 verify_blocks INFO ckb_chain::verify  block: 1255, hash: 0x613fb34d2129967e5eef2e3c017af85b0f1df8d51ea87b042ed221a8b9076a7c, epoch: 1(255/1800), total_diff: 0x4e800, txs: 1
+2026-03-12 08:37:38.563 +00:00 GlobalRt-15 INFO ckb_rpc::module::miner  end to submit block, work_id = 235, is_new = true, block = #1255(Byte32(0x613fb34d2129967e5eef2e3c017af85b0f1df8d51ea87b042ed221a8b9076a7c))
+2026-03-12 08:37:38.566 +00:00 GlobalRt-3 INFO ckb_indexer_sync  Indexer append 1255, Byte32(0x613fb34d2129967e5eef2e3c017af85b0f1df8d51ea87b042ed221a8b9076a7c)
+2026-03-12 08:37:39.570 +00:00 verify_blocks INFO ckb_chain::verify  [verify block] new best block found: 1256 => 0x88f5574adcd83ac7a34161393215f6caf205febfeda7d5f692feab92098e6552, difficulty diff = 0x100, unverified_tip: 1256
+2026-03-12 08:37:39.571 +00:00 verify_blocks INFO ckb_chain::verify  block: 1256, hash: 0x88f5574adcd83ac7a34161393215f6caf205febfeda7d5f692feab92098e6552, epoch: 1(256/1800), total_diff: 0x4e900, txs: 1
+2026-03-12 08:37:39.571 +00:00 GlobalRt-9 INFO ckb_rpc::module::miner  end to submit block, work_id = 237, is_new = true, block = #1256(Byte32(0x88f5574adcd83ac7a34161393215f6caf205febfeda7d5f692feab92098e6552))
+2026-03-12 08:37:39.577 +00:00 GlobalRt-21 INFO ckb_indexer_sync  Indexer append 1256, Byte32(0x88f5574adcd83ac7a34161393215f6caf205febfeda7d5f692feab92098e6552)
+2026-03-12 08:37:40.292 +00:00 verify_blocks INFO ckb_chain::verify  [verify block] new best block found: 1257 => 0xbfa8672c1d8536e473c6e11188ca710b62e35bcb814a0ccaeebcd8400eb49b06, difficulty diff = 0x100, unverified_tip: 1257
+2026-03-12 08:37:40.293 +00:00 verify_blocks INFO ckb_chain::verify  block: 1257, hash: 0xbfa8672c1d8536e473c6e11188ca710b62e35bcb814a0ccaeebcd8400eb49b06, epoch: 1(257/1800), total_diff: 0x4ea00, txs: 1
+2026-03-12 08:37:40.293 +00:00 GlobalRt-15 INFO ckb_rpc::module::miner  end to submit block, work_id = 0xef, is_new = true, block = #1257(Byte32(0xbfa8672c1d8536e473c6e11188ca710b62e35bcb814a0ccaeebcd8400eb49b06))
+2026-03-12 08:37:40.295 +00:00 GlobalRt-21 INFO ckb_indexer_sync  Indexer append 1257, Byte32(0xbfa8672c1d8536e473c6e11188ca710b62e35bcb814a0ccaeebcd8400eb49b06)
+2026-03-12 08:37:40.575 +00:00 verify_blocks INFO ckb_chain::verify  [verify block] uncle: 1257, hash: 0x151d1cd6f9f5e0a4d58d40e4bb015d8c7759377bf395ecad65ebe7b8757d1256, epoch: 1(257/1800), total_diff: 0x4ea00, txs: 1
+2026-03-12 08:37:40.575 +00:00 GlobalRt-17 INFO ckb_rpc::module::miner  end to submit block, work_id = 239, is_new = true, block = #1257(Byte32(0x151d1cd6f9f5e0a4d58d40e4bb015d8c7759377bf395ecad65ebe7b8757d1256))
+2026-03-12 08:37:41.306 +00:00 verify_blocks INFO ckb_chain::verify  [verify block] new best block found: 1258 => 0x00de00a2ca4ae2eda4408d533059d156727de6355be812e8f10bab6856a496ab, difficulty diff = 0x100, unverified_tip: 1258
+2026-03-12 08:37:41.306 +00:00 verify_blocks INFO ckb_chain::verify  block: 1258, hash: 0x00de00a2ca4ae2eda4408d533059d156727de6355be812e8f10bab6856a496ab, epoch: 1(258/1800), total_diff: 0x4eb00, txs: 1
+2026-03-12 08:37:41.306 +00:00 GlobalRt-17 INFO ckb_rpc::module::miner  end to submit block, work_id = 0xf3, is_new = true, block = #1258(Byte32(0x00de00a2ca4ae2eda4408d533059d156727de6355be812e8f10bab6856a496ab))
+2026-03-12 08:37:41.308 +00:00 GlobalRt-21 INFO ckb_indexer_sync  Indexer append 1258, Byte32(0x00de00a2ca4ae2eda4408d533059d156727de6355be812e8f10bab6856a496ab)
+2026-03-12 08:37:41.579 +00:00 verify_blocks INFO ckb_chain::verify  [verify block] uncle: 1258, hash: 0x116ddae4906edde44badf32b1c39713cc347a66c3e308c7d52145b7a33f924e9, epoch: 1(258/1800), total_diff: 0x4eb00, txs: 1
+2026-03-12 08:37:41.579 +00:00 GlobalRt-15 INFO ckb_rpc::module::miner  end to submit block, work_id = 243, is_new = true, block = #1258(Byte32(0x116ddae4906edde44badf32b1c39713cc347a66c3e308c7d52145b7a33f924e9))
+2026-03-12 08:37:42.330 +00:00 verify_blocks INFO ckb_chain::verify  [verify block] new best block found: 1259 => 0x145d74bbe4804716ff4d8ecc21e260b70b05c5eca46fc2b25c9d3aa62bce2825, difficulty diff = 0x100, unverified_tip: 1259
+2026-03-12 08:37:42.331 +00:00 verify_blocks INFO ckb_chain::verify  block: 1259, hash: 0x145d74bbe4804716ff4d8ecc21e260b70b05c5eca46fc2b25c9d3aa62bce2825, epoch: 1(259/1800), total_diff: 0x4ec00, txs: 1
+2026-03-12 08:37:42.331 +00:00 GlobalRt-9 INFO ckb_rpc::module::miner  end to submit block, work_id = 0xf6, is_new = true, block = #1259(Byte32(0x145d74bbe4804716ff4d8ecc21e260b70b05c5eca46fc2b25c9d3aa62bce2825))
+2026-03-12 08:37:42.331 +00:00 GlobalRt-5 INFO ckb_tx_pool::pool  [get_block_template] candidate txs count: 1, size: 557/595909, cycles:1678052/10000000000
+2026-03-12 08:37:42.336 +00:00 GlobalRt-6 INFO ckb_indexer_sync  Indexer append 1259, Byte32(0x145d74bbe4804716ff4d8ecc21e260b70b05c5eca46fc2b25c9d3aa62bce2825)
+2026-03-12 08:37:42.588 +00:00 verify_blocks INFO ckb_chain::verify  [verify block] uncle: 1259, hash: 0x626e91642a68e565f0bd55b4d9c348f44b44a52996c4bafc5efaebaf9718457e, epoch: 1(259/1800), total_diff: 0x4ec00, txs: 1
+2026-03-12 08:37:42.588 +00:00 GlobalRt-17 INFO ckb_rpc::module::miner  end to submit block, work_id = 246, is_new = true, block = #1259(Byte32(0x626e91642a68e565f0bd55b4d9c348f44b44a52996c4bafc5efaebaf9718457e))
+2026-03-12 08:37:43.350 +00:00 verify_blocks INFO ckb_chain::verify  [verify block] new best block found: 1260 => 0xc74af4dba0c14da5209a14799348af9094635f8b7eed37d3dec8da45d8ef89a5, difficulty diff = 0x100, unverified_tip: 1260
+2026-03-12 08:37:43.350 +00:00 verify_blocks INFO ckb_chain::verify  [block_verifier] block number: 1260, hash: Byte32(0xc74af4dba0c14da5209a14799348af9094635f8b7eed37d3dec8da45d8ef89a5), size:1192/597000, cycles: 1678052/10000000000
+2026-03-12 08:37:43.351 +00:00 verify_blocks INFO ckb_chain::verify  block: 1260, hash: 0xc74af4dba0c14da5209a14799348af9094635f8b7eed37d3dec8da45d8ef89a5, epoch: 1(260/1800), total_diff: 0x4ed00, txs: 2
+2026-03-12 08:37:43.351 +00:00 GlobalRt-17 INFO ckb_rpc::module::miner  end to submit block, work_id = 0xf8, is_new = true, block = #1260(Byte32(0xc74af4dba0c14da5209a14799348af9094635f8b7eed37d3dec8da45d8ef89a5))
+2026-03-12 08:37:43.354 +00:00 GlobalRt-0 INFO ckb_indexer_sync  Indexer append 1260, Byte32(0xc74af4dba0c14da5209a14799348af9094635f8b7eed37d3dec8da45d8ef89a5)
+2026-03-12 08:37:43.589 +00:00 verify_blocks INFO ckb_chain::verify  [verify block] uncle: 1260, hash: 0x0922cd40b24799c4aaaae5ce83f6503766ff086efe645c3b942827b196ba2acf, epoch: 1(260/1800), total_diff: 0x4ed00, txs: 2
+2026-03-12 08:37:43.589 +00:00 GlobalRt-9 INFO ckb_rpc::module::miner  end to submit block, work_id = 248, is_new = true, block = #1260(Byte32(0x0922cd40b24799c4aaaae5ce83f6503766ff086efe645c3b942827b196ba2acf))
+2026-03-12 08:37:44.592 +00:00 verify_blocks INFO ckb_chain::verify  [verify block] new best block found: 1261 => 0xbb4483eda7e912dc2415a029af169d8ca9a76824c597ed0aae82802026b55fea, difficulty diff = 0x100, unverified_tip: 1261
+2026-03-12 08:37:44.592 +00:00 verify_blocks INFO ckb_chain::verify  block: 1261, hash: 0xbb4483eda7e912dc2415a029af169d8ca9a76824c597ed0aae82802026b55fea, epoch: 1(261/1800), total_diff: 0x4ee00, txs: 1
+2026-03-12 08:37:44.592 +00:00 GlobalRt-17 INFO ckb_rpc::module::miner  end to submit block, work_id = 250, is_new = true, block = #1261(Byte32(0xbb4483eda7e912dc2415a029af169d8ca9a76824c597ed0aae82802026b55fea))
+2026-03-12 08:37:44.595 +00:00 GlobalRt-16 INFO ckb_indexer_sync  Indexer append 1261, Byte32(0xbb4483eda7e912dc2415a029af169d8ca9a76824c597ed0aae82802026b55fea)
+2026-03-12 08:37:45.601 +00:00 verify_blocks INFO ckb_chain::verify  [verify block] new best block found: 1262 => 0xe15b20a92ad6a76659d4d537a6ac8d6cc1f90fbeaaed2639ae9241eaea17a0c4, difficulty diff = 0x100, unverified_tip: 1262
+2026-03-12 08:37:45.601 +00:00 verify_blocks INFO ckb_chain::verify  block: 1262, hash: 0xe15b20a92ad6a76659d4d537a6ac8d6cc1f90fbeaaed2639ae9241eaea17a0c4, epoch: 1(262/1800), total_diff: 0x4ef00, txs: 1
+2026-03-12 08:37:45.601 +00:00 GlobalRt-15 INFO ckb_rpc::module::miner  end to submit block, work_id = 252, is_new = true, block = #1262(Byte32(0xe15b20a92ad6a76659d4d537a6ac8d6cc1f90fbeaaed2639ae9241eaea17a0c4))
+2026-03-12 08:37:45.603 +00:00 GlobalRt-5 INFO ckb_indexer_sync  Indexer append 1262, Byte32(0xe15b20a92ad6a76659d4d537a6ac8d6cc1f90fbeaaed2639ae9241eaea17a0c4)
+2026-03-12 08:37:46.609 +00:00 verify_blocks INFO ckb_chain::verify  [verify block] new best block found: 1263 => 0x427a450157bc721b49072ce48ade5b33cf96d0542f774de27a07914101cbca43, difficulty diff = 0x100, unverified_tip: 1263
+2026-03-12 08:37:46.609 +00:00 verify_blocks INFO ckb_chain::verify  block: 1263, hash: 0x427a450157bc721b49072ce48ade5b33cf96d0542f774de27a07914101cbca43, epoch: 1(263/1800), total_diff: 0x4f000, txs: 1
+2026-03-12 08:37:46.609 +00:00 GlobalRt-17 INFO ckb_rpc::module::miner  end to submit block, work_id = 254, is_new = true, block = #1263(Byte32(0x427a450157bc721b49072ce48ade5b33cf96d0542f774de27a07914101cbca43))
+2026-03-12 08:37:46.611 +00:00 GlobalRt-20 INFO ckb_indexer_sync  Indexer append 1263, Byte32(0x427a450157bc721b49072ce48ade5b33cf96d0542f774de27a07914101cbca43)
+2026-03-12 08:37:47.618 +00:00 verify_blocks INFO ckb_chain::verify  [verify block] new best block found: 1264 => 0x88395fc9a8a2320936a9b2997da140ef5ccc93f237255a3f6a3bf299fa6dff88, difficulty diff = 0x100, unverified_tip: 1264
+2026-03-12 08:37:47.619 +00:00 verify_blocks INFO ckb_chain::verify  block: 1264, hash: 0x88395fc9a8a2320936a9b2997da140ef5ccc93f237255a3f6a3bf299fa6dff88, epoch: 1(264/1800), total_diff: 0x4f100, txs: 1
+2026-03-12 08:37:47.619 +00:00 GlobalRt-9 INFO ckb_rpc::module::miner  end to submit block, work_id = 256, is_new = true, block = #1264(Byte32(0x88395fc9a8a2320936a9b2997da140ef5ccc93f237255a3f6a3bf299fa6dff88))
+2026-03-12 08:37:47.622 +00:00 GlobalRt-0 INFO ckb_indexer_sync  Indexer append 1264, Byte32(0x88395fc9a8a2320936a9b2997da140ef5ccc93f237255a3f6a3bf299fa6dff88)

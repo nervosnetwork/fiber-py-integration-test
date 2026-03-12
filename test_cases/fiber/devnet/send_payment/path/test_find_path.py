@@ -16,7 +16,6 @@ class FindPath(FiberTest):
     # 环形图 A->B->C->A
     # 多路径图 A->B->D A->C->D
     # 魔方图
-
     def test_linked_net(self):
         for i in range(1):
             fiber = self.start_new_fiber(self.generate_account(10000))

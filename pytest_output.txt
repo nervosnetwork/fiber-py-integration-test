@@ -1,0 +1,88 @@
+============================= test session starts ==============================
+platform darwin -- Python 3.12.7, pytest-7.3.2, pluggy-1.6.0 -- /Users/guopenglin/PycharmProjects/gp5/fiber-py-integration-test/venv/bin/python3
+cachedir: .pytest_cache
+metadata: {'Python': '3.12.7', 'Platform': 'macOS-13.4-arm64-i386-64bit', 'Packages': {'pytest': '7.3.2', 'pluggy': '1.6.0'}, 'Plugins': {'html': '3.2.0', 'metadata': '3.1.1', 'docs': '0.1.0'}, 'JAVA_HOME': '/Library/Java/JavaVirtualMachines/jdk1.8.0_211.jdk/Contents/Home'}
+rootdir: /Users/guopenglin/PycharmProjects/gp5/fiber-py-integration-test
+configfile: pytest.ini
+plugins: html-3.2.0, metadata-3.1.1, docs-0.1.0
+collecting ... collected 3 items
+
+test_cases/fiber/mainnet/test_account.py::TestAccount::test_0000 PASSED  [ 33%]
+test_cases/fiber/mainnet/test_fiber.py::TestFiber::test_ckb_01 
+-------------------------------- live log call ---------------------------------
+2026-01-15 18:25:57 [test_fiber.py:209][ INFO] fiber1_to_fiber2 cost time: 1.0480031967163086
+2026-01-15 18:25:57 [test_fiber.py:210][ INFO] fiber2_to_fiber1 cost time: 1.0348899364471436
+PASSED                                                                   [ 66%]
+test_cases/fiber/mainnet/test_fiber.py::TestFiber::test_shutdown PASSED  [100%]
+test_cases/fiber/mainnet/test_fiber.py::TestFiber::test_shutdown ERROR   [100%]
+
+==================================== ERRORS ====================================
+_________________ ERROR at teardown of TestFiber.test_shutdown _________________
+cls = <class 'test_fiber.TestFiber'>
+
+    @classmethod
+    def teardown_class(cls):
+        channels = cls.fiber1.get_client().list_channels({})
+        for i in range(len(channels["channels"])):
+            channel = channels["channels"][i]
+            if channel["state"]["state_name"] != "ChannelReady":
+                continue
+>           cls.fiber1.get_client().shutdown_channel(
+                {
+                    "channel_id": channel["channel_id"],
+                    "close_script": {
+                        "code_hash": "0x9bd7e06f3ecf4be0f2fcd2188b23f1b9fcc88e5d4b65a8637b17723bbda3cce8",
+                        "hash_type": "type",
+                        "args": cls.fiber1.get_account()["lock_arg"],
+                    },
+                    "fee_rate": "0x3FC",
+                }
+            )
+
+test_cases/fiber/mainnet/test_fiber.py:73: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+framework/fiber_rpc.py:82: in shutdown_channel
+    return self.call("shutdown_channel", [param])
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+self = <framework.fiber_rpc.FiberRPCClient object at 0x10796ff80>
+method = 'shutdown_channel'
+params = [{'channel_id': '0x533a8397c1e2360c86a2c2ee8a6fc01a1116724fb3e685576f7e245dbfff5ca8', 'close_script': {'args': '0x7f0a...ash': '0x9bd7e06f3ecf4be0f2fcd2188b23f1b9fcc88e5d4b65a8637b17723bbda3cce8', 'hash_type': 'type'}, 'fee_rate': '0x3FC'}]
+
+    def call(self, method, params):
+        headers = {"content-type": "application/json"}
+        headers.update(self.other_params)
+        data = {"id": 42, "jsonrpc": "2.0", "method": method, "params": params}
+        LOGGER.debug(
+            "curl --location '{url}' --header 'Content-Type: application/json' --data '{data}'".format(
+                url=self.url, data=json.dumps(data, indent=4)
+            )
+        )
+        for i in range(self.try_count):
+            try:
+                response = requests.post(
+                    self.url, data=json.dumps(data), headers=headers
+                ).json()
+                LOGGER.debug(
+                    "response:\n{response}".format(response=json.dumps(response))
+                )
+                if "error" in response.keys():
+                    error_message = response["error"].get("message", "Unknown error")
+>                   raise Exception(f"Error: {error_message}")
+E                   Exception: Error: Channel not found error: Hash256(0x533a8397c1e2360c86a2c2ee8a6fc01a1116724fb3e685576f7e245dbfff5ca8)
+
+framework/fiber_rpc.py:244: Exception
+---------------------------- Captured stdout setup -----------------------------
+
+Setting up method test_shutdown
+----------------------------- Captured stdout call -----------------------------
+start fiber client 
+--------------------------- Captured stdout teardown ---------------------------
+
+Tearing down method test_shutdown
+
+self.did_pass = True
+- generated html file: file:///Users/guopenglin/PycharmProjects/gp5/fiber-py-integration-test/report/report.html -
+=========================== short test summary info ============================
+ERROR test_cases/fiber/mainnet/test_fiber.py::TestFiber::test_shutdown
+==================== 3 passed, 1 error in 195.63s (0:03:15) ====================
