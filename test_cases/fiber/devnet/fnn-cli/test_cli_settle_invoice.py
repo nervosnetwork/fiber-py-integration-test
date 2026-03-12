@@ -19,6 +19,7 @@ class TestCliSettleInvoice(FiberTest):
 
         preimage = self.generate_random_preimage()
         import hashlib
+
         payment_hash = "0x" + hashlib.sha256(bytes.fromhex(preimage[2:])).hexdigest()
 
         invoice = self.fiber2.get_client().new_invoice(
@@ -55,6 +56,7 @@ class TestCliSettleInvoice(FiberTest):
 
         preimage = self.generate_random_preimage()
         import hashlib
+
         payment_hash = "0x" + hashlib.sha256(bytes.fromhex(preimage[2:])).hexdigest()
 
         invoice = self.fiber2.get_client().new_invoice(
@@ -89,6 +91,7 @@ class TestCliSettleInvoice(FiberTest):
 
         preimage = self.generate_random_preimage()
         import hashlib
+
         payment_hash = "0x" + hashlib.sha256(bytes.fromhex(preimage[2:])).hexdigest()
 
         self.fiber2.get_client().new_invoice(

@@ -59,9 +59,11 @@ class TestCliErrorHandling(FiberTest):
                 funding_amount=0,
                 public=True,
             )
-        assert "greater than" in str(exc_info.value).lower() or "invalid" in str(
-            exc_info.value
-        ).lower() or "error" in str(exc_info.value).lower()
+        assert (
+            "greater than" in str(exc_info.value).lower()
+            or "invalid" in str(exc_info.value).lower()
+            or "error" in str(exc_info.value).lower()
+        )
 
     def test_open_channel_nonexistent_peer(self):
         """Opening a channel with a non-connected peer should fail."""
@@ -276,6 +278,7 @@ class TestCliErrorHandling(FiberTest):
         """--raw-data with json format should produce valid JSON."""
         cli = FnnCli(f"http://127.0.0.1:{self.fiber1.rpc_port}")
         import json
+
         raw = cli._run(["info", "node_info"], output_format="json", raw_data=True)
         parsed = json.loads(raw)
         assert parsed is not None
@@ -284,6 +287,7 @@ class TestCliErrorHandling(FiberTest):
         """--raw-data with yaml format should produce valid YAML."""
         cli = FnnCli(f"http://127.0.0.1:{self.fiber1.rpc_port}")
         import yaml
+
         raw = cli._run(["info", "node_info"], output_format="yaml", raw_data=True)
         parsed = yaml.safe_load(raw)
         assert parsed is not None

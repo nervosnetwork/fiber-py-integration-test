@@ -20,12 +20,8 @@ class TestCliMultiHop(FiberTest):
         self.fiber3.connect_peer(self.fiber2)
         time.sleep(1)
 
-        self.open_channel(
-            self.fiber1, self.fiber2, 1000 * 100000000, 1000 * 100000000
-        )
-        self.open_channel(
-            self.fiber2, self.fiber3, 1000 * 100000000, 1000 * 100000000
-        )
+        self.open_channel(self.fiber1, self.fiber2, 1000 * 100000000, 1000 * 100000000)
+        self.open_channel(self.fiber2, self.fiber3, 1000 * 100000000, 1000 * 100000000)
 
         self.wait_graph_channels_sync(self.fiber1, 2)
 
@@ -205,9 +201,7 @@ class TestCliMultiHop(FiberTest):
         channels_f1_before = self.fiber1.get_client().list_channels(
             {"peer_id": self.fiber2.get_peer_id()}
         )
-        local_f1_before = int(
-            channels_f1_before["channels"][0]["local_balance"], 16
-        )
+        local_f1_before = int(channels_f1_before["channels"][0]["local_balance"], 16)
 
         cli1 = FnnCli(f"http://127.0.0.1:{self.fiber1.rpc_port}")
         target_pubkey = self.fiber3.get_client().node_info()["node_id"]
@@ -224,9 +218,7 @@ class TestCliMultiHop(FiberTest):
         channels_f1_after = self.fiber1.get_client().list_channels(
             {"peer_id": self.fiber2.get_peer_id()}
         )
-        local_f1_after = int(
-            channels_f1_after["channels"][0]["local_balance"], 16
-        )
+        local_f1_after = int(channels_f1_after["channels"][0]["local_balance"], 16)
 
         assert local_f1_after < local_f1_before
         payment = cli1.get_payment(result["payment_hash"])

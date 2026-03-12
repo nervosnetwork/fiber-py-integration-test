@@ -213,8 +213,8 @@ class TestCliUdt(FiberTest):
 
         assert len(cli_channels["channels"]) == len(rpc_channels["channels"])
 
-        for cli_ch, rpc_ch in zip(
-            cli_channels["channels"], rpc_channels["channels"]
-        ):
+        for cli_ch, rpc_ch in zip(cli_channels["channels"], rpc_channels["channels"]):
             assert cli_ch["channel_id"] == rpc_ch["channel_id"]
-            assert cli_ch["funding_udt_type_script"] == rpc_ch["funding_udt_type_script"]
+            assert (
+                cli_ch["funding_udt_type_script"] == rpc_ch["funding_udt_type_script"]
+            )
