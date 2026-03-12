@@ -95,7 +95,7 @@ class TestFundingAmount(FiberTest):
             }
         )
         self.wait_for_channel_state(
-            self.fiber1.get_client(), self.fiber2.get_pubkey(), "CHANNEL_READY", 120
+            self.fiber1.get_client(), self.fiber2.get_pubkey(), "ChannelReady", 120
         )
         # transfer
         payment_preimage = self.generate_random_preimage()
@@ -211,7 +211,7 @@ class TestFundingAmount(FiberTest):
             }
         )
         self.wait_for_channel_state(
-            self.fiber1.get_client(), self.fiber2.get_pubkey(), "CHANNEL_READY", 120
+            self.fiber1.get_client(), self.fiber2.get_pubkey(), "ChannelReady", 120
         )
         channels = self.fiber2.get_client().list_channels({})
         assert accept_channel_funding_amount - DEFAULT_MIN_DEPOSIT_CKB == int(
@@ -320,7 +320,7 @@ class TestFundingAmount(FiberTest):
             }
         )
         self.wait_for_channel_state(
-            self.fiber1.get_client(), self.fiber2.get_pubkey(), "CHANNEL_READY", 120
+            self.fiber1.get_client(), self.fiber2.get_pubkey(), "ChannelReady", 120
         )
         channels = self.fiber2.get_client().list_channels({})
         assert accept_channel_funding_amount - DEFAULT_MIN_DEPOSIT_CKB == int(
@@ -436,7 +436,7 @@ class TestFundingAmount(FiberTest):
             }
         )
         self.wait_for_channel_state(
-            self.fiber1.get_client(), self.fiber2.get_pubkey(), "CHANNEL_READY", 120
+            self.fiber1.get_client(), self.fiber2.get_pubkey(), "ChannelReady", 120
         )
         # transfer
         payment_preimage = self.generate_random_preimage()
@@ -710,7 +710,7 @@ class TestFundingAmount(FiberTest):
         )
 
         self.wait_for_channel_state(
-            self.fiber1.get_client(), self.fiber2.get_pubkey(), "CHANNEL_READY", 120
+            self.fiber1.get_client(), self.fiber2.get_pubkey(), "ChannelReady", 120
         )
 
         #  transfer

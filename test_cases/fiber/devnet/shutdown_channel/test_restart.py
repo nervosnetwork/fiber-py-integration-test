@@ -27,7 +27,7 @@ class TestRestart(FiberTest):
         )
         open_channel_tx_hash = self.wait_and_check_tx_pool_fee(1000, False)
         self.wait_for_channel_state(
-            self.fiber1.get_client(), self.fiber2.get_pubkey(), "CHANNEL_READY", 120
+            self.fiber1.get_client(), self.fiber2.get_pubkey(), "ChannelReady", 120
         )
         channels = self.fiber1.get_client().list_channels(
             {"pubkey": self.fiber2.get_pubkey()}
@@ -114,7 +114,7 @@ class TestRestart(FiberTest):
         )
         open_channel_tx_hash = self.wait_and_check_tx_pool_fee(1000, False)
         self.wait_for_channel_state(
-            self.fiber1.get_client(), self.fiber2.get_pubkey(), "CHANNEL_READY", 120
+            self.fiber1.get_client(), self.fiber2.get_pubkey(), "ChannelReady", 120
         )
         channels = self.fiber1.get_client().list_channels(
             {"pubkey": self.fiber2.get_pubkey()}
@@ -204,7 +204,7 @@ class TestRestart(FiberTest):
         self.node.start()
         self.node.start_miner()
         self.wait_for_channel_state(
-            self.fiber1.get_client(), self.fiber2.get_pubkey(), "CLOSED", 30, True
+            self.fiber1.get_client(), self.fiber2.get_pubkey(), "Closed", 30, True
         )
 
     # @pytest.mark.skip("https://github.com/nervosnetwork/fiber/issues/427")
@@ -223,7 +223,7 @@ class TestRestart(FiberTest):
         )
         time.sleep(1)
         self.wait_for_channel_state(
-            self.fiber1.get_client(), self.fiber2.get_pubkey(), "CHANNEL_READY", 120
+            self.fiber1.get_client(), self.fiber2.get_pubkey(), "ChannelReady", 120
         )
 
         channels = self.fiber1.get_client().list_channels(

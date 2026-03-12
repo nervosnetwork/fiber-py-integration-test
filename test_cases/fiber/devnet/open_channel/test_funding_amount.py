@@ -53,7 +53,7 @@ class FundingAmount(FiberTest):
         #     }
         # )
         self.wait_for_channel_state(
-            self.fiber1.get_client(), self.fiber2.get_pubkey(), "CHANNEL_READY", 120
+            self.fiber1.get_client(), self.fiber2.get_pubkey(), "ChannelReady", 120
         )
 
     def test_funding_amount_ckb_lt_62(self):
@@ -158,7 +158,7 @@ class FundingAmount(FiberTest):
             }
         )
         self.wait_for_channel_state(
-            self.fiber1.get_client(), self.fiber2.get_pubkey(), "CHANNEL_READY"
+            self.fiber1.get_client(), self.fiber2.get_pubkey(), "ChannelReady"
         )
 
     def test_funding_amount_udt_gt_account_balance(self):
@@ -183,7 +183,7 @@ class FundingAmount(FiberTest):
         # self.wait_for_channel_state(
         #     self.fiber3.get_client(),
         #     self.fiber1.get_pubkey(),
-        #     "NEGOTIATING_FUNDING",
+        #     "NegotiatingFunding",
         #     120,
         # )
         channels = self.fiber3.get_client().list_channels({})
@@ -210,7 +210,7 @@ class FundingAmount(FiberTest):
         self.wait_for_channel_state(
             self.fiber2.get_client(),
             self.fiber1.get_pubkey(),
-            "NEGOTIATING_FUNDING",
+            "NegotiatingFunding",
             120,
         )
 
@@ -231,7 +231,7 @@ class FundingAmount(FiberTest):
         self.wait_for_channel_state(
             self.fiber2.get_client(),
             self.fiber1.get_pubkey(),
-            "NEGOTIATING_FUNDING",
+            "NegotiatingFunding",
             120,
         )
 
@@ -256,7 +256,7 @@ class FundingAmount(FiberTest):
         self.wait_for_channel_state(
             self.fiber3.get_client(),
             self.fiber1.get_pubkey(),
-            "CHANNEL_READY",
+            "ChannelReady",
             120,
         )
 
@@ -281,7 +281,7 @@ class FundingAmount(FiberTest):
         self.wait_for_channel_state(
             self.fiber3.get_client(),
             self.fiber1.get_pubkey(),
-            "CHANNEL_READY",
+            "ChannelReady",
             120,
         )
         account_balance = self.udtContract.list_cell(

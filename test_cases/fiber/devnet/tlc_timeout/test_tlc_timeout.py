@@ -35,7 +35,7 @@ class TestTlcTimeout(FiberTest):
                 }
             )
             self.wait_for_channel_state(
-                current_fiber.get_client(), linked_fiber.get_pubkey(), "CHANNEL_READY"
+                current_fiber.get_client(), linked_fiber.get_pubkey(), "ChannelReady"
             )
 
         time.sleep(1)
@@ -121,7 +121,7 @@ class TestTlcTimeout(FiberTest):
                 }
             )
             self.wait_for_channel_state(
-                current_fiber.get_client(), linked_fiber.get_pubkey(), "CHANNEL_READY"
+                current_fiber.get_client(), linked_fiber.get_pubkey(), "ChannelReady"
             )
 
         time.sleep(1)
@@ -156,12 +156,12 @@ class TestTlcTimeout(FiberTest):
         shutdown_tx = self.wait_and_check_tx_pool_fee(1000, False)
         self.Miner.miner_until_tx_committed(self.node, shutdown_tx)
         self.wait_for_channel_state(
-            self.fiber2.get_client(), self.fibers[2].get_pubkey(), "CLOSED", 320, True
+            self.fiber2.get_client(), self.fibers[2].get_pubkey(), "Closed", 320, True
         )
         self.wait_for_channel_state(
             self.fibers[2].get_client(),
             self.fibers[1].get_pubkey(),
-            "CLOSED",
+            "Closed",
             320,
             True,
         )
@@ -261,7 +261,7 @@ class TestTlcTimeout(FiberTest):
                 }
             )
             self.wait_for_channel_state(
-                current_fiber.get_client(), linked_fiber.get_pubkey(), "CHANNEL_READY"
+                current_fiber.get_client(), linked_fiber.get_pubkey(), "ChannelReady"
             )
 
         time.sleep(1)
@@ -298,8 +298,8 @@ class TestTlcTimeout(FiberTest):
         #
         # shutdown_tx = self.wait_and_check_tx_pool_fee(1000,False)
         # self.Miner.miner_until_tx_committed(self.node,shutdown_tx)
-        # self.wait_for_channel_state(self.fiber2.get_client(),self.fibers[2].get_pubkey(), "CLOSED",320,True)
-        # self.wait_for_channel_state(self.fibers[2].get_client(),self.fibers[1].get_pubkey(), "CLOSED",320,True)
+        # self.wait_for_channel_state(self.fiber2.get_client(),self.fibers[2].get_pubkey(), "Closed",320,True)
+        # self.wait_for_channel_state(self.fibers[2].get_client(),self.fibers[1].get_pubkey(), "Closed",320,True)
 
         # 获取tlc的过期时间
         tlc = self.get_pending_tlc(self.fibers[-1], payment["payment_hash"])
@@ -392,7 +392,7 @@ class TestTlcTimeout(FiberTest):
                 }
             )
             self.wait_for_channel_state(
-                current_fiber.get_client(), linked_fiber.get_pubkey(), "CHANNEL_READY"
+                current_fiber.get_client(), linked_fiber.get_pubkey(), "ChannelReady"
             )
 
         time.sleep(1)

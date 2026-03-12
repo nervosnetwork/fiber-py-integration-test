@@ -56,7 +56,7 @@ class TestCliUdt(FiberTest):
         assert "temporary_channel_id" in result
 
         self.wait_for_channel_state(
-            self.fiber1.get_client(), self.fiber2.get_pubkey(), "CHANNEL_READY"
+            self.fiber1.get_client(), self.fiber2.get_pubkey(), "ChannelReady"
         )
 
         channels = cli1.list_channels()
@@ -98,7 +98,7 @@ class TestCliUdt(FiberTest):
                 }
             )
             self.wait_for_channel_state(
-                self.fiber1.get_client(), self.fiber2.get_pubkey(), "CHANNEL_READY"
+                self.fiber1.get_client(), self.fiber2.get_pubkey(), "ChannelReady"
             )
 
         cli1 = FnnCli(f"http://127.0.0.1:{self.fiber1.rpc_port}")
@@ -141,7 +141,7 @@ class TestCliUdt(FiberTest):
         attrs = parsed["invoice"]["data"]["attrs"]
         udt_found = False
         for attr in attrs:
-            if isinstance(attr, dict) and "UdtScript" in attr:
+            if isinstance(attr, dict) and "udt_script" in attr:
                 udt_found = True
                 break
         assert udt_found, f"UDT script should be present in invoice attrs: {attrs}"
@@ -164,7 +164,7 @@ class TestCliUdt(FiberTest):
             }
         )
         self.wait_for_channel_state(
-            self.fiber1.get_client(), self.fiber2.get_pubkey(), "CHANNEL_READY"
+            self.fiber1.get_client(), self.fiber2.get_pubkey(), "ChannelReady"
         )
         self.send_payment(self.fiber1, self.fiber2, 1000 * 100000000, True, udt_script)
 
@@ -204,7 +204,7 @@ class TestCliUdt(FiberTest):
             }
         )
         self.wait_for_channel_state(
-            self.fiber1.get_client(), self.fiber2.get_pubkey(), "CHANNEL_READY"
+            self.fiber1.get_client(), self.fiber2.get_pubkey(), "ChannelReady"
         )
 
         cli1 = FnnCli(f"http://127.0.0.1:{self.fiber1.rpc_port}")

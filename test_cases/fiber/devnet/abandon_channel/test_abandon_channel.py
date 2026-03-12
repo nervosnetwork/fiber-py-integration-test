@@ -134,7 +134,7 @@ class TestAbandonChannel(FiberTest):
         )
         # closed
         self.wait_for_channel_state(
-            self.fiber1.get_client(), self.fiber2.get_pubkey(), "CLOSED", 120, True
+            self.fiber1.get_client(), self.fiber2.get_pubkey(), "Closed", 120, True
         )
         with pytest.raises(Exception) as exc_info:
             response = self.fiber1.get_client().abandon_channel(

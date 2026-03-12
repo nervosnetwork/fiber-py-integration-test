@@ -16,7 +16,7 @@ class TestCommitmentDelayEpoch(FiberTest):
             }
         )
         self.wait_for_channel_state(
-            self.fiber1.get_client(), self.fiber2.get_pubkey(), "CHANNEL_READY", 120
+            self.fiber1.get_client(), self.fiber2.get_pubkey(), "ChannelReady", 120
         )
         self.fiber1.get_client().shutdown_channel(
             {
@@ -57,7 +57,7 @@ class TestCommitmentDelayEpoch(FiberTest):
             }
         )
         self.wait_for_channel_state(
-            self.fiber1.get_client(), self.fiber2.get_pubkey(), "CHANNEL_READY", 120
+            self.fiber1.get_client(), self.fiber2.get_pubkey(), "ChannelReady", 120
         )
 
         self.fiber1.get_client().shutdown_channel(
@@ -95,7 +95,7 @@ class TestCommitmentDelayEpoch(FiberTest):
             }
         )
         self.wait_for_channel_state(
-            self.fiber1.get_client(), self.fiber2.get_pubkey(), "CHANNEL_READY", 120
+            self.fiber1.get_client(), self.fiber2.get_pubkey(), "ChannelReady", 120
         )
 
         self.fiber2.get_client().shutdown_channel(

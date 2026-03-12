@@ -27,7 +27,7 @@ class TestNUser(FiberTest):
             self.wait_for_channel_state(
                 self.fibers[i].get_client(),
                 self.fibers[-1].get_pubkey(),
-                "CHANNEL_READY",
+                "ChannelReady",
                 120,
             )
 
@@ -50,5 +50,5 @@ class TestNUser(FiberTest):
             )
         for i in range(0, len(self.fibers) - 1):
             self.wait_for_channel_state(
-                self.fibers[i], self.fibers[-1].get_pubkey(), "CLOSED"
+                self.fibers[i], self.fibers[-1].get_pubkey(), "Closed"
             )

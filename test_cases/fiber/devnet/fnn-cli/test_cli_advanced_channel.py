@@ -36,7 +36,7 @@ class TestCliAdvancedChannel(FiberTest):
         )
 
         self.wait_for_channel_state(
-            self.fiber2.get_client(), self.fiber1.get_pubkey(), "CHANNEL_READY"
+            self.fiber2.get_client(), self.fiber1.get_pubkey(), "ChannelReady"
         )
 
         channels = self.fiber2.get_client().list_channels(
@@ -66,7 +66,7 @@ class TestCliAdvancedChannel(FiberTest):
         )
 
         self.wait_for_channel_state(
-            self.fiber2.get_client(), self.fiber1.get_pubkey(), "CHANNEL_READY"
+            self.fiber2.get_client(), self.fiber1.get_pubkey(), "ChannelReady"
         )
 
     # ───────────────────────────────────────────────
@@ -92,13 +92,13 @@ class TestCliAdvancedChannel(FiberTest):
         assert accept_result is not None
 
         self.wait_for_channel_state(
-            self.fiber2.get_client(), self.fiber1.get_pubkey(), "CHANNEL_READY"
+            self.fiber2.get_client(), self.fiber1.get_pubkey(), "ChannelReady"
         )
 
         channels = cli2.list_channels()
         assert len(channels["channels"]) >= 1
         ch = channels["channels"][0]
-        assert ch["state"]["state_name"] == "CHANNEL_READY"
+        assert ch["state"]["state_name"] == "ChannelReady"
 
     def test_accept_channel_with_tlc_params(self):
         """Accept channel via CLI with custom TLC parameters."""
@@ -120,7 +120,7 @@ class TestCliAdvancedChannel(FiberTest):
         )
 
         self.wait_for_channel_state(
-            self.fiber1.get_client(), self.fiber2.get_pubkey(), "CHANNEL_READY"
+            self.fiber1.get_client(), self.fiber2.get_pubkey(), "ChannelReady"
         )
 
     # ───────────────────────────────────────────────
@@ -148,7 +148,7 @@ class TestCliAdvancedChannel(FiberTest):
         )
 
         self.wait_for_channel_state(
-            self.fiber2.get_client(), self.fiber1.get_pubkey(), "CHANNEL_READY"
+            self.fiber2.get_client(), self.fiber1.get_pubkey(), "ChannelReady"
         )
 
         pending_after = cli2.list_channels(only_pending=True)
@@ -175,7 +175,7 @@ class TestCliAdvancedChannel(FiberTest):
         )
 
         self.wait_for_channel_state(
-            self.fiber2.get_client(), self.fiber1.get_pubkey(), "CHANNEL_READY"
+            self.fiber2.get_client(), self.fiber1.get_pubkey(), "ChannelReady"
         )
 
         channels = cli2.list_channels()
@@ -208,7 +208,7 @@ class TestCliAdvancedChannel(FiberTest):
         )
 
         self.wait_for_channel_state(
-            self.fiber2.get_client(), self.fiber1.get_pubkey(), "CHANNEL_READY"
+            self.fiber2.get_client(), self.fiber1.get_pubkey(), "ChannelReady"
         )
 
         channels = cli2.list_channels()
@@ -229,8 +229,8 @@ class TestCliAdvancedChannel(FiberTest):
             if ch["channel_id"] == channel_id:
                 found = True
                 assert ch["state"]["state_name"] in [
-                    "SHUTTING_DOWN",
-                    "CLOSED",
+                    "ShuttingDown",
+                    "Closed",
                 ]
         assert found
 
@@ -257,5 +257,5 @@ class TestCliAdvancedChannel(FiberTest):
         )
 
         self.wait_for_channel_state(
-            self.fiber2.get_client(), self.fiber1.get_pubkey(), "CHANNEL_READY"
+            self.fiber2.get_client(), self.fiber1.get_pubkey(), "ChannelReady"
         )

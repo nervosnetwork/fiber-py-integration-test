@@ -60,7 +60,7 @@ class TestFundingFeeRate(FiberTest):
 
         # self.wait_and_check_tx_pool_fee(int("0xffffffffffffffff", 16))
         self.wait_for_channel_state(
-            self.fiber1.get_client(), self.fiber2.get_pubkey(), "CHANNEL_READY", 120
+            self.fiber1.get_client(), self.fiber2.get_pubkey(), "ChannelReady", 120
         )
         time.sleep(5)
         # transfer
@@ -175,7 +175,7 @@ class TestFundingFeeRate(FiberTest):
         # todo fee 结果不准确
         # self.wait_and_check_tx_pool_fee(funding_fee_rate)
         self.wait_for_channel_state(
-            self.fiber1.get_client(), self.fiber2.get_pubkey(), "CHANNEL_READY", 120
+            self.fiber1.get_client(), self.fiber2.get_pubkey(), "ChannelReady", 120
         )
         time.sleep(5)
         # transfer
@@ -298,5 +298,5 @@ class TestFundingFeeRate(FiberTest):
         channels = fiber.get_client().list_channels({})
         assert channels["channels"] == []
         # self.wait_for_channel_state(
-        #     fiber.get_client(), self.fiber2.get_pubkey(), "NEGOTIATING_FUNDING", 120
+        #     fiber.get_client(), self.fiber2.get_pubkey(), "NegotiatingFunding", 120
         # )

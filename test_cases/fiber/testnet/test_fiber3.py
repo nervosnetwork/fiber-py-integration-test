@@ -68,7 +68,7 @@
 #         wait_for_channel_state(
 #             self.fiber1.get_client(),
 #             self.cryptapeFiber1.get_pubkey(),
-#             "CHANNEL_READY",
+#             "ChannelReady",
 #             120,
 #         )
 #

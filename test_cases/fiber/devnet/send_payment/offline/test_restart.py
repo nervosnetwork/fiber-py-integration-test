@@ -43,7 +43,7 @@ class TestRestart(FiberTest):
         # channels = self.fiber1.get_client().list_channels({})
         # N1N2_CHANNEL_ID = channels["channels"][0]["channel_id"]
         self.wait_for_channel_state(
-            self.fiber1.get_client(), self.fiber2.get_pubkey(), "CHANNEL_READY", 120
+            self.fiber1.get_client(), self.fiber2.get_pubkey(), "ChannelReady", 120
         )
         # open channel for fiber 2 fiber3
         self.fiber2.get_client().open_channel(
@@ -54,7 +54,7 @@ class TestRestart(FiberTest):
             }
         )
         self.wait_for_channel_state(
-            self.fiber2.get_client(), self.fiber3.get_pubkey(), "CHANNEL_READY", 120
+            self.fiber2.get_client(), self.fiber3.get_pubkey(), "ChannelReady", 120
         )
 
         # 1. 发送端重启，send_payment
@@ -140,7 +140,7 @@ class TestRestart(FiberTest):
         # channels = self.fiber1.get_client().list_channels({})
         # N1N2_CHANNEL_ID = channels["channels"][0]["channel_id"]
         self.wait_for_channel_state(
-            self.fiber1.get_client(), self.fiber2.get_pubkey(), "CHANNEL_READY", 120
+            self.fiber1.get_client(), self.fiber2.get_pubkey(), "ChannelReady", 120
         )
         # open channel for fiber 2 fiber3
         self.fiber2.get_client().open_channel(
@@ -151,7 +151,7 @@ class TestRestart(FiberTest):
             }
         )
         self.wait_for_channel_state(
-            self.fiber2.get_client(), self.fiber3.get_pubkey(), "CHANNEL_READY", 120
+            self.fiber2.get_client(), self.fiber3.get_pubkey(), "ChannelReady", 120
         )
 
         # 1. 发送端重启，send_payment
@@ -271,7 +271,7 @@ class TestRestart(FiberTest):
         # channels = self.fiber1.get_client().list_channels({})
         # N1N2_CHANNEL_ID = channels["channels"][0]["channel_id"]
         self.wait_for_channel_state(
-            self.fiber1.get_client(), self.fiber2.get_pubkey(), "CHANNEL_READY", 120
+            self.fiber1.get_client(), self.fiber2.get_pubkey(), "ChannelReady", 120
         )
         # open channel for fiber 2 fiber3
         self.fiber2.get_client().open_channel(
@@ -282,7 +282,7 @@ class TestRestart(FiberTest):
             }
         )
         self.wait_for_channel_state(
-            self.fiber2.get_client(), self.fiber3.get_pubkey(), "CHANNEL_READY", 120
+            self.fiber2.get_client(), self.fiber3.get_pubkey(), "ChannelReady", 120
         )
 
         # 1. 发送端重启，send_payment

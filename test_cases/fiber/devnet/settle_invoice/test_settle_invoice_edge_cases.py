@@ -89,7 +89,7 @@ class TestSettleInvoiceEdgeCases(FiberTest):
             }
         )
         self.wait_for_channel_state(
-            self.fiber2.get_client(), self.fiber1.get_pubkey(), "CHANNEL_READY", 120
+            self.fiber2.get_client(), self.fiber1.get_pubkey(), "ChannelReady", 120
         )
 
         preimage = self.generate_random_preimage()
@@ -136,7 +136,7 @@ class TestSettleInvoiceEdgeCases(FiberTest):
             }
         )
         self.wait_for_channel_state(
-            self.fiber2.get_client(), self.fiber1.get_pubkey(), "CHANNEL_READY", 120
+            self.fiber2.get_client(), self.fiber1.get_pubkey(), "ChannelReady", 120
         )
 
         expiry_sec = 6
@@ -228,7 +228,7 @@ class TestSettleInvoiceEdgeCases(FiberTest):
             }
         )
         self.wait_for_channel_state(
-            self.fiber2.get_client(), self.fiber1.get_pubkey(), "CHANNEL_READY", 120
+            self.fiber2.get_client(), self.fiber1.get_pubkey(), "ChannelReady", 120
         )
 
         expiry_hex = "0x6"
@@ -356,7 +356,7 @@ class TestSettleInvoiceEdgeCases(FiberTest):
             }
         )
         self.wait_for_channel_state(
-            self.fiber2.get_client(), self.fiber1.get_pubkey(), "CHANNEL_READY", 120
+            self.fiber2.get_client(), self.fiber1.get_pubkey(), "ChannelReady", 120
         )
         preimage = self.generate_random_preimage()
         payment_hash = sha256_hex(preimage)

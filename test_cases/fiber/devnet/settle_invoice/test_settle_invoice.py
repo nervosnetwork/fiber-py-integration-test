@@ -46,7 +46,7 @@ class TestSettleInvoice(FiberTest):
             }
         )
         self.wait_for_channel_state(
-            self.fiber2.get_client(), self.fiber1.get_pubkey(), "CHANNEL_READY", 120
+            self.fiber2.get_client(), self.fiber1.get_pubkey(), "ChannelReady", 120
         )
 
         # 创建 hold invoice（仅提供 payment_hash）
@@ -88,7 +88,7 @@ class TestSettleInvoice(FiberTest):
             }
         )
         self.wait_for_channel_state(
-            self.fiber2.get_client(), self.fiber1.get_pubkey(), "CHANNEL_READY", 120
+            self.fiber2.get_client(), self.fiber1.get_pubkey(), "ChannelReady", 120
         )
 
         # 创建 hold invoice（payment_hash 基于 preimage1）
@@ -145,7 +145,7 @@ class TestSettleInvoice(FiberTest):
             }
         )
         self.wait_for_channel_state(
-            self.fiber2.get_client(), self.fiber1.get_pubkey(), "CHANNEL_READY", 120
+            self.fiber2.get_client(), self.fiber1.get_pubkey(), "ChannelReady", 120
         )
 
         # 创建快过期的 hold invoice（先支付，后过期再结算）
@@ -201,7 +201,7 @@ class TestSettleInvoice(FiberTest):
             }
         )
         self.wait_for_channel_state(
-            self.fiber2.get_client(), self.fiber1.get_pubkey(), "CHANNEL_READY", 120
+            self.fiber2.get_client(), self.fiber1.get_pubkey(), "ChannelReady", 120
         )
 
         # 创建 hold invoice 并发送支付
@@ -245,7 +245,7 @@ class TestSettleInvoice(FiberTest):
             }
         )
         self.wait_for_channel_state(
-            self.fiber2.get_client(), self.fiber1.get_pubkey(), "CHANNEL_READY", 120
+            self.fiber2.get_client(), self.fiber1.get_pubkey(), "ChannelReady", 120
         )
         preimage = self.generate_random_preimage()
         payment_hash = sha256_hex(preimage)
@@ -278,7 +278,7 @@ class TestSettleInvoice(FiberTest):
             }
         )
         self.wait_for_channel_state(
-            self.fiber2.get_client(), self.fiber1.get_pubkey(), "CHANNEL_READY", 120
+            self.fiber2.get_client(), self.fiber1.get_pubkey(), "ChannelReady", 120
         )
 
         preimage = self.generate_random_preimage()
@@ -314,7 +314,7 @@ class TestSettleInvoice(FiberTest):
             }
         )
         self.wait_for_channel_state(
-            self.fiber2.get_client(), self.fiber1.get_pubkey(), "CHANNEL_READY", 120
+            self.fiber2.get_client(), self.fiber1.get_pubkey(), "ChannelReady", 120
         )
 
         expiry_hex = "0x5"
@@ -348,7 +348,7 @@ class TestSettleInvoice(FiberTest):
             }
         )
         self.wait_for_channel_state(
-            self.fiber2.get_client(), self.fiber1.get_pubkey(), "CHANNEL_READY", 120
+            self.fiber2.get_client(), self.fiber1.get_pubkey(), "ChannelReady", 120
         )
 
         # 创建快过期的 hold invoice（先支付，后过期再结算）
@@ -403,7 +403,7 @@ class TestSettleInvoice(FiberTest):
             }
         )
         self.wait_for_channel_state(
-            self.fiber2.get_client(), self.fiber1.get_pubkey(), "CHANNEL_READY", 120
+            self.fiber2.get_client(), self.fiber1.get_pubkey(), "ChannelReady", 120
         )
 
         # 创建快过期的 hold invoice（先支付，后过期再结算）

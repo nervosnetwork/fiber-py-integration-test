@@ -66,7 +66,7 @@ class TestFiber(CkbTest):
         channels = cls.fiber1.get_client().list_channels({})
         for i in range(len(channels["channels"])):
             channel = channels["channels"][i]
-            if channel["state"]["state_name"] != "CHANNEL_READY":
+            if channel["state"]["state_name"] != "ChannelReady":
                 continue
             cls.fiber1.get_client().shutdown_channel(
                 {
@@ -80,13 +80,13 @@ class TestFiber(CkbTest):
                 }
             )
             wait_for_channel_state(
-                cls.fiber1.get_client(), cls.fiber2.get_pubkey(), "CLOSED", 360
+                cls.fiber1.get_client(), cls.fiber2.get_pubkey(), "Closed", 360
             )
 
         channels = cls.fiber2.get_client().list_channels({})
         for i in range(len(channels["channels"])):
             channel = channels["channels"][i]
-            if channel["state"]["state_name"] != "CHANNEL_READY":
+            if channel["state"]["state_name"] != "ChannelReady":
                 continue
             cls.fiber2.get_client().shutdown_channel(
                 {
@@ -100,7 +100,7 @@ class TestFiber(CkbTest):
                 }
             )
             wait_for_channel_state(
-                cls.fiber2.get_client(), cls.fiber2.get_pubkey(), "CLOSED", 120
+                cls.fiber2.get_client(), cls.fiber2.get_pubkey(), "Closed", 120
             )
 
         cls.fiber1.stop()
@@ -121,7 +121,7 @@ class TestFiber(CkbTest):
     #     # wait_for_channel_state(
     #     #     self.fiber1.get_client(),
     #     #     self.fiber2.get_pubkey(),
-    #     #     "CHANNEL_READY",
+    #     #     "ChannelReady",
     #     #     360,
     #     # )
     #     #
@@ -190,7 +190,7 @@ class TestFiber(CkbTest):
         wait_for_channel_state(
             self.fiber1.get_client(),
             self.fiber2.get_pubkey(),
-            "CHANNEL_READY",
+            "ChannelReady",
             360,
         )
 

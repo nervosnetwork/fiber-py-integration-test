@@ -18,7 +18,7 @@ class TestHashAlgorithm(FiberTest):
                     self.fiber2.get_client().node_info()["pubkey"],
                     # "fee_rate": hex((1 << 64) - 1),
                 ],
-                "hash_algorithm": "ckbhash",
+                "hash_algorithm": "ckb_hash",
             }
         )
 
@@ -37,6 +37,6 @@ class TestHashAlgorithm(FiberTest):
                     self.fiber2.get_client().node_info()["pubkey"],
                     # "fee_rate": hex((1 << 64) - 1),
                 ],
-                "hash_algorithm": "ckbhash",
+                "hash_algorithm": "ckb_hash",
             }
         )

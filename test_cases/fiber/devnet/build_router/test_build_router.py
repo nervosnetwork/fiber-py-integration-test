@@ -59,7 +59,7 @@ class TestBuildRouter(FiberTest):
         )
         time.sleep(1)
         self.wait_for_channel_state(
-            self.fibers[3].get_client(), self.fibers[0].get_pubkey(), "CHANNEL_READY"
+            self.fibers[3].get_client(), self.fibers[0].get_pubkey(), "ChannelReady"
         )
         # 查看d-a的channeloutpoint
         print(f"a pubkey:{self.fibers[0].get_pubkey()}")
@@ -124,7 +124,7 @@ class TestBuildRouter(FiberTest):
         )
         time.sleep(1)
         self.wait_for_channel_state(
-            self.fibers[0].get_client(), self.fibers[1].get_pubkey(), "CHANNEL_READY"
+            self.fibers[0].get_client(), self.fibers[1].get_pubkey(), "ChannelReady"
         )
 
         # 获取通道outpoint

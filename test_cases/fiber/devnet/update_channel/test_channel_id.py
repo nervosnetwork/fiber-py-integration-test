@@ -44,7 +44,7 @@ class TestChanelId(FiberTest):
             }
         )
         self.wait_for_channel_state(
-            self.fiber3.get_client(), self.fiber1.get_pubkey(), "CHANNEL_READY", 120
+            self.fiber3.get_client(), self.fiber1.get_pubkey(), "ChannelReady", 120
         )
 
         # 2. fiber1(200) open_channel fiber2(0)
@@ -56,7 +56,7 @@ class TestChanelId(FiberTest):
             }
         )
         self.wait_for_channel_state(
-            self.fiber1.get_client(), self.fiber2.get_pubkey(), "CHANNEL_READY", 120
+            self.fiber1.get_client(), self.fiber2.get_pubkey(), "ChannelReady", 120
         )
         # 3. fiber1 send_payment fiber 2 1 ckb
         invoice_balance = hex(1 * 100000000)
@@ -141,7 +141,7 @@ class TestChanelId(FiberTest):
     #         }
     #     )
     #     self.wait_for_channel_state(
-    #         self.fiber1.get_client(), self.fiber2.get_pubkey(), "CHANNEL_READY", 120
+    #         self.fiber1.get_client(), self.fiber2.get_pubkey(), "ChannelReady", 120
     #     )
     #     # 3. fiber1 send_payment fiber 2 1 ckb
     #     invoice_balance = hex(1 * 100000000)

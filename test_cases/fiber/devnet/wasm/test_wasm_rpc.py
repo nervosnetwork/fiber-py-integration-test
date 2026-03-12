@@ -37,7 +37,7 @@ class WasmRpcTest(FiberTest):
             }
         )
         self.wait_for_channel_state(
-            wasmFiber.get_client(), self.fiber1.get_pubkey(), "AWAITING_TX_SIGNATURES"
+            wasmFiber.get_client(), self.fiber1.get_pubkey(), "AwaitingTxSignatures"
         )
         pending_channel_id = wasmFiber.get_client().list_channels({})["channels"][0][
             "channel_id"
@@ -51,7 +51,7 @@ class WasmRpcTest(FiberTest):
         )
         time.sleep(1)
         self.wait_for_channel_state(
-            wasmFiber.get_client(), self.fiber1.get_pubkey(), "CHANNEL_READY"
+            wasmFiber.get_client(), self.fiber1.get_pubkey(), "ChannelReady"
         )
 
         # accept_channel
@@ -71,7 +71,7 @@ class WasmRpcTest(FiberTest):
             }
         )
         self.wait_for_channel_state(
-            wasmFiber.get_client(), self.fiber1.get_pubkey(), "CHANNEL_READY"
+            wasmFiber.get_client(), self.fiber1.get_pubkey(), "ChannelReady"
         )
         # list_channels
         wasm_list_channel = wasmFiber.get_client().list_channels({})
@@ -115,7 +115,7 @@ class WasmRpcTest(FiberTest):
         self.wait_for_channel_state(
             wasmFiber.get_client(),
             self.fiber1.get_pubkey(),
-            "CLOSED",
+            "Closed",
             include_closed=True,
             channel_id=shutdown_channel_id,
         )

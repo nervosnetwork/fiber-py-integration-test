@@ -29,9 +29,9 @@ class TestMaxTlcValueInFlight(FiberTest):
                 "max_tlc_value_in_flight": hex(1 * 100000000),
             }
         )
-        # 3. Wait for the channel state to be "CHANNEL_READY"
+        # 3. Wait for the channel state to be "ChannelReady"
         self.wait_for_channel_state(
-            self.fiber2.get_client(), self.fiber1.get_pubkey(), "CHANNEL_READY"
+            self.fiber2.get_client(), self.fiber1.get_pubkey(), "ChannelReady"
         )
         # node1 send_payment to node2
         self.send_payment(self.fiber2, self.fiber1, 1 * 100000000)

@@ -34,7 +34,7 @@ class TestDescription(FiberTest):
     #             get_invoice = self.fiber1.get_client().get_invoice({
     #                 "payment_hash": invoice["invoice"]["data"]["payment_hash"]
     #             })
-    #             assert get_invoice["invoice"]["data"]["attrs"][0]["Description"] == rd_str
+    #             assert get_invoice["invoice"]["data"]["attrs"][0]["description"] == rd_str
     #             low = mid + 1
     #         except Exception:
     #             high = mid - 1
@@ -53,7 +53,7 @@ class TestDescription(FiberTest):
 
         # 2. check channel state
         self.wait_for_channel_state(
-            self.fiber1.get_client(), self.fiber2.get_pubkey(), "CHANNEL_READY"
+            self.fiber1.get_client(), self.fiber2.get_pubkey(), "ChannelReady"
         )
         rand_str_length = 639
 
@@ -101,7 +101,7 @@ class TestDescription(FiberTest):
 
         # 2. check channel state
         self.wait_for_channel_state(
-            self.fiber1.get_client(), self.fiber2.get_pubkey(), "CHANNEL_READY"
+            self.fiber1.get_client(), self.fiber2.get_pubkey(), "ChannelReady"
         )
         rand_str_length = 1024
         test_description_str = ["", " ", "sa😧"]

@@ -36,5 +36,5 @@ class TestIssue675(FiberTest):
             self.wait_payment_finished(self.fiber1, payment_hash)
 
         self.wait_for_channel_state(
-            self.fiber1.get_client(), self.fiber2.get_pubkey(), "CLOSED", 30, True
+            self.fiber1.get_client(), self.fiber2.get_pubkey(), "Closed", 30, True
         )

@@ -53,7 +53,7 @@ class TestAllowTrampolineRouting(FiberTest):
             }
         )
         self.wait_for_channel_state(
-            self.fiber1.get_client(), self.fiber2.get_pubkey(), "CHANNEL_READY"
+            self.fiber1.get_client(), self.fiber2.get_pubkey(), "ChannelReady"
         )
 
         self.fiber2.get_client().open_channel(
@@ -64,7 +64,7 @@ class TestAllowTrampolineRouting(FiberTest):
             }
         )
         self.wait_for_channel_state(
-            self.fiber2.get_client(), self.fiber3.get_pubkey(), "CHANNEL_READY"
+            self.fiber2.get_client(), self.fiber3.get_pubkey(), "ChannelReady"
         )
         self._wait_node_in_graph(
             self.fiber1, self.fiber2.get_client().node_info()["pubkey"]
@@ -146,7 +146,7 @@ class TestAllowTrampolineRouting(FiberTest):
             }
         )
         self.wait_for_channel_state(
-            self.fiber1.get_client(), self.fiber2.get_pubkey(), "CHANNEL_READY"
+            self.fiber1.get_client(), self.fiber2.get_pubkey(), "ChannelReady"
         )
         self.fiber2.get_client().open_channel(
             {
@@ -156,7 +156,7 @@ class TestAllowTrampolineRouting(FiberTest):
             }
         )
         self.wait_for_channel_state(
-            self.fiber2.get_client(), self.fiber3.get_pubkey(), "CHANNEL_READY"
+            self.fiber2.get_client(), self.fiber3.get_pubkey(), "ChannelReady"
         )
         self.fiber3.get_client().open_channel(
             {
@@ -166,7 +166,7 @@ class TestAllowTrampolineRouting(FiberTest):
             }
         )
         self.wait_for_channel_state(
-            self.fiber3.get_client(), self.fiber4.get_pubkey(), "CHANNEL_READY"
+            self.fiber3.get_client(), self.fiber4.get_pubkey(), "ChannelReady"
         )
         self._wait_node_in_graph(
             self.fiber1, self.fiber2.get_client().node_info()["pubkey"]
@@ -209,7 +209,7 @@ class TestAllowTrampolineRouting(FiberTest):
             }
         )
         self.wait_for_channel_state(
-            self.fiber1.get_client(), self.fiber2.get_pubkey(), "CHANNEL_READY"
+            self.fiber1.get_client(), self.fiber2.get_pubkey(), "ChannelReady"
         )
         self.fiber2.get_client().open_channel(
             {
@@ -219,7 +219,7 @@ class TestAllowTrampolineRouting(FiberTest):
             }
         )
         self.wait_for_channel_state(
-            self.fiber2.get_client(), self.fiber3.get_pubkey(), "CHANNEL_READY"
+            self.fiber2.get_client(), self.fiber3.get_pubkey(), "ChannelReady"
         )
         self.fiber3.get_client().open_channel(
             {
@@ -229,7 +229,7 @@ class TestAllowTrampolineRouting(FiberTest):
             }
         )
         self.wait_for_channel_state(
-            self.fiber3.get_client(), self.fiber4.get_pubkey(), "CHANNEL_READY"
+            self.fiber3.get_client(), self.fiber4.get_pubkey(), "ChannelReady"
         )
         self._wait_node_in_graph(
             self.fiber1, self.fiber2.get_client().node_info()["pubkey"]

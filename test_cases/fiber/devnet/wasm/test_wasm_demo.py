@@ -68,7 +68,7 @@ class WasmDemo(FiberTest):
         self.wait_for_channel_state(
             wasmFiber.get_client(),
             self.fiber1.get_pubkey(),
-            "CLOSED",
+            "Closed",
             include_closed=True,
         )
         shutdown_channel_id = wasmFiber.get_client().list_channels({})["channels"][0][
@@ -85,7 +85,7 @@ class WasmDemo(FiberTest):
         self.wait_for_channel_state(
             wasmFiber.get_client(),
             self.fiber1.get_pubkey(),
-            "CLOSED",
+            "Closed",
             include_closed=True,
             channel_id=shutdown_channel_id,
         )
