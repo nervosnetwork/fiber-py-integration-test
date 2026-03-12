@@ -46,7 +46,7 @@ class TestForceClose(FiberTest):
         self.Miner.miner_until_tx_committed(self.node, settle_tx)
 ```
 
-## Multi-Node Topology Pattern
+## Multi-Node Topology Pattern (FiberTest)
 
 ```python
 def test_multi_hop(self):
@@ -60,6 +60,82 @@ def test_multi_hop(self):
     time.sleep(3)  # Gossip propagation
     self.send_payment(self.fiber1, fiber3, 10 * 100000000)
 ```
+
+## SharedFiberTest - Shared Topology Pattern
+
+When multiple test methods share the same multi-node topology (e.g. routing, fee, boundary value tests), use `SharedFiberTest` to avoid repeated setup overhead.
+
+### Basic Structure
+
+```python
+from framework.basic_share_fiber import SharedFiberTest
+from framework.test_fiber import Fiber
+
+class TestMyFeature(SharedFiberTest):
+    fiber3: Fiber
+    fiber4: Fiber
+
+    def setUp(self):
+        if getattr(TestMyFeature, "_channel_inited", False):
+            return
+        TestMyFeature._channel_inited = True
+
+        self.__class__.fiber3 = self.start_new_fiber(self.generate_account(10000))
+        self.__class__.fiber4 = self.start_new_fiber(self.generate_account(10000))
+        self.open_channel(self.fiber1, self.fiber2, 1000 * 100000000, 0)
+        self.open_channel(self.fiber2, self.fiber3, 1000 * 100000000, 0)
+        self.open_channel(self.fiber3, self.fiber4, 1000 * 100000000, 0)
+
+    def test_scenario_a(self):
+        # Reuses the topology above
+        pass
+
+    def test_scenario_b(self):
+        # Same topology, different test
+        pass
+```
+
+### Key Differences from FiberTest
+
+| Aspect | FiberTest | SharedFiberTest |
+|--------|-----------|-----------------|
+| `setup_class` | Starts CKB node only | Starts CKB node + Fiber nodes + UDT + peer connection |
+| `setup_method` | Full Fiber env init per test | Calls `CkbTest.setup_method` only (skips Fiber init) |
+| `teardown_method` | Stops + cleans all Fibers | Calls `CkbTest.teardown_method` only (keeps Fibers) |
+| `teardown_class` | Stops CKB node | Stops all Fibers + CKB node |
+
+### One-Time Channel Init Guard
+
+The `setUp()` method (unittest convention, auto-called before each test) uses a class-level `_channel_inited` flag to ensure topology is built only once:
+
+```python
+def setUp(self):
+    if getattr(ClassName, "_channel_inited", False):
+        return
+    ClassName._channel_inited = True
+    # ... build channels here ...
+```
+
+### Storing Extra Nodes
+
+Extra Fiber nodes must be stored on the class (not instance) to persist across methods:
+
+```python
+self.__class__.fiber3 = self.start_new_fiber(self.generate_account(10000))
+```
+
+### When to Use SharedFiberTest
+
+- Routing tests with complex topologies (5+ nodes, multiple paths)
+- Fee calculation tests across different parameter combinations
+- Boundary value tests for payment amounts, hops, etc.
+- Any scenario where building the topology once and running many assertions is efficient
+
+### When NOT to Use SharedFiberTest
+
+- Tests that perform destructive operations (force close, revoked commit)
+- Tests requiring clean channel state (balance verification from zero)
+- Tests that modify Fiber config or restart nodes
 
 ## Hold Invoice Pattern
 

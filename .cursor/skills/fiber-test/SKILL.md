@@ -17,6 +17,7 @@ For detailed Lightning Network concepts mapped to Fiber, see [references/lightni
 framework/
 ├── basic.py              # CkbTest base (unittest.TestCase → CKB node)
 ├── basic_fiber.py        # FiberTest base (2 Fiber nodes + helpers)
+├── basic_share_fiber.py  # SharedFiberTest base (shared env across methods)
 ├── basic_fiber_with_cch.py  # FiberCchTest (+ BTC + LND for cross-chain)
 ├── fiber_rpc.py          # FiberRPCClient (JSON-RPC 2.0)
 ├── rpc.py                # RPCClient for CKB
@@ -27,11 +28,33 @@ framework/
 └── helper/               # miner.py, ckb_cli.py, contract.py, udt_contract.py, tx.py
 ```
 
-**Inheritance**: `unittest.TestCase → CkbTest → FiberTest → FiberCchTest`
+**Inheritance**:
+
+```
+unittest.TestCase → CkbTest → FiberTest → FiberCchTest
+                                  ↓
+                            SharedFiberTest
+```
+
+- **FiberTest**: Each test method (`setup_method`) starts fresh Fiber nodes, issues UDT, connects peers, then tears down everything in `teardown_method`. Isolated but slow.
+- **SharedFiberTest**: Fiber environment is initialized once in `setup_class` and shared across all test methods. Only `teardown_class` cleans up. Much faster for multi-test classes that build on the same topology.
 
 Each test method auto-gets: CKB dev node (`self.node`), two connected Fiber nodes (`self.fiber1`, `self.fiber2`), UDT contract (`self.udtContract`).
 
-## Writing Tests - Quick Template
+### Choosing FiberTest vs SharedFiberTest
+
+| Criteria | FiberTest | SharedFiberTest |
+|----------|-----------|-----------------|
+| **Environment lifecycle** | Per-method (fresh each test) | Per-class (shared across tests) |
+| **Speed** | Slow (full setup/teardown per test) | Fast (one-time setup, reused) |
+| **Test isolation** | Full isolation | Tests share state — order may matter |
+| **Use when** | Tests need clean state, destructive ops (force close, revoke) | Multiple tests build on same topology (routing, fee, payment params) |
+| **Extra nodes** | `self.start_new_fiber(key)` in test method | `self.start_new_fiber(key)` in `setUp()` with `_channel_inited` guard |
+| **Cleanup** | Automatic per-method | Automatic per-class |
+
+## Writing Tests - Quick Templates
+
+### Template A: FiberTest (isolated per-method environment)
 
 ```python
 import time
@@ -56,6 +79,54 @@ class TestMyFeature(FiberTest):
             })
         assert "should be greater than or equal to" in exc_info.value.args[0]
 ```
+
+### Template B: SharedFiberTest (shared environment, one-time topology setup)
+
+Use when multiple tests share the same channel topology (routing tests, fee tests, parameter boundary tests).
+
+```python
+import pytest
+from framework.basic_share_fiber import SharedFiberTest
+from framework.test_fiber import Fiber
+
+class TestMySharedFeature(SharedFiberTest):
+    # Optional config override
+    # start_fiber_config = {"fiber_auto_accept_amount": "0"}
+
+    fiber3: Fiber
+    fiber4: Fiber
+
+    def setUp(self):
+        """One-time topology setup, guarded by _channel_inited flag."""
+        if getattr(TestMySharedFeature, "_channel_inited", False):
+            return
+        TestMySharedFeature._channel_inited = True
+
+        # Create extra nodes
+        self.__class__.fiber3 = self.start_new_fiber(self.generate_account(10000))
+        self.__class__.fiber4 = self.start_new_fiber(self.generate_account(10000))
+
+        # Build topology: fiber1 -- fiber2 -- fiber3 -- fiber4
+        self.open_channel(self.fiber1, self.fiber2, 1000 * 100000000, 0)
+        self.open_channel(self.fiber2, self.fiber3, 1000 * 100000000, 0)
+        self.open_channel(self.fiber3, self.fiber4, 1000 * 100000000, 0)
+
+    def test_multi_hop_payment(self):
+        payment_hash = self.send_payment(self.fiber1, self.fiber4, 1 * 100000000)
+        result = self.fiber1.get_client().get_payment({"payment_hash": payment_hash})
+        assert result["status"] == "Success"
+
+    def test_dry_run_fee(self):
+        payment = self.fiber1.get_client().send_payment({
+            "target_pubkey": self.fiber4.get_client().node_info()["pubkey"],
+            "amount": hex(1 * 100000000),
+            "keysend": True,
+            "dry_run": True,
+        })
+        assert int(payment["fee"], 16) > 0
+```
+
+**Key pattern**: `setUp()` (unittest-style, called before each test) + `_channel_inited` class-level flag ensures topology is built only once. Use `self.__class__.fiberN` to store extra nodes on the class.
 
 ## Key Helper Methods
 
