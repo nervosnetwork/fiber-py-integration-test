@@ -175,6 +175,9 @@ class FiberRPCClient:
         """
         return self.call("get_payment", [param])
 
+    def list_payments(self, param={}):
+        return self.call("list_payments", [param])
+
     def node_info(self):
         """
         curl --location 'http://127.0.0.1:8229' --header 'Content-Type: application/json' --data '{
