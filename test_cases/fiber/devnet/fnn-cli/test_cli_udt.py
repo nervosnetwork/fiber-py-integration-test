@@ -14,12 +14,7 @@ class TestCliUdt(FiberTest):
     """
 
     def get_udt_type_script(self):
-        deploy_hash, deploy_index = self.udtContract.get_deploy_hash_and_index()
-        return {
-            "code_hash": deploy_hash,
-            "hash_type": "type",
-            "args": self.udtContract.get_owner_arg(),
-        }
+        return self.get_account_udt_script(self.fiber1.account_private)
 
     def fund_accounts_for_udt(self):
         """Faucet UDT tokens to both fiber nodes."""
@@ -35,6 +30,7 @@ class TestCliUdt(FiberTest):
             self.fiber1.account_private,
             10000 * 100000000,
         )
+        time.sleep(10)
 
     # ───────────────────────────────────────────────
     # Open UDT channel via CLI
@@ -73,33 +69,17 @@ class TestCliUdt(FiberTest):
         self.fund_accounts_for_udt()
 
         udt_script = self.get_udt_type_script()
-        self.open_channel(
-            self.fiber1,
-            self.fiber2,
-            1000 * 100000000,
-            1000 * 100000000,
-            1000,
-            1000,
+        self.fiber1.get_client().open_channel(
+            {
+                "pubkey": self.fiber2.get_pubkey(),
+                "funding_amount": hex(2000 * 100000000),
+                "public": True,
+                "funding_udt_type_script": udt_script,
+            }
         )
-
-        udt_channels = [
-            ch
-            for ch in self.fiber1.get_client().list_channels({})["channels"]
-            if ch.get("funding_udt_type_script") is not None
-        ]
-
-        if len(udt_channels) == 0:
-            self.fiber1.get_client().open_channel(
-                {
-                    "pubkey": self.fiber2.get_pubkey(),
-                    "funding_amount": hex(2000 * 100000000),
-                    "public": True,
-                    "funding_udt_type_script": udt_script,
-                }
-            )
-            self.wait_for_channel_state(
-                self.fiber1.get_client(), self.fiber2.get_pubkey(), "ChannelReady"
-            )
+        self.wait_for_channel_state(
+            self.fiber1.get_client(), self.fiber2.get_pubkey(), "ChannelReady"
+        )
 
         cli1 = FnnCli(f"http://127.0.0.1:{self.fiber1.rpc_port}")
         target_pubkey = self.fiber2.get_client().node_info()["pubkey"]

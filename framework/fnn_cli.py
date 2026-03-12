@@ -333,7 +333,8 @@ class FnnCli:
         return self._run_json(args)
 
     def send_payment_with_router(self, router, **kwargs):
-        args = ["payment", "send_payment_with_router", "--router", json.dumps(router)]
+        router_data = router.get("router_hops", router) if isinstance(router, dict) else router
+        args = ["payment", "send_payment_with_router", "--router", json.dumps(router_data)]
         str_map = {
             "payment_hash": "--payment-hash",
             "invoice": "--invoice",

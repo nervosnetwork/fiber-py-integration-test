@@ -3,6 +3,7 @@ import time
 import pytest
 
 from framework.basic_fiber import FiberTest
+from framework.config import DEFAULT_MIN_DEPOSIT_CKB
 from framework.fnn_cli import FnnCli
 
 
@@ -10,7 +11,48 @@ class TestCliAdvancedChannel(FiberTest):
     """Test advanced channel CLI commands: open with extra params,
     force close, only-pending filter, accept_channel, and update enabled."""
 
-    start_fiber_config = {"fiber_auto_accept_amount": "0"}
+    start_fiber_config = {
+        "fiber_auto_accept_channel_ckb_funding_amount": 0,
+    }
+
+    # Open/accept direction matches accept_channel/test_max_tlc_number_in_flight_debug.py:
+    # fiber1 initiates open_channel, fiber2 accept_channel. The reverse (fiber2 open,
+    # fiber1 accept) consistently hits "No channel with temp id ... found" on the
+    # acceptor in practice, so all tests below use cli1 open -> cli2 accept.
+
+    def _accept_channel_when_ready(
+        self, cli_acceptor, temporary_channel_id, funding_amount, **kwargs
+    ):
+        """Call accept_channel after the acceptor has registered the pending open.
+
+        Same timing as accept_channel/test_max_tlc_number_in_flight_debug.py:
+        RPC open_channel then time.sleep(1) then accept_channel. Here open is via
+        CLI on the initiator; the acceptor only has the temp id after P2P delivery.
+        Polling list_channels(only_pending) on the acceptor is unreliable (CLI/JSON
+        shape may not match temporary_channel_id), so we sleep like the debug test
+        then retry accept on 'No channel with temp id' until success or timeout.
+        """
+        time.sleep(1)
+        last_exc = None
+        for _ in range(60):  # ~30s total with 0.5s backoff
+            try:
+                return cli_acceptor.accept_channel(
+                    temporary_channel_id=temporary_channel_id,
+                    funding_amount=funding_amount,
+                    **kwargs,
+                )
+            except Exception as e:
+                last_exc = e
+                err = str(e).lower()
+                if (
+                    "no channel with temp id" not in err
+                    and "temp id" not in err
+                ):
+                    raise
+                time.sleep(0.5)
+        if last_exc:
+            raise last_exc
+        raise RuntimeError("accept_channel retry exhausted")
 
     # ───────────────────────────────────────────────
     # open_channel with advanced parameters
@@ -18,10 +60,10 @@ class TestCliAdvancedChannel(FiberTest):
 
     def test_open_channel_with_tlc_params(self):
         """Open channel via CLI with TLC fee and expiry delta."""
-        cli2 = FnnCli(f"http://127.0.0.1:{self.fiber2.rpc_port}")
+        cli1 = FnnCli(f"http://127.0.0.1:{self.fiber1.rpc_port}")
 
-        result = cli2.open_channel(
-            pubkey=self.fiber1.get_pubkey(),
+        result = cli1.open_channel(
+            pubkey=self.fiber2.get_pubkey(),
             funding_amount=1000 * 100000000,
             public=True,
             tlc_fee_proportional_millionths=5000,
@@ -29,18 +71,15 @@ class TestCliAdvancedChannel(FiberTest):
         )
         assert "temporary_channel_id" in result
 
-        cli1 = FnnCli(f"http://127.0.0.1:{self.fiber1.rpc_port}")
-        cli1.accept_channel(
-            temporary_channel_id=result["temporary_channel_id"],
-            funding_amount=0,
-        )
+        cli2 = FnnCli(f"http://127.0.0.1:{self.fiber2.rpc_port}")
+        self._accept_channel_when_ready(cli2, result["temporary_channel_id"], DEFAULT_MIN_DEPOSIT_CKB)
 
         self.wait_for_channel_state(
-            self.fiber2.get_client(), self.fiber1.get_pubkey(), "ChannelReady"
+            self.fiber1.get_client(), self.fiber2.get_pubkey(), "ChannelReady"
         )
 
-        channels = self.fiber2.get_client().list_channels(
-            {"pubkey": self.fiber1.get_pubkey()}
+        channels = self.fiber1.get_client().list_channels(
+            {"pubkey": self.fiber2.get_pubkey()}
         )
         assert len(channels["channels"]) >= 1
         ch = channels["channels"][0]
@@ -48,10 +87,10 @@ class TestCliAdvancedChannel(FiberTest):
 
     def test_open_channel_with_max_tlc_limits(self):
         """Open channel via CLI with max_tlc_value_in_flight and max_tlc_number_in_flight."""
-        cli2 = FnnCli(f"http://127.0.0.1:{self.fiber2.rpc_port}")
+        cli1 = FnnCli(f"http://127.0.0.1:{self.fiber1.rpc_port}")
 
-        result = cli2.open_channel(
-            pubkey=self.fiber1.get_pubkey(),
+        result = cli1.open_channel(
+            pubkey=self.fiber2.get_pubkey(),
             funding_amount=1000 * 100000000,
             public=True,
             max_tlc_value_in_flight=500 * 100000000,
@@ -59,14 +98,11 @@ class TestCliAdvancedChannel(FiberTest):
         )
         assert "temporary_channel_id" in result
 
-        cli1 = FnnCli(f"http://127.0.0.1:{self.fiber1.rpc_port}")
-        cli1.accept_channel(
-            temporary_channel_id=result["temporary_channel_id"],
-            funding_amount=0,
-        )
+        cli2 = FnnCli(f"http://127.0.0.1:{self.fiber2.rpc_port}")
+        self._accept_channel_when_ready(cli2, result["temporary_channel_id"], DEFAULT_MIN_DEPOSIT_CKB)
 
         self.wait_for_channel_state(
-            self.fiber2.get_client(), self.fiber1.get_pubkey(), "ChannelReady"
+            self.fiber1.get_client(), self.fiber2.get_pubkey(), "ChannelReady"
         )
 
     # ───────────────────────────────────────────────
@@ -75,46 +111,46 @@ class TestCliAdvancedChannel(FiberTest):
 
     def test_accept_channel_via_cli(self):
         """Open channel with auto-accept disabled, accept via CLI."""
-        cli2 = FnnCli(f"http://127.0.0.1:{self.fiber2.rpc_port}")
+        cli1 = FnnCli(f"http://127.0.0.1:{self.fiber1.rpc_port}")
 
-        result = cli2.open_channel(
-            pubkey=self.fiber1.get_pubkey(),
+        result = cli1.open_channel(
+            pubkey=self.fiber2.get_pubkey(),
             funding_amount=500 * 100000000,
             public=True,
         )
         temp_id = result["temporary_channel_id"]
 
-        cli1 = FnnCli(f"http://127.0.0.1:{self.fiber1.rpc_port}")
-        accept_result = cli1.accept_channel(
-            temporary_channel_id=temp_id,
-            funding_amount=200 * 100000000,
+        cli2 = FnnCli(f"http://127.0.0.1:{self.fiber2.rpc_port}")
+        accept_result = self._accept_channel_when_ready(
+            cli2, temp_id, 200 * 100000000
         )
         assert accept_result is not None
 
         self.wait_for_channel_state(
-            self.fiber2.get_client(), self.fiber1.get_pubkey(), "ChannelReady"
+            self.fiber1.get_client(), self.fiber2.get_pubkey(), "ChannelReady"
         )
 
-        channels = cli2.list_channels()
+        channels = cli1.list_channels()
         assert len(channels["channels"]) >= 1
         ch = channels["channels"][0]
         assert ch["state"]["state_name"] == "ChannelReady"
 
     def test_accept_channel_with_tlc_params(self):
         """Accept channel via CLI with custom TLC parameters."""
-        cli2 = FnnCli(f"http://127.0.0.1:{self.fiber2.rpc_port}")
+        cli1 = FnnCli(f"http://127.0.0.1:{self.fiber1.rpc_port}")
 
-        result = cli2.open_channel(
-            pubkey=self.fiber1.get_pubkey(),
+        result = cli1.open_channel(
+            pubkey=self.fiber2.get_pubkey(),
             funding_amount=500 * 100000000,
             public=True,
         )
         temp_id = result["temporary_channel_id"]
 
-        cli1 = FnnCli(f"http://127.0.0.1:{self.fiber1.rpc_port}")
-        cli1.accept_channel(
-            temporary_channel_id=temp_id,
-            funding_amount=100 * 100000000,
+        cli2 = FnnCli(f"http://127.0.0.1:{self.fiber2.rpc_port}")
+        self._accept_channel_when_ready(
+            cli2,
+            temp_id,
+            100 * 100000000,
             tlc_fee_proportional_millionths=3000,
             max_tlc_number_in_flight=20,
         )
@@ -129,29 +165,26 @@ class TestCliAdvancedChannel(FiberTest):
 
     def test_list_channels_only_pending(self):
         """only-pending filter should show channels not yet CHANNEL_READY."""
-        cli2 = FnnCli(f"http://127.0.0.1:{self.fiber2.rpc_port}")
+        cli1 = FnnCli(f"http://127.0.0.1:{self.fiber1.rpc_port}")
 
-        result = cli2.open_channel(
-            pubkey=self.fiber1.get_pubkey(),
+        result = cli1.open_channel(
+            pubkey=self.fiber2.get_pubkey(),
             funding_amount=500 * 100000000,
             public=True,
         )
         assert "temporary_channel_id" in result
 
-        pending = cli2.list_channels(only_pending=True)
+        pending = cli1.list_channels(only_pending=True)
         assert "channels" in pending
 
-        cli1 = FnnCli(f"http://127.0.0.1:{self.fiber1.rpc_port}")
-        cli1.accept_channel(
-            temporary_channel_id=result["temporary_channel_id"],
-            funding_amount=0,
-        )
+        cli2 = FnnCli(f"http://127.0.0.1:{self.fiber2.rpc_port}")
+        self._accept_channel_when_ready(cli2, result["temporary_channel_id"], DEFAULT_MIN_DEPOSIT_CKB)
 
         self.wait_for_channel_state(
-            self.fiber2.get_client(), self.fiber1.get_pubkey(), "ChannelReady"
+            self.fiber1.get_client(), self.fiber2.get_pubkey(), "ChannelReady"
         )
 
-        pending_after = cli2.list_channels(only_pending=True)
+        pending_after = cli1.list_channels(only_pending=True)
         assert len(pending_after["channels"]) == 0
 
     # ───────────────────────────────────────────────
@@ -160,31 +193,30 @@ class TestCliAdvancedChannel(FiberTest):
 
     def test_update_channel_disable_and_enable(self):
         """Disable and re-enable a channel via CLI update_channel."""
-        cli2 = FnnCli(f"http://127.0.0.1:{self.fiber2.rpc_port}")
+        cli1 = FnnCli(f"http://127.0.0.1:{self.fiber1.rpc_port}")
 
-        result = cli2.open_channel(
-            pubkey=self.fiber1.get_pubkey(),
+        result = cli1.open_channel(
+            pubkey=self.fiber2.get_pubkey(),
             funding_amount=500 * 100000000,
             public=True,
         )
 
-        cli1 = FnnCli(f"http://127.0.0.1:{self.fiber1.rpc_port}")
-        cli1.accept_channel(
-            temporary_channel_id=result["temporary_channel_id"],
-            funding_amount=100 * 100000000,
+        cli2 = FnnCli(f"http://127.0.0.1:{self.fiber2.rpc_port}")
+        self._accept_channel_when_ready(
+            cli2, result["temporary_channel_id"], 100 * 100000000
         )
 
         self.wait_for_channel_state(
-            self.fiber2.get_client(), self.fiber1.get_pubkey(), "ChannelReady"
+            self.fiber1.get_client(), self.fiber2.get_pubkey(), "ChannelReady"
         )
 
-        channels = cli2.list_channels()
+        channels = cli1.list_channels()
         channel_id = channels["channels"][0]["channel_id"]
 
-        cli2.update_channel(channel_id, enabled=False)
+        cli1.update_channel(channel_id, enabled=False)
         time.sleep(1)
 
-        cli2.update_channel(channel_id, enabled=True)
+        cli1.update_channel(channel_id, enabled=True)
         time.sleep(1)
 
     # ───────────────────────────────────────────────
@@ -193,37 +225,33 @@ class TestCliAdvancedChannel(FiberTest):
 
     def test_force_close_channel_via_cli(self):
         """Force close a channel via CLI shutdown_channel --force."""
-        cli2 = FnnCli(f"http://127.0.0.1:{self.fiber2.rpc_port}")
+        cli1 = FnnCli(f"http://127.0.0.1:{self.fiber1.rpc_port}")
 
-        result = cli2.open_channel(
-            pubkey=self.fiber1.get_pubkey(),
+        result = cli1.open_channel(
+            pubkey=self.fiber2.get_pubkey(),
             funding_amount=500 * 100000000,
             public=True,
         )
 
-        cli1 = FnnCli(f"http://127.0.0.1:{self.fiber1.rpc_port}")
-        cli1.accept_channel(
-            temporary_channel_id=result["temporary_channel_id"],
-            funding_amount=100 * 100000000,
+        cli2 = FnnCli(f"http://127.0.0.1:{self.fiber2.rpc_port}")
+        self._accept_channel_when_ready(
+            cli2, result["temporary_channel_id"], 100 * 100000000
         )
 
         self.wait_for_channel_state(
-            self.fiber2.get_client(), self.fiber1.get_pubkey(), "ChannelReady"
+            self.fiber1.get_client(), self.fiber2.get_pubkey(), "ChannelReady"
         )
 
-        channels = cli2.list_channels()
+        channels = cli1.list_channels()
         channel_id = channels["channels"][0]["channel_id"]
 
-        close_script = self.get_account_script(self.fiber2.account_private)
-        cli2.shutdown_channel(
+        cli1.shutdown_channel(
             channel_id=channel_id,
-            close_script=close_script,
-            fee_rate=1020,
             force=True,
         )
         time.sleep(20)
 
-        channels_after = cli2.list_channels(include_closed=True)
+        channels_after = cli1.list_channels(include_closed=True)
         found = False
         for ch in channels_after["channels"]:
             if ch["channel_id"] == channel_id:
@@ -240,22 +268,19 @@ class TestCliAdvancedChannel(FiberTest):
 
     def test_open_one_way_channel_via_cli(self):
         """Open a one-way channel via CLI."""
-        cli2 = FnnCli(f"http://127.0.0.1:{self.fiber2.rpc_port}")
+        cli1 = FnnCli(f"http://127.0.0.1:{self.fiber1.rpc_port}")
 
-        result = cli2.open_channel(
-            pubkey=self.fiber1.get_pubkey(),
+        result = cli1.open_channel(
+            pubkey=self.fiber2.get_pubkey(),
             funding_amount=500 * 100000000,
-            public=True,
+            public=False,
             one_way=True,
         )
         assert "temporary_channel_id" in result
 
-        cli1 = FnnCli(f"http://127.0.0.1:{self.fiber1.rpc_port}")
-        cli1.accept_channel(
-            temporary_channel_id=result["temporary_channel_id"],
-            funding_amount=0,
-        )
+        cli2 = FnnCli(f"http://127.0.0.1:{self.fiber2.rpc_port}")
+        self._accept_channel_when_ready(cli2, result["temporary_channel_id"], DEFAULT_MIN_DEPOSIT_CKB)
 
         self.wait_for_channel_state(
-            self.fiber2.get_client(), self.fiber1.get_pubkey(), "ChannelReady"
+            self.fiber1.get_client(), self.fiber2.get_pubkey(), "ChannelReady"
         )

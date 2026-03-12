@@ -45,10 +45,10 @@ class TestCliSettleInvoice(FiberTest):
         cli2 = FnnCli(f"http://127.0.0.1:{self.fiber2.rpc_port}")
         cli2.settle_invoice(payment_hash, preimage)
 
+        self.wait_payment_state(self.fiber1, payment_hash, "Success")
+
         got_after = cli2.get_invoice(payment_hash)
         assert got_after["status"] == "Paid"
-
-        self.wait_payment_state(self.fiber1, payment_hash, "Success")
 
     def test_settle_invoice_cli_vs_rpc_consistency(self):
         """Verify that settle_invoice via CLI produces the same invoice state as RPC."""
@@ -78,6 +78,8 @@ class TestCliSettleInvoice(FiberTest):
 
         cli2 = FnnCli(f"http://127.0.0.1:{self.fiber2.rpc_port}")
         cli2.settle_invoice(payment_hash, preimage)
+
+        self.wait_payment_state(self.fiber1, payment_hash, "Success")
 
         cli_result = cli2.get_invoice(payment_hash)
         rpc_result = self.fiber2.get_client().get_invoice(
