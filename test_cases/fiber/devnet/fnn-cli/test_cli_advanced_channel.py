@@ -44,10 +44,7 @@ class TestCliAdvancedChannel(FiberTest):
             except Exception as e:
                 last_exc = e
                 err = str(e).lower()
-                if (
-                    "no channel with temp id" not in err
-                    and "temp id" not in err
-                ):
+                if "no channel with temp id" not in err and "temp id" not in err:
                     raise
                 time.sleep(0.5)
         if last_exc:
@@ -72,7 +69,9 @@ class TestCliAdvancedChannel(FiberTest):
         assert "temporary_channel_id" in result
 
         cli2 = FnnCli(f"http://127.0.0.1:{self.fiber2.rpc_port}")
-        self._accept_channel_when_ready(cli2, result["temporary_channel_id"], DEFAULT_MIN_DEPOSIT_CKB)
+        self._accept_channel_when_ready(
+            cli2, result["temporary_channel_id"], DEFAULT_MIN_DEPOSIT_CKB
+        )
 
         self.wait_for_channel_state(
             self.fiber1.get_client(), self.fiber2.get_pubkey(), "ChannelReady"
@@ -99,7 +98,9 @@ class TestCliAdvancedChannel(FiberTest):
         assert "temporary_channel_id" in result
 
         cli2 = FnnCli(f"http://127.0.0.1:{self.fiber2.rpc_port}")
-        self._accept_channel_when_ready(cli2, result["temporary_channel_id"], DEFAULT_MIN_DEPOSIT_CKB)
+        self._accept_channel_when_ready(
+            cli2, result["temporary_channel_id"], DEFAULT_MIN_DEPOSIT_CKB
+        )
 
         self.wait_for_channel_state(
             self.fiber1.get_client(), self.fiber2.get_pubkey(), "ChannelReady"
@@ -121,9 +122,7 @@ class TestCliAdvancedChannel(FiberTest):
         temp_id = result["temporary_channel_id"]
 
         cli2 = FnnCli(f"http://127.0.0.1:{self.fiber2.rpc_port}")
-        accept_result = self._accept_channel_when_ready(
-            cli2, temp_id, 200 * 100000000
-        )
+        accept_result = self._accept_channel_when_ready(cli2, temp_id, 200 * 100000000)
         assert accept_result is not None
 
         self.wait_for_channel_state(
@@ -178,7 +177,9 @@ class TestCliAdvancedChannel(FiberTest):
         assert "channels" in pending
 
         cli2 = FnnCli(f"http://127.0.0.1:{self.fiber2.rpc_port}")
-        self._accept_channel_when_ready(cli2, result["temporary_channel_id"], DEFAULT_MIN_DEPOSIT_CKB)
+        self._accept_channel_when_ready(
+            cli2, result["temporary_channel_id"], DEFAULT_MIN_DEPOSIT_CKB
+        )
 
         self.wait_for_channel_state(
             self.fiber1.get_client(), self.fiber2.get_pubkey(), "ChannelReady"
@@ -279,7 +280,9 @@ class TestCliAdvancedChannel(FiberTest):
         assert "temporary_channel_id" in result
 
         cli2 = FnnCli(f"http://127.0.0.1:{self.fiber2.rpc_port}")
-        self._accept_channel_when_ready(cli2, result["temporary_channel_id"], DEFAULT_MIN_DEPOSIT_CKB)
+        self._accept_channel_when_ready(
+            cli2, result["temporary_channel_id"], DEFAULT_MIN_DEPOSIT_CKB
+        )
 
         self.wait_for_channel_state(
             self.fiber1.get_client(), self.fiber2.get_pubkey(), "ChannelReady"
