@@ -27,17 +27,22 @@ class FiberConfigPath(Enum):
 
     CURRENT_MAINNET = (
         "/source/template/fiber/mainnet_config_3.yml.j2",
-        "download/fiber/0.6.1/fnn",
+        "download/fiber/0.7.0/fnn",
     )
 
     CURRENT_TESTNET = (
         "/source/template/fiber/testnet_config_3.yml.j2",
-        "download/fiber/0.6.1/fnn",
+        "download/fiber/0.7.0/fnn",
     )
 
-    V060_DEV = (
+    V070_DEV = (
         "/source/fiber/dev_config_3.yml.j2",
-        "download/fiber/0.6.0/fnn",
+        "download/fiber/0.7.0/fnn",
+    )
+
+    V061_DEV = (
+        "/source/fiber/dev_config_3.yml.j2",
+        "download/fiber/0.6.1/fnn",
     )
 
     def __init__(self, fiber_config_path, fiber_bin_path):

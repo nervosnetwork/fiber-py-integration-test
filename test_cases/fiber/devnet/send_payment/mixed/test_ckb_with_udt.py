@@ -1,5 +1,7 @@
 import time
 
+import pytest
+
 from framework.basic_fiber import FiberTest
 from framework.config import DEFAULT_MIN_DEPOSIT_CKB
 
@@ -153,7 +155,7 @@ class TestCkbWithUDT(FiberTest):
             self.send_payment(
                 self.fibers[0],
                 self.fibers[0],
-                1,
+                100000000,
                 False,
                 self.get_account_udt_script(self.fiber2.account_private),
             )
@@ -172,15 +174,15 @@ class TestCkbWithUDT(FiberTest):
             }
 
         #
-        self.send_payment(self.fibers[0], self.fibers[0], 1)
+        self.send_payment(self.fibers[0], self.fibers[0], 100000000)
         self.send_payment(
             self.fibers[0],
             self.fibers[0],
-            1,
+            100000000,
             self.get_account_udt_script(self.fiber2.account_private),
         )
 
-        amount = 1
+        amount = 100000000
         ckb_router = self.fiber1.get_client().build_router(
             {
                 "amount": hex(amount),
@@ -307,3 +309,152 @@ class TestCkbWithUDT(FiberTest):
             }
         )
         self.wait_payment_state(self.fiber1, payment["payment_hash"], "Failed")
+
+        amount = 1
+        ckb_router = self.fiber1.get_client().build_router(
+            {
+                "amount": hex(amount),
+                "hops_info": [
+                    self.get_node_hops_info(self.fiber1, self.fiber2, amount)[0],
+                    self.get_node_hops_info(self.fibers[1], self.fibers[2], amount)[0],
+                    self.get_node_hops_info(self.fibers[2], self.fibers[0], amount)[0],
+                ],
+            }
+        )
+        udt1_router = self.fiber1.get_client().build_router(
+            {
+                "amount": hex(amount),
+                "udt_type_script": self.get_account_udt_script(
+                    self.fiber1.account_private
+                ),
+                "hops_info": [
+                    self.get_node_hops_info(
+                        self.fiber1,
+                        self.fiber2,
+                        amount,
+                        self.get_account_udt_script(self.fiber1.account_private),
+                    )[0],
+                    self.get_node_hops_info(
+                        self.fibers[1],
+                        self.fibers[2],
+                        amount,
+                        self.get_account_udt_script(self.fiber1.account_private),
+                    )[0],
+                    self.get_node_hops_info(
+                        self.fibers[2],
+                        self.fibers[0],
+                        amount,
+                        self.get_account_udt_script(self.fiber1.account_private),
+                    )[0],
+                ],
+            }
+        )
+        udt2_router = self.fiber1.get_client().build_router(
+            {
+                "amount": hex(amount),
+                "udt_type_script": self.get_account_udt_script(
+                    self.fiber2.account_private
+                ),
+                "hops_info": [
+                    self.get_node_hops_info(
+                        self.fiber1,
+                        self.fiber2,
+                        amount,
+                        self.get_account_udt_script(self.fiber2.account_private),
+                    )[0],
+                    self.get_node_hops_info(
+                        self.fibers[1],
+                        self.fibers[2],
+                        amount,
+                        self.get_account_udt_script(self.fiber2.account_private),
+                    )[0],
+                    self.get_node_hops_info(
+                        self.fibers[2],
+                        self.fibers[0],
+                        amount,
+                        self.get_account_udt_script(self.fiber2.account_private),
+                    )[0],
+                ],
+            }
+        )
+
+        # # ckb udt1 udt2 will failed
+        router = []
+        router.append(ckb_router["router_hops"][0])
+        router.append(udt1_router["router_hops"][1])
+        router.append(udt2_router["router_hops"][2])
+
+        with pytest.raises(Exception) as exc_info:
+            payment = self.fiber1.get_client().send_payment_with_router(
+                {
+                    "keysend": True,
+                    "dry_run": False,
+                    "router": router,
+                }
+            )
+
+        expected_error_message = "max_fee_amount is too low for selected route"
+        assert expected_error_message in exc_info.value.args[0], (
+            f"Expected substring '{expected_error_message}' "
+            f"not found in actual string '{exc_info.value.args[0]}'"
+        )
+
+        # udt1 udt1 udt2 will failed
+        router = []
+        router.append(udt1_router["router_hops"][0])
+        router.append(udt1_router["router_hops"][1])
+        router.append(udt2_router["router_hops"][2])
+
+        with pytest.raises(Exception) as exc_info:
+            payment = self.fiber1.get_client().send_payment_with_router(
+                {
+                    "keysend": True,
+                    "dry_run": False,
+                    "router": router,
+                }
+            )
+        expected_error_message = "max_fee_amount is too low for selected route"
+        assert expected_error_message in exc_info.value.args[0], (
+            f"Expected substring '{expected_error_message}' "
+            f"not found in actual string '{exc_info.value.args[0]}'"
+        )
+
+        # ckb udt ckb will failed
+        router = []
+        router.append(ckb_router["router_hops"][0])
+        router.append(udt1_router["router_hops"][1])
+        router.append(ckb_router["router_hops"][2])
+
+        with pytest.raises(Exception) as exc_info:
+            payment = self.fiber1.get_client().send_payment_with_router(
+                {
+                    "keysend": True,
+                    "dry_run": False,
+                    "router": router,
+                }
+            )
+        expected_error_message = "max_fee_amount is too low for selected route"
+        assert expected_error_message in exc_info.value.args[0], (
+            f"Expected substring '{expected_error_message}' "
+            f"not found in actual string '{exc_info.value.args[0]}'"
+        )
+
+        # udt1 udt2 udt1 will failed
+        router = []
+        router.append(udt1_router["router_hops"][0])
+        router.append(udt2_router["router_hops"][1])
+        router.append(udt1_router["router_hops"][2])
+
+        with pytest.raises(Exception) as exc_info:
+            payment = self.fiber1.get_client().send_payment_with_router(
+                {
+                    "keysend": True,
+                    "dry_run": False,
+                    "router": router,
+                }
+            )
+        expected_error_message = "max_fee_amount is too low for selected route"
+        assert expected_error_message in exc_info.value.args[0], (
+            f"Expected substring '{expected_error_message}' "
+            f"not found in actual string '{exc_info.value.args[0]}'"
+        )
