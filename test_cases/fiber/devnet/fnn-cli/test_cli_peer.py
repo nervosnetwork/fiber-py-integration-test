@@ -27,33 +27,33 @@ class TestCliPeer(FiberTest):
         cli1 = FnnCli(f"http://127.0.0.1:{self.fiber1.rpc_port}")
 
         fiber3_address = fiber3.get_client().node_info()["addresses"][0]
-        cli1.connect_peer(fiber3_address)
+        cli1.connect_peer(address=fiber3_address)
         time.sleep(2)
 
         peers = cli1.list_peers()
         peer_list = peers["peers"] if isinstance(peers, dict) else peers
-        peer_ids = [p["peer_id"] for p in peer_list]
-        fiber3_peer_id = fiber3.get_peer_id()
-        assert fiber3_peer_id in peer_ids
+        pubkeys = [p["pubkey"] for p in peer_list]
+        fiber3_pubkey = fiber3.get_client().node_info()["pubkey"]
+        assert fiber3_pubkey in pubkeys
 
-        cli1.disconnect_peer(fiber3_peer_id)
+        cli1.disconnect_peer(fiber3_pubkey)
         time.sleep(2)
 
         peers_after = cli1.list_peers()
         peer_list_after = (
             peers_after["peers"] if isinstance(peers_after, dict) else peers_after
         )
-        peer_ids_after = [p["peer_id"] for p in peer_list_after]
-        assert fiber3_peer_id not in peer_ids_after
+        pubkeys_after = [p["pubkey"] for p in peer_list_after]
+        assert fiber3_pubkey not in pubkeys_after
 
     def test_connect_peer_invalid_address(self):
         """Connecting to an invalid multi-address should fail."""
         cli = FnnCli(f"http://127.0.0.1:{self.fiber1.rpc_port}")
         with pytest.raises(Exception):
-            cli.connect_peer("/ip4/127.0.0.1/tcp/99999/p2p/invalid_peer_id")
+            cli.connect_peer(address="/ip4/127.0.0.1/tcp/99999/p2p/invalid_peer_id")
 
-    def test_disconnect_peer_invalid_id(self):
+    def test_disconnect_peer_invalid_pubkey(self):
         """Disconnecting a non-existent peer should fail."""
         cli = FnnCli(f"http://127.0.0.1:{self.fiber1.rpc_port}")
         with pytest.raises(Exception):
-            cli.disconnect_peer("QmInvalidPeerIdThatDoesNotExist12345678901234567890")
+            cli.disconnect_peer("02" + "00" * 32)

@@ -14,7 +14,7 @@ class TestCliChannel(FiberTest):
         cli2 = FnnCli(f"http://127.0.0.1:{self.fiber2.rpc_port}")
 
         result = cli2.open_channel(
-            peer_id=self.fiber1.get_peer_id(),
+            pubkey=self.fiber1.get_pubkey(),
             funding_amount=1000 * 100000000,
             public=True,
         )
@@ -22,7 +22,7 @@ class TestCliChannel(FiberTest):
         assert "temporary_channel_id" in result
 
         self.wait_for_channel_state(
-            self.fiber2.get_client(), self.fiber1.get_peer_id(), "CHANNEL_READY"
+            self.fiber2.get_client(), self.fiber1.get_pubkey(), "CHANNEL_READY"
         )
 
         channels = cli2.list_channels()
@@ -36,14 +36,14 @@ class TestCliChannel(FiberTest):
         assert len(ready_channels) >= 1
 
     def test_list_channels_with_peer_filter(self):
-        """Open channel, then list channels filtering by peer_id via CLI."""
+        """Open channel, then list channels filtering by pubkey via CLI."""
         self.open_channel(self.fiber1, self.fiber2, 200 * 100000000, 100 * 100000000)
 
         cli1 = FnnCli(f"http://127.0.0.1:{self.fiber1.rpc_port}")
-        channels = cli1.list_channels(peer_id=self.fiber2.get_peer_id())
+        channels = cli1.list_channels(pubkey=self.fiber2.get_pubkey())
         assert len(channels["channels"]) >= 1
 
-        channels_self = cli1.list_channels(peer_id=self.fiber1.get_peer_id())
+        channels_self = cli1.list_channels(pubkey=self.fiber1.get_pubkey())
         assert len(channels_self["channels"]) == 0
 
     def test_shutdown_channel_via_cli(self):

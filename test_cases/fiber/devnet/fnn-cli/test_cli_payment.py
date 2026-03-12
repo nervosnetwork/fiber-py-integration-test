@@ -14,7 +14,7 @@ class TestCliPayment(FiberTest):
         self.open_channel(self.fiber1, self.fiber2, 200 * 100000000, 100 * 100000000)
 
         cli1 = FnnCli(f"http://127.0.0.1:{self.fiber1.rpc_port}")
-        target_pubkey = self.fiber2.get_client().node_info()["node_id"]
+        target_pubkey = self.fiber2.get_client().node_info()["pubkey"]
 
         result = cli1.send_payment(
             target_pubkey=target_pubkey,
@@ -146,7 +146,7 @@ class TestCliPayment(FiberTest):
         self.open_channel(self.fiber1, self.fiber2, 200 * 100000000, 100 * 100000000)
 
         cli1 = FnnCli(f"http://127.0.0.1:{self.fiber1.rpc_port}")
-        target_pubkey = self.fiber2.get_client().node_info()["node_id"]
+        target_pubkey = self.fiber2.get_client().node_info()["pubkey"]
 
         result = cli1.send_payment(
             target_pubkey=target_pubkey,
@@ -159,7 +159,7 @@ class TestCliPayment(FiberTest):
         assert "payment_hash" in result
 
         channels = self.fiber1.get_client().list_channels(
-            {"peer_id": self.fiber2.get_peer_id()}
+            {"pubkey": self.fiber2.get_pubkey()}
         )
         local_balance = int(channels["channels"][0]["local_balance"], 16)
         assert local_balance == 200 * 100000000

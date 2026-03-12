@@ -15,7 +15,7 @@ class TestCliOutputFormat(FiberTest):
         cli = FnnCli(f"http://127.0.0.1:{self.fiber1.rpc_port}")
         raw = cli.run_raw(["info", "node_info"])
         parsed = json.loads(raw)
-        assert "node_id" in parsed
+        assert "pubkey" in parsed
 
     def test_yaml_output_is_valid_yaml(self):
         """--output-format yaml should produce valid YAML."""
@@ -29,7 +29,7 @@ class TestCliOutputFormat(FiberTest):
         cli = FnnCli(f"http://127.0.0.1:{self.fiber1.rpc_port}")
         raw = cli._run(["info", "node_info"], raw_data=True)
         parsed = json.loads(raw)
-        assert "node_id" in parsed or "result" in parsed
+        assert "pubkey" in parsed or "result" in parsed
 
     def test_json_and_yaml_contain_same_keys(self):
         """JSON and YAML outputs should contain the same top-level keys."""

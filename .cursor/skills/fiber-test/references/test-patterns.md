@@ -6,11 +6,11 @@
 
 ```python
 self.fiber1.get_client().open_channel({
-    "peer_id": self.fiber2.get_peer_id(),
+    "pubkey": self.fiber2.get_pubkey(),
     "funding_amount": hex(200 * 100000000),
     "public": True,
 })
-self.wait_for_channel_state(self.fiber1.get_client(), self.fiber2.get_peer_id(), "CHANNEL_READY")
+self.wait_for_channel_state(self.fiber1.get_client(), self.fiber2.get_pubkey(), "CHANNEL_READY")
 ```
 
 ### Open with Manual Accept (low funding or auto_accept=0)

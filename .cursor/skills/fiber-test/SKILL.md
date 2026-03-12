@@ -51,7 +51,7 @@ class TestMyFeature(FiberTest):
     def test_error_scenario(self):
         with pytest.raises(Exception) as exc_info:
             self.fiber1.get_client().open_channel({
-                "peer_id": self.fiber2.get_peer_id(),
+                "pubkey": self.fiber2.get_pubkey(),
                 "funding_amount": hex(0), "public": True,
             })
         assert "should be greater than or equal to" in exc_info.value.args[0]
@@ -64,7 +64,7 @@ class TestMyFeature(FiberTest):
 | `self.open_channel(f1, f2, bal1, bal2, udt=None)` | Open channel with balances |
 | `self.send_payment(f1, f2, amount)` | Keysend with retry |
 | `self.send_invoice_payment(f1, f2, amount)` | Invoice payment with retry |
-| `self.wait_for_channel_state(client, peer_id, state)` | Wait channel state |
+| `self.wait_for_channel_state(client, pubkey, state)` | Wait channel state |
 | `self.wait_payment_state(fiber, hash, status)` | Wait payment Success/Failed |
 | `self.wait_invoice_state(client, hash, status)` | Wait invoice status |
 | `self.generate_account(ckb_balance)` | Create funded account |
