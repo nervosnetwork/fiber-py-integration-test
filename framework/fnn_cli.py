@@ -17,15 +17,15 @@ class FnnCli:
         if bin_path is None:
             bin_path = f"{get_project_root()}/download/fiber/current/fnn-cli"
         if auth_token is not None and auth_token_file is not None:
-            raise ValueError(
-                "auth_token and auth_token_file are mutually exclusive"
-            )
+            raise ValueError("auth_token and auth_token_file are mutually exclusive")
         self.bin_path = bin_path
         self.rpc_url = rpc_url
         self.auth_token = auth_token
         self.auth_token_file = auth_token_file
 
-    def _run(self, args, output_format="json", raw_data=False, timeout=30, env_override=None):
+    def _run(
+        self, args, output_format="json", raw_data=False, timeout=30, env_override=None
+    ):
         cmd = [
             self.bin_path,
             "--url",
@@ -316,7 +316,9 @@ class FnnCli:
             args.extend(["--after", after])
         return self._run_json(args)
 
-    def build_router(self, hops_info, amount=None, udt_type_script=None, final_tlc_expiry_delta=None):
+    def build_router(
+        self, hops_info, amount=None, udt_type_script=None, final_tlc_expiry_delta=None
+    ):
         args = ["payment", "build_router", "--hops-info", json.dumps(hops_info)]
         if amount is not None:
             args.extend(["--amount", str(amount)])
@@ -341,7 +343,10 @@ class FnnCli:
             if k in kwargs:
                 val = kwargs[k]
                 args.extend(
-                    [flag, json.dumps(val) if isinstance(val, (dict, list)) else str(val)]
+                    [
+                        flag,
+                        json.dumps(val) if isinstance(val, (dict, list)) else str(val),
+                    ]
                 )
         for k, flag in flag_map.items():
             if k in kwargs:
