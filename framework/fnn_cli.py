@@ -1,4 +1,5 @@
 import json
+import os
 import subprocess
 import logging
 
@@ -12,13 +13,19 @@ LOGGER = logging.getLogger(__name__)
 class FnnCli:
     """Helper to invoke fnn-cli binary and parse its output."""
 
-    def __init__(self, rpc_url, bin_path=None):
+    def __init__(self, rpc_url, bin_path=None, auth_token=None, auth_token_file=None):
         if bin_path is None:
             bin_path = f"{get_project_root()}/download/fiber/current/fnn-cli"
+        if auth_token is not None and auth_token_file is not None:
+            raise ValueError(
+                "auth_token and auth_token_file are mutually exclusive"
+            )
         self.bin_path = bin_path
         self.rpc_url = rpc_url
+        self.auth_token = auth_token
+        self.auth_token_file = auth_token_file
 
-    def _run(self, args, output_format="json", raw_data=False, timeout=30):
+    def _run(self, args, output_format="json", raw_data=False, timeout=30, env_override=None):
         cmd = [
             self.bin_path,
             "--url",
@@ -28,16 +35,25 @@ class FnnCli:
             "--color",
             "never",
         ]
+        if self.auth_token is not None:
+            cmd.extend(["--auth-token", self.auth_token])
+        if self.auth_token_file is not None:
+            cmd.extend(["--auth-token-file", self.auth_token_file])
         if raw_data:
             cmd.append("--raw-data")
         cmd.extend(args)
 
         LOGGER.debug("fnn-cli cmd: %s", " ".join(cmd))
+        run_env = None
+        if env_override:
+            run_env = os.environ.copy()
+            run_env.update(env_override)
         result = subprocess.run(
             cmd,
             capture_output=True,
             text=True,
             timeout=timeout,
+            env=run_env,
         )
         LOGGER.debug("fnn-cli stdout: %s", result.stdout)
         if result.returncode != 0:
@@ -300,6 +316,38 @@ class FnnCli:
             args.extend(["--after", after])
         return self._run_json(args)
 
+    def build_router(self, hops_info, amount=None, udt_type_script=None, final_tlc_expiry_delta=None):
+        args = ["payment", "build_router", "--hops-info", json.dumps(hops_info)]
+        if amount is not None:
+            args.extend(["--amount", str(amount)])
+        if udt_type_script is not None:
+            args.extend(["--udt-type-script", json.dumps(udt_type_script)])
+        if final_tlc_expiry_delta is not None:
+            args.extend(["--final-tlc-expiry-delta", str(final_tlc_expiry_delta)])
+        return self._run_json(args)
+
+    def send_payment_with_router(self, router, **kwargs):
+        args = ["payment", "send_payment_with_router", "--router", json.dumps(router)]
+        str_map = {
+            "payment_hash": "--payment-hash",
+            "invoice": "--invoice",
+            "custom_records": "--custom-records",
+        }
+        flag_map = {
+            "keysend": "--keysend",
+            "dry_run": "--dry-run",
+        }
+        for k, flag in str_map.items():
+            if k in kwargs:
+                val = kwargs[k]
+                args.extend(
+                    [flag, json.dumps(val) if isinstance(val, (dict, list)) else str(val)]
+                )
+        for k, flag in flag_map.items():
+            if k in kwargs:
+                args.extend([flag, str(kwargs[k]).lower()])
+        return self._run_json(args)
+
     # ── graph ─────────────────────────────────────────────────────────
     def graph_nodes(self, limit=None, after=None):
         args = ["graph", "graph_nodes"]
@@ -317,11 +365,40 @@ class FnnCli:
             args.extend(["--after", after])
         return self._run_json(args)
 
-    # ── raw output ────────────────────────────────────────────────────
-    def run_raw(self, args):
-        """Run arbitrary fnn-cli args and return raw stdout."""
-        return self._run(args)
+    # ── dev ──────────────────────────────────────────────────────────
+    def add_tlc(self, channel_id, amount, payment_hash, expiry):
+        args = [
+            "dev",
+            "add_tlc",
+            "--channel-id",
+            channel_id,
+            "--amount",
+            str(amount),
+            "--payment-hash",
+            payment_hash,
+            "--expiry",
+            str(expiry),
+        ]
+        return self._run_json(args)
 
-    def run_yaml(self, args):
+    def remove_tlc(self, channel_id, tlc_id, reason):
+        args = [
+            "dev",
+            "remove_tlc",
+            "--channel-id",
+            channel_id,
+            "--tlc-id",
+            str(tlc_id),
+            "--reason",
+            json.dumps(reason) if isinstance(reason, dict) else str(reason),
+        ]
+        return self._run_json(args)
+
+    # ── raw output ────────────────────────────────────────────────────
+    def run_raw(self, args, env_override=None):
+        """Run arbitrary fnn-cli args and return raw stdout."""
+        return self._run(args, env_override=env_override)
+
+    def run_yaml(self, args, env_override=None):
         """Run arbitrary fnn-cli args and return parsed YAML."""
-        return self._run_yaml(args)
+        return self._run_yaml(args, env_override=env_override)

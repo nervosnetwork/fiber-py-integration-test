@@ -266,3 +266,111 @@ jobs:
         with:
           name: fnn-cli-graph-reports-${{ runner.os }}
           path: ./report
+
+  fnn_cli_test_error_handling:
+    needs: prepare
+    runs-on: ubuntu-22.04
+
+    steps:
+      - uses: actions/checkout@v3
+      - name: Set up Python 3.12
+        uses: actions/setup-python@v3
+        with:
+          python-version: "3.12"
+
+      - name: Install dependencies
+        run: |
+          python -m pip install --upgrade pip
+          if [ -f requirements.txt ]; then pip install -r requirements.txt; fi
+
+      - name: Download prepare backup
+        uses: actions/download-artifact@v4
+        with:
+          name: prepare-backup-${{ runner.os }}
+          path: ./
+
+      - name: Extract tarball and restore permissions
+        run: |
+          tar -xzf prepare-backup.tar.gz
+
+      - name: Run fnn-cli error handling tests
+        run: make fiber_test_demo FIBER_TEST_DEMO="test_cases/fiber/devnet/fnn-cli/test_cli_error_handling.py"
+
+      - name: Publish reports
+        if: failure()
+        uses: actions/upload-artifact@v4
+        with:
+          name: fnn-cli-error-handling-reports-${{ runner.os }}
+          path: ./report
+
+  fnn_cli_test_multi_hop:
+    needs: prepare
+    runs-on: ubuntu-22.04
+
+    steps:
+      - uses: actions/checkout@v3
+      - name: Set up Python 3.12
+        uses: actions/setup-python@v3
+        with:
+          python-version: "3.12"
+
+      - name: Install dependencies
+        run: |
+          python -m pip install --upgrade pip
+          if [ -f requirements.txt ]; then pip install -r requirements.txt; fi
+
+      - name: Download prepare backup
+        uses: actions/download-artifact@v4
+        with:
+          name: prepare-backup-${{ runner.os }}
+          path: ./
+
+      - name: Extract tarball and restore permissions
+        run: |
+          tar -xzf prepare-backup.tar.gz
+
+      - name: Run fnn-cli multi-hop tests
+        run: make fiber_test_demo FIBER_TEST_DEMO="test_cases/fiber/devnet/fnn-cli/test_cli_multi_hop.py"
+
+      - name: Publish reports
+        if: failure()
+        uses: actions/upload-artifact@v4
+        with:
+          name: fnn-cli-multi-hop-reports-${{ runner.os }}
+          path: ./report
+
+  fnn_cli_test_advanced_channel:
+    needs: prepare
+    runs-on: ubuntu-22.04
+
+    steps:
+      - uses: actions/checkout@v3
+      - name: Set up Python 3.12
+        uses: actions/setup-python@v3
+        with:
+          python-version: "3.12"
+
+      - name: Install dependencies
+        run: |
+          python -m pip install --upgrade pip
+          if [ -f requirements.txt ]; then pip install -r requirements.txt; fi
+
+      - name: Download prepare backup
+        uses: actions/download-artifact@v4
+        with:
+          name: prepare-backup-${{ runner.os }}
+          path: ./
+
+      - name: Extract tarball and restore permissions
+        run: |
+          tar -xzf prepare-backup.tar.gz
+
+      - name: Run fnn-cli advanced channel and settle invoice tests
+        run: make fiber_test_demo FIBER_TEST_DEMO="test_cases/fiber/devnet/fnn-cli/test_cli_advanced_channel.py test_cases/fiber/devnet/fnn-cli/test_cli_settle_invoice.py test_cases/fiber/devnet/fnn-cli/test_cli_advanced_payment.py"
+
+      - name: Publish reports
+        if: failure()
+        uses: actions/upload-artifact@v4
+        with:
+          name: fnn-cli-advanced-reports-${{ runner.os }}
+          path: ./report

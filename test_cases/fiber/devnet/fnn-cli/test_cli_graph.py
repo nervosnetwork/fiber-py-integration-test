@@ -72,3 +72,39 @@ class TestCliGraph(FiberTest):
             assert "nodes" in page2
             if len(page2["nodes"]) > 0:
                 assert page2["nodes"][0] != page1["nodes"][0]
+
+    # ── graph_channels pagination ──────────────────────────────────
+
+    def test_graph_channels_with_limit(self):
+        """Test the limit parameter for graph_channels."""
+        self.open_channel(self.fiber1, self.fiber2, 200 * 100000000, 100 * 100000000)
+        self.wait_graph_channels_sync(self.fiber1, 1)
+
+        cli1 = FnnCli(f"http://127.0.0.1:{self.fiber1.rpc_port}")
+        channels = cli1.graph_channels(limit=1)
+        assert "channels" in channels
+        assert len(channels["channels"]) <= 1
+
+    def test_graph_channels_pagination(self):
+        """Test pagination for graph_channels via CLI."""
+        self.open_channel(self.fiber1, self.fiber2, 200 * 100000000, 100 * 100000000)
+        self.wait_graph_channels_sync(self.fiber1, 1)
+
+        cli1 = FnnCli(f"http://127.0.0.1:{self.fiber1.rpc_port}")
+        page1 = cli1.graph_channels(limit=1)
+        assert len(page1["channels"]) >= 1
+
+        if "last_cursor" in page1 and page1["last_cursor"]:
+            page2 = cli1.graph_channels(limit=1, after=page1["last_cursor"])
+            assert "channels" in page2
+
+    def test_graph_channels_limit_greater_than_total(self):
+        """Limit > total channels should return all channels."""
+        self.open_channel(self.fiber1, self.fiber2, 200 * 100000000, 100 * 100000000)
+        self.wait_graph_channels_sync(self.fiber1, 1)
+
+        cli1 = FnnCli(f"http://127.0.0.1:{self.fiber1.rpc_port}")
+        all_channels = cli1.graph_channels()
+        limited = cli1.graph_channels(limit=100)
+
+        assert len(limited["channels"]) == len(all_channels["channels"])
