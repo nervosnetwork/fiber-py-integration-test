@@ -21,7 +21,7 @@ class TestCliAdvancedChannel(FiberTest):
         cli2 = FnnCli(f"http://127.0.0.1:{self.fiber2.rpc_port}")
 
         result = cli2.open_channel(
-            peer_id=self.fiber1.get_peer_id(),
+            pubkey=self.fiber1.get_pubkey(),
             funding_amount=1000 * 100000000,
             public=True,
             tlc_fee_proportional_millionths=5000,
@@ -36,11 +36,11 @@ class TestCliAdvancedChannel(FiberTest):
         )
 
         self.wait_for_channel_state(
-            self.fiber2.get_client(), self.fiber1.get_peer_id(), "CHANNEL_READY"
+            self.fiber2.get_client(), self.fiber1.get_pubkey(), "CHANNEL_READY"
         )
 
         channels = self.fiber2.get_client().list_channels(
-            {"peer_id": self.fiber1.get_peer_id()}
+            {"pubkey": self.fiber1.get_pubkey()}
         )
         assert len(channels["channels"]) >= 1
         ch = channels["channels"][0]
@@ -51,7 +51,7 @@ class TestCliAdvancedChannel(FiberTest):
         cli2 = FnnCli(f"http://127.0.0.1:{self.fiber2.rpc_port}")
 
         result = cli2.open_channel(
-            peer_id=self.fiber1.get_peer_id(),
+            pubkey=self.fiber1.get_pubkey(),
             funding_amount=1000 * 100000000,
             public=True,
             max_tlc_value_in_flight=500 * 100000000,
@@ -66,7 +66,7 @@ class TestCliAdvancedChannel(FiberTest):
         )
 
         self.wait_for_channel_state(
-            self.fiber2.get_client(), self.fiber1.get_peer_id(), "CHANNEL_READY"
+            self.fiber2.get_client(), self.fiber1.get_pubkey(), "CHANNEL_READY"
         )
 
     # ───────────────────────────────────────────────
@@ -78,7 +78,7 @@ class TestCliAdvancedChannel(FiberTest):
         cli2 = FnnCli(f"http://127.0.0.1:{self.fiber2.rpc_port}")
 
         result = cli2.open_channel(
-            peer_id=self.fiber1.get_peer_id(),
+            pubkey=self.fiber1.get_pubkey(),
             funding_amount=500 * 100000000,
             public=True,
         )
@@ -92,7 +92,7 @@ class TestCliAdvancedChannel(FiberTest):
         assert accept_result is not None
 
         self.wait_for_channel_state(
-            self.fiber2.get_client(), self.fiber1.get_peer_id(), "CHANNEL_READY"
+            self.fiber2.get_client(), self.fiber1.get_pubkey(), "CHANNEL_READY"
         )
 
         channels = cli2.list_channels()
@@ -105,7 +105,7 @@ class TestCliAdvancedChannel(FiberTest):
         cli2 = FnnCli(f"http://127.0.0.1:{self.fiber2.rpc_port}")
 
         result = cli2.open_channel(
-            peer_id=self.fiber1.get_peer_id(),
+            pubkey=self.fiber1.get_pubkey(),
             funding_amount=500 * 100000000,
             public=True,
         )
@@ -120,7 +120,7 @@ class TestCliAdvancedChannel(FiberTest):
         )
 
         self.wait_for_channel_state(
-            self.fiber1.get_client(), self.fiber2.get_peer_id(), "CHANNEL_READY"
+            self.fiber1.get_client(), self.fiber2.get_pubkey(), "CHANNEL_READY"
         )
 
     # ───────────────────────────────────────────────
@@ -132,7 +132,7 @@ class TestCliAdvancedChannel(FiberTest):
         cli2 = FnnCli(f"http://127.0.0.1:{self.fiber2.rpc_port}")
 
         result = cli2.open_channel(
-            peer_id=self.fiber1.get_peer_id(),
+            pubkey=self.fiber1.get_pubkey(),
             funding_amount=500 * 100000000,
             public=True,
         )
@@ -148,7 +148,7 @@ class TestCliAdvancedChannel(FiberTest):
         )
 
         self.wait_for_channel_state(
-            self.fiber2.get_client(), self.fiber1.get_peer_id(), "CHANNEL_READY"
+            self.fiber2.get_client(), self.fiber1.get_pubkey(), "CHANNEL_READY"
         )
 
         pending_after = cli2.list_channels(only_pending=True)
@@ -163,7 +163,7 @@ class TestCliAdvancedChannel(FiberTest):
         cli2 = FnnCli(f"http://127.0.0.1:{self.fiber2.rpc_port}")
 
         result = cli2.open_channel(
-            peer_id=self.fiber1.get_peer_id(),
+            pubkey=self.fiber1.get_pubkey(),
             funding_amount=500 * 100000000,
             public=True,
         )
@@ -175,7 +175,7 @@ class TestCliAdvancedChannel(FiberTest):
         )
 
         self.wait_for_channel_state(
-            self.fiber2.get_client(), self.fiber1.get_peer_id(), "CHANNEL_READY"
+            self.fiber2.get_client(), self.fiber1.get_pubkey(), "CHANNEL_READY"
         )
 
         channels = cli2.list_channels()
@@ -196,7 +196,7 @@ class TestCliAdvancedChannel(FiberTest):
         cli2 = FnnCli(f"http://127.0.0.1:{self.fiber2.rpc_port}")
 
         result = cli2.open_channel(
-            peer_id=self.fiber1.get_peer_id(),
+            pubkey=self.fiber1.get_pubkey(),
             funding_amount=500 * 100000000,
             public=True,
         )
@@ -208,7 +208,7 @@ class TestCliAdvancedChannel(FiberTest):
         )
 
         self.wait_for_channel_state(
-            self.fiber2.get_client(), self.fiber1.get_peer_id(), "CHANNEL_READY"
+            self.fiber2.get_client(), self.fiber1.get_pubkey(), "CHANNEL_READY"
         )
 
         channels = cli2.list_channels()
@@ -243,7 +243,7 @@ class TestCliAdvancedChannel(FiberTest):
         cli2 = FnnCli(f"http://127.0.0.1:{self.fiber2.rpc_port}")
 
         result = cli2.open_channel(
-            peer_id=self.fiber1.get_peer_id(),
+            pubkey=self.fiber1.get_pubkey(),
             funding_amount=500 * 100000000,
             public=True,
             one_way=True,
@@ -257,5 +257,5 @@ class TestCliAdvancedChannel(FiberTest):
         )
 
         self.wait_for_channel_state(
-            self.fiber2.get_client(), self.fiber1.get_peer_id(), "CHANNEL_READY"
+            self.fiber2.get_client(), self.fiber1.get_pubkey(), "CHANNEL_READY"
         )

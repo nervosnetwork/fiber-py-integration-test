@@ -80,25 +80,29 @@ class FnnCli:
         return self._run_json(["info", "node_info"])
 
     # ── peer ──────────────────────────────────────────────────────────
-    def connect_peer(self, address, save=None):
-        args = ["peer", "connect_peer", "--address", address]
+    def connect_peer(self, address=None, pubkey=None, save=None):
+        args = ["peer", "connect_peer"]
+        if address is not None:
+            args.extend(["--address", address])
+        if pubkey is not None:
+            args.extend(["--pubkey", pubkey])
         if save is not None:
             args.extend(["--save", str(save).lower()])
         return self._run_json(args)
 
-    def disconnect_peer(self, peer_id):
-        return self._run_json(["peer", "disconnect_peer", "--peer-id", peer_id])
+    def disconnect_peer(self, pubkey):
+        return self._run_json(["peer", "disconnect_peer", "--pubkey", pubkey])
 
     def list_peers(self):
         return self._run_json(["peer", "list_peers"])
 
     # ── channel ───────────────────────────────────────────────────────
-    def open_channel(self, peer_id, funding_amount, **kwargs):
+    def open_channel(self, pubkey, funding_amount, **kwargs):
         args = [
             "channel",
             "open_channel",
-            "--peer-id",
-            peer_id,
+            "--pubkey",
+            pubkey,
             "--funding-amount",
             str(funding_amount),
         ]
@@ -154,10 +158,10 @@ class FnnCli:
                 )
         return self._run_json(args)
 
-    def list_channels(self, peer_id=None, include_closed=None, only_pending=None):
+    def list_channels(self, pubkey=None, include_closed=None, only_pending=None):
         args = ["channel", "list_channels"]
-        if peer_id is not None:
-            args.extend(["--peer-id", peer_id])
+        if pubkey is not None:
+            args.extend(["--pubkey", pubkey])
         if include_closed is not None:
             args.extend(["--include-closed", str(include_closed).lower()])
         if only_pending is not None:

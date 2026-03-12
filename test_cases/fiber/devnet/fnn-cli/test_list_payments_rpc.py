@@ -140,7 +140,7 @@ class TestListPaymentsRpc(FiberTest):
         with pytest.raises(Exception):
             self.fiber1.get_client().send_payment(
                 {
-                    "target_pubkey": self.fiber2.get_client().node_info()["node_id"],
+                    "target_pubkey": self.fiber2.get_client().node_info()["pubkey"],
                     "amount": hex(999 * 100000000),
                     "keysend": True,
                     "allow_self_payment": True,

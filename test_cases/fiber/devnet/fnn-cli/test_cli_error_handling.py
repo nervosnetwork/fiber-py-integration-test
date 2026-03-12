@@ -32,19 +32,19 @@ class TestCliErrorHandling(FiberTest):
         """Malformed multiaddr should produce an error."""
         cli = FnnCli(f"http://127.0.0.1:{self.fiber1.rpc_port}")
         with pytest.raises(Exception):
-            cli.connect_peer("not-a-valid-multiaddr")
+            cli.connect_peer(address="not-a-valid-multiaddr")
 
     def test_connect_peer_empty_address(self):
         """Empty address string should produce an error."""
         cli = FnnCli(f"http://127.0.0.1:{self.fiber1.rpc_port}")
         with pytest.raises(Exception):
-            cli.connect_peer("")
+            cli.connect_peer(address="")
 
     def test_disconnect_nonexistent_peer(self):
         """Disconnecting a peer that was never connected should fail."""
         cli = FnnCli(f"http://127.0.0.1:{self.fiber1.rpc_port}")
         with pytest.raises(Exception):
-            cli.disconnect_peer("QmNonExistentPeerIdXXXXXXXXXXXXXXXXXXXXXXXXXXXX")
+            cli.disconnect_peer("02" + "00" * 32)
 
     # ───────────────────────────────────────────────
     # channel - open
@@ -55,7 +55,7 @@ class TestCliErrorHandling(FiberTest):
         cli = FnnCli(f"http://127.0.0.1:{self.fiber1.rpc_port}")
         with pytest.raises(Exception) as exc_info:
             cli.open_channel(
-                peer_id=self.fiber2.get_peer_id(),
+                pubkey=self.fiber2.get_pubkey(),
                 funding_amount=0,
                 public=True,
             )
@@ -70,7 +70,7 @@ class TestCliErrorHandling(FiberTest):
         cli = FnnCli(f"http://127.0.0.1:{self.fiber1.rpc_port}")
         with pytest.raises(Exception):
             cli.open_channel(
-                peer_id="QmNonExistentPeerIdXXXXXXXXXXXXXXXXXXXXXXXXXXXX",
+                pubkey="02" + "00" * 32,
                 funding_amount=1000 * 100000000,
                 public=True,
             )
@@ -192,7 +192,7 @@ class TestCliErrorHandling(FiberTest):
     def test_send_payment_no_channel(self):
         """Sending a payment without any open channel should fail."""
         cli = FnnCli(f"http://127.0.0.1:{self.fiber1.rpc_port}")
-        target_pubkey = self.fiber2.get_client().node_info()["node_id"]
+        target_pubkey = self.fiber2.get_client().node_info()["pubkey"]
         with pytest.raises(Exception):
             cli.send_payment(
                 target_pubkey=target_pubkey,
@@ -206,7 +206,7 @@ class TestCliErrorHandling(FiberTest):
         """Payment amount larger than channel balance should fail."""
         self.open_channel(self.fiber1, self.fiber2, 200 * 100000000, 100 * 100000000)
         cli = FnnCli(f"http://127.0.0.1:{self.fiber1.rpc_port}")
-        target_pubkey = self.fiber2.get_client().node_info()["node_id"]
+        target_pubkey = self.fiber2.get_client().node_info()["pubkey"]
         with pytest.raises(Exception):
             cli.send_payment(
                 target_pubkey=target_pubkey,
@@ -220,7 +220,7 @@ class TestCliErrorHandling(FiberTest):
         """Sending to self without allow_self_payment should fail."""
         self.open_channel(self.fiber1, self.fiber2, 200 * 100000000, 100 * 100000000)
         cli = FnnCli(f"http://127.0.0.1:{self.fiber1.rpc_port}")
-        target_pubkey = self.fiber1.get_client().node_info()["node_id"]
+        target_pubkey = self.fiber1.get_client().node_info()["pubkey"]
         with pytest.raises(Exception):
             cli.send_payment(
                 target_pubkey=target_pubkey,

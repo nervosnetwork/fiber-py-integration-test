@@ -34,7 +34,7 @@ class TestCliMultiHop(FiberTest):
         self.setup_three_node_topology()
 
         cli1 = FnnCli(f"http://127.0.0.1:{self.fiber1.rpc_port}")
-        target_pubkey = self.fiber3.get_client().node_info()["node_id"]
+        target_pubkey = self.fiber3.get_client().node_info()["pubkey"]
 
         result = cli1.send_payment(
             target_pubkey=target_pubkey,
@@ -85,8 +85,8 @@ class TestCliMultiHop(FiberTest):
         graph_channels = self.fiber1.get_client().graph_channels({})
         assert len(graph_channels["channels"]) >= 2
 
-        fiber2_pubkey = self.fiber2.get_client().node_info()["node_id"]
-        fiber3_pubkey = self.fiber3.get_client().node_info()["node_id"]
+        fiber2_pubkey = self.fiber2.get_client().node_info()["pubkey"]
+        fiber3_pubkey = self.fiber3.get_client().node_info()["pubkey"]
 
         ch_f1_f2 = None
         ch_f2_f3 = None
@@ -118,8 +118,8 @@ class TestCliMultiHop(FiberTest):
         self.setup_three_node_topology()
 
         graph_channels = self.fiber1.get_client().graph_channels({})
-        fiber2_pubkey = self.fiber2.get_client().node_info()["node_id"]
-        fiber3_pubkey = self.fiber3.get_client().node_info()["node_id"]
+        fiber2_pubkey = self.fiber2.get_client().node_info()["pubkey"]
+        fiber3_pubkey = self.fiber3.get_client().node_info()["pubkey"]
 
         ch_f1_f2 = None
         ch_f2_f3 = None
@@ -161,8 +161,8 @@ class TestCliMultiHop(FiberTest):
         )
 
         graph_channels = self.fiber1.get_client().graph_channels({})
-        fiber2_pubkey = self.fiber2.get_client().node_info()["node_id"]
-        fiber3_pubkey = self.fiber3.get_client().node_info()["node_id"]
+        fiber2_pubkey = self.fiber2.get_client().node_info()["pubkey"]
+        fiber3_pubkey = self.fiber3.get_client().node_info()["pubkey"]
 
         ch_f1_f2 = None
         ch_f2_f3 = None
@@ -199,12 +199,12 @@ class TestCliMultiHop(FiberTest):
         self.setup_three_node_topology()
 
         channels_f1_before = self.fiber1.get_client().list_channels(
-            {"peer_id": self.fiber2.get_peer_id()}
+            {"pubkey": self.fiber2.get_pubkey()}
         )
         local_f1_before = int(channels_f1_before["channels"][0]["local_balance"], 16)
 
         cli1 = FnnCli(f"http://127.0.0.1:{self.fiber1.rpc_port}")
-        target_pubkey = self.fiber3.get_client().node_info()["node_id"]
+        target_pubkey = self.fiber3.get_client().node_info()["pubkey"]
         payment_amount = 10 * 100000000
 
         result = cli1.send_payment(
@@ -216,7 +216,7 @@ class TestCliMultiHop(FiberTest):
         self.wait_payment_state(self.fiber1, result["payment_hash"], "Success")
 
         channels_f1_after = self.fiber1.get_client().list_channels(
-            {"peer_id": self.fiber2.get_peer_id()}
+            {"pubkey": self.fiber2.get_pubkey()}
         )
         local_f1_after = int(channels_f1_after["channels"][0]["local_balance"], 16)
 
@@ -234,7 +234,7 @@ class TestCliMultiHop(FiberTest):
         self.setup_three_node_topology()
 
         cli1 = FnnCli(f"http://127.0.0.1:{self.fiber1.rpc_port}")
-        target_pubkey = self.fiber3.get_client().node_info()["node_id"]
+        target_pubkey = self.fiber3.get_client().node_info()["pubkey"]
 
         result = cli1.send_payment(
             target_pubkey=target_pubkey,
@@ -258,12 +258,12 @@ class TestCliMultiHop(FiberTest):
         self.setup_three_node_topology()
 
         channels_before = self.fiber1.get_client().list_channels(
-            {"peer_id": self.fiber2.get_peer_id()}
+            {"pubkey": self.fiber2.get_pubkey()}
         )
         local_before = int(channels_before["channels"][0]["local_balance"], 16)
 
         cli1 = FnnCli(f"http://127.0.0.1:{self.fiber1.rpc_port}")
-        target_pubkey = self.fiber3.get_client().node_info()["node_id"]
+        target_pubkey = self.fiber3.get_client().node_info()["pubkey"]
 
         result = cli1.send_payment(
             target_pubkey=target_pubkey,
@@ -275,7 +275,7 @@ class TestCliMultiHop(FiberTest):
         assert result is not None
 
         channels_after = self.fiber1.get_client().list_channels(
-            {"peer_id": self.fiber2.get_peer_id()}
+            {"pubkey": self.fiber2.get_pubkey()}
         )
         local_after = int(channels_after["channels"][0]["local_balance"], 16)
         assert local_after == local_before
@@ -289,7 +289,7 @@ class TestCliMultiHop(FiberTest):
         self.setup_three_node_topology()
 
         cli1 = FnnCli(f"http://127.0.0.1:{self.fiber1.rpc_port}")
-        target_pubkey = self.fiber3.get_client().node_info()["node_id"]
+        target_pubkey = self.fiber3.get_client().node_info()["pubkey"]
 
         result = cli1.send_payment(
             target_pubkey=target_pubkey,

@@ -48,7 +48,7 @@ class TestCliUdt(FiberTest):
         cli1 = FnnCli(f"http://127.0.0.1:{self.fiber1.rpc_port}")
 
         result = cli1.open_channel(
-            peer_id=self.fiber2.get_peer_id(),
+            pubkey=self.fiber2.get_pubkey(),
             funding_amount=2000 * 100000000,
             public=True,
             funding_udt_type_script=udt_script,
@@ -56,7 +56,7 @@ class TestCliUdt(FiberTest):
         assert "temporary_channel_id" in result
 
         self.wait_for_channel_state(
-            self.fiber1.get_client(), self.fiber2.get_peer_id(), "CHANNEL_READY"
+            self.fiber1.get_client(), self.fiber2.get_pubkey(), "CHANNEL_READY"
         )
 
         channels = cli1.list_channels()
@@ -91,18 +91,18 @@ class TestCliUdt(FiberTest):
         if len(udt_channels) == 0:
             self.fiber1.get_client().open_channel(
                 {
-                    "peer_id": self.fiber2.get_peer_id(),
+                    "pubkey": self.fiber2.get_pubkey(),
                     "funding_amount": hex(2000 * 100000000),
                     "public": True,
                     "funding_udt_type_script": udt_script,
                 }
             )
             self.wait_for_channel_state(
-                self.fiber1.get_client(), self.fiber2.get_peer_id(), "CHANNEL_READY"
+                self.fiber1.get_client(), self.fiber2.get_pubkey(), "CHANNEL_READY"
             )
 
         cli1 = FnnCli(f"http://127.0.0.1:{self.fiber1.rpc_port}")
-        target_pubkey = self.fiber2.get_client().node_info()["node_id"]
+        target_pubkey = self.fiber2.get_client().node_info()["pubkey"]
 
         result = cli1.send_payment(
             target_pubkey=target_pubkey,
@@ -157,14 +157,14 @@ class TestCliUdt(FiberTest):
 
         self.fiber1.get_client().open_channel(
             {
-                "peer_id": self.fiber2.get_peer_id(),
+                "pubkey": self.fiber2.get_pubkey(),
                 "funding_amount": hex(2000 * 100000000),
                 "public": True,
                 "funding_udt_type_script": udt_script,
             }
         )
         self.wait_for_channel_state(
-            self.fiber1.get_client(), self.fiber2.get_peer_id(), "CHANNEL_READY"
+            self.fiber1.get_client(), self.fiber2.get_pubkey(), "CHANNEL_READY"
         )
         self.send_payment(self.fiber1, self.fiber2, 1000 * 100000000, True, udt_script)
 
@@ -197,14 +197,14 @@ class TestCliUdt(FiberTest):
 
         self.fiber1.get_client().open_channel(
             {
-                "peer_id": self.fiber2.get_peer_id(),
+                "pubkey": self.fiber2.get_pubkey(),
                 "funding_amount": hex(2000 * 100000000),
                 "public": True,
                 "funding_udt_type_script": udt_script,
             }
         )
         self.wait_for_channel_state(
-            self.fiber1.get_client(), self.fiber2.get_peer_id(), "CHANNEL_READY"
+            self.fiber1.get_client(), self.fiber2.get_pubkey(), "CHANNEL_READY"
         )
 
         cli1 = FnnCli(f"http://127.0.0.1:{self.fiber1.rpc_port}")

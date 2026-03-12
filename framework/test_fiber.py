@@ -231,6 +231,9 @@ class Fiber:
     def get_peer_id(self):
         return self.get_client().node_info()["addresses"][0].split("/")[-1]
 
+    def get_pubkey(self):
+        return self.get_client().node_info()["pubkey"]
+
     def get_account(self):
         return framework.helper.ckb_cli.util_key_info_by_private_key(
             self.account_private

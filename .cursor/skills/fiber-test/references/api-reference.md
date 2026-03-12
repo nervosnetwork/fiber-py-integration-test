@@ -5,19 +5,19 @@
 ```python
 # open_channel - Open payment channel
 fiber.get_client().open_channel({
-    "peer_id": "Qm...",                    # Required
-    "funding_amount": "0x2540be400",        # Required (hex Shannon)
+    "pubkey": "02a3bb31...",                 # Required (66-char hex, no 0x prefix)
+    "funding_amount": "0x2540be400",         # Required (hex Shannon)
     "public": True,                          # Optional (announce to network)
-    "funding_udt_type_script": None,        # Optional (UDT channels)
-    "commitment_fee_rate": "0x3e8",         # Optional
-    "commitment_delay_epoch": "0x06",       # Optional (1-84 epochs)
-    "funding_fee_rate": "0x3e8",            # Optional
-    "tlc_expiry_delta": "0x5265c00",        # Optional (ms)
-    "tlc_min_value": "0x0",                 # Optional
-    "tlc_max_value": "0x0",                 # Optional (0=unlimited)
+    "funding_udt_type_script": None,         # Optional (UDT channels)
+    "commitment_fee_rate": "0x3e8",          # Optional
+    "commitment_delay_epoch": "0x06",        # Optional (1-84 epochs)
+    "funding_fee_rate": "0x3e8",             # Optional
+    "tlc_expiry_delta": "0x5265c00",         # Optional (ms)
+    "tlc_min_value": "0x0",                  # Optional
+    "tlc_max_value": "0x0",                  # Optional (0=unlimited)
     "tlc_fee_proportional_millionths": "0x3e8",  # Optional (1000=0.1%)
-    "max_tlc_value_in_flight": "0x0",       # Optional
-    "max_tlc_number_in_flight": "0x0",      # Optional (max 253)
+    "max_tlc_value_in_flight": "0x0",        # Optional
+    "max_tlc_number_in_flight": "0x0",       # Optional (max 253)
     "shutdown_script": {...},                # Optional
     "one_way": False,                        # Optional
 })
@@ -32,10 +32,10 @@ fiber.get_client().accept_channel({
 
 # list_channels
 channels = fiber.get_client().list_channels({
-    "peer_id": "Qm...",           # Optional filter
+    "pubkey": "02a3bb31...",       # Optional filter (66-char hex)
     "include_closed": False,       # Optional
 })
-# Returns: {"channels": [{channel_id, peer_id, state, local_balance, remote_balance,
+# Returns: {"channels": [{channel_id, pubkey, state, local_balance, remote_balance,
 #   offered_tlc_balance, received_tlc_balance, funding_udt_type_script, created_at,
 #   channel_outpoint, enabled, pending_tlcs, tlc_fee_proportional_millionths, ...}]}
 
@@ -130,16 +130,23 @@ fiber.get_client().settle_invoice({"payment_hash": "0x...", "payment_preimage": 
 ## Peer / Graph / Info Module
 
 ```python
-fiber.get_client().connect_peer({"address": "/ip4/.../tcp/.../p2p/Qm..."})
+# connect_peer - Two methods
+# Method 1: Connect via address
+fiber.get_client().connect_peer({"address": "/ip4/.../tcp/...", "save": True})
+# Method 2: Connect via pubkey (requires node address already known)
+fiber.get_client().connect_peer({"pubkey": "02a3bb31...", "save": True})
 # Or helper: fiber1.connect_peer(fiber2)
-fiber.get_client().disconnect_peer({"peer_id": "Qm..."})
+
+fiber.get_client().disconnect_peer({"pubkey": "02a3bb31..."})
 peers = fiber.get_client().list_peers()
+# Returns: {"peers": [{pubkey, address, ...}]}
 
 nodes = fiber.get_client().graph_nodes({"limit": "0x10", "after": "0x..."})
+# Returns: {"nodes": [{pubkey, node_name, ...}]}
 channels = fiber.get_client().graph_channels({"limit": "0x10", "after": "0x..."})
 
 info = fiber.get_client().node_info()
-# Returns: {version, commit_hash, node_id, peer_id, addresses, chain_hash,
+# Returns: {version, commit_hash, pubkey, addresses, chain_hash,
 #   open_channel_auto_accept_min_ckb_funding_amount, tlc_expiry_delta,
 #   tlc_fee_proportional_millionths, channel_count, pending_channel_count,
 #   peers_count, network_sync_status, udt_cfg_infos}
