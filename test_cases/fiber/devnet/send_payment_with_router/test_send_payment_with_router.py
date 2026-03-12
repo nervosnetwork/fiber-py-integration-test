@@ -63,7 +63,7 @@ class TestSendPaymentWithRouter(FiberTest):
         )
         time.sleep(1)
         self.wait_for_channel_state(
-            self.fibers[3].get_client(), self.fibers[0].get_pubkey(), "CHANNEL_READY"
+            self.fibers[3].get_client(), self.fibers[0].get_pubkey(), "ChannelReady"
         )
         # 查看d-a的channeloutpoint，预期能调用成功
         print(f"a pubkey:{self.fibers[0].get_pubkey()}")
@@ -151,7 +151,7 @@ class TestSendPaymentWithRouter(FiberTest):
         )
         time.sleep(1)
         self.wait_for_channel_state(
-            self.fibers[3].get_client(), self.fibers[0].get_pubkey(), "CHANNEL_READY"
+            self.fibers[3].get_client(), self.fibers[0].get_pubkey(), "ChannelReady"
         )
         # 查看d-a的channeloutpoint，预期能调用成功
         print(f"a pubkey:{self.fibers[0].get_pubkey()}")
@@ -241,7 +241,7 @@ class TestSendPaymentWithRouter(FiberTest):
         )
         time.sleep(1)
         self.wait_for_channel_state(
-            self.fibers[3].get_client(), self.fibers[0].get_pubkey(), "CHANNEL_READY"
+            self.fibers[3].get_client(), self.fibers[0].get_pubkey(), "ChannelReady"
         )
 
         bc_channel_outpoint = self.get_channel_outpoint(self.fibers[1], self.fibers[2])

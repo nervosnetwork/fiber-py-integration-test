@@ -31,7 +31,7 @@ class TestForce(FiberTest):
         )
         time.sleep(1)
         self.wait_for_channel_state(
-            self.fiber1.get_client(), self.fiber2.get_pubkey(), "CHANNEL_READY", 120
+            self.fiber1.get_client(), self.fiber2.get_pubkey(), "ChannelReady", 120
         )
 
         channels = self.fiber1.get_client().list_channels(
@@ -99,7 +99,7 @@ class TestForce(FiberTest):
         )
         time.sleep(1)
         self.wait_for_channel_state(
-            self.fiber1.get_client(), self.fiber2.get_pubkey(), "CHANNEL_READY", 120
+            self.fiber1.get_client(), self.fiber2.get_pubkey(), "ChannelReady", 120
         )
         invoice = self.fiber2.get_client().new_invoice(
             {
@@ -190,7 +190,7 @@ class TestForce(FiberTest):
     #     )
     #     time.sleep(1)
     #     self.wait_for_channel_state(
-    #         self.fiber1.get_client(), self.fiber2.get_pubkey(), "CHANNEL_READY", 120
+    #         self.fiber1.get_client(), self.fiber2.get_pubkey(), "ChannelReady", 120
     #     )
     #
     #     channels = self.fiber1.get_client().list_channels(
@@ -245,7 +245,7 @@ class TestForce(FiberTest):
         self.wait_for_channel_state(
             self.fiber1.get_client(),
             self.fiber2.get_pubkey(),
-            "AWAITING_TX_SIGNATURES",
+            "AwaitingTxSignatures",
             120,
         )
         channels = self.fiber1.get_client().list_channels(
@@ -285,7 +285,7 @@ class TestForce(FiberTest):
         self.wait_for_channel_state(
             self.fiber1.get_client(),
             self.fiber2.get_pubkey(),
-            "AWAITING_CHANNEL_READY",
+            "AwaitingChannelReady",
             120,
         )
         channels = self.fiber1.get_client().list_channels(
@@ -341,7 +341,7 @@ class TestForce(FiberTest):
         )
         time.sleep(1)
         self.wait_for_channel_state(
-            self.fiber1.get_client(), self.fiber2.get_pubkey(), "CHANNEL_READY", 120
+            self.fiber1.get_client(), self.fiber2.get_pubkey(), "ChannelReady", 120
         )
         payment = self.fiber1.get_client().send_payment(
             {
@@ -417,7 +417,7 @@ class TestForce(FiberTest):
     #         },
     #         "fee_rate": "0x3FC",
     #     })
-    #     self.wait_for_channel_state(self.fiber1.get_client(), self.fiber2.get_pubkey(), "CLOSED", 120, True)
+    #     self.wait_for_channel_state(self.fiber1.get_client(), self.fiber2.get_pubkey(), "Closed", 120, True)
 
     # def test_in_invoice_send_tx2(self):
     #     self.open_channel(self.fiber1, self.fiber2, 1000 * 100000000, 1)
@@ -449,7 +449,7 @@ class TestForce(FiberTest):
     #         },
     #         "fee_rate": "0x3FC",
     #     })
-    #     self.wait_for_channel_state(self.fiber1.get_client(), self.fiber2.get_pubkey(), "SHUTTING_DOWN", 120, True)
+    #     self.wait_for_channel_state(self.fiber1.get_client(), self.fiber2.get_pubkey(), "ShuttingDown", 120, True)
     #     self.fiber1.get_client().shutdown_channel({
     #         "channel_id": self.fiber1.get_client().list_channels({})["channels"][0]["channel_id"],
     #         "force": True
@@ -469,7 +469,7 @@ class TestForce(FiberTest):
         )
         time.sleep(1)
         self.wait_for_channel_state(
-            self.fiber1.get_client(), self.fiber2.get_pubkey(), "CHANNEL_READY", 120
+            self.fiber1.get_client(), self.fiber2.get_pubkey(), "ChannelReady", 120
         )
 
         amount = 1
@@ -522,7 +522,7 @@ class TestForce(FiberTest):
         )
         time.sleep(1)
         self.wait_for_channel_state(
-            self.fiber1.get_client(), self.fiber2.get_pubkey(), "CHANNEL_READY", 120
+            self.fiber1.get_client(), self.fiber2.get_pubkey(), "ChannelReady", 120
         )
 
         amount = 1
@@ -576,7 +576,7 @@ class TestForce(FiberTest):
         )
         time.sleep(1)
         self.wait_for_channel_state(
-            self.fiber1.get_client(), self.fiber2.get_pubkey(), "CHANNEL_READY", 120
+            self.fiber1.get_client(), self.fiber2.get_pubkey(), "ChannelReady", 120
         )
         time.sleep(1)
 
@@ -643,7 +643,7 @@ class TestForce(FiberTest):
         )
         time.sleep(1)
         self.wait_for_channel_state(
-            self.fiber1.get_client(), self.fiber2.get_pubkey(), "CHANNEL_READY", 120
+            self.fiber1.get_client(), self.fiber2.get_pubkey(), "ChannelReady", 120
         )
         time.sleep(1)
 
@@ -719,14 +719,14 @@ class TestForce(FiberTest):
         self.wait_for_channel_state(
             self.fiber1.get_client(),
             self.fiber2.get_pubkey(),
-            "CLOSED",
+            "Closed",
             10 + 5 * 60,
             include_closed=True,
         )
         self.wait_for_channel_state(
             self.fiber2.get_client(),
             self.fiber1.get_pubkey(),
-            "CLOSED",
+            "Closed",
             10 + 5 * 60,
             include_closed=True,
         )

@@ -31,7 +31,7 @@ class TestCloseScript(FiberTest):
         )
         time.sleep(1)
         self.wait_for_channel_state(
-            self.fiber1.get_client(), self.fiber2.get_pubkey(), "CHANNEL_READY", 120
+            self.fiber1.get_client(), self.fiber2.get_pubkey(), "ChannelReady", 120
         )
 
         channels = self.fiber1.get_client().list_channels(
@@ -90,7 +90,7 @@ class TestCloseScript(FiberTest):
         )
         time.sleep(1)
         self.wait_for_channel_state(
-            self.fiber1.get_client(), self.fiber2.get_pubkey(), "CHANNEL_READY", 120
+            self.fiber1.get_client(), self.fiber2.get_pubkey(), "ChannelReady", 120
         )
 
         channels = self.fiber1.get_client().list_channels(
@@ -121,7 +121,7 @@ class TestCloseScript(FiberTest):
         tx_hash = self.wait_and_check_tx_pool_fee(1000, False)
         self.Miner.miner_until_tx_committed(self.node, tx_hash)
         self.wait_for_channel_state(
-            self.fiber1.get_client(), self.fiber2.get_pubkey(), "CLOSED", 120, True
+            self.fiber1.get_client(), self.fiber2.get_pubkey(), "Closed", 120, True
         )
         node_info = self.fiber1.get_client().node_info()
         print("node info :", node_info)
@@ -150,7 +150,7 @@ class TestCloseScript(FiberTest):
         )
         time.sleep(1)
         self.wait_for_channel_state(
-            self.fiber1.get_client(), self.fiber2.get_pubkey(), "CHANNEL_READY", 120
+            self.fiber1.get_client(), self.fiber2.get_pubkey(), "ChannelReady", 120
         )
 
         channels = self.fiber1.get_client().list_channels(
@@ -199,7 +199,7 @@ class TestCloseScript(FiberTest):
         )
         time.sleep(1)
         self.wait_for_channel_state(
-            self.fiber1.get_client(), self.fiber2.get_pubkey(), "CHANNEL_READY", 120
+            self.fiber1.get_client(), self.fiber2.get_pubkey(), "ChannelReady", 120
         )
 
         channels = self.fiber1.get_client().list_channels(
@@ -287,10 +287,10 @@ class TestCloseScript(FiberTest):
             }
         )
         self.wait_for_channel_state(
-            self.fiber1.get_client(), self.fiber2.get_pubkey(), "CHANNEL_READY", 120
+            self.fiber1.get_client(), self.fiber2.get_pubkey(), "ChannelReady", 120
         )
         self.wait_for_channel_state(
-            self.fiber2.get_client(), self.fiber1.get_pubkey(), "CHANNEL_READY", 120
+            self.fiber2.get_client(), self.fiber1.get_pubkey(), "ChannelReady", 120
         )
         channels = self.fiber1.get_client().list_channels({})
         assert channels["channels"][0]["local_balance"] == hex(
@@ -364,10 +364,10 @@ class TestCloseScript(FiberTest):
             }
         )
         self.wait_for_channel_state(
-            self.fiber1.get_client(), self.fiber2.get_pubkey(), "CHANNEL_READY", 120
+            self.fiber1.get_client(), self.fiber2.get_pubkey(), "ChannelReady", 120
         )
         self.wait_for_channel_state(
-            self.fiber2.get_client(), self.fiber1.get_pubkey(), "CHANNEL_READY", 120
+            self.fiber2.get_client(), self.fiber1.get_pubkey(), "ChannelReady", 120
         )
         channels = self.fiber1.get_client().list_channels({})
         assert channels["channels"][0]["local_balance"] == hex(1000 * 100000000)
@@ -441,10 +441,10 @@ class TestCloseScript(FiberTest):
             }
         )
         self.wait_for_channel_state(
-            self.fiber1.get_client(), self.fiber2.get_pubkey(), "CHANNEL_READY", 120
+            self.fiber1.get_client(), self.fiber2.get_pubkey(), "ChannelReady", 120
         )
         self.wait_for_channel_state(
-            self.fiber2.get_client(), self.fiber1.get_pubkey(), "CHANNEL_READY", 120
+            self.fiber2.get_client(), self.fiber1.get_pubkey(), "ChannelReady", 120
         )
         channels = self.fiber1.get_client().list_channels({})
         assert channels["channels"][0]["local_balance"] == hex(1000 * 100000000)
@@ -503,10 +503,10 @@ class TestCloseScript(FiberTest):
             }
         )
         self.wait_for_channel_state(
-            self.fiber1.get_client(), self.fiber2.get_pubkey(), "CHANNEL_READY", 120
+            self.fiber1.get_client(), self.fiber2.get_pubkey(), "ChannelReady", 120
         )
         self.wait_for_channel_state(
-            self.fiber2.get_client(), self.fiber1.get_pubkey(), "CHANNEL_READY", 120
+            self.fiber2.get_client(), self.fiber1.get_pubkey(), "ChannelReady", 120
         )
         channels = self.fiber1.get_client().list_channels({})
         assert channels["channels"][0]["local_balance"] == hex(1000 * 100000000)

@@ -40,8 +40,8 @@ class TestRestart(FiberTest):
             self.fiber1.get_client(),
             self.fiber2.get_pubkey(),
             {
-                "state_name": "AWAITING_TX_SIGNATURES",
-                "state_flags": "OUR_TX_SIGNATURES_SENT | THEIR_TX_SIGNATURES_SENT",
+                "state_name": "AwaitingTxSignatures",
+                "state_flags": "OurTxSignaturesSent | TheirTxSignaturesSent",
             },
             120,
         )
@@ -53,11 +53,11 @@ class TestRestart(FiberTest):
         node_info = self.fiber1.get_client().node_info()
         assert int(node_info["peers_count"], 16) >= 1
         self.wait_for_channel_state(
-            self.fiber1.get_client(), self.fiber2.get_pubkey(), "CHANNEL_READY", 120
+            self.fiber1.get_client(), self.fiber2.get_pubkey(), "ChannelReady", 120
         )
         channels = self.fiber1.get_client().list_channels({})
         print(f"after restart query channel info:{channels}")
-        assert channels["channels"][0]["state"]["state_name"] == "CHANNEL_READY"
+        assert channels["channels"][0]["state"]["state_name"] == "ChannelReady"
         # open channel for fiber 2 fiber3
         self.fiber2.get_client().open_channel(
             {
@@ -75,11 +75,11 @@ class TestRestart(FiberTest):
         node_info = self.fiber2.get_client().node_info()
         assert int(node_info["peers_count"], 16) >= 1
         self.wait_for_channel_state(
-            self.fiber2.get_client(), self.fiber3.get_pubkey(), "CHANNEL_READY", 120
+            self.fiber2.get_client(), self.fiber3.get_pubkey(), "ChannelReady", 120
         )
         channels = self.fiber3.get_client().list_channels({})
         print(f"after restart query channel info:{channels}")
-        assert channels["channels"][0]["state"]["state_name"] == "CHANNEL_READY"
+        assert channels["channels"][0]["state"]["state_name"] == "ChannelReady"
 
     # @pytest.mark.skip("https://github.com/nervosnetwork/fiber/issues/402")
     def test_restart_ckb_node_openchannel(self):
@@ -112,11 +112,11 @@ class TestRestart(FiberTest):
         node_info = self.fiber1.get_client().node_info()
         assert int(node_info["peers_count"], 16) >= 1
         self.wait_for_channel_state(
-            self.fiber1.get_client(), self.fiber2.get_pubkey(), "CHANNEL_READY", 120
+            self.fiber1.get_client(), self.fiber2.get_pubkey(), "ChannelReady", 120
         )
         channels = self.fiber1.get_client().list_channels({})
         print(f"after restart query channel info:{channels}")
-        assert channels["channels"][0]["state"]["state_name"] == "CHANNEL_READY"
+        assert channels["channels"][0]["state"]["state_name"] == "ChannelReady"
 
     @pytest.mark.skip("https://github.com/nervosnetwork/fiber/issues/938")
     def test_restart_before_open_channel(self):
@@ -135,7 +135,7 @@ class TestRestart(FiberTest):
         self.node.start()
         self.node.start_miner()
         self.wait_for_channel_state(
-            self.fiber1.get_client(), self.fiber2.get_pubkey(), "CHANNEL_READY"
+            self.fiber1.get_client(), self.fiber2.get_pubkey(), "ChannelReady"
         )
 
     def test_restart_channel_ready(self):
@@ -157,7 +157,7 @@ class TestRestart(FiberTest):
             }
         )
         self.wait_for_channel_state(
-            self.fiber1.get_client(), self.fiber2.get_pubkey(), "CHANNEL_READY", 120
+            self.fiber1.get_client(), self.fiber2.get_pubkey(), "ChannelReady", 120
         )
         # open channel for fiber 2 fiber3
         self.fiber2.get_client().open_channel(
@@ -168,7 +168,7 @@ class TestRestart(FiberTest):
             }
         )
         self.wait_for_channel_state(
-            self.fiber2.get_client(), self.fiber3.get_pubkey(), "CHANNEL_READY", 120
+            self.fiber2.get_client(), self.fiber3.get_pubkey(), "ChannelReady", 120
         )
         channels = self.fiber1.get_client().list_channels({})
         print(f"before restart query channel info:{channels}")
@@ -184,7 +184,7 @@ class TestRestart(FiberTest):
         assert int(node_info["peers_count"], 16) == 2
         channels = self.fiber1.get_client().list_channels({})
         print(f"after restart query channel info:{channels}")
-        assert channels["channels"][0]["state"]["state_name"] == "CHANNEL_READY"
+        assert channels["channels"][0]["state"]["state_name"] == "ChannelReady"
         # 2、ready的状态后重启接收端端节点，观察channel的状态是否会变
         self.fiber3.stop()
         self.fiber3.start()
@@ -197,7 +197,7 @@ class TestRestart(FiberTest):
         assert int(node_info["peers_count"], 16) == 2
         channels = self.fiber3.get_client().list_channels({})
         print(f"after restart query channel info:{channels}")
-        assert channels["channels"][0]["state"]["state_name"] == "CHANNEL_READY"
+        assert channels["channels"][0]["state"]["state_name"] == "ChannelReady"
         # 3、重启下ckb节点
         self.node.stop()
         self.node.start()
@@ -208,7 +208,7 @@ class TestRestart(FiberTest):
         assert int(node_info["peers_count"], 16) >= 1
         channels = self.fiber1.get_client().list_channels({})
         print(f"after restart query channel info:{channels}")
-        assert channels["channels"][0]["state"]["state_name"] == "CHANNEL_READY"
+        assert channels["channels"][0]["state"]["state_name"] == "ChannelReady"
         # 4、再观察重启后生成invoice和sendpayment能否正常发送，检查通道有效
         invoice = self.fiber3.get_client().new_invoice(
             {
@@ -257,4 +257,4 @@ class TestRestart(FiberTest):
             channels = fiber.get_client().list_channels({})
             for channel in channels["channels"]:
                 print(channel["state"]["state_name"])
-                assert channel["state"]["state_name"] == "CHANNEL_READY"
+                assert channel["state"]["state_name"] == "ChannelReady"

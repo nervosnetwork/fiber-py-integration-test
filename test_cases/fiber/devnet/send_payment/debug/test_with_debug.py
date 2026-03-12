@@ -37,7 +37,7 @@ class TestWithDebug(FiberTest):
         )  # a-b private channel
         time.sleep(1)
         self.wait_for_channel_state(
-            self.fiber1.get_client(), self.fiber2.get_pubkey(), "CHANNEL_READY"
+            self.fiber1.get_client(), self.fiber2.get_pubkey(), "ChannelReady"
         )
         self.open_channel(self.fibers[1], self.fibers[2], 1000 * 100000000, 1)  # b-c
         self.open_channel(
@@ -56,7 +56,7 @@ class TestWithDebug(FiberTest):
         )
         time.sleep(1)
         self.wait_for_channel_state(
-            self.fibers[3].get_client(), self.fibers[0].get_pubkey(), "CHANNEL_READY"
+            self.fibers[3].get_client(), self.fibers[0].get_pubkey(), "ChannelReady"
         )
 
         for i in range(1, len(self.fibers)):  # b,c,d

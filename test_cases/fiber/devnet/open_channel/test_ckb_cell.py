@@ -34,7 +34,7 @@ class TestCkbCell(FiberTest):
         self.wait_for_channel_state(
             self.fiber2.get_client(),
             self.fiber1.get_pubkey(),
-            "NEGOTIATING_FUNDING",
+            "NegotiatingFunding",
             120,
         )
 
@@ -80,7 +80,7 @@ class TestCkbCell(FiberTest):
             }
         )
         self.wait_for_channel_state(
-            new_fiber.get_client(), self.fiber2.get_pubkey(), "CHANNEL_READY", 120
+            new_fiber.get_client(), self.fiber2.get_pubkey(), "ChannelReady", 120
         )
         channels = new_fiber.get_client().graph_channels()
         assert len(channels["channels"]) == 1
@@ -125,7 +125,7 @@ class TestCkbCell(FiberTest):
             }
         )
         self.wait_for_channel_state(
-            new_fiber.get_client(), self.fiber2.get_pubkey(), "CHANNEL_READY", 120
+            new_fiber.get_client(), self.fiber2.get_pubkey(), "ChannelReady", 120
         )
         channels = new_fiber.get_client().graph_channels()
         assert len(channels["channels"]) == 1
@@ -164,7 +164,7 @@ class TestCkbCell(FiberTest):
             }
         )
         self.wait_for_channel_state(
-            self.fiber2.get_client(), new_fiber.get_pubkey(), "CHANNEL_READY", 120
+            self.fiber2.get_client(), new_fiber.get_pubkey(), "ChannelReady", 120
         )
         channels = new_fiber.get_client().graph_channels()
         assert len(channels["channels"]) == 1
@@ -203,7 +203,7 @@ class TestCkbCell(FiberTest):
             }
         )
         self.wait_for_channel_state(
-            self.fiber2.get_client(), new_fiber.get_pubkey(), "CHANNEL_READY", 120
+            self.fiber2.get_client(), new_fiber.get_pubkey(), "ChannelReady", 120
         )
         channels = new_fiber.get_client().graph_channels()
         assert len(channels["channels"]) == 1
@@ -246,14 +246,14 @@ class TestCkbCell(FiberTest):
             self.wait_for_channel_state(
                 self.new_fibers[i].get_client(),
                 self.fiber2.get_pubkey(),
-                "CHANNEL_READY",
+                "ChannelReady",
                 120,
             )
         for i in range(open_count):
             self.wait_for_channel_state(
                 self.new_fibers[i].get_client(),
                 self.fiber2.get_pubkey(),
-                "CHANNEL_READY",
+                "ChannelReady",
                 120,
             )
         send_payment_count = 10
@@ -287,6 +287,6 @@ class TestCkbCell(FiberTest):
                 self.wait_for_channel_state(
                     self.new_fibers[i].get_client(),
                     self.fiber2.get_pubkey(),
-                    "CHANNEL_READY",
+                    "ChannelReady",
                     120,
                 )

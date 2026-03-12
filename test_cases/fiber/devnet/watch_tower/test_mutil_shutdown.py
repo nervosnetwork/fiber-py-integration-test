@@ -42,7 +42,7 @@ class TestMutilShutdown(FiberTest):
                 }
             )
             self.wait_for_channel_state(
-                self.fiber1.get_client(), self.fiber2.get_pubkey(), "CHANNEL_READY"
+                self.fiber1.get_client(), self.fiber2.get_pubkey(), "ChannelReady"
             )
             time.sleep(1)
         # 2. Open UDT channels.
@@ -64,7 +64,7 @@ class TestMutilShutdown(FiberTest):
             )
             time.sleep(1)
             self.wait_for_channel_state(
-                self.fiber1.get_client(), self.fiber2.get_pubkey(), "CHANNEL_READY"
+                self.fiber1.get_client(), self.fiber2.get_pubkey(), "ChannelReady"
             )
 
             # send tx

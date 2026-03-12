@@ -22,7 +22,7 @@ class TestCliChannel(FiberTest):
         assert "temporary_channel_id" in result
 
         self.wait_for_channel_state(
-            self.fiber2.get_client(), self.fiber1.get_pubkey(), "CHANNEL_READY"
+            self.fiber2.get_client(), self.fiber1.get_pubkey(), "ChannelReady"
         )
 
         channels = cli2.list_channels()
@@ -31,7 +31,7 @@ class TestCliChannel(FiberTest):
         ready_channels = [
             ch
             for ch in channels["channels"]
-            if ch["state"]["state_name"] == "CHANNEL_READY"
+            if ch["state"]["state_name"] == "ChannelReady"
         ]
         assert len(ready_channels) >= 1
 
@@ -67,9 +67,9 @@ class TestCliChannel(FiberTest):
         for ch in channels_after["channels"]:
             if ch["channel_id"] == channel_id:
                 found = True
-                assert "CLOSED" in ch["state"]["state_name"] or ch["state"][
+                assert "Closed" in ch["state"]["state_name"] or ch["state"][
                     "state_name"
-                ] in ["SHUTTING_DOWN", "CLOSED"]
+                ] in ["ShuttingDown", "Closed"]
         assert found, "Closed channel should still be visible with include_closed=True"
 
     def test_update_channel_via_cli(self):
@@ -127,4 +127,4 @@ class TestCliChannel(FiberTest):
             cli1.abandon_channel(channel_id)
         assert "cannot be abandoned" in str(
             exc_info.value
-        ).lower() or "CHANNEL_READY" in str(exc_info.value)
+        ).lower() or "ChannelReady" in str(exc_info.value)

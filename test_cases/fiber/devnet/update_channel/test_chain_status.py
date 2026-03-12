@@ -19,7 +19,7 @@ class TestChainStatus(FiberTest):
         self.wait_for_channel_state(
             self.fiber1.get_client(),
             self.fiber2.get_pubkey(),
-            "AWAITING_TX_SIGNATURES",
+            "AwaitingTxSignatures",
         )
 
         self.fiber1.get_client().update_channel(
@@ -31,7 +31,7 @@ class TestChainStatus(FiberTest):
             }
         )
         self.wait_for_channel_state(
-            self.fiber1.get_client(), self.fiber2.get_pubkey(), "CHANNEL_READY"
+            self.fiber1.get_client(), self.fiber2.get_pubkey(), "ChannelReady"
         )
         channels = self.fiber1.get_client().list_channels({})
         assert channels["channels"][0]["tlc_fee_proportional_millionths"] == hex(2000)

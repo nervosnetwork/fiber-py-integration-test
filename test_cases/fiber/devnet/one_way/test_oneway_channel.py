@@ -35,7 +35,7 @@ class TestOneWayChannel(FiberTest):
         if last_error is not None:
             raise last_error
         self.wait_for_channel_state(
-            self.fiber1.get_client(), self.fiber2.get_pubkey(), "CHANNEL_READY"
+            self.fiber1.get_client(), self.fiber2.get_pubkey(), "ChannelReady"
         )
         time.sleep(1)
 

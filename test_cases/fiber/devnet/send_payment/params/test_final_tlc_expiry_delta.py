@@ -31,7 +31,7 @@ class TestFinalTlcExpiryDelta(FiberTest):
             }
         )
         self.wait_for_channel_state(
-            self.fiber1.get_client(), self.fiber2.get_pubkey(), "CHANNEL_READY"
+            self.fiber1.get_client(), self.fiber2.get_pubkey(), "ChannelReady"
         )
         # open channel between fiber2 and fiber3
         self.fiber2.get_client().open_channel(
@@ -42,7 +42,7 @@ class TestFinalTlcExpiryDelta(FiberTest):
             }
         )
         self.wait_for_channel_state(
-            self.fiber2.get_client(), self.fiber3.get_pubkey(), "CHANNEL_READY"
+            self.fiber2.get_client(), self.fiber3.get_pubkey(), "ChannelReady"
         )
         time.sleep(1)
         # send to fiber3 final_tlc_expiry_delta: 0x0

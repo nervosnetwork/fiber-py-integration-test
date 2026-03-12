@@ -206,7 +206,7 @@ class TestCancelInvoice(FiberTest):
         self.wait_for_channel_state(
             self.fiber2.get_client(),
             self.fiber1.get_pubkey(),
-            "CHANNEL_READY",
+            "ChannelReady",
             120,
         )
 
@@ -295,7 +295,7 @@ class TestCancelInvoice(FiberTest):
         self.wait_for_channel_state(
             self.fiber2.get_client(),
             self.fiber1.get_pubkey(),
-            "CHANNEL_READY",
+            "ChannelReady",
             120,
         )
 
@@ -369,7 +369,7 @@ class TestCancelInvoice(FiberTest):
         self.wait_for_channel_state(
             self.fiber2.get_client(),
             self.fiber1.get_pubkey(),
-            "CHANNEL_READY",
+            "ChannelReady",
             120,
         )
 

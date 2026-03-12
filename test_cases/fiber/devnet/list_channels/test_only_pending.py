@@ -42,10 +42,10 @@ class TestListChannelsOnlyPending(FiberTest):
 
         # Step 2: Wait for CHANNEL_READY on both sides
         self.wait_for_channel_state(
-            self.fiber1.get_client(), self.fiber2.get_pubkey(), "CHANNEL_READY", 120
+            self.fiber1.get_client(), self.fiber2.get_pubkey(), "ChannelReady", 120
         )
         self.wait_for_channel_state(
-            self.fiber2.get_client(), self.fiber1.get_pubkey(), "CHANNEL_READY", 120
+            self.fiber2.get_client(), self.fiber1.get_pubkey(), "ChannelReady", 120
         )
 
         # Step 3: only_pending=true should NOT include CHANNEL_READY channels on fiber1
@@ -55,7 +55,7 @@ class TestListChannelsOnlyPending(FiberTest):
         ready_in_pending_fiber1 = [
             ch
             for ch in pending_channels_fiber1["channels"]
-            if ch["state"]["state_name"] == "CHANNEL_READY"
+            if ch["state"]["state_name"] == "ChannelReady"
         ]
         assert (
             len(ready_in_pending_fiber1) == 0
@@ -68,7 +68,7 @@ class TestListChannelsOnlyPending(FiberTest):
         ready_in_pending_fiber2 = [
             ch
             for ch in pending_channels_fiber2["channels"]
-            if ch["state"]["state_name"] == "CHANNEL_READY"
+            if ch["state"]["state_name"] == "ChannelReady"
         ]
         assert (
             len(ready_in_pending_fiber2) == 0
@@ -78,13 +78,13 @@ class TestListChannelsOnlyPending(FiberTest):
         all_channels_fiber1 = self.fiber1.get_client().list_channels({})
         assert len(all_channels_fiber1["channels"]) >= 1
         assert (
-            all_channels_fiber1["channels"][0]["state"]["state_name"] == "CHANNEL_READY"
+            all_channels_fiber1["channels"][0]["state"]["state_name"] == "ChannelReady"
         )
 
         all_channels_fiber2 = self.fiber2.get_client().list_channels({})
         assert len(all_channels_fiber2["channels"]) >= 1
         assert (
-            all_channels_fiber2["channels"][0]["state"]["state_name"] == "CHANNEL_READY"
+            all_channels_fiber2["channels"][0]["state"]["state_name"] == "ChannelReady"
         )
 
     def test_only_pending_default_false(self):
@@ -105,10 +105,10 @@ class TestListChannelsOnlyPending(FiberTest):
             }
         )
         self.wait_for_channel_state(
-            self.fiber1.get_client(), self.fiber2.get_pubkey(), "CHANNEL_READY", 120
+            self.fiber1.get_client(), self.fiber2.get_pubkey(), "ChannelReady", 120
         )
         self.wait_for_channel_state(
-            self.fiber2.get_client(), self.fiber1.get_pubkey(), "CHANNEL_READY", 120
+            self.fiber2.get_client(), self.fiber1.get_pubkey(), "ChannelReady", 120
         )
 
         # Check fiber1 side
@@ -116,14 +116,14 @@ class TestListChannelsOnlyPending(FiberTest):
             {"only_pending": False}
         )
         assert len(channels_fiber1["channels"]) >= 1
-        assert channels_fiber1["channels"][0]["state"]["state_name"] == "CHANNEL_READY"
+        assert channels_fiber1["channels"][0]["state"]["state_name"] == "ChannelReady"
 
         # Check fiber2 side
         channels_fiber2 = self.fiber2.get_client().list_channels(
             {"only_pending": False}
         )
         assert len(channels_fiber2["channels"]) >= 1
-        assert channels_fiber2["channels"][0]["state"]["state_name"] == "CHANNEL_READY"
+        assert channels_fiber2["channels"][0]["state"]["state_name"] == "ChannelReady"
 
     def test_only_pending_shows_inbound_waiting_for_accept(self):
         """
@@ -178,7 +178,7 @@ class TestListChannelsOnlyPending(FiberTest):
         inbound_pending = [
             ch
             for ch in pending_channels_fiber2["channels"]
-            if ch["state"]["state_name"] == "NEGOTIATING_FUNDING"
+            if ch["state"]["state_name"] == "NegotiatingFunding"
             and ch["is_acceptor"] is True
         ]
         assert (
@@ -195,10 +195,10 @@ class TestListChannelsOnlyPending(FiberTest):
             }
         )
         self.wait_for_channel_state(
-            self.fiber1.get_client(), self.fiber2.get_pubkey(), "CHANNEL_READY", 120
+            self.fiber1.get_client(), self.fiber2.get_pubkey(), "ChannelReady", 120
         )
         self.wait_for_channel_state(
-            self.fiber2.get_client(), self.fiber1.get_pubkey(), "CHANNEL_READY", 120
+            self.fiber2.get_client(), self.fiber1.get_pubkey(), "ChannelReady", 120
         )
 
         # Step 6: only_pending=true should no longer return the channel on either side
@@ -208,7 +208,7 @@ class TestListChannelsOnlyPending(FiberTest):
         ready_in_pending_fiber1 = [
             ch
             for ch in pending_after_fiber1["channels"]
-            if ch["state"]["state_name"] == "CHANNEL_READY"
+            if ch["state"]["state_name"] == "ChannelReady"
         ]
         assert (
             len(ready_in_pending_fiber1) == 0
@@ -220,7 +220,7 @@ class TestListChannelsOnlyPending(FiberTest):
         ready_in_pending_fiber2 = [
             ch
             for ch in pending_after_fiber2["channels"]
-            if ch["state"]["state_name"] == "CHANNEL_READY"
+            if ch["state"]["state_name"] == "ChannelReady"
         ]
         assert (
             len(ready_in_pending_fiber2) == 0
@@ -344,7 +344,7 @@ class TestListChannelsOnlyPending(FiberTest):
         failed_channels_fiber3 = [
             ch
             for ch in pending_channels_fiber3["channels"]
-            if ch["state"]["state_name"] == "CLOSED"
+            if ch["state"]["state_name"] == "Closed"
         ]
         assert (
             len(failed_channels_fiber3) >= 1
@@ -353,8 +353,8 @@ class TestListChannelsOnlyPending(FiberTest):
         for fc in failed_channels_fiber3:
             # Verify close flags
             assert fc["state"]["state_flags"] in (
-                "ABANDONED",
-                "FUNDING_ABORTED",
+                "Abandoned",
+                "FundingAborted",
             ), f"Unexpected close flag on fiber3: {fc['state']['state_flags']}"
             # Verify failure_detail is present and non-empty
             assert (
@@ -375,7 +375,7 @@ class TestListChannelsOnlyPending(FiberTest):
         ready_in_pending_fiber2 = [
             ch
             for ch in pending_channels_fiber2["channels"]
-            if ch["state"]["state_name"] == "CHANNEL_READY"
+            if ch["state"]["state_name"] == "ChannelReady"
         ]
         assert len(ready_in_pending_fiber2) == 0, (
             "CHANNEL_READY should not appear in only_pending=true on fiber2 "
@@ -402,7 +402,7 @@ class TestListChannelsOnlyPending(FiberTest):
             }
         )
         self.wait_for_channel_state(
-            self.fiber1.get_client(), self.fiber2.get_pubkey(), "CHANNEL_READY", 120
+            self.fiber1.get_client(), self.fiber2.get_pubkey(), "ChannelReady", 120
         )
 
         # Step 2: Create fiber3 and open a channel that needs manual accept
@@ -440,7 +440,7 @@ class TestListChannelsOnlyPending(FiberTest):
         ready_channels = [
             ch
             for ch in pending_from_fiber2["channels"]
-            if ch["state"]["state_name"] == "CHANNEL_READY"
+            if ch["state"]["state_name"] == "ChannelReady"
         ]
         assert (
             len(ready_channels) == 0
@@ -475,10 +475,10 @@ class TestListChannelsOnlyPending(FiberTest):
             }
         )
         self.wait_for_channel_state(
-            self.fiber1.get_client(), self.fiber2.get_pubkey(), "CHANNEL_READY", 120
+            self.fiber1.get_client(), self.fiber2.get_pubkey(), "ChannelReady", 120
         )
         self.wait_for_channel_state(
-            self.fiber2.get_client(), self.fiber1.get_pubkey(), "CHANNEL_READY", 120
+            self.fiber2.get_client(), self.fiber1.get_pubkey(), "ChannelReady", 120
         )
 
         # Check fiber1 side
@@ -541,7 +541,7 @@ class TestListChannelsOnlyPending(FiberTest):
         ready_in_pending_fiber3 = [
             ch
             for ch in pending_channels_fiber3["channels"]
-            if ch["state"]["state_name"] == "CHANNEL_READY"
+            if ch["state"]["state_name"] == "ChannelReady"
         ]
         assert (
             len(ready_in_pending_fiber3) == 0
@@ -554,7 +554,7 @@ class TestListChannelsOnlyPending(FiberTest):
         ready_in_pending_fiber2 = [
             ch
             for ch in pending_channels_fiber2["channels"]
-            if ch["state"]["state_name"] == "CHANNEL_READY"
+            if ch["state"]["state_name"] == "ChannelReady"
         ]
         assert (
             len(ready_in_pending_fiber2) == 0
@@ -565,7 +565,7 @@ class TestListChannelsOnlyPending(FiberTest):
         ready_channels_fiber3 = [
             ch
             for ch in normal_channels_fiber3["channels"]
-            if ch["state"]["state_name"] == "CHANNEL_READY"
+            if ch["state"]["state_name"] == "ChannelReady"
         ]
         assert len(ready_channels_fiber3) == 0
 
@@ -573,7 +573,7 @@ class TestListChannelsOnlyPending(FiberTest):
         ready_channels_fiber2 = [
             ch
             for ch in normal_channels_fiber2["channels"]
-            if ch["state"]["state_name"] == "CHANNEL_READY"
+            if ch["state"]["state_name"] == "ChannelReady"
             and ch["pubkey"] == fiber3.get_pubkey()
         ]
         assert len(ready_channels_fiber2) == 0
@@ -604,10 +604,10 @@ class TestListChannelsOnlyPending(FiberTest):
             }
         )
         self.wait_for_channel_state(
-            self.fiber1.get_client(), self.fiber2.get_pubkey(), "CHANNEL_READY", 120
+            self.fiber1.get_client(), self.fiber2.get_pubkey(), "ChannelReady", 120
         )
         self.wait_for_channel_state(
-            self.fiber2.get_client(), self.fiber1.get_pubkey(), "CHANNEL_READY", 120
+            self.fiber2.get_client(), self.fiber1.get_pubkey(), "ChannelReady", 120
         )
 
         # Step 2: Verify only_pending=true excludes CHANNEL_READY before restart
@@ -615,7 +615,7 @@ class TestListChannelsOnlyPending(FiberTest):
             {"only_pending": True}
         )
         assert all(
-            ch["state"]["state_name"] != "CHANNEL_READY"
+            ch["state"]["state_name"] != "ChannelReady"
             for ch in pending_fiber1_before["channels"]
         ), "CHANNEL_READY should not appear in only_pending=true on fiber1 before restart"
 
@@ -623,7 +623,7 @@ class TestListChannelsOnlyPending(FiberTest):
             {"only_pending": True}
         )
         assert all(
-            ch["state"]["state_name"] != "CHANNEL_READY"
+            ch["state"]["state_name"] != "ChannelReady"
             for ch in pending_fiber2_before["channels"]
         ), "CHANNEL_READY should not appear in only_pending=true on fiber2 before restart"
 
@@ -643,7 +643,7 @@ class TestListChannelsOnlyPending(FiberTest):
             {"only_pending": True}
         )
         assert all(
-            ch["state"]["state_name"] != "CHANNEL_READY"
+            ch["state"]["state_name"] != "ChannelReady"
             for ch in pending_fiber1_after["channels"]
         ), "CHANNEL_READY should not appear in only_pending=true on fiber1 after restart"
 
@@ -651,7 +651,7 @@ class TestListChannelsOnlyPending(FiberTest):
             {"only_pending": True}
         )
         assert all(
-            ch["state"]["state_name"] != "CHANNEL_READY"
+            ch["state"]["state_name"] != "ChannelReady"
             for ch in pending_fiber2_after["channels"]
         ), "CHANNEL_READY should not appear in only_pending=true on fiber2 after restart"
 
@@ -660,7 +660,7 @@ class TestListChannelsOnlyPending(FiberTest):
         ready_fiber1 = [
             ch
             for ch in all_channels_fiber1["channels"]
-            if ch["state"]["state_name"] == "CHANNEL_READY"
+            if ch["state"]["state_name"] == "ChannelReady"
         ]
         assert (
             len(ready_fiber1) >= 1
@@ -670,7 +670,7 @@ class TestListChannelsOnlyPending(FiberTest):
         ready_fiber2 = [
             ch
             for ch in all_channels_fiber2["channels"]
-            if ch["state"]["state_name"] == "CHANNEL_READY"
+            if ch["state"]["state_name"] == "ChannelReady"
         ]
         assert (
             len(ready_fiber2) >= 1
@@ -723,7 +723,7 @@ class TestListChannelsOnlyPending(FiberTest):
         failed_before = [
             ch
             for ch in pending_before["channels"]
-            if ch["state"]["state_name"] == "CLOSED"
+            if ch["state"]["state_name"] == "Closed"
         ]
         assert (
             len(failed_before) >= 1
@@ -731,8 +731,8 @@ class TestListChannelsOnlyPending(FiberTest):
 
         for fc in failed_before:
             assert fc["state"]["state_flags"] in (
-                "ABANDONED",
-                "FUNDING_ABORTED",
+                "Abandoned",
+                "FundingAborted",
             ), f"Unexpected close flag before restart: {fc['state']['state_flags']}"
             assert (
                 fc["failure_detail"] is not None
@@ -755,7 +755,7 @@ class TestListChannelsOnlyPending(FiberTest):
         failed_after = [
             ch
             for ch in pending_after["channels"]
-            if ch["state"]["state_name"] == "CLOSED"
+            if ch["state"]["state_name"] == "Closed"
         ]
         assert (
             len(failed_after) >= 1
@@ -763,8 +763,8 @@ class TestListChannelsOnlyPending(FiberTest):
 
         for fc in failed_after:
             assert fc["state"]["state_flags"] in (
-                "ABANDONED",
-                "FUNDING_ABORTED",
+                "Abandoned",
+                "FundingAborted",
             ), f"Unexpected close flag after restart: {fc['state']['state_flags']}"
             assert (
                 fc["failure_detail"] is not None

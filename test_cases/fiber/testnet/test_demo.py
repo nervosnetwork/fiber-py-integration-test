@@ -152,8 +152,8 @@
 #         fee = 455
 #         for channel in list_channels["channels"]:
 #             if channel["state"] != {
-#                 "state_name": "CLOSED",
-#                 "state_flags": "UNCOOPERATIVE",
+#                 "state_name": "Closed",
+#                 "state_flags": "Uncooperative",
 #             }:
 #                 continue
 #             trace = self.get_ln_tx_trace(channel["channel_outpoint"][:-8])
@@ -266,7 +266,7 @@
 #             wait_for_channel_state(
 #                 self.cryptapeFiber2,
 #                 "Qme5iDzNKjnnSK3ryJvm1sbURXNshicUH1YdakDRtAPLuv",
-#                 "CHANNEL_READY",
+#                 "ChannelReady",
 #                 120,
 #             )
 #             # self.cryptapeFiber2.list_channels({})
@@ -292,10 +292,10 @@
 #         #     "pubkey":"QmPoru4YHCpkjHNdfbPkD5mYtoZQRfCvctVrnuoDz2j4fR"
 #         # })
 #         self.cryptapeFiber1.node_info()
-#         # {"jsonrpc": "2.0", "result": {"channels": [{"channel_id": "0xa27e5a37c9d63de37adf96364f694bdf74e7f8e914ee30d06534e818afbd65ad", "is_public": true, "channel_outpoint": "0xff4e248f343db4e014d9e48dd6d747b6aac8d3c99e24ad290907449524ce059600000000", "pubkey": "QmXen3eUHhywmutEzydCsW4hXBoeVmdET2FJvMX69XJ1Eo", "funding_udt_type_script": null, "state": {"state_name": "CHANNEL_READY"}, "local_balance": "0xa2cb77e54", "offered_tlc_balance": "0x5f769a2", "remote_balance": "0x46688b3ac", "received_tlc_balance": "0x0", "latest_commitment_transaction_hash": "0x0b63f8d3001f9f10740d765711e36386df62b0390e02f92130ab53584558be43", "created_at": "0x195f475b021", "enabled": true, "tlc_expiry_delta": "0x5265c00", "tlc_fee_proportional_millionths": "0x3e8"}]}, "id": 42}
-#         # {"jsonrpc": "2.0", "result": {"channels": [{"channel_id": "0xa27e5a37c9d63de37adf96364f694bdf74e7f8e914ee30d06534e818afbd65ad", "is_public": true, "channel_outpoint": "0xff4e248f343db4e014d9e48dd6d747b6aac8d3c99e24ad290907449524ce059600000000", "pubkey": "QmXen3eUHhywmutEzydCsW4hXBoeVmdET2FJvMX69XJ1Eo", "funding_udt_type_script": null, "state": {"state_name": "CHANNEL_READY"}, "local_balance": "0xa2cb77e52", "offered_tlc_balance": "0x5f769a2", "remote_balance": "0x46688b3ae", "received_tlc_balance": "0x0", "latest_commitment_transaction_hash": "0xc8598f3e6fcfb344edf34b488e87f7284542573a56ab4efb7ff88bc63cb28470", "created_at": "0x195f475b021", "enabled": true, "tlc_expiry_delta": "0x5265c00", "tlc_fee_proportional_millionths": "0x3e8"}]}, "id": 42}
-#         # {"jsonrpc": "2.0", "result": {"channels": [{"channel_id": "0xa27e5a37c9d63de37adf96364f694bdf74e7f8e914ee30d06534e818afbd65ad", "is_public": true, "channel_outpoint": "0xff4e248f343db4e014d9e48dd6d747b6aac8d3c99e24ad290907449524ce059600000000", "pubkey": "QmXen3eUHhywmutEzydCsW4hXBoeVmdET2FJvMX69XJ1Eo", "funding_udt_type_script": null, "state": {"state_name": "CHANNEL_READY"}, "local_balance": "0xa2cb77e50", "offered_tlc_balance": "0x5f769a2", "remote_balance": "0x46688b3b0", "received_tlc_balance": "0x0", "latest_commitment_transaction_hash": "0x9535e4425f0bd26fa15cce82030339aa250c0bad97e6fa635a1c10a58dc48bf6", "created_at": "0x195f475b021", "enabled": true, "tlc_expiry_delta": "0x5265c00", "tlc_fee_proportional_millionths": "0x3e8"}]}, "id": 42}
-#         # {"jsonrpc": "2.0", "result": {"channels": [{"channel_id": "0xa27e5a37c9d63de37adf96364f694bdf74e7f8e914ee30d06534e818afbd65ad", "is_public": true, "channel_outpoint": "0xff4e248f343db4e014d9e48dd6d747b6aac8d3c99e24ad290907449524ce059600000000", "pubkey": "QmXen3eUHhywmutEzydCsW4hXBoeVmdET2FJvMX69XJ1Eo", "funding_udt_type_script": null, "state": {"state_name": "CHANNEL_READY"}, "local_balance": "0xa2cb77e4e", "offered_tlc_balance": "0x5f769a2", "remote_balance": "0x46688b3b2", "received_tlc_balance": "0x0", "latest_commitment_transaction_hash": "0xbe22f195afcd957a3bb1ccf95d666471cb8b285b8f6f6fcfedb0064a4cf1277f", "created_at": "0x195f475b021", "enabled": true, "tlc_expiry_delta": "0x5265c00", "tlc_fee_proportional_millionths": "0x3e8"}]}, "id": 42}
+#         # {"jsonrpc": "2.0", "result": {"channels": [{"channel_id": "0xa27e5a37c9d63de37adf96364f694bdf74e7f8e914ee30d06534e818afbd65ad", "is_public": true, "channel_outpoint": "0xff4e248f343db4e014d9e48dd6d747b6aac8d3c99e24ad290907449524ce059600000000", "pubkey": "QmXen3eUHhywmutEzydCsW4hXBoeVmdET2FJvMX69XJ1Eo", "funding_udt_type_script": null, "state": {"state_name": "ChannelReady"}, "local_balance": "0xa2cb77e54", "offered_tlc_balance": "0x5f769a2", "remote_balance": "0x46688b3ac", "received_tlc_balance": "0x0", "latest_commitment_transaction_hash": "0x0b63f8d3001f9f10740d765711e36386df62b0390e02f92130ab53584558be43", "created_at": "0x195f475b021", "enabled": true, "tlc_expiry_delta": "0x5265c00", "tlc_fee_proportional_millionths": "0x3e8"}]}, "id": 42}
+#         # {"jsonrpc": "2.0", "result": {"channels": [{"channel_id": "0xa27e5a37c9d63de37adf96364f694bdf74e7f8e914ee30d06534e818afbd65ad", "is_public": true, "channel_outpoint": "0xff4e248f343db4e014d9e48dd6d747b6aac8d3c99e24ad290907449524ce059600000000", "pubkey": "QmXen3eUHhywmutEzydCsW4hXBoeVmdET2FJvMX69XJ1Eo", "funding_udt_type_script": null, "state": {"state_name": "ChannelReady"}, "local_balance": "0xa2cb77e52", "offered_tlc_balance": "0x5f769a2", "remote_balance": "0x46688b3ae", "received_tlc_balance": "0x0", "latest_commitment_transaction_hash": "0xc8598f3e6fcfb344edf34b488e87f7284542573a56ab4efb7ff88bc63cb28470", "created_at": "0x195f475b021", "enabled": true, "tlc_expiry_delta": "0x5265c00", "tlc_fee_proportional_millionths": "0x3e8"}]}, "id": 42}
+#         # {"jsonrpc": "2.0", "result": {"channels": [{"channel_id": "0xa27e5a37c9d63de37adf96364f694bdf74e7f8e914ee30d06534e818afbd65ad", "is_public": true, "channel_outpoint": "0xff4e248f343db4e014d9e48dd6d747b6aac8d3c99e24ad290907449524ce059600000000", "pubkey": "QmXen3eUHhywmutEzydCsW4hXBoeVmdET2FJvMX69XJ1Eo", "funding_udt_type_script": null, "state": {"state_name": "ChannelReady"}, "local_balance": "0xa2cb77e50", "offered_tlc_balance": "0x5f769a2", "remote_balance": "0x46688b3b0", "received_tlc_balance": "0x0", "latest_commitment_transaction_hash": "0x9535e4425f0bd26fa15cce82030339aa250c0bad97e6fa635a1c10a58dc48bf6", "created_at": "0x195f475b021", "enabled": true, "tlc_expiry_delta": "0x5265c00", "tlc_fee_proportional_millionths": "0x3e8"}]}, "id": 42}
+#         # {"jsonrpc": "2.0", "result": {"channels": [{"channel_id": "0xa27e5a37c9d63de37adf96364f694bdf74e7f8e914ee30d06534e818afbd65ad", "is_public": true, "channel_outpoint": "0xff4e248f343db4e014d9e48dd6d747b6aac8d3c99e24ad290907449524ce059600000000", "pubkey": "QmXen3eUHhywmutEzydCsW4hXBoeVmdET2FJvMX69XJ1Eo", "funding_udt_type_script": null, "state": {"state_name": "ChannelReady"}, "local_balance": "0xa2cb77e4e", "offered_tlc_balance": "0x5f769a2", "remote_balance": "0x46688b3b2", "received_tlc_balance": "0x0", "latest_commitment_transaction_hash": "0xbe22f195afcd957a3bb1ccf95d666471cb8b285b8f6f6fcfedb0064a4cf1277f", "created_at": "0x195f475b021", "enabled": true, "tlc_expiry_delta": "0x5265c00", "tlc_fee_proportional_millionths": "0x3e8"}]}, "id": 42}
 #         # local: 43699895892
 #         # 0xff4e248f343db4e014d9e48dd6d747b6aac8d3c99e24ad290907449524ce0596
 #
@@ -412,7 +412,7 @@
 #                 }
 #             )
 #             wait_for_channel_state(
-#                 self.cryptapeFiber1, self.cryptapeFiber2.get_pubkey(), "CHANNEL_READY", 120
+#                 self.cryptapeFiber1, self.cryptapeFiber2.get_pubkey(), "ChannelReady", 120
 #             )
 #             send_payment(
 #                 self.cryptapeFiber1, self.cryptapeFiber2, send_amount, None, 20 * 60
@@ -437,7 +437,7 @@
 #             }
 #         )
 #         wait_for_channel_state(
-#             self.cryptapeFiber1, self.cryptapeFiber2.get_pubkey(), "CHANNEL_READY", 120
+#             self.cryptapeFiber1, self.cryptapeFiber2.get_pubkey(), "ChannelReady", 120
 #         )
 #         send_payment(
 #             self.cryptapeFiber1,

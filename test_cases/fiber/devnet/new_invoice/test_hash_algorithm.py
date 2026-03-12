@@ -24,7 +24,7 @@ class TestHashAlgorithm(FiberTest):
         # 2. Check the channel state to ensure it is ready
 
         self.wait_for_channel_state(
-            self.fiber1.get_client(), self.fiber2.get_pubkey(), "CHANNEL_READY"
+            self.fiber1.get_client(), self.fiber2.get_pubkey(), "ChannelReady"
         )
 
         # 3. Create a new invoice with a normal amount
@@ -90,7 +90,7 @@ class TestHashAlgorithm(FiberTest):
 
         # 2. Check the channel state to ensure it is ready
         self.wait_for_channel_state(
-            self.fiber1.get_client(), self.fiber2.get_pubkey(), "CHANNEL_READY"
+            self.fiber1.get_client(), self.fiber2.get_pubkey(), "ChannelReady"
         )
 
         # 3. Create a new invoice with a normal amount
@@ -143,7 +143,7 @@ class TestHashAlgorithm(FiberTest):
 
         # 2. Check the channel state to ensure it is ready
         self.wait_for_channel_state(
-            self.fiber1.get_client(), self.fiber2.get_pubkey(), "CHANNEL_READY"
+            self.fiber1.get_client(), self.fiber2.get_pubkey(), "ChannelReady"
         )
 
         # 3. Create a new invoice with a normal amount

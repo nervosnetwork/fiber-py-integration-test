@@ -41,7 +41,7 @@ class TestNodeInfo(FiberTest):
         #     "funding_amount": hex(1000 * 100000000),
         #     "public": True,
         # })
-        # self.wait_for_channel_state(self.fiber2.get_client(), node_info["pubkey"], "CHANNEL_READY")
+        # self.wait_for_channel_state(self.fiber2.get_client(), node_info["pubkey"], "ChannelReady")
         # addresses
         nodes = self.fiber1.get_client().graph_nodes({})
         assert (
@@ -112,7 +112,7 @@ class TestNodeInfo(FiberTest):
         )
 
         self.wait_for_channel_state(
-            self.fiber2.get_client(), self.fiber1.get_pubkey(), "CHANNEL_READY"
+            self.fiber2.get_client(), self.fiber1.get_pubkey(), "ChannelReady"
         )
         after_node1_info = self.fiber1.get_client().node_info()
         after_node2_info = self.fiber2.get_client().node_info()
@@ -182,5 +182,5 @@ class TestNodeInfo(FiberTest):
             }
         )
         self.wait_for_channel_state(
-            self.fiber1.get_client(), self.fiber2.get_pubkey(), "CHANNEL_READY"
+            self.fiber1.get_client(), self.fiber2.get_pubkey(), "ChannelReady"
         )

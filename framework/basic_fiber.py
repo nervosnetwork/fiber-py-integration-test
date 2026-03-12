@@ -366,7 +366,7 @@ class FiberTest(CkbTest):
             )
             time.sleep(1)
             self.wait_for_channel_state(
-                fiber1.get_client(), fiber2.get_pubkey(), "CHANNEL_READY"
+                fiber1.get_client(), fiber2.get_pubkey(), "ChannelReady"
             )
             return
         open_channel_config = {
@@ -381,7 +381,7 @@ class FiberTest(CkbTest):
         open_channel_config.update(other_config)
         fiber1.get_client().open_channel(open_channel_config)
         self.wait_for_channel_state(
-            fiber1.get_client(), fiber2.get_pubkey(), "CHANNEL_READY"
+            fiber1.get_client(), fiber2.get_pubkey(), "ChannelReady"
         )
         channels = fiber1.get_client().list_channels({"pubkey": fiber2.get_pubkey()})
         # payment = fiber1.get_client().send_payment(
@@ -707,7 +707,7 @@ class FiberTest(CkbTest):
 
         for i in range(len(channels["channels"])):
             channel = channels["channels"][i]
-            if channel["state"]["state_name"] == "CHANNEL_READY":
+            if channel["state"]["state_name"] == "ChannelReady":
                 key = "ckb"
                 if channel["funding_udt_type_script"] is not None:
                     key = channel["funding_udt_type_script"]["args"]
@@ -971,7 +971,7 @@ class FiberTest(CkbTest):
                 self.logger.debug(f"{channel['channel_outpoint']}:local_balance skip")
                 continue
             # check is true
-            if channel["state"]["state_name"] != "CHANNEL_READY":
+            if channel["state"]["state_name"] != "ChannelReady":
                 self.logger.debug(
                     f"{channel['channel_outpoint']}:channel state skip,{channel['state']['state_name']}"
                 )

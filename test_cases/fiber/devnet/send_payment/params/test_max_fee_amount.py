@@ -17,7 +17,7 @@ class TestMaxFeeAmount(FiberTest):
             }
         )
         self.wait_for_channel_state(
-            self.fiber1.get_client(), self.fiber2.get_pubkey(), "CHANNEL_READY"
+            self.fiber1.get_client(), self.fiber2.get_pubkey(), "ChannelReady"
         )
         self.fiber2.get_client().open_channel(
             {
@@ -27,7 +27,7 @@ class TestMaxFeeAmount(FiberTest):
             }
         )
         self.wait_for_channel_state(
-            self.fiber3.get_client(), self.fiber2.get_pubkey(), "CHANNEL_READY"
+            self.fiber3.get_client(), self.fiber2.get_pubkey(), "ChannelReady"
         )
 
         # send to node1 -> node2 no fee  max_fee = 0

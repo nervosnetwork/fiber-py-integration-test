@@ -65,7 +65,7 @@
 #         channels = self.fiber1.get_client().list_channels({})
 #         for i in range(len(channels["channels"])):
 #             channel = channels["channels"][i]
-#             if channel["state"]["state_name"] != "CHANNEL_READY":
+#             if channel["state"]["state_name"] != "ChannelReady":
 #                 continue
 #             self.fiber1.get_client().shutdown_channel(
 #                 {
@@ -91,7 +91,7 @@
 #         wait_for_channel_state(
 #             self.fiber1.get_client(),
 #             self.fiber2.get_pubkey(),
-#             "CHANNEL_READY",
+#             "ChannelReady",
 #             120,
 #         )
 #         send_payment(

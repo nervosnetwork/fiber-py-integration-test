@@ -27,7 +27,7 @@ class TestDryRun(FiberTest):
             }
         )
         self.wait_for_channel_state(
-            self.fiber1.get_client(), self.fiber2.get_pubkey(), "CHANNEL_READY"
+            self.fiber1.get_client(), self.fiber2.get_pubkey(), "ChannelReady"
         )
         self.fiber2.get_client().open_channel(
             {
@@ -37,7 +37,7 @@ class TestDryRun(FiberTest):
             }
         )
         self.wait_for_channel_state(
-            self.fiber3.get_client(), self.fiber2.get_pubkey(), "CHANNEL_READY"
+            self.fiber3.get_client(), self.fiber2.get_pubkey(), "ChannelReady"
         )
 
         invoice = self.fiber3.get_client().new_invoice(
@@ -117,7 +117,7 @@ class TestDryRun(FiberTest):
             }
         )
         self.wait_for_channel_state(
-            self.fiber1.get_client(), self.fiber2.get_pubkey(), "CHANNEL_READY"
+            self.fiber1.get_client(), self.fiber2.get_pubkey(), "ChannelReady"
         )
         # update channel2 fee
         self.fiber2.get_client().update_channel(
@@ -136,7 +136,7 @@ class TestDryRun(FiberTest):
             }
         )
         self.wait_for_channel_state(
-            self.fiber3.get_client(), self.fiber2.get_pubkey(), "CHANNEL_READY"
+            self.fiber3.get_client(), self.fiber2.get_pubkey(), "ChannelReady"
         )
         self.fiber2.get_client().open_channel(
             {
@@ -146,7 +146,7 @@ class TestDryRun(FiberTest):
             }
         )
         self.wait_for_channel_state(
-            self.fiber2.get_client(), self.fiber1.get_pubkey(), "CHANNEL_READY"
+            self.fiber2.get_client(), self.fiber1.get_pubkey(), "ChannelReady"
         )
         time.sleep(1)
         graph_channels = self.fiber1.get_client().graph_channels({})

@@ -28,7 +28,7 @@ class TestAllowSelfPayment(FiberTest):
             }
         )
         self.wait_for_channel_state(
-            self.fiber1.get_client(), self.fiber2.get_pubkey(), "CHANNEL_READY"
+            self.fiber1.get_client(), self.fiber2.get_pubkey(), "ChannelReady"
         )
         time.sleep(1)
         # allow_self_payment is none
@@ -175,10 +175,10 @@ class TestAllowSelfPayment(FiberTest):
             }
         )
         self.wait_for_channel_state(
-            self.fiber1.get_client(), self.fiber2.get_pubkey(), "CHANNEL_READY"
+            self.fiber1.get_client(), self.fiber2.get_pubkey(), "ChannelReady"
         )
         self.wait_for_channel_state(
-            self.fiber2.get_client(), self.fiber1.get_pubkey(), "CHANNEL_READY"
+            self.fiber2.get_client(), self.fiber1.get_pubkey(), "ChannelReady"
         )
         self.fiber2.get_client().open_channel(
             {
@@ -189,7 +189,7 @@ class TestAllowSelfPayment(FiberTest):
         )
         time.sleep(2)
         self.wait_for_channel_state(
-            self.fiber2.get_client(), self.fiber1.get_pubkey(), "CHANNEL_READY"
+            self.fiber2.get_client(), self.fiber1.get_pubkey(), "ChannelReady"
         )
         time.sleep(1)
 
@@ -278,7 +278,7 @@ class TestAllowSelfPayment(FiberTest):
             }
         )
         self.wait_for_channel_state(
-            self.fiber1.get_client(), self.fiber2.get_pubkey(), "CHANNEL_READY"
+            self.fiber1.get_client(), self.fiber2.get_pubkey(), "ChannelReady"
         )
         self.fiber2.get_client().open_channel(
             {
@@ -288,10 +288,10 @@ class TestAllowSelfPayment(FiberTest):
             }
         )
         self.wait_for_channel_state(
-            self.fiber2.get_client(), self.fiber3.get_pubkey(), "CHANNEL_READY"
+            self.fiber2.get_client(), self.fiber3.get_pubkey(), "ChannelReady"
         )
         self.wait_for_channel_state(
-            self.fiber3.get_client(), self.fiber2.get_pubkey(), "CHANNEL_READY"
+            self.fiber3.get_client(), self.fiber2.get_pubkey(), "ChannelReady"
         )
         self.fiber3.get_client().open_channel(
             {
@@ -301,7 +301,7 @@ class TestAllowSelfPayment(FiberTest):
             }
         )
         self.wait_for_channel_state(
-            self.fiber3.get_client(), self.fiber1.get_pubkey(), "CHANNEL_READY"
+            self.fiber3.get_client(), self.fiber1.get_pubkey(), "ChannelReady"
         )
         # node1 send to self
         time.sleep(1)
@@ -344,7 +344,7 @@ class TestAllowSelfPayment(FiberTest):
             }
         )
         self.wait_for_channel_state(
-            self.fiber1.get_client(), self.fiber2.get_pubkey(), "CHANNEL_READY"
+            self.fiber1.get_client(), self.fiber2.get_pubkey(), "ChannelReady"
         )
         self.fiber2.get_client().open_channel(
             {
@@ -354,10 +354,10 @@ class TestAllowSelfPayment(FiberTest):
             }
         )
         self.wait_for_channel_state(
-            self.fiber2.get_client(), self.fiber3.get_pubkey(), "CHANNEL_READY"
+            self.fiber2.get_client(), self.fiber3.get_pubkey(), "ChannelReady"
         )
         self.wait_for_channel_state(
-            self.fiber3.get_client(), self.fiber2.get_pubkey(), "CHANNEL_READY"
+            self.fiber3.get_client(), self.fiber2.get_pubkey(), "ChannelReady"
         )
         self.fiber3.get_client().open_channel(
             {
@@ -367,7 +367,7 @@ class TestAllowSelfPayment(FiberTest):
             }
         )
         self.wait_for_channel_state(
-            self.fiber3.get_client(), self.fiber1.get_pubkey(), "CHANNEL_READY"
+            self.fiber3.get_client(), self.fiber1.get_pubkey(), "ChannelReady"
         )
         # node1 send to self
         time.sleep(1)

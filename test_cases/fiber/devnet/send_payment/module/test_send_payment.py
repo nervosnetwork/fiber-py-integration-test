@@ -85,7 +85,7 @@ class TestSendPayment(FiberTest):
     #         )
     #         time.sleep(3)
     #         self.wait_for_channel_state(
-    #             self.fiber1.get_client(), self.fiber2.get_pubkey(), "CHANNEL_READY"
+    #             self.fiber1.get_client(), self.fiber2.get_pubkey(), "ChannelReady"
     #         )
 
     # def test_list_channes(self):
@@ -106,7 +106,7 @@ class TestSendPayment(FiberTest):
             }
         )
         self.wait_for_channel_state(
-            self.fiber1.get_client(), self.fiber2.get_pubkey(), "CHANNEL_READY"
+            self.fiber1.get_client(), self.fiber2.get_pubkey(), "ChannelReady"
         )
         self.fiber2.get_client().open_channel(
             {
@@ -116,7 +116,7 @@ class TestSendPayment(FiberTest):
             }
         )
         self.wait_for_channel_state(
-            self.fiber3.get_client(), self.fiber2.get_pubkey(), "CHANNEL_READY"
+            self.fiber3.get_client(), self.fiber2.get_pubkey(), "ChannelReady"
         )
 
         invoice = self.fiber3.get_client().new_invoice(
@@ -174,7 +174,7 @@ class TestSendPayment(FiberTest):
             }
         )
         self.wait_for_channel_state(
-            self.fiber1.get_client(), self.fiber2.get_pubkey(), "CHANNEL_READY"
+            self.fiber1.get_client(), self.fiber2.get_pubkey(), "ChannelReady"
         )
         self.fiber2.get_client().open_channel(
             {
@@ -184,7 +184,7 @@ class TestSendPayment(FiberTest):
             }
         )
         self.wait_for_channel_state(
-            self.fiber3.get_client(), self.fiber2.get_pubkey(), "CHANNEL_READY"
+            self.fiber3.get_client(), self.fiber2.get_pubkey(), "ChannelReady"
         )
         time.sleep(1)
         payment1 = self.fiber1.get_client().send_payment(
@@ -319,7 +319,7 @@ class TestSendPayment(FiberTest):
             }
         )
         self.wait_for_channel_state(
-            self.fiber1.get_client(), self.fiber2.get_pubkey(), "CHANNEL_READY"
+            self.fiber1.get_client(), self.fiber2.get_pubkey(), "ChannelReady"
         )
         self.fiber2.get_client().open_channel(
             {
@@ -329,7 +329,7 @@ class TestSendPayment(FiberTest):
             }
         )
         self.wait_for_channel_state(
-            self.fiber3.get_client(), self.fiber2.get_pubkey(), "CHANNEL_READY"
+            self.fiber3.get_client(), self.fiber2.get_pubkey(), "ChannelReady"
         )
 
         invoice = self.fiber3.get_client().new_invoice(
@@ -378,7 +378,7 @@ class TestSendPayment(FiberTest):
             }
         )
         self.wait_for_channel_state(
-            self.fiber1.get_client(), self.fiber2.get_pubkey(), "CHANNEL_READY"
+            self.fiber1.get_client(), self.fiber2.get_pubkey(), "ChannelReady"
         )
         self.fiber2.get_client().open_channel(
             {
@@ -388,7 +388,7 @@ class TestSendPayment(FiberTest):
             }
         )
         self.wait_for_channel_state(
-            self.fiber3.get_client(), self.fiber2.get_pubkey(), "CHANNEL_READY"
+            self.fiber3.get_client(), self.fiber2.get_pubkey(), "ChannelReady"
         )
         time.sleep(5)
         payment1 = self.fiber1.get_client().send_payment(
@@ -444,7 +444,7 @@ class TestSendPayment(FiberTest):
             }
         )
         self.wait_for_channel_state(
-            self.fiber1.get_client(), self.fiber2.get_pubkey(), "CHANNEL_READY"
+            self.fiber1.get_client(), self.fiber2.get_pubkey(), "ChannelReady"
         )
 
         payment1 = self.fiber1.get_client().send_payment(
@@ -500,7 +500,7 @@ class TestSendPayment(FiberTest):
             }
         )
         self.wait_for_channel_state(
-            self.fiber1.get_client(), self.fiber2.get_pubkey(), "CHANNEL_READY"
+            self.fiber1.get_client(), self.fiber2.get_pubkey(), "ChannelReady"
         )
         self.fiber2.get_client().open_channel(
             {
@@ -510,7 +510,7 @@ class TestSendPayment(FiberTest):
             }
         )
         self.wait_for_channel_state(
-            self.fiber3.get_client(), self.fiber2.get_pubkey(), "CHANNEL_READY"
+            self.fiber3.get_client(), self.fiber2.get_pubkey(), "ChannelReady"
         )
 
         payment1 = self.fiber1.get_client().send_payment(

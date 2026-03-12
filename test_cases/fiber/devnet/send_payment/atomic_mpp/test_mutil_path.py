@@ -723,14 +723,14 @@ class MutilPathTestCase(FiberTest):
             }
         )
         self.wait_for_channel_state(
-            self.fiber1.get_client(), self.fiber2.get_pubkey(), "CHANNEL_READY"
+            self.fiber1.get_client(), self.fiber2.get_pubkey(), "ChannelReady"
         )
         # self.fiber1.get_client().open_channel({
         #     "pubkey": self.fiber1.get_pubkey(),
         #     "funding_amount": hex(1000 * 100000000),
         #     "public": True,
         # })
-        # self.wait_for_channel_state(self.fiber1, self.fiber2.get_pubkey(), "CHANNEL_READY")
+        # self.wait_for_channel_state(self.fiber1, self.fiber2.get_pubkey(), "ChannelReady")
         self.open_channel(self.fiber1, self.fiber2, 1000 * 100000000, 0, 0, 0)
         time.sleep(10)
         self.send_invoice_payment(

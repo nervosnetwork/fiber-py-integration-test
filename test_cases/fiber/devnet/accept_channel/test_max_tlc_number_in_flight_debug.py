@@ -30,9 +30,9 @@ class TestMaxTlcNumberInFlightDebug(FiberTest):
                 "max_tlc_number_in_flight": hex(1),
             }
         )
-        # 3. Wait for the channel state to be "CHANNEL_READY"
+        # 3. Wait for the channel state to be "ChannelReady"
         self.wait_for_channel_state(
-            self.fiber2.get_client(), self.fiber1.get_pubkey(), "CHANNEL_READY"
+            self.fiber2.get_client(), self.fiber1.get_pubkey(), "ChannelReady"
         )
         # node1 send_payment to node2
         fiber1_invoices = self.fiber1.get_client().new_invoice(

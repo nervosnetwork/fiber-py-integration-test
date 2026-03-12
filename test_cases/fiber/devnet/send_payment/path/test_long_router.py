@@ -29,7 +29,7 @@ class TestLongRouter(FiberTest):
             )
             # // AWAITING_TX_SIGNATURES
             self.wait_for_channel_state(
-                current_fiber.get_client(), linked_fiber.get_pubkey(), "CHANNEL_READY"
+                current_fiber.get_client(), linked_fiber.get_pubkey(), "ChannelReady"
             )
             # linked_fiber.get_client().update_channel(
             #     {
@@ -40,7 +40,7 @@ class TestLongRouter(FiberTest):
             #     }
             # )
             self.wait_for_channel_state(
-                current_fiber.get_client(), linked_fiber.get_pubkey(), "CHANNEL_READY"
+                current_fiber.get_client(), linked_fiber.get_pubkey(), "ChannelReady"
             )
 
         before_balance = self.get_fibers_balance()
