@@ -42,7 +42,7 @@ class TestGetInvoice(FiberTest):
 
         # Step 3: Verify the node ID matches the PayeePublicKey in the invoice
         assert (
-            node_info["node_id"]
+            node_info["pubkey"]
             == result["invoice"]["data"]["attrs"][-1]["payee_public_key"]
         )
 

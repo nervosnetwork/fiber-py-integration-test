@@ -34,7 +34,7 @@
 #
 #         self.fiber1.get_client().open_channel(
 #             {
-#                 "peer_id": self.fiber2.get_peer_id(),
+#                 "pubkey": self.fiber2.get_pubkey(),
 #                 "funding_amount": hex(1000 * 100000000),
 #                 "public": True,
 #                 "tlc_max_value": hex(160 * 100000000 - 1),
@@ -51,7 +51,7 @@
 #
 #         time.sleep(1)
 #         self.wait_for_channel_state(
-#             self.fiber1.get_client(), self.fiber2.get_peer_id(), "CHANNEL_READY", 120
+#             self.fiber1.get_client(), self.fiber2.get_pubkey(), "ChannelReady", 120
 #         )
 #         time.sleep(5)
 #         # transfer
@@ -127,7 +127,7 @@
 #         )
 #
 #         channels = self.fiber1.get_client().list_channels(
-#             {"peer_id": self.fiber2.get_peer_id()}
+#             {"pubkey": self.fiber2.get_pubkey()}
 #         )
 #         N1N2_CHANNEL_ID = channels["channels"][0]["channel_id"]
 #         self.fiber1.get_client().graph_channels()

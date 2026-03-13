@@ -19,7 +19,7 @@ class TestTlcFeeProportionalMillionths(FiberTest):
         time.sleep(3)
         temporary_channel_id = self.fiber1.get_client().open_channel(
             {
-                "peer_id": self.fiber2.get_peer_id(),
+                "pubkey": self.fiber2.get_pubkey(),
                 "funding_amount": hex(200 * 100000000),
                 "public": True,
                 # "funding_fee_rate": "0xffff",
@@ -28,11 +28,11 @@ class TestTlcFeeProportionalMillionths(FiberTest):
         )
         time.sleep(1)
         self.wait_for_channel_state(
-            self.fiber1.get_client(), self.fiber2.get_peer_id(), "CHANNEL_READY", 120
+            self.fiber1.get_client(), self.fiber2.get_pubkey(), "ChannelReady", 120
         )
         temporary_channel_id = self.fiber2.get_client().open_channel(
             {
-                "peer_id": new_fiber.get_peer_id(),
+                "pubkey": new_fiber.get_pubkey(),
                 "funding_amount": hex(1000 * 100000000),
                 "public": True,
                 # "tlc_min_value": hex(2 * 100000000)
@@ -42,7 +42,7 @@ class TestTlcFeeProportionalMillionths(FiberTest):
         )
         time.sleep(1)
         self.wait_for_channel_state(
-            self.fiber2.get_client(), new_fiber.get_peer_id(), "CHANNEL_READY", 120
+            self.fiber2.get_client(), new_fiber.get_pubkey(), "ChannelReady", 120
         )
         invoice_balance = hex(100 * 100000000)
         payment_preimage = self.generate_random_preimage()
@@ -92,7 +92,7 @@ class TestTlcFeeProportionalMillionths(FiberTest):
         with pytest.raises(Exception) as exc_info:
             temporary_channel_id = self.fiber2.get_client().open_channel(
                 {
-                    "peer_id": self.fiber1.get_peer_id(),
+                    "pubkey": self.fiber1.get_pubkey(),
                     "funding_amount": hex(1000 * 100000000),
                     "public": True,
                     # "tlc_min_value": hex(2 * 100000000)
@@ -114,7 +114,7 @@ class TestTlcFeeProportionalMillionths(FiberTest):
         """
         temporary_channel_id = self.fiber2.get_client().open_channel(
             {
-                "peer_id": self.fiber1.get_peer_id(),
+                "pubkey": self.fiber1.get_pubkey(),
                 "funding_amount": hex(1000 * 100000000),
                 "public": True,
                 # "tlc_min_value": hex(2 * 100000000)
@@ -123,7 +123,7 @@ class TestTlcFeeProportionalMillionths(FiberTest):
             }
         )
         self.wait_for_channel_state(
-            self.fiber2.get_client(), self.fiber1.get_peer_id(), "CHANNEL_READY", 120
+            self.fiber2.get_client(), self.fiber1.get_pubkey(), "ChannelReady", 120
         )
         channel = self.fiber1.get_client().list_channels({})
         assert channel["channels"][0]["tlc_fee_proportional_millionths"] == "0x3e8"
@@ -136,7 +136,7 @@ class TestTlcFeeProportionalMillionths(FiberTest):
         time.sleep(1)
         fiber3.get_client().open_channel(
             {
-                "peer_id": self.fiber2.get_peer_id(),
+                "pubkey": self.fiber2.get_pubkey(),
                 "funding_amount": hex(1000 * 100000000),
                 "public": True,
                 # "tlc_min_value": hex(2 * 100000000)
@@ -145,7 +145,7 @@ class TestTlcFeeProportionalMillionths(FiberTest):
             }
         )
         self.wait_for_channel_state(
-            fiber3.get_client(), self.fiber2.get_peer_id(), "CHANNEL_READY", 120
+            fiber3.get_client(), self.fiber2.get_pubkey(), "ChannelReady", 120
         )
         self.send_payment(fiber3, self.fiber1, 1)
 
@@ -169,7 +169,7 @@ class TestTlcFeeProportionalMillionths(FiberTest):
         time.sleep(3)
         temporary_channel_id = self.fiber1.get_client().open_channel(
             {
-                "peer_id": self.fiber2.get_peer_id(),
+                "pubkey": self.fiber2.get_pubkey(),
                 "funding_amount": hex(500 * 100000000),
                 "public": True,
                 # "funding_fee_rate": "0xffff",
@@ -178,12 +178,12 @@ class TestTlcFeeProportionalMillionths(FiberTest):
         )
         time.sleep(1)
         self.wait_for_channel_state(
-            self.fiber1.get_client(), self.fiber2.get_peer_id(), "CHANNEL_READY", 120
+            self.fiber1.get_client(), self.fiber2.get_pubkey(), "ChannelReady", 120
         )
         fiber2_tlc_fee = 1000000
         temporary_channel_id = self.fiber2.get_client().open_channel(
             {
-                "peer_id": new_fiber.get_peer_id(),
+                "pubkey": new_fiber.get_pubkey(),
                 "funding_amount": hex(1000 * 100000000),
                 "public": True,
                 "tlc_fee_proportional_millionths": hex(fiber2_tlc_fee),
@@ -194,7 +194,7 @@ class TestTlcFeeProportionalMillionths(FiberTest):
         )
         time.sleep(1)
         self.wait_for_channel_state(
-            self.fiber2.get_client(), new_fiber.get_peer_id(), "CHANNEL_READY", 120
+            self.fiber2.get_client(), new_fiber.get_pubkey(), "ChannelReady", 120
         )
         invoice_balance = hex(100 * 100000000)
         payment_preimage = self.generate_random_preimage()
@@ -204,7 +204,6 @@ class TestTlcFeeProportionalMillionths(FiberTest):
                 "currency": "Fibd",
                 "description": "test invoice generated by node2",
                 "expiry": "0xe10",
-                "final_cltv": "0x28",
                 "payment_preimage": payment_preimage,
                 "hash_algorithm": "sha256",
             }
@@ -215,9 +214,7 @@ class TestTlcFeeProportionalMillionths(FiberTest):
         self.fiber2.get_client().graph_channels()
         self.fiber2.get_client().graph_nodes()
         payment = self.fiber1.get_client().send_payment(
-            {
-                "invoice": invoice["invoice_address"],
-            }
+            {"invoice": invoice["invoice_address"], "max_fee_rate": hex(1000000)}
         )
         self.wait_payment_state(self.fiber1, payment["payment_hash"])
         after_channel_12 = self.fiber1.get_client().list_channels({})
@@ -245,7 +242,6 @@ class TestTlcFeeProportionalMillionths(FiberTest):
                 "currency": "Fibd",
                 "description": "test invoice generated by node2",
                 "expiry": "0xe10",
-                "final_cltv": "0x28",
                 "payment_preimage": payment_preimage,
                 "hash_algorithm": "sha256",
             }
@@ -254,7 +250,7 @@ class TestTlcFeeProportionalMillionths(FiberTest):
         payment = new_fiber.get_client().send_payment(
             {
                 "invoice": invoice["invoice_address"],
-                "max_fee_amount": hex(1000 * 100000000),
+                "max_fee_rate": hex(1000000),
             }
         )
         self.wait_payment_state(new_fiber, payment["payment_hash"], "Success", 120)
@@ -334,7 +330,7 @@ class TestTlcFeeProportionalMillionths(FiberTest):
         time.sleep(3)
         temporary_channel_id = self.fiber1.get_client().open_channel(
             {
-                "peer_id": self.fiber2.get_peer_id(),
+                "pubkey": self.fiber2.get_pubkey(),
                 "funding_amount": hex(20000 * 100000000),
                 "public": True,
                 # "funding_fee_rate": "0xffff",
@@ -343,12 +339,12 @@ class TestTlcFeeProportionalMillionths(FiberTest):
         )
         time.sleep(1)
         self.wait_for_channel_state(
-            self.fiber1.get_client(), self.fiber2.get_peer_id(), "CHANNEL_READY", 120
+            self.fiber1.get_client(), self.fiber2.get_pubkey(), "ChannelReady", 120
         )
         fiber2_tlc_fee = 340282366
         temporary_channel_id = self.fiber2.get_client().open_channel(
             {
-                "peer_id": new_fiber.get_peer_id(),
+                "pubkey": new_fiber.get_pubkey(),
                 "funding_amount": hex(10000 * 100000000),
                 "public": True,
                 "tlc_fee_proportional_millionths": hex(fiber2_tlc_fee),
@@ -359,7 +355,7 @@ class TestTlcFeeProportionalMillionths(FiberTest):
         )
         time.sleep(1)
         self.wait_for_channel_state(
-            self.fiber2.get_client(), new_fiber.get_peer_id(), "CHANNEL_READY", 120
+            self.fiber2.get_client(), new_fiber.get_pubkey(), "ChannelReady", 120
         )
         invoice_balance = hex(1 * 100000000)
         payment_preimage = self.generate_random_preimage()
@@ -369,7 +365,6 @@ class TestTlcFeeProportionalMillionths(FiberTest):
                 "currency": "Fibd",
                 "description": "test invoice generated by node2",
                 "expiry": "0xe10",
-                "final_cltv": "0x28",
                 "payment_preimage": payment_preimage,
                 "hash_algorithm": "sha256",
             }
@@ -382,6 +377,7 @@ class TestTlcFeeProportionalMillionths(FiberTest):
         payment = self.fiber1.get_client().send_payment(
             {
                 "invoice": invoice["invoice_address"],
+                "max_fee_rate": hex(100000000),
             }
         )
         self.wait_payment_state(self.fiber1, payment["payment_hash"])
@@ -486,7 +482,7 @@ class TestTlcFeeProportionalMillionths(FiberTest):
         time.sleep(3)
         temporary_channel_id = self.fiber1.get_client().open_channel(
             {
-                "peer_id": self.fiber2.get_peer_id(),
+                "pubkey": self.fiber2.get_pubkey(),
                 "funding_amount": hex(200 * 100000000),
                 "public": True,
                 # "funding_fee_rate": "0xffff",
@@ -502,12 +498,12 @@ class TestTlcFeeProportionalMillionths(FiberTest):
         )
         time.sleep(1)
         self.wait_for_channel_state(
-            self.fiber1.get_client(), self.fiber2.get_peer_id(), "CHANNEL_READY", 120
+            self.fiber1.get_client(), self.fiber2.get_pubkey(), "ChannelReady", 120
         )
         fiber2_tlc_fee = 1000000
         temporary_channel_id = self.fiber2.get_client().open_channel(
             {
-                "peer_id": new_fiber.get_peer_id(),
+                "pubkey": new_fiber.get_pubkey(),
                 "funding_amount": hex(1000 * 100000000),
                 "public": True,
                 "tlc_fee_proportional_millionths": hex(fiber2_tlc_fee),
@@ -525,7 +521,7 @@ class TestTlcFeeProportionalMillionths(FiberTest):
         )
         time.sleep(1)
         self.wait_for_channel_state(
-            self.fiber2.get_client(), new_fiber.get_peer_id(), "CHANNEL_READY", 120
+            self.fiber2.get_client(), new_fiber.get_pubkey(), "ChannelReady", 120
         )
         invoice_balance = hex(100 * 100000000)
         payment_preimage = self.generate_random_preimage()
@@ -553,9 +549,7 @@ class TestTlcFeeProportionalMillionths(FiberTest):
         self.fiber2.get_client().graph_channels()
         self.fiber2.get_client().graph_nodes()
         payment = self.fiber1.get_client().send_payment(
-            {
-                "invoice": invoice["invoice_address"],
-            }
+            {"invoice": invoice["invoice_address"], "max_fee_rate": hex(1000000)}
         )
         self.wait_payment_state(self.fiber1, payment["payment_hash"])
         after_channel_12 = self.fiber1.get_client().list_channels({})
@@ -632,7 +626,7 @@ class TestTlcFeeProportionalMillionths(FiberTest):
         time.sleep(1)
         temporary_channel_id = self.fiber1.get_client().open_channel(
             {
-                "peer_id": self.fiber2.get_peer_id(),
+                "pubkey": self.fiber2.get_pubkey(),
                 "funding_amount": hex(500 * 100000000),
                 "public": True,
                 # "funding_fee_rate": "0xffff",
@@ -641,12 +635,12 @@ class TestTlcFeeProportionalMillionths(FiberTest):
         )
         time.sleep(1)
         self.wait_for_channel_state(
-            self.fiber1.get_client(), self.fiber2.get_peer_id(), "CHANNEL_READY", 120
+            self.fiber1.get_client(), self.fiber2.get_pubkey(), "ChannelReady", 120
         )
         fiber2_tlc_fee = 0
         temporary_channel_id = self.fiber2.get_client().open_channel(
             {
-                "peer_id": new_fiber.get_peer_id(),
+                "pubkey": new_fiber.get_pubkey(),
                 "funding_amount": hex(1000 * 100000000),
                 "public": True,
                 "tlc_fee_proportional_millionths": hex(fiber2_tlc_fee),
@@ -657,7 +651,7 @@ class TestTlcFeeProportionalMillionths(FiberTest):
         )
         time.sleep(1)
         self.wait_for_channel_state(
-            self.fiber2.get_client(), new_fiber.get_peer_id(), "CHANNEL_READY", 120
+            self.fiber2.get_client(), new_fiber.get_pubkey(), "ChannelReady", 120
         )
         payment_hash = self.send_payment(self.fiber1, new_fiber, 100 * 100000000)
         payment = self.fiber1.get_client().get_payment({"payment_hash": payment_hash})

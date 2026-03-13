@@ -24,7 +24,7 @@ class TestTlcLocktimeExpiryDelta(FiberTest):
         with pytest.raises(Exception) as exc_info:
             temporary_channel_id = self.fiber1.get_client().open_channel(
                 {
-                    "peer_id": self.fiber2.get_peer_id(),
+                    "pubkey": self.fiber2.get_pubkey(),
                     "funding_amount": hex(200 * 100000000),
                     "public": True,
                     "tlc_expiry_delta": "0x0",
@@ -40,7 +40,7 @@ class TestTlcLocktimeExpiryDelta(FiberTest):
         with pytest.raises(Exception) as exc_info:
             self.fiber1.get_client().open_channel(
                 {
-                    "peer_id": self.fiber2.get_peer_id(),
+                    "pubkey": self.fiber2.get_pubkey(),
                     "funding_amount": hex(200 * 100000000),
                     "public": True,
                     "tlc_expiry_delta": "0xffffffff",

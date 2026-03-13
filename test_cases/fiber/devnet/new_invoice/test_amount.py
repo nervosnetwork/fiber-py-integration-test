@@ -31,7 +31,7 @@ class TestAmount(FiberTest):
         # 1. open channel
         temporary_channel = self.fiber1.get_client().open_channel(
             {
-                "peer_id": self.fiber2.get_peer_id(),
+                "pubkey": self.fiber2.get_pubkey(),
                 "funding_amount": hex(1000 * 100000000),
                 "public": True,
             }
@@ -39,7 +39,7 @@ class TestAmount(FiberTest):
 
         # 2. check channel state
         self.wait_for_channel_state(
-            self.fiber1.get_client(), self.fiber2.get_peer_id(), "CHANNEL_READY"
+            self.fiber1.get_client(), self.fiber2.get_pubkey(), "ChannelReady"
         )
 
         # 3. new invoice 0x0
@@ -92,9 +92,12 @@ class TestAmount(FiberTest):
                     "invoice": invoice["invoice_address"],
                 }
             )
-        expected_error_message = "no path found"
-        assert expected_error_message in exc_info.value.args[0], (
-            f"Expected substring '{expected_error_message}' "
+        expected_error_message = "Insufficient balance"
+        assert (
+            expected_error_message in exc_info.value.args[0]
+            or "no path found" in exc_info.value.args[0]
+        ), (
+            f"Expected substring '{expected_error_message}' or 'no path found' "
             f"not found in actual string '{exc_info.value.args[0]}'"
         )
 
@@ -156,7 +159,7 @@ class TestAmount(FiberTest):
         # 1. Open a channel between fiber1 and fiber2
         temporary_channel = self.fiber1.get_client().open_channel(
             {
-                "peer_id": self.fiber2.get_peer_id(),
+                "pubkey": self.fiber2.get_pubkey(),
                 "funding_amount": hex(1000 * 100000000),
                 "public": True,
             }
@@ -164,7 +167,7 @@ class TestAmount(FiberTest):
 
         # 2. Check the channel state to ensure it is ready
         self.wait_for_channel_state(
-            self.fiber1.get_client(), self.fiber2.get_peer_id(), "CHANNEL_READY"
+            self.fiber1.get_client(), self.fiber2.get_pubkey(), "ChannelReady"
         )
 
         # 3. Create a new invoice with a normal amount

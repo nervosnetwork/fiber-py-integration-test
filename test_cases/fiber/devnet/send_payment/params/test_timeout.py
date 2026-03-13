@@ -9,7 +9,7 @@ class TestTimeout(FiberTest):
         self.open_channel(self.fiber2, self.fiber3, 1000 * 100000000, 1000 * 100000000)
         payment = self.fiber1.get_client().send_payment(
             {
-                "target_pubkey": self.fiber3.get_client().node_info()["node_id"],
+                "target_pubkey": self.fiber3.get_client().node_info()["pubkey"],
                 "amount": hex(10 * 100000000),
                 "keysend": True,
                 "timeout": hex(0),
@@ -19,7 +19,7 @@ class TestTimeout(FiberTest):
 
         # for i in range(100):
         #     payment = self.fiber1.get_client().send_payment({
-        #         "target_pubkey": self.fiber3.get_client().node_info()["node_id"],
+        #         "target_pubkey": self.fiber3.get_client().node_info()["pubkey"],
         #         "amount": hex(1 * 10000000),
         #         "keysend": True,
         #         "timeout": hex(0)

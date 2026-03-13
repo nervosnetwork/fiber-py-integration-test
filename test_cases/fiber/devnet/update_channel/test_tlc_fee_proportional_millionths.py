@@ -27,25 +27,25 @@ class TestTlcFeeProportionalMillionths(FiberTest):
         time.sleep(1)
         self.fiber3.get_client().open_channel(
             {
-                "peer_id": self.fiber1.get_peer_id(),
+                "pubkey": self.fiber1.get_pubkey(),
                 "funding_amount": hex(200 * 100000000),
                 "public": True,
             }
         )
         self.wait_for_channel_state(
-            self.fiber3.get_client(), self.fiber1.get_peer_id(), "CHANNEL_READY", 120
+            self.fiber3.get_client(), self.fiber1.get_pubkey(), "ChannelReady", 120
         )
 
         # 2. fiber1(200) open_channel fiber2(0)
         temporary_channel_id = self.fiber1.get_client().open_channel(
             {
-                "peer_id": self.fiber2.get_peer_id(),
+                "pubkey": self.fiber2.get_pubkey(),
                 "funding_amount": hex(200 * 100000000),
                 "public": True,
             }
         )
         self.wait_for_channel_state(
-            self.fiber1.get_client(), self.fiber2.get_peer_id(), "CHANNEL_READY", 120
+            self.fiber1.get_client(), self.fiber2.get_pubkey(), "ChannelReady", 120
         )
         # 3. fiber1 send_payment fiber 2 1 ckb
         invoice_balance = hex(1 * 100000000)
@@ -124,13 +124,13 @@ class TestTlcFeeProportionalMillionths(FiberTest):
     def test_overflow(self):
         temporary_channel_id = self.fiber1.get_client().open_channel(
             {
-                "peer_id": self.fiber2.get_peer_id(),
+                "pubkey": self.fiber2.get_pubkey(),
                 "funding_amount": hex(200 * 100000000),
                 "public": True,
             }
         )
         self.wait_for_channel_state(
-            self.fiber1.get_client(), self.fiber2.get_peer_id(), "CHANNEL_READY", 120
+            self.fiber1.get_client(), self.fiber2.get_pubkey(), "ChannelReady", 120
         )
         channels = self.fiber1.get_client().list_channels({})
         with pytest.raises(Exception) as exc_info:
@@ -155,13 +155,13 @@ class TestTlcFeeProportionalMillionths(FiberTest):
         """
         temporary_channel_id = self.fiber1.get_client().open_channel(
             {
-                "peer_id": self.fiber2.get_peer_id(),
+                "pubkey": self.fiber2.get_pubkey(),
                 "funding_amount": hex(200 * 100000000),
                 "public": True,
             }
         )
         self.wait_for_channel_state(
-            self.fiber1.get_client(), self.fiber2.get_peer_id(), "CHANNEL_READY", 120
+            self.fiber1.get_client(), self.fiber2.get_pubkey(), "ChannelReady", 120
         )
         channels = self.fiber1.get_client().list_channels({})
         self.fiber1.get_client().update_channel(
@@ -208,25 +208,25 @@ class TestTlcFeeProportionalMillionths(FiberTest):
         time.sleep(1)
         self.fiber3.get_client().open_channel(
             {
-                "peer_id": self.fiber1.get_peer_id(),
+                "pubkey": self.fiber1.get_pubkey(),
                 "funding_amount": hex(200 * 100000000),
                 "public": True,
             }
         )
         self.wait_for_channel_state(
-            self.fiber3.get_client(), self.fiber1.get_peer_id(), "CHANNEL_READY", 120
+            self.fiber3.get_client(), self.fiber1.get_pubkey(), "ChannelReady", 120
         )
 
         # 2. fiber1(200) open_channel fiber2(0)
         temporary_channel_id = self.fiber1.get_client().open_channel(
             {
-                "peer_id": self.fiber2.get_peer_id(),
+                "pubkey": self.fiber2.get_pubkey(),
                 "funding_amount": hex(200 * 100000000),
                 "public": True,
             }
         )
         self.wait_for_channel_state(
-            self.fiber1.get_client(), self.fiber2.get_peer_id(), "CHANNEL_READY", 120
+            self.fiber1.get_client(), self.fiber2.get_pubkey(), "ChannelReady", 120
         )
         # 3. fiber1 send_payment fiber 2 1 ckb
         invoice_balance = hex(1 * 100000000)

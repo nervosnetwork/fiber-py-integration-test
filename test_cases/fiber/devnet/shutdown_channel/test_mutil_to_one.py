@@ -70,7 +70,7 @@
 #             except Exception as e:
 #                 pass
 #         time.sleep(1)
-#         self.fiber2.get_client().disconnect_peer({"peer_id": self.fiber1.get_peer_id()})
+#         self.fiber2.get_client().disconnect_peer({"pubkey": self.fiber1.get_pubkey()})
 #
 #     def test_fiber1_shutdown_channels(self):
 #         channels = self.fiber1.get_client().list_channels({})

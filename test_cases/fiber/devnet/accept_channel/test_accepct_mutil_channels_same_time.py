@@ -17,14 +17,14 @@ class TestAcceptMutilChannelsSameTime(FiberTest):
             2. Accept the channel with fiber2 as the client
             3. Attempt to accept the same channel again, expecting an exception
             4. Verify that the expected error message is in the exception
-            5. Wait for the channel state to be "CHANNEL_READY"
+            5. Wait for the channel state to be "ChannelReady"
 
         Returns:
         """
         # 1. Open a new channel with fiber1 as the client and fiber2 as the peer
         temporary_channel = self.fiber1.get_client().open_channel(
             {
-                "peer_id": self.fiber2.get_peer_id(),
+                "pubkey": self.fiber2.get_pubkey(),
                 "funding_amount": hex(DEFAULT_MIN_DEPOSIT_CKB),
                 "public": True,
             }
@@ -55,9 +55,9 @@ class TestAcceptMutilChannelsSameTime(FiberTest):
             f"not found in actual string '{exc_info.value.args[0]}'"
         )
 
-        # 5. Wait for the channel state to be "CHANNEL_READY"
+        # 5. Wait for the channel state to be "ChannelReady"
         self.wait_for_channel_state(
-            self.fiber2.get_client(), self.fiber1.get_peer_id(), "CHANNEL_READY"
+            self.fiber2.get_client(), self.fiber1.get_pubkey(), "ChannelReady"
         )
 
     @pytest.mark.skip("https://github.com/nervosnetwork/fiber/issues/246")
@@ -72,11 +72,11 @@ class TestAcceptMutilChannelsSameTime(FiberTest):
             5. Open another new channel with fiber3 as the client and fiber2 as the peer
             6. Accept the first channel with fiber2 as the client
             7. Accept the second channel with fiber2 as the client
-            8. Wait for the first channel state to be "CHANNEL_READY"
-            9. Wait for the second channel state to be "AWAITING_TX_SIGNATURES"
+            8. Wait for the first channel state to be "ChannelReady"
+            9. Wait for the second channel state to be "AwaitingTxSignatures"
             10. Open another new channel with fiber3 as the client and fiber2 as the peer
             11. Accept the new channel with fiber2 as the client
-            12. Wait for the new channel state to be "CHANNEL_READY"
+            12. Wait for the new channel state to be "ChannelReady"
 
         Returns:
         """
@@ -93,7 +93,7 @@ class TestAcceptMutilChannelsSameTime(FiberTest):
         # Step 4: Open a new channel with fiber1 as the client and fiber2 as the peer
         temporary_channel1 = self.fiber1.get_client().open_channel(
             {
-                "peer_id": self.fiber2.get_peer_id(),
+                "pubkey": self.fiber2.get_pubkey(),
                 "funding_amount": hex(DEFAULT_MIN_DEPOSIT_CKB),
                 "public": True,
             }
@@ -102,7 +102,7 @@ class TestAcceptMutilChannelsSameTime(FiberTest):
         # Step 5: Open another new channel with fiber3 as the client and fiber2 as the peer
         temporary_channel2 = fiber3.get_client().open_channel(
             {
-                "peer_id": self.fiber2.get_peer_id(),
+                "pubkey": self.fiber2.get_pubkey(),
                 "funding_amount": hex(DEFAULT_MIN_DEPOSIT_CKB),
                 "public": True,
             }
@@ -113,7 +113,7 @@ class TestAcceptMutilChannelsSameTime(FiberTest):
             temporary_other_channels.append(
                 fiber3.get_client().open_channel(
                     {
-                        "peer_id": self.fiber2.get_peer_id(),
+                        "pubkey": self.fiber2.get_pubkey(),
                         "funding_amount": hex(DEFAULT_MIN_DEPOSIT_CKB),
                         "public": True,
                     }
@@ -148,14 +148,14 @@ class TestAcceptMutilChannelsSameTime(FiberTest):
             )
             time.sleep(0.1)
 
-        # Step 8: Wait for the first channel state to be "CHANNEL_READY"
+        # Step 8: Wait for the first channel state to be "ChannelReady"
         self.wait_for_channel_state(
-            self.fiber1.get_client(), self.fiber2.get_peer_id(), "CHANNEL_READY"
+            self.fiber1.get_client(), self.fiber2.get_pubkey(), "ChannelReady"
         )
 
-        # Step 9: Wait for the second channel state to be "AWAITING_TX_SIGNATURES"
+        # Step 9: Wait for the second channel state to be "AwaitingTxSignatures"
         self.wait_for_channel_state(
-            self.fiber2.get_client(), fiber3.get_peer_id(), "AWAITING_TX_SIGNATURES"
+            self.fiber2.get_client(), fiber3.get_pubkey(), "AwaitingTxSignatures"
         )
 
         time.sleep(5)
@@ -163,7 +163,7 @@ class TestAcceptMutilChannelsSameTime(FiberTest):
         # Step 10: Open another new channel with fiber3 as the client and fiber2 as the peer
         temporary_channel2 = fiber3.get_client().open_channel(
             {
-                "peer_id": self.fiber2.get_peer_id(),
+                "pubkey": self.fiber2.get_pubkey(),
                 "funding_amount": hex(DEFAULT_MIN_DEPOSIT_CKB),
                 "public": True,
             }
@@ -178,7 +178,7 @@ class TestAcceptMutilChannelsSameTime(FiberTest):
             }
         )
 
-        # Step 12: Wait for the new channel state to be "CHANNEL_READY"
+        # Step 12: Wait for the new channel state to be "ChannelReady"
         self.wait_for_channel_state(
-            self.fiber2.get_client(), fiber3.get_peer_id(), "CHANNEL_READY"
+            self.fiber2.get_client(), fiber3.get_pubkey(), "ChannelReady"
         )

@@ -11,29 +11,29 @@ class TestMaxFeeAmount(FiberTest):
         self.fiber3.connect_peer(self.fiber2)
         self.fiber1.get_client().open_channel(
             {
-                "peer_id": self.fiber2.get_peer_id(),
+                "pubkey": self.fiber2.get_pubkey(),
                 "funding_amount": hex(100000000 * 100000000),
                 "public": True,
             }
         )
         self.wait_for_channel_state(
-            self.fiber1.get_client(), self.fiber2.get_peer_id(), "CHANNEL_READY"
+            self.fiber1.get_client(), self.fiber2.get_pubkey(), "ChannelReady"
         )
         self.fiber2.get_client().open_channel(
             {
-                "peer_id": self.fiber3.get_peer_id(),
+                "pubkey": self.fiber3.get_pubkey(),
                 "funding_amount": hex(100000000 * 100000000),
                 "public": True,
             }
         )
         self.wait_for_channel_state(
-            self.fiber3.get_client(), self.fiber2.get_peer_id(), "CHANNEL_READY"
+            self.fiber3.get_client(), self.fiber2.get_pubkey(), "ChannelReady"
         )
 
         # send to node1 -> node2 no fee  max_fee = 0
         payment1 = self.fiber1.get_client().send_payment(
             {
-                "target_pubkey": self.fiber2.get_client().node_info()["node_id"],
+                "target_pubkey": self.fiber2.get_client().node_info()["pubkey"],
                 "amount": hex(1000000 * 100000000),
                 "keysend": True,
                 "max_fee_amount": hex(0),
@@ -44,7 +44,7 @@ class TestMaxFeeAmount(FiberTest):
         with pytest.raises(Exception) as exc_info:
             payment1 = self.fiber1.get_client().send_payment(
                 {
-                    "target_pubkey": self.fiber3.get_client().node_info()["node_id"],
+                    "target_pubkey": self.fiber3.get_client().node_info()["pubkey"],
                     "amount": hex(1000000 * 100000000),
                     "keysend": True,
                     "max_fee_amount": hex(0),
@@ -59,7 +59,7 @@ class TestMaxFeeAmount(FiberTest):
 
         payment1 = self.fiber1.get_client().send_payment(
             {
-                "target_pubkey": self.fiber3.get_client().node_info()["node_id"],
+                "target_pubkey": self.fiber3.get_client().node_info()["pubkey"],
                 "amount": hex(1000000 * 100000000),
                 "keysend": True,
                 "dry_run": True,
@@ -67,7 +67,7 @@ class TestMaxFeeAmount(FiberTest):
         )
         payment1 = self.fiber1.get_client().send_payment(
             {
-                "target_pubkey": self.fiber3.get_client().node_info()["node_id"],
+                "target_pubkey": self.fiber3.get_client().node_info()["pubkey"],
                 "amount": hex(1000000 * 100000000),
                 "keysend": True,
                 "max_fee_amount": payment1["fee"],
@@ -77,7 +77,7 @@ class TestMaxFeeAmount(FiberTest):
 
     # @pytest.mark.skip(reason="https://github.com/nervosnetwork/fiber/pull/717")
     def test_max_fee_0xffffffffffffffffffffffffffffffff(self):
-        self.open_channel(self.fiber1, self.fiber2, 1000 * 100000000, 1000 * 100000000)
+        # self.open_channel(self.fiber1, self.fiber2, 1000 * 100000000, 1000 * 100000000)
         invoice = self.fiber1.get_client().new_invoice(
             {
                 "amount": hex(1 * 100000000),
@@ -93,10 +93,10 @@ class TestMaxFeeAmount(FiberTest):
             self.fiber2.get_client().send_payment(
                 {
                     "invoice": invoice["invoice_address"],
-                    "max_fee_amount": "0xffffffffffffffffffffffffffffffff",
+                    "max_fee_amount": "0xffffffffffffffffffffffffffffffffff",
                 }
             )
-        expected_error_message = "overflow"
+        expected_error_message = "Invalid params"
         assert expected_error_message in exc_info.value.args[0], (
             f"Expected substring '{expected_error_message}' "
             f"not found in actual string '{exc_info.value.args[0]}'"

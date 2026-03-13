@@ -41,7 +41,7 @@
 #                 # other_options={"allow_atomic_mpp": True}
 #             )
 #
-#         self.fiber1.get_client().disconnect_peer({"peer_id": self.fiber2.get_peer_id()})
+#         self.fiber1.get_client().disconnect_peer({"pubkey": self.fiber2.get_pubkey()})
 #
 #         self.add_time_and_generate_block(23, 20)
 #         while len(self.get_commit_cells()) == 0:

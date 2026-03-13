@@ -29,7 +29,7 @@ class TestCustomRecords(FiberTest):
         self.open_channel(self.fiber1, self.fiber2, 1000 * 100000000, 1000 * 100000000)
         payment = self.fiber1.get_client().send_payment(
             {
-                "target_pubkey": self.fiber2.get_client().node_info()["node_id"],
+                "target_pubkey": self.fiber2.get_client().node_info()["pubkey"],
                 "amount": hex(100),
                 "keysend": True,
                 "allow_self_payment": True,
@@ -55,7 +55,7 @@ class TestCustomRecords(FiberTest):
         # custom_records empty string
         payment = self.fiber1.get_client().send_payment(
             {
-                "target_pubkey": self.fiber2.get_client().node_info()["node_id"],
+                "target_pubkey": self.fiber2.get_client().node_info()["pubkey"],
                 "amount": hex(100),
                 "keysend": True,
                 "allow_self_payment": True,
@@ -83,7 +83,7 @@ class TestCustomRecords(FiberTest):
             custom_records.update({hex(i): self.generate_random_preimage()})
         payment = self.fiber1.get_client().send_payment(
             {
-                "target_pubkey": self.fiber2.get_client().node_info()["node_id"],
+                "target_pubkey": self.fiber2.get_client().node_info()["pubkey"],
                 "amount": hex(100),
                 "keysend": True,
                 "allow_self_payment": True,
@@ -102,7 +102,7 @@ class TestCustomRecords(FiberTest):
         # 最大值 和最小值
         payment = self.fiber1.get_client().send_payment(
             {
-                "target_pubkey": self.fiber2.get_client().node_info()["node_id"],
+                "target_pubkey": self.fiber2.get_client().node_info()["pubkey"],
                 "amount": hex(100),
                 "keysend": True,
                 "allow_self_payment": True,
@@ -128,7 +128,7 @@ class TestCustomRecords(FiberTest):
         with pytest.raises(Exception) as exc_info:
             payment = self.fiber1.get_client().send_payment(
                 {
-                    "target_pubkey": self.fiber2.get_client().node_info()["node_id"],
+                    "target_pubkey": self.fiber2.get_client().node_info()["pubkey"],
                     "amount": hex(100),
                     "keysend": True,
                     "allow_self_payment": True,
@@ -147,7 +147,7 @@ class TestCustomRecords(FiberTest):
         # none
         payment = self.fiber1.get_client().send_payment(
             {
-                "target_pubkey": self.fiber2.get_client().node_info()["node_id"],
+                "target_pubkey": self.fiber2.get_client().node_info()["pubkey"],
                 "amount": hex(100),
                 "keysend": True,
                 "allow_self_payment": True,

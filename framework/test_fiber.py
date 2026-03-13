@@ -25,14 +25,24 @@ class FiberConfigPath(Enum):
         "download/fiber/current/fnn.debug",
     )
 
-    CURRENT_TESTNET = (
-        "/source/template/fiber/testnet_config_3.yml.j2",
-        "download/fiber/0.6.0/fnn",
+    CURRENT_MAINNET = (
+        "/source/template/fiber/mainnet_config_3.yml.j2",
+        "download/fiber/0.7.1/fnn",
     )
 
-    V050_DEV = (
-        "/source/template/fiber/dev_config_2.yml.j2",
-        "download/fiber/0.5.0/fnn",
+    CURRENT_TESTNET = (
+        "/source/template/fiber/testnet_config_3.yml.j2",
+        "download/fiber/0.7.1/fnn",
+    )
+
+    V070_DEV = (
+        "/source/fiber/dev_config_3.yml.j2",
+        "download/fiber/0.7.0/fnn",
+    )
+
+    V061_DEV = (
+        "/source/fiber/dev_config_3.yml.j2",
+        "download/fiber/0.6.1/fnn",
     )
 
     def __init__(self, fiber_config_path, fiber_bin_path):
@@ -218,8 +228,11 @@ class Fiber:
     def get_log_file(self):
         pass
 
-    def get_peer_id(self):
-        return self.get_client().node_info()["addresses"][0].split("/")[-1]
+    def get_pubkey(self):
+        return self.get_client().node_info()["pubkey"]
+
+    def get_pubkey(self):
+        return self.get_client().node_info()["pubkey"]
 
     def get_account(self):
         return framework.helper.ckb_cli.util_key_info_by_private_key(

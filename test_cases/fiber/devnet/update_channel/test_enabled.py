@@ -42,7 +42,7 @@ class TestEnable(FiberTest):
         channel = (
             self.fibers[1]
             .get_client()
-            .list_channels({"peer_id": self.fibers[2].get_peer_id()})
+            .list_channels({"pubkey": self.fibers[2].get_pubkey()})
         )
         channels = self.fibers[1].get_client().graph_channels({})
         assert len(channels["channels"]) == 2
@@ -56,14 +56,14 @@ class TestEnable(FiberTest):
         channel = (
             self.fibers[1]
             .get_client()
-            .list_channels({"peer_id": self.fibers[2].get_peer_id()})
+            .list_channels({"pubkey": self.fibers[2].get_pubkey()})
         )
         print("fiber1 channel:", channel)
         assert channel["channels"][0]["enabled"] == False
         channel = (
             self.fibers[2]
             .get_client()
-            .list_channels({"peer_id": self.fibers[1].get_peer_id()})
+            .list_channels({"pubkey": self.fibers[1].get_pubkey()})
         )
         print("fiber2 channel:", channel)
         assert channel["channels"][0]["enabled"] == True
@@ -95,7 +95,7 @@ class TestEnable(FiberTest):
         channel = (
             self.fibers[1]
             .get_client()
-            .list_channels({"peer_id": self.fibers[2].get_peer_id()})
+            .list_channels({"pubkey": self.fibers[2].get_pubkey()})
         )
         self.fibers[1].get_client().update_channel(
             {"channel_id": channel["channels"][0]["channel_id"], "enabled": True}
@@ -107,14 +107,14 @@ class TestEnable(FiberTest):
         channel = (
             self.fibers[1]
             .get_client()
-            .list_channels({"peer_id": self.fibers[2].get_peer_id()})
+            .list_channels({"pubkey": self.fibers[2].get_pubkey()})
         )
         print("fiber1 channel:", channel)
         assert channel["channels"][0]["enabled"] == True
         channel = (
             self.fibers[2]
             .get_client()
-            .list_channels({"peer_id": self.fibers[1].get_peer_id()})
+            .list_channels({"pubkey": self.fibers[1].get_pubkey()})
         )
         print("fiber2 channel:", channel)
         assert channel["channels"][0]["enabled"] == True
@@ -144,7 +144,7 @@ class TestEnable(FiberTest):
         channel = (
             self.fibers[1]
             .get_client()
-            .list_channels({"peer_id": self.fibers[2].get_peer_id()})
+            .list_channels({"pubkey": self.fibers[2].get_pubkey()})
         )
         self.fibers[1].get_client().update_channel(
             {"channel_id": channel["channels"][0]["channel_id"], "enabled": False}
@@ -165,5 +165,4 @@ class TestEnable(FiberTest):
             30000,
             30000,
         )
-
         self.send_payment(self.fibers[0], self.fibers[2], 1 * 100000000)

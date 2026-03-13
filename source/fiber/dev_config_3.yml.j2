@@ -6,6 +6,9 @@ fiber:
   gossip_store_maintenance_interval_ms: 1000
   gossip_network_maintenance_interval_ms: 1000
   open_channel_auto_accept_min_ckb_funding_amount: {{ fiber_open_channel_auto_accept_min_ckb_funding_amount | default(10000000000)}}
+  {% if fiber_auto_accept_channel_ckb_funding_amount is defined %}
+  auto_accept_channel_ckb_funding_amount: {{ fiber_auto_accept_channel_ckb_funding_amount }}
+  {% endif %}
   watchtower_check_interval_seconds: {{ fiber_watchtower_check_interval_seconds | default(60) }}
   {% if fiber_disable_built_in_watchtower is defined %}
   standalone_watchtower_rpc_url: {{ fiber_standalone_watchtower_rpc_url }}
@@ -80,10 +83,7 @@ rpc:
 {% if cch is defined %}
 cch:
   ignore_startup_failure: true
-  wrapped_btc_type_script:
-    code_hash: 0x102583443ba6cfe5a3ac268bbb4475fb63eb497dce077f126ad3b148d4f4f8f8
-    hash_type: type
-    args: 0x32e555f3ff8e135cece1351a6a2971518392c1e30375c1e006ad0ce8eac07947
+  wrapped_btc_type_script_args: {{ cch_wrapped_btc_type_script_args | default("0x32e555f3ff8e135cece1351a6a2971518392c1e30375c1e006ad0ce8eac07947") }}
   lnd_cert_path: {{ cch_lnd_cert_path | default("../../lnd/node1/tls.cert") }}
   lnd_rpc_url: {{ cch_lnd_rpc_url | default("https://localhost:10009") }}
   order_expiry: {{ cch_order_expiry | default(3600) }}

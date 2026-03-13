@@ -67,8 +67,8 @@ class WasmDemo(FiberTest):
         )
         self.wait_for_channel_state(
             wasmFiber.get_client(),
-            self.fiber1.get_peer_id(),
-            "CLOSED",
+            self.fiber1.get_pubkey(),
+            "Closed",
             include_closed=True,
         )
         shutdown_channel_id = wasmFiber.get_client().list_channels({})["channels"][0][
@@ -84,8 +84,8 @@ class WasmDemo(FiberTest):
         time.sleep(1)
         self.wait_for_channel_state(
             wasmFiber.get_client(),
-            self.fiber1.get_peer_id(),
-            "CLOSED",
+            self.fiber1.get_pubkey(),
+            "Closed",
             include_closed=True,
             channel_id=shutdown_channel_id,
         )
@@ -95,5 +95,5 @@ class WasmDemo(FiberTest):
         wasmFiber.refresh()
         node_info1 = wasmFiber.get_client().node_info()
         node_info2 = wasmFiber.get_client().node_info()
-        assert node_info1["node_id"] == node_info2["node_id"]
-        assert node_info0["node_id"] == node_info1["node_id"]
+        assert node_info1["pubkey"] == node_info2["pubkey"]
+        assert node_info0["pubkey"] == node_info1["pubkey"]

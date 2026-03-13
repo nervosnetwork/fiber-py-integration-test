@@ -29,7 +29,7 @@ class TestWithDebug(FiberTest):
         fiber1_fee = 1000
         self.fiber1.get_client().open_channel(
             {
-                "peer_id": self.fiber2.get_peer_id(),
+                "pubkey": self.fiber2.get_pubkey(),
                 "funding_amount": hex(fiber1_balance + DEFAULT_MIN_DEPOSIT_CKB),
                 "tlc_fee_proportional_millionths": hex(fiber1_fee),
                 "public": False,
@@ -37,7 +37,7 @@ class TestWithDebug(FiberTest):
         )  # a-b private channel
         time.sleep(1)
         self.wait_for_channel_state(
-            self.fiber1.get_client(), self.fiber2.get_peer_id(), "CHANNEL_READY"
+            self.fiber1.get_client(), self.fiber2.get_pubkey(), "ChannelReady"
         )
         self.open_channel(self.fibers[1], self.fibers[2], 1000 * 100000000, 1)  # b-c
         self.open_channel(
@@ -48,7 +48,7 @@ class TestWithDebug(FiberTest):
         time.sleep(1)
         self.fibers[3].get_client().open_channel(  # d -a private channel
             {
-                "peer_id": self.fibers[0].get_peer_id(),
+                "pubkey": self.fibers[0].get_pubkey(),
                 "funding_amount": hex(fiber1_balance + DEFAULT_MIN_DEPOSIT_CKB),
                 "tlc_fee_proportional_millionths": hex(fiber1_fee),
                 "public": False,
@@ -56,7 +56,7 @@ class TestWithDebug(FiberTest):
         )
         time.sleep(1)
         self.wait_for_channel_state(
-            self.fibers[3].get_client(), self.fibers[0].get_peer_id(), "CHANNEL_READY"
+            self.fibers[3].get_client(), self.fibers[0].get_pubkey(), "ChannelReady"
         )
 
         for i in range(1, len(self.fibers)):  # b,c,d
@@ -76,7 +76,7 @@ class TestWithDebug(FiberTest):
                     {
                         "target_pubkey": self.fibers[0]
                         .get_client()
-                        .node_info()["node_id"],
+                        .node_info()["pubkey"],
                         "amount": hex(1 * 100000000),
                         "keysend": True,
                     }
@@ -87,7 +87,7 @@ class TestWithDebug(FiberTest):
             channels = (
                 self.fibers[1]
                 .get_client()
-                .list_channels({"peer_id": self.fibers[0].get_peer_id()})
+                .list_channels({"pubkey": self.fibers[0].get_pubkey()})
             )
             print(f"b-a,channel:{channels}")
             ba_channel_outpoint = channels["channels"][0]["channel_outpoint"]
