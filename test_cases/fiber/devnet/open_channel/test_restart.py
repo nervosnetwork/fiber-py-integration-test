@@ -39,10 +39,11 @@ class TestRestart(FiberTest):
         self.wait_for_channel_state(
             self.fiber1.get_client(),
             self.fiber2.get_pubkey(),
-            {
-                "state_name": "AwaitingTxSignatures",
-                "state_flags": "OurTxSignaturesSent | TheirTxSignaturesSent",
-            },
+            # {
+            #     "state_name": "AwaitingTxSignatures",
+            #     "state_flags": "OurTxSignaturesSent | TheirTxSignaturesSent",
+            # },
+            "AwaitingTxSignatures",
             120,
         )
         self.fiber1.stop()

@@ -17,6 +17,10 @@ on:
         required: false
         type: boolean
         default: false
+      storage_modes:
+        required: false
+        type: string
+        default: '["default", "sqlite"]'
 
 jobs:
   test:
@@ -24,7 +28,7 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        storage_mode: [default, sqlite]
+        storage_mode: ${{ fromJSON(inputs.storage_modes) }}
 
     steps:
       - uses: actions/checkout@v3

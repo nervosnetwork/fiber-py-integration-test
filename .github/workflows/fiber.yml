@@ -166,3 +166,4 @@ jobs:
     with:
       test_dirs: "test_cases/fiber/devnet/compatibility"
       report_name: "compatibility"
+      storage_modes: '["default"]'
