@@ -1,7 +1,7 @@
 set -ex
 
-DEFAULT_FIBER_BRANCH="develop"
-DEFAULT_FIBER_URL="https://github.com/nervosnetwork/fiber.git"
+DEFAULT_FIBER_BRANCH="quake/refactor-store-rpc"
+DEFAULT_FIBER_URL="https://github.com/quake/fiber.git"
 
 GitFIBERBranch="${GitBranch:-$DEFAULT_FIBER_BRANCH}"
 GitFIBERUrl="${GitUrl:-$DEFAULT_FIBER_URL}"
@@ -15,3 +15,6 @@ cp target/debug/fnn-cli ../download/fiber/current/fnn-cli.debug
 cargo build --release
 cp target/release/fnn ../download/fiber/current/fnn
 cp target/release/fnn-cli ../download/fiber/current/fnn-cli
+cargo build --release --features sqlite
+cp target/release/fnn ../download/fiber/current/fnn.sqlite
+cp target/release/fnn-cli ../download/fiber/current/fnn-cli.sqlite
