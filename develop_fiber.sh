@@ -7,7 +7,8 @@ set -e
 # cd ../
 DEFAULT_FIBER_BRANCH="develop"
 DEFAULT_FIBER_URL="https://github.com/nervosnetwork/fiber.git"
-DEFAULT_BUILD_FIBER=true
+DEFAULT_BUILD_FIBER=false
+
 
 
 GitFIBERBranch="${GitBranch:-$DEFAULT_FIBER_BRANCH}"
