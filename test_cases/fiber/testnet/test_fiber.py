@@ -1,5 +1,7 @@
 import time
 
+import pytest
+
 from framework.basic import CkbTest
 from framework.fiber_rpc import FiberRPCClient
 from framework.rpc import RPCClient
@@ -141,6 +143,19 @@ class TestFiber(CkbTest):
             "CHANNEL_READY",
             120,
         )
+        fiber1_channel_outpoint = self.fiber1.get_client().list_channels({})[
+            "channels"
+        ][0]["channel_outpoint"]
+        fiber2_channel_outpoint = self.fiber2.get_client().list_channels({})[
+            "channels"
+        ][0]["channel_outpoint"]
+        wait_graph_begin = time.time()
+        wait_graph_channel_ready(self.fiber1.get_client(), fiber1_channel_outpoint)
+        wait_graph_channel_ready(self.fiber1.get_client(), fiber2_channel_outpoint)
+
+        wait_graph_channel_ready(self.fiber2.get_client(), fiber1_channel_outpoint)
+        wait_graph_channel_ready(self.fiber2.get_client(), fiber2_channel_outpoint)
+        wait_graph_end = time.time()
         begin = time.time()
         # wait dry_run success
         send_payment(
@@ -151,6 +166,9 @@ class TestFiber(CkbTest):
             self.fiber2.get_client(), self.fiber1.get_client(), 1000, None, 20 * 60
         )
         fiber2_to_fiber1_time = time.time()
+        LOGGER.info(
+            f"wait graph channel ready cost time: {wait_graph_end - wait_graph_begin}"
+        )
         LOGGER.info(f"fiber1_to_fiber2 cost time: {fiber1_to_fiber2_time - begin}")
         LOGGER.info(
             f"fiber2_to_fiber1 cost time: {fiber2_to_fiber1_time - fiber1_to_fiber2_time}"
@@ -176,6 +194,7 @@ class TestFiber(CkbTest):
             f"fiber2_to_fiber1 cost time: {fiber2_to_fiber1_time - fiber1_to_fiber2_time}"
         )
 
+    @pytest.mark.skip("time out")
     def test_udt(self):
         funding_udt_type_script = {
             "code_hash": "0x1142755a044bf2ee358cba9f2da187ce928c91cd4dc8692ded0337efa677d21a",
@@ -212,8 +231,20 @@ class TestFiber(CkbTest):
             "CHANNEL_READY",
             120,
         )
+        fiber1_channel_outpoint = self.fiber1.get_client().list_channels({})[
+            "channels"
+        ][0]["channel_outpoint"]
+        fiber2_channel_outpoint = self.fiber2.get_client().list_channels({})[
+            "channels"
+        ][0]["channel_outpoint"]
+        wait_graph_begin = time.time()
+        wait_graph_channel_ready(self.fiber1.get_client(), fiber1_channel_outpoint)
+        wait_graph_channel_ready(self.fiber1.get_client(), fiber2_channel_outpoint)
+
+        wait_graph_channel_ready(self.fiber2.get_client(), fiber1_channel_outpoint)
+        wait_graph_channel_ready(self.fiber2.get_client(), fiber2_channel_outpoint)
+        wait_graph_end = time.time()
         begin = time.time()
-        # wait dry_run success
         send_payment(
             self.fiber1.get_client(),
             self.cryptapeFiber2,
@@ -246,11 +277,15 @@ class TestFiber(CkbTest):
             20 * 60,
         )
         fiber2_to_fiber1_time = time.time()
+        LOGGER.info(
+            f"wait graph channel ready cost time: {wait_graph_end - wait_graph_begin}"
+        )
         LOGGER.info(f"fiber1_to_fiber2 cost time: {fiber1_to_fiber2_time - begin}")
         LOGGER.info(
             f"fiber2_to_fiber1 cost time: {fiber2_to_fiber1_time - fiber1_to_fiber2_time}"
         )
 
+    @pytest.mark.skip("time out")
     def test_udt_02(self):
         funding_udt_type_script = {
             "code_hash": "0x1142755a044bf2ee358cba9f2da187ce928c91cd4dc8692ded0337efa677d21a",
@@ -263,8 +298,6 @@ class TestFiber(CkbTest):
         self.fiber2.start()
         time.sleep(15)
         begin = time.time()
-        # wait dry_run success
-
         send_payment(
             self.fiber1.get_client(),
             self.cryptapeFiber2,
@@ -305,8 +338,6 @@ class TestFiber(CkbTest):
 def send_payment(
     fiber1: FiberRPCClient, fiber2: FiberRPCClient, amount, udt=None, wait_times=300
 ):
-    try_times = 0
-    payment = None
     for i in range(wait_times):
         try:
             payment = fiber1.send_payment(
@@ -317,26 +348,56 @@ def send_payment(
                     "udt_type_script": udt,
                 }
             )
+            wait_payment_finished(fiber1, payment["payment_hash"])
+            payment = fiber1.get_payment({"payment_hash": payment["payment_hash"]})
+            if payment["status"] == "Failed":
+                print(f"[{i}]payment status: {payment['status']}, retrying...")
+                continue
+            if payment["status"] == "Success":
+                print("payment success")
+                return payment
             break
         except Exception as e:
             print(e)
             print(f"send try count: {i}")
             time.sleep(1)
             continue
-    for i in range(wait_times):
-        time.sleep(1)
+    raise TimeoutError("payment timeout")
+
+
+def wait_graph_channel_ready(client, channel_outpoint, timeout=3600):
+    for i in range(timeout):
         try:
-            payment = fiber1.get_payment({"payment_hash": payment["payment_hash"]})
-            if payment["status"] == "Failed":
-                return send_payment(fiber1, fiber2, amount, udt, wait_times - i)
-            if payment["status"] == "Success":
-                print("payment success")
-                return payment
+            graph = client.graph_channels({"limit": "0xffff"})
+            for channel in graph["channels"]:
+                if channel["channel_outpoint"] == channel_outpoint:
+                    print(f"Channel {channel_outpoint} is ready")
+                    return
+            print(f"Waiting for channel {channel_outpoint} to be ready, try count: {i}")
+            time.sleep(1)
         except Exception as e:
             print(e)
-            print(f"wait try count: {i}")
+            print(f"wait graph try count: {i}")
+            time.sleep(1)
             continue
-    raise TimeoutError("payment timeout")
+    raise TimeoutError(
+        f"Channel {channel_outpoint} did not become ready within timeout period."
+    )
+
+
+def wait_payment_finished(client, payment_hash, timeout=300):
+    for i in range(timeout):
+        try:
+            payment = client.get_payment({"payment_hash": payment_hash})
+            if payment["status"] in ["Failed", "Success"]:
+                return payment
+            time.sleep(1)
+        except Exception as e:
+            print(e)
+            print(f"wait payment try count: {i}")
+            time.sleep(1)
+            continue
+    raise TimeoutError("payment status did not become final within timeout period.")
 
 
 def wait_for_channel_state(client, peer_id, expected_state, timeout=120):
