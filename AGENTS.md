@@ -15,9 +15,14 @@ framework/
 ├── basic_share_fiber.py  # SharedFiberTest base (shared env across methods)
 ├── basic_fiber_with_cch.py  # FiberCchTest (+ BTC + LND for cross-chain)
 ├── fiber_rpc.py          # FiberRPCClient (JSON-RPC 2.0)
+├── fnn_cli.py            # FNN CLI wrapper used by fnn-cli integration tests
 ├── rpc.py                # RPCClient for CKB
+├── test_cluster.py       # Cluster lifecycle helpers for multi-node tests
+├── test_btc.py           # Bitcoin node lifecycle helpers (CCH)
 ├── test_fiber.py         # Fiber node lifecycle
+├── test_lnd.py           # LND node lifecycle helpers (CCH)
 ├── test_node.py          # CKB node lifecycle
+├── test_wasm_fiber.py    # WASM Fiber service lifecycle helpers
 ├── config.py             # Constants (DEFAULT_MIN_DEPOSIT_CKB = 99 * 100000000)
 ├── util.py               # Utilities (run_command, generate_account, change_time)
 └── helper/               # miner.py, ckb_cli.py, contract.py, udt_contract.py, tx.py
@@ -159,9 +164,9 @@ For the complete gap analysis with recommended test cases, see [docs/references/
 
 | Gap Area | LND Coverage | Fiber Status | Impact |
 |----------|-------------|--------------|--------|
-| **Cooperative close with pending TLCs** | `testCoopCloseWithHtlcs`, `testCoopCloseWithHtlcsWithRestart` | `shutdown_channel/` empty, `test_pending_tlc.py` commented out | Fund loss risk |
-| **Channel update tests** | `testUpdateChanStatus`, `testSendUpdateDisableChannel` | `update_channel/` directory has NO test files | Routing broken |
-| **Offline payment delivery** | `testSwitchOfflineDelivery*` (4 tests) | `send_payment/offline/` all commented out | Payment loss |
+| **Cooperative close with pending TLCs** | `testCoopCloseWithHtlcs`, `testCoopCloseWithHtlcsWithRestart` | `shutdown_channel/` has close-path tests, but pending-TLC coop-close remains only in commented `test_pending_tlc.py` | Fund loss risk |
+| **Channel update tests** | `testUpdateChanStatus`, `testSendUpdateDisableChannel` | `update_channel/` has baseline tests (e.g. `test_update_channel.py`, `test_enabled.py`), but disable/propagation coverage is still limited | Routing broken |
+| **Offline payment delivery** | `testSwitchOfflineDelivery*` (4 tests) | `send_payment/offline/` has restart suites, but some cases are still stubs (`test_disconnect.py` empty, `test_send_payment_with_stop.py` pass) | Payment loss |
 | **Payment error propagation** | `testHtlcErrorPropagation`, `testSendToRouteErrorPropagation` | No dedicated error propagation test | Silent failures |
 | **Channel reestablishment** | `testDataLossProtection` | No channel reestablish test after disconnect | State corruption |
 
