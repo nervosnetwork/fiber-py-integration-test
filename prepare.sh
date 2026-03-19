@@ -1,7 +1,7 @@
 set -ex
 
-DEFAULT_FIBER_BRANCH="feature/cch-verifications"
-DEFAULT_FIBER_URL="https://github.com/doitian/fiber.git"
+DEFAULT_FIBER_BRANCH="develop"
+DEFAULT_FIBER_URL="https://github.com/nervosnetwork/fiber.git"
 
 GitFIBERBranch="${GitBranch:-$DEFAULT_FIBER_BRANCH}"
 GitFIBERUrl="${GitUrl:-$DEFAULT_FIBER_URL}"
