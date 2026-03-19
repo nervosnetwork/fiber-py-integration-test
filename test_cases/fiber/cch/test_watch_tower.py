@@ -9,7 +9,7 @@ from test_cases.fiber.devnet.settle_invoice.test_settle_invoice import sha256_he
 class TestWatchTower(FiberCchTest):
     start_fiber_config = {"fiber_watchtower_check_interval_seconds": 5}
 
-    @pytest.mark.skip("not support ")
+    @pytest.mark.skip("https://github.com/nervosnetwork/fiber/issues/1222")
     def test_shutdown_fiber(self):
         payment_hash = (
             "0xb00ce15c1a83174e2ea4576a4d7cfbcbe79ce1a6c364501c2910403ff635a116"
@@ -51,7 +51,7 @@ class TestWatchTower(FiberCchTest):
         self.LNDs[1].ln_cli_with_cmd_without_json(
             f"payinvoice {receive_btc_response['incoming_invoice']['Lightning']} --force &"
         )
-        time.sleep(10)
+        time.sleep(20)
         self.fiber1.get_client().shutdown_channel(
             {
                 "channel_id": self.fiber1.get_client().list_channels({})["channels"][0][

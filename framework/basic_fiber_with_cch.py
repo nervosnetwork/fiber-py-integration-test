@@ -9,7 +9,7 @@ import time
 class FiberCchTest(FiberTest):
     LNDs: list[LndNode] = []
     btcNode: BtcNode
-    fiber_version = FiberConfigPath.CURRENT_DEV
+    fiber_version = FiberConfigPath.CURRENT_CCH
 
     @classmethod
     def setup_class(cls):

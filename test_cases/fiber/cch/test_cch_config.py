@@ -64,38 +64,76 @@ class TestCCHConfig(FiberCchTest):
         # todo check dir exist
         pass
 
-    @pytest.mark.skip("没有任何作用")
-    def test_cch_order_expiry(self):
+    def test_cch_order_expiry_delta_seconds(self):
         """
         - CCH_ORDER_EXPIRY_DELTA_SECONDS
-        - 没有配置，预期: 使用默认的订单过期时长（36小时）
-        - 配置改值（秒），预期：使用配置的秒级过期时长
+        - 配置改值（秒），预期：新建订单记录该值，并在超时后失败
+        todo: 过期后 incoming_invoice的订单是不是应该取消
         """
+        expiry_seconds = 10
         self.fiber1.stop()
         self.fiber1.prepare(
             {
                 "cch": True,
                 "cch_lnd_cert_path": f"{self.LNDs[0].tmp_path}/tls.cert",
                 "cch_lnd_rpc_url": f"https://localhost:{self.LNDs[0].rpc_port}",
-                "cch_order_expiry": 10,
+                "cch_order_expiry_delta_seconds": expiry_seconds,
             }
         )
-        self.fiber1.start()
-        lndInvoice = self.LNDs[0].addinvoice(100)
-        btcResult = self.fiber1.get_client().send_btc(
-            {
-                "btc_pay_req": lndInvoice["payment_request"],
-                "currency": "Fibd",
-            }
-        )
-        time.sleep(15)
-        cch_order = self.fiber1.get_client().get_cch_order(
-            {"payment_hash": btcResult["payment_hash"]}
-        )
-        # todo 应该过期
-        assert cch_order["status"] == "success"
+        with open(self.fiber1.fiber_config_path, "r") as f:
+            config_text = f.read()
+        assert (
+            f"order_expiry_delta_seconds: {expiry_seconds}" in config_text
+        ), config_text
 
-    @pytest.mark.skip("https://github.com/nervosnetwork/fiber/issues/976")
+        self.fiber1.start()
+        invoice = self.fiber2.get_client().new_invoice(
+            {
+                "amount": hex(1000),
+                "currency": "Fibd",
+                "description": "test invoice",
+                "udt_type_script": self.get_account_udt_script(
+                    self.fiber1.account_private
+                ),
+                "payment_preimage": self.generate_random_preimage(),
+                "hash_algorithm": "sha256",
+            }
+        )
+        receive_btc_result = self.fiber1.get_client().receive_btc(
+            {
+                "fiber_pay_req": invoice["invoice_address"],
+            }
+        )
+        payment_hash = receive_btc_result["payment_hash"]
+        cch_order = self.fiber1.get_client().get_cch_order(
+            {"payment_hash": payment_hash}
+        )
+
+        assert "expiry_delta_seconds" in cch_order
+        expiry_delta_seconds = cch_order["expiry_delta_seconds"]
+        if isinstance(expiry_delta_seconds, str):
+            expiry_delta_seconds = int(expiry_delta_seconds, 16)
+        assert expiry_delta_seconds == expiry_seconds
+
+        start = time.time()
+        timeout = expiry_seconds + 30
+        while time.time() - start < timeout:
+            cch_order = self.fiber1.get_client().get_cch_order(
+                {"payment_hash": payment_hash}
+            )
+            if cch_order["status"] == "Failed":
+                break
+            time.sleep(1)
+
+        assert cch_order["status"] == "Failed", cch_order
+        assert time.time() - start >= expiry_seconds - 1
+        assert time.time() - start < timeout
+        ret = self.LNDs[0].ln_cli_with_cmd(
+            f"decodepayreq {cch_order['incoming_invoice']['Lightning']}"
+        )
+        print("ret:", ret)
+
+    # @pytest.mark.skip("https://github.com/nervosnetwork/fiber/issues/976")
     def test_CCH_FEE_RATE_PER_MILLION_SATS(self):
         """
         不填，默认为1
@@ -142,6 +180,7 @@ class TestCCHConfig(FiberCchTest):
                 "udt_type_script": self.get_account_udt_script(
                     self.fiber1.account_private
                 ),
+                "hash_algorithm": "sha256",
                 "payment_preimage": self.generate_random_preimage(),
             }
         )
@@ -155,15 +194,36 @@ class TestCCHConfig(FiberCchTest):
             f"Expected substring '{expected_error_message}' "
             f"not found in actual string '{exc_info.value.args[0]}'"
         )
-
+        with pytest.raises(Exception) as exc_info:
+            invoice = self.fiber2.get_client().new_invoice(
+                {
+                    "amount": hex(10000000000000),
+                    "currency": "Fibd",
+                    "description": "test invoice",
+                    "udt_type_script": self.get_account_udt_script(
+                        self.fiber1.account_private
+                    ),
+                    "hash_algorithm": "sha256",
+                    "payment_preimage": self.generate_random_preimage(),
+                }
+            )
+            receive_btc = self.fiber1.get_client().receive_btc(
+                {"fiber_pay_req": invoice["invoice_address"]}
+            )
+        expected_error_message = "max is 100000 BTC"
+        assert expected_error_message in exc_info.value.args[0], (
+            f"Expected substring '{expected_error_message}' "
+            f"not found in actual string '{exc_info.value.args[0]}'"
+        )
         invoice = self.fiber2.get_client().new_invoice(
             {
-                "amount": hex(10000000000000),
+                "amount": hex(1000000000000),
                 "currency": "Fibd",
                 "description": "test invoice",
                 "udt_type_script": self.get_account_udt_script(
                     self.fiber1.account_private
                 ),
+                "hash_algorithm": "sha256",
                 "payment_preimage": self.generate_random_preimage(),
             }
         )
@@ -175,7 +235,7 @@ class TestCCHConfig(FiberCchTest):
             f"decodepayreq {receive_btc["incoming_invoice"]["Lightning"]}",
         )
         print("payreq:", payreq)
-        assert payreq["num_satoshis"] == "10000000000000"
+        assert payreq["num_satoshis"] == "1000001000000"
 
         # 填 1000
         # 填 1000
@@ -213,6 +273,7 @@ class TestCCHConfig(FiberCchTest):
                 "udt_type_script": self.get_account_udt_script(
                     self.fiber1.account_private
                 ),
+                "hash_algorithm": "sha256",
                 "payment_preimage": self.generate_random_preimage(),
             }
         )
@@ -247,7 +308,7 @@ class TestCCHConfig(FiberCchTest):
             {"invoice": btcResult["incoming_invoice"]["Fiber"]}
         )
 
-    @pytest.mark.skip("https://github.com/nervosnetwork/fiber/issues/977")
+    # @pytest.mark.skip("https://github.com/nervosnetwork/fiber/issues/977")
     def test_CCH_FEE_RATE_PER_MILLION_SATS_voerflow(self):
         self.fiber1.stop()
         self.fiber1.prepare(
@@ -317,7 +378,7 @@ class TestCCHConfig(FiberCchTest):
         print("payreq:", payreq)
         assert payreq["cltv_expiry"] == "200"
 
-    @pytest.mark.skip("https://github.com/nervosnetwork/fiber/issues/977")
+    # @pytest.mark.skip("https://github.com/nervosnetwork/fiber/issues/977")
     def test_CCH_BTC_FINAL_TLC_EXPIRY_overflow(self):
         self.fiber1.stop()
         time.sleep(2)
@@ -344,14 +405,22 @@ class TestCCHConfig(FiberCchTest):
                 "hash_algorithm": "sha256",
             }
         )
-        receive_btc = self.fiber1.get_client().receive_btc(
-            {"fiber_pay_req": invoice["invoice_address"]}
+        with pytest.raises(Exception) as exc_info:
+            receive_btc = self.fiber1.get_client().receive_btc(
+                {"fiber_pay_req": invoice["invoice_address"]}
+            )
+        expected_error_message = (
+            "too large and causes overflow when converting to milliseconds"
         )
-        payreq = self.LNDs[0].ln_cli_with_cmd(
-            f"decodepayreq {receive_btc["incoming_invoice"]["Lightning"]}",
+        assert expected_error_message in exc_info.value.args[0], (
+            f"Expected substring '{expected_error_message}' "
+            f"not found in actual string '{exc_info.value.args[0]}'"
         )
-        print("receive_btc:", receive_btc)
-        print("payreq:", payreq)
+        # payreq = self.LNDs[0].ln_cli_with_cmd(
+        #     f"decodepayreq {receive_btc["incoming_invoice"]["Lightning"]}",
+        # )
+        # print("receive_btc:", receive_btc)
+        # print("payreq:", payreq)
 
     def test_CCH_CKB_FINAL_TLC_EXPIRY_DELTA_SECONDS(self):
         self.fiber1.stop()

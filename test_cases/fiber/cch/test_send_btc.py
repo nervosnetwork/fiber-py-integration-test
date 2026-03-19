@@ -172,7 +172,7 @@ class TestSendBtc(FiberCchTest):
         cch_order = self.fiber1.get_client().get_cch_order(
             {"payment_hash": payment["payment_hash"]}
         )
-        assert cch_order["status"] == "succeeded"
+        assert cch_order["status"] == "Succeeded"
         assert cch_order["amount_sats"] == "0x1"
         invoice = self.LNDs[1].ln_cli_with_cmd(
             f"lookupinvoice {cch_order['payment_hash'].replace('0x', '')}",
@@ -194,7 +194,7 @@ class TestSendBtc(FiberCchTest):
         cch_order = self.fiber1.get_client().get_cch_order(
             {"payment_hash": payment["payment_hash"]}
         )
-        assert cch_order["status"] == "succeeded"
+        assert cch_order["status"] == "Succeeded"
         assert cch_order["amount_sats"] == "0x1"
         invoice = self.LNDs[1].ln_cli_with_cmd(
             f"lookupinvoice {cch_order['payment_hash'].replace('0x', '')}",
@@ -218,7 +218,7 @@ class TestSendBtc(FiberCchTest):
         cch_order = self.fiber1.get_client().get_cch_order(
             {"payment_hash": payment["payment_hash"]}
         )
-        assert cch_order["status"] == "succeeded"
+        assert cch_order["status"] == "Succeeded"
         assert cch_order["amount_sats"] == "0x1"
         invoice = self.LNDs[1].ln_cli_with_cmd(
             f"lookupinvoice {cch_order['payment_hash'].replace('0x', '')}",
@@ -398,7 +398,7 @@ class TestSendBtc(FiberCchTest):
             {"invoice": send_btc["incoming_invoice"]["Fiber"]}
         )
         self.wait_payment_state(self.fiber2, payment["payment_hash"], "Success")
-        self.wait_cch_order_state(self.fiber1, payment["payment_hash"], "succeeded")
+        self.wait_cch_order_state(self.fiber1, payment["payment_hash"], "Succeeded")
 
     def test_send_btc_ckb_final_tlc_expiry_delta(self):
         """
@@ -435,3 +435,53 @@ class TestSendBtc(FiberCchTest):
         # self.fiber2.get_client().send_payment({
         #     "invoice": send_btc['incoming_invoice']['Fiber'],
         # })
+
+    def test_931(self):
+        self.faucet(
+            self.fiber2.account_private,
+            0,
+            self.fiber1.account_private,
+            10000 * 100000000,
+        )
+        self.open_channel(
+            self.fiber2,
+            self.fiber1,
+            1000 * 100000000,
+            1000 * 100000000,
+            udt=self.get_account_udt_script(self.fiber1.account_private),
+        )
+        lndInvoice = self.LNDs[1].addinvoice(800)
+        send_payment_response = self.fiber1.get_client().send_btc(
+            {
+                "btc_pay_req": lndInvoice["payment_request"],
+                "currency": "Fibd",
+            }
+        )
+
+        self.LNDs[1].ln_cli_with_cmd(f"cancelinvoice {lndInvoice['r_hash']}")
+        time.sleep(10)
+        cch_order = self.fiber1.get_client().get_cch_order(
+            {"payment_hash": f"0x{lndInvoice['r_hash']}"}
+        )
+        payment = self.fiber2.get_client().send_payment(
+            {"invoice": send_payment_response["incoming_invoice"]["Fiber"]}
+        )
+        time.sleep(1)
+        btc_invoice = self.fiber1.get_client().get_invoice(
+            {"payment_hash": payment["payment_hash"]}
+        )
+        print("btc invoice:", btc_invoice)
+        cch_order = self.fiber1.get_client().get_cch_order(
+            {"payment_hash": payment["payment_hash"]}
+        )
+        print("cch order:", cch_order)
+        self.wait_cch_order_state(self.fiber1, cch_order["payment_hash"], "Failed")
+        time.sleep(10)
+        self.fiber1.get_client().cancel_invoice(
+            {"payment_hash": payment["payment_hash"]}
+        )
+        # time.sleep(10)
+        # self.fiber2.get_client().get_payment({
+        #     "payment_hash": payment['payment_hash']
+        # })
+        self.wait_payment_state(self.fiber2, payment["payment_hash"], "Failed")

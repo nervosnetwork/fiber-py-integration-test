@@ -20,6 +20,9 @@ fiber:
   {% if fiber_rpc_biscuit_public_key is defined %}
   rpc_biscuit_public_key: {{ fiber_rpc_biscuit_public_key }}
   {% endif %}
+  {% if fiber_max_inbound_peers is defined %}
+  max_inbound_peers: {{ fiber_max_inbound_peers }}
+  {% endif %}
   scripts:
     - name: FundingLock
       script:

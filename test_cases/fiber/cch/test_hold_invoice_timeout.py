@@ -8,7 +8,7 @@ from test_cases.fiber.devnet.settle_invoice.test_settle_invoice import sha256_he
 
 class HoldInvoiceTimeout(FiberCchTest):
 
-    @pytest.mark.skip("https://github.com/nervosnetwork/fiber/issues/1029")
+    # @pytest.mark.skip("https://github.com/nervosnetwork/fiber/issues/1029")
     def test_0000(self):
         """
 
@@ -72,4 +72,4 @@ class HoldInvoiceTimeout(FiberCchTest):
         assert invoice["state"] == "SETTLED"
         time.sleep(5)
         order = self.fiber1.get_client().get_cch_order({"payment_hash": payment_hash})
-        assert order["status"] != "outgoing_succeeded"
+        assert order["status"] == "Succeeded"

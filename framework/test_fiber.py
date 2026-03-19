@@ -20,6 +20,11 @@ class FiberConfigPath(Enum):
         "download/fiber/current/fnn",
     )
 
+    CURRENT_CCH = (
+        "/source/fiber/dev_config_cch.yml.j2",
+        "download/fiber/current/fnn",
+    )
+
     CURRENT_DEV_DEBUG = (
         "/source/fiber/dev_config_3.yml.j2",
         "download/fiber/current/fnn.debug",
@@ -108,17 +113,7 @@ class Fiber:
             self.tmp_path,
         )
         target_dir = os.path.join(self.tmp_path, "ckb")
-        os.makedirs(target_dir, exist_ok=True)  # 创建文件夹，如果已存在则不报错
-        # if os.path.exists(
-        #     f"{get_project_root()}/source/fiber/keys/{self.account_private.replace('0x', '')}"
-        # ):
-        #     shutil.copy(
-        #         f"{get_project_root()}/source/fiber/keys/{self.account_private.replace('0x', '')}",
-        #         f"{self.tmp_path}/ckb/key",
-        #     )
-        # else:
-        #     with open(f"{self.tmp_path}/ckb/key", "w") as f:
-        #         f.write(self.account_private.replace("0x", ""))
+        os.makedirs(target_dir, exist_ok=True)
         with open(f"{self.tmp_path}/ckb/key", "w") as f:
             f.write(self.account_private.replace("0x", ""))
 
