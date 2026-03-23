@@ -277,7 +277,9 @@ class TestCliAuth(FiberTest):
             assert "payment_hash" in result
             self.wait_payment_state(self.fiber1, result["payment_hash"], "Success")
             all_hashes.append(result["payment_hash"])
-            print(f"  keysend #{i+1}: amount={amt} UDT, hash={result['payment_hash'][:20]}...")
+            print(
+                f"  keysend #{i+1}: amount={amt} UDT, hash={result['payment_hash'][:20]}..."
+            )
             time.sleep(1)
 
         # 3. send multiple UDT invoice payments with varying amounts
@@ -302,31 +304,45 @@ class TestCliAuth(FiberTest):
             assert inv_status["status"] == "Paid"
 
             all_hashes.append(inv_result["payment_hash"])
-            print(f"  invoice #{i+1}: amount={amt} UDT, hash={inv_result['payment_hash'][:20]}...")
+            print(
+                f"  invoice #{i+1}: amount={amt} UDT, hash={inv_result['payment_hash'][:20]}..."
+            )
             time.sleep(1)
 
-        # 4. verify all payments appear in list_payments
-        payments = cli1.list_payments()
-        total = len(payments["payments"])
-        listed_hashes = {p["payment_hash"] for p in payments["payments"]}
+        # 4. verify all payments appear in list_payments (paginate to collect all)
+        all_payments = []
+        after_cursor = None
+        for _ in range(10):
+            page = cli1.list_payments(limit=50, after=after_cursor)
+            batch = page.get("payments", [])
+            if not batch:
+                break
+            all_payments.extend(batch)
+            last_cursor = page.get("last_cursor")
+            if not last_cursor:
+                break
+            after_cursor = last_cursor
+
+        total = len(all_payments)
+        listed_hashes = {p["payment_hash"] for p in all_payments}
         for h in all_hashes:
-            assert h in listed_hashes
+            assert (
+                h in listed_hashes
+            ), f"payment {h[:20]}... not found in {total} payments"
         print(f"\n[payments] total={total}, all {len(all_hashes)} hashes found")
 
         # 5. verify time ordering (created_at should be non-decreasing)
         timestamps = []
-        for p in payments["payments"]:
+        for p in all_payments:
             ts = p.get("created_at")
             if ts is not None:
                 timestamps.append(int(ts, 16) if isinstance(ts, str) else ts)
         if len(timestamps) >= 2:
             is_ascending = all(
-                timestamps[i] <= timestamps[i + 1]
-                for i in range(len(timestamps) - 1)
+                timestamps[i] <= timestamps[i + 1] for i in range(len(timestamps) - 1)
             )
             is_descending = all(
-                timestamps[i] >= timestamps[i + 1]
-                for i in range(len(timestamps) - 1)
+                timestamps[i] >= timestamps[i + 1] for i in range(len(timestamps) - 1)
             )
             print(
                 f"[ordering] ascending={is_ascending}, "
@@ -338,7 +354,9 @@ class TestCliAuth(FiberTest):
         cli_channels = cli1.list_channels()
         rpc_channels = self.fiber1.get_client().list_channels({})
         for cli_ch, rpc_ch in zip(cli_channels["channels"], rpc_channels["channels"]):
-            assert cli_ch["funding_udt_type_script"] == rpc_ch["funding_udt_type_script"]
+            assert (
+                cli_ch["funding_udt_type_script"] == rpc_ch["funding_udt_type_script"]
+            )
 
         # 7. keep nodes alive for TUI observation
         print(f"\n[info] UDT channel left open for TUI observation:")
@@ -350,7 +368,7 @@ class TestCliAuth(FiberTest):
         print(
             f"  ./download/fiber/current/fnn-cli "
             f"--url http://127.0.0.1:{self.fiber1.rpc_port}/ "
-            f"--tui --auth-token \"{AUTH_TOKEN}\""
+            f'--tui --auth-token "{AUTH_TOKEN}"'
         )
 
     def test_auth_via_env_variable(self):
@@ -753,9 +771,7 @@ class TestCliAuthRemote:
                 result = _extract(cfg)
                 if result[0]:
                     nid = node.get("pubkey", node.get("node_id", "?"))
-                    print(
-                        f"  [udt] source: graph node {nid[:20]}..."
-                    )
+                    print(f"  [udt] source: graph node {nid[:20]}...")
                     return result
 
         return None, None
@@ -885,8 +901,7 @@ class TestCliAuthRemote:
 
         # 3. snapshot existing channel IDs, then open UDT channel
         existing_ids = {
-            ch["channel_id"]
-            for ch in cli.list_channels().get("channels", [])
+            ch["channel_id"] for ch in cli.list_channels().get("channels", [])
         }
         print(f"  [diag] pre-existing channels: {len(existing_ids)}")
 
@@ -909,7 +924,8 @@ class TestCliAuthRemote:
         for i in range(300):
             channels = cli.list_channels()
             new_chs = [
-                ch for ch in channels.get("channels", [])
+                ch
+                for ch in channels.get("channels", [])
                 if ch["channel_id"] not in existing_ids
             ]
             if not new_chs:
@@ -927,17 +943,15 @@ class TestCliAuthRemote:
                 )
                 break
             if state != last_state or i % 15 == 0:
-                print(
-                    f"  [wait {i}s] {ch['channel_id'][:18]}.. "
-                    f"state={state}"
-                )
+                print(f"  [wait {i}s] {ch['channel_id'][:18]}.. " f"state={state}")
                 last_state = state
             time.sleep(1)
 
         if channel_id is None:
             final_channels = cli.list_channels()
             new_final = [
-                ch for ch in final_channels.get("channels", [])
+                ch
+                for ch in final_channels.get("channels", [])
                 if ch["channel_id"] not in existing_ids
             ]
             diag = "no new channel found"
