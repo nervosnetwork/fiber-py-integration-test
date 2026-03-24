@@ -178,6 +178,26 @@ class FiberRPCClient:
     def list_payments(self, param={}):
         return self.call("list_payments", [param])
 
+    def fee_report(self, param={}):
+        """Fee summary by asset (forwarding fees). See fiber-json-types fee::FeeReportParams."""
+        return self.call("fee_report", [param])
+
+    def forwarding_history(self, param={}):
+        """Individual forwarding events. See fiber-json-types fee::ForwardingHistoryParams."""
+        return self.call("forwarding_history", [param])
+
+    def sent_payment_report(self):
+        """Aggregated sent payment amounts by asset and time window."""
+        return self.call("sent_payment_report", [])
+
+    def received_payment_report(self):
+        """Aggregated received payment amounts by asset and time window."""
+        return self.call("received_payment_report", [])
+
+    def payment_history(self, param={}):
+        """Individual send/receive payment events. See fiber-json-types fee::PaymentHistoryParams."""
+        return self.call("payment_history", [param])
+
     def node_info(self):
         """
         curl --location 'http://127.0.0.1:8229' --header 'Content-Type: application/json' --data '{
