@@ -112,8 +112,7 @@ class TestFeeStatsUdtThreeHop(FiberTest):
         recvs = [
             e
             for e in ph_c["events"]
-            if e.get("event_type") == "Receive"
-            and e["payment_hash"] == payment_hash
+            if e.get("event_type") == "Receive" and e["payment_hash"] == payment_hash
         ]
         assert len(recvs) >= 1
         assert scripts_equivalent(recvs[0]["udt_type_script"], udt_script)

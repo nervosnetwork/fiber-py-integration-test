@@ -34,12 +34,8 @@ class TestFeeStatsMpp(FiberTest):
             self.fiber1, self.fiber2, 2000 * 100000000, 0, hop_fee, hop_fee
         )
         # Two parallel B–C (see test_one_to_mutil): enables split on outgoing at B
-        self.open_channel(
-            self.fiber2, fiber3, 2000 * 100000000, 0, hop_fee, hop_fee
-        )
-        self.open_channel(
-            self.fiber2, fiber3, 2000 * 100000000, 0, hop_fee, hop_fee
-        )
+        self.open_channel(self.fiber2, fiber3, 2000 * 100000000, 0, hop_fee, hop_fee)
+        self.open_channel(self.fiber2, fiber3, 2000 * 100000000, 0, hop_fee, hop_fee)
 
         # 4 public channels in the graph for this topology
         self.wait_graph_channels_sync(self.fiber1, 4)

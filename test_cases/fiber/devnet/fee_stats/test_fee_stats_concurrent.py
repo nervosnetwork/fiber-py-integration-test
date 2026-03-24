@@ -38,6 +38,6 @@ class TestFeeStatsConcurrent(FiberTest):
         assert len(fh["events"]) >= n
         assert u64(fh["total_count"]) == len(fh["events"])
         for h in hashes:
-            assert any(e["payment_hash"] == h for e in fh["events"]), (
-                f"missing forwarding event for {h}"
-            )
+            assert any(
+                e["payment_hash"] == h for e in fh["events"]
+            ), f"missing forwarding event for {h}"

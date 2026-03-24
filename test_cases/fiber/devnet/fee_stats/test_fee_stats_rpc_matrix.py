@@ -15,7 +15,9 @@ or covered by E2E / concurrent / MPP / restart tests in this directory.
 import pytest
 
 from framework.basic_fiber import FiberTest
-from test_cases.fiber.devnet.fee_stats._fee_stats_util import skip_if_fee_stats_unavailable
+from test_cases.fiber.devnet.fee_stats._fee_stats_util import (
+    skip_if_fee_stats_unavailable,
+)
 
 
 class TestFeeStatsRpcMatrix(FiberTest):
