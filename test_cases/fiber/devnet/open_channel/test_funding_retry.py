@@ -129,9 +129,9 @@ class TestFundingRetry(FiberTest):
         """Assert that retry messages appear in the Fiber node log."""
         log = self._read_fiber_log(fiber)
         # PR-1213 logs: "Temporary {operation} error, scheduling retry"
-        assert "scheduling retry" in log.lower() or "retry" in log.lower(), (
-            f"Expected retry log messages for '{label}' in {fiber.tmp_path}/node.log"
-        )
+        assert (
+            "scheduling retry" in log.lower() or "retry" in log.lower()
+        ), f"Expected retry log messages for '{label}' in {fiber.tmp_path}/node.log"
 
     # ------------------------------------------------------------------
     # Test Cases
@@ -210,9 +210,9 @@ class TestFundingRetry(FiberTest):
         )
         if len(channels["channels"]) > 0:
             state = channels["channels"][0]["state"]["state_name"]
-            assert state != "ChannelReady", (
-                f"Channel should have been aborted but is in state: {state}"
-            )
+            assert (
+                state != "ChannelReady"
+            ), f"Channel should have been aborted but is in state: {state}"
         # If no channels at all, that's also acceptable (fully cleaned up)
 
     def test_open_channel_normal_via_proxy(self):
@@ -221,9 +221,7 @@ class TestFundingRetry(FiberTest):
         Verifies the proxy does not interfere with normal channel establishment.
         """
         # Proxy is forwarding by default — just open a channel normally
-        self.open_channel(
-            self.fiber1, self.fiber2, 200 * 100000000, 100 * 100000000
-        )
+        self.open_channel(self.fiber1, self.fiber2, 200 * 100000000, 100 * 100000000)
         # If we get here, the channel opened successfully through the proxy
         channels = self.fiber1.get_client().list_channels(
             {"pubkey": self.fiber2.get_pubkey()}
@@ -386,6 +384,6 @@ class TestFundingRetry(FiberTest):
         log1 = self._read_fiber_log(self.fiber1)
         log2 = self._read_fiber_log(self.fiber2)
         combined = (log1 + log2).lower()
-        assert "scheduling retry" in combined or "retry" in combined, (
-            "Expected retry log messages in fiber node logs"
-        )
+        assert (
+            "scheduling retry" in combined or "retry" in combined
+        ), "Expected retry log messages in fiber node logs"

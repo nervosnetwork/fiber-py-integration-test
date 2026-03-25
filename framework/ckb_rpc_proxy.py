@@ -179,12 +179,16 @@ class CkbRpcProxy:
                     if proxy_ref._auto_blocked:
                         self._send_rst(self.connection)
                         return
-                    if proxy_ref._auto_block_method and method == proxy_ref._auto_block_method:
+                    if (
+                        proxy_ref._auto_block_method
+                        and method == proxy_ref._auto_block_method
+                    ):
                         proxy_ref._auto_block_method = None
                         proxy_ref._auto_blocked = True
                         logger.info(
                             "CKB RPC proxy AUTO-BLOCK triggered by '%s' "
-                            "— closing listening socket", method
+                            "— closing listening socket",
+                            method,
                         )
                         try:
                             proxy_ref._server.socket.close()
@@ -197,14 +201,16 @@ class CkbRpcProxy:
                 with proxy_ref._lock:
                     if method in proxy_ref._blocked_methods:
                         logger.info("CKB RPC proxy BLOCKING method '%s'", method)
-                        err_body = json.dumps({
-                            "jsonrpc": "2.0",
-                            "id": req_id,
-                            "error": {
-                                "code": -1,
-                                "message": "CKB RPC proxy: method blocked",
-                            },
-                        }).encode()
+                        err_body = json.dumps(
+                            {
+                                "jsonrpc": "2.0",
+                                "id": req_id,
+                                "error": {
+                                    "code": -1,
+                                    "message": "CKB RPC proxy: method blocked",
+                                },
+                            }
+                        ).encode()
                         self.send_response(200)
                         self.send_header("Content-Type", "application/json")
                         self.end_headers()
@@ -217,7 +223,8 @@ class CkbRpcProxy:
                         if proxy_ref._forwarded_count >= proxy_ref._block_after:
                             logger.info(
                                 "CKB RPC proxy BLOCKED request #%d (method=%s, limit=%d)",
-                                proxy_ref._forwarded_count + 1, method,
+                                proxy_ref._forwarded_count + 1,
+                                method,
                                 proxy_ref._block_after,
                             )
                             self._send_rst(self.connection)
@@ -259,9 +266,7 @@ class CkbRpcProxy:
         if self.port is None:
             self.port = actual_port
         self.url = f"http://127.0.0.1:{self.port}"
-        self._thread = threading.Thread(
-            target=self._server.serve_forever, daemon=True
-        )
+        self._thread = threading.Thread(target=self._server.serve_forever, daemon=True)
         self._thread.start()
         logger.info("CKB RPC proxy started on %s → %s", self.url, self.target_url)
 
