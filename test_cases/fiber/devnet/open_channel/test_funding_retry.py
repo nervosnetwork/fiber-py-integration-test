@@ -24,8 +24,6 @@ Approach:
 """
 
 import time
-import threading
-import pytest
 
 from framework.basic_fiber import FiberTest
 from framework.ckb_rpc_proxy import CkbRpcProxy
@@ -109,8 +107,9 @@ class TestFundingRetry(FiberTest):
         self.logger.debug(f"\nSetting up method: {method.__name__}")
 
     def teardown_method(self, method):
-        if self.proxy:
-            self.proxy.stop()
+        proxy = getattr(self, "proxy", None)
+        if proxy:
+            proxy.stop()
         super().teardown_method(method)
 
     # ------------------------------------------------------------------
@@ -128,10 +127,11 @@ class TestFundingRetry(FiberTest):
     def _assert_retry_in_logs(self, fiber, label="fund channel"):
         """Assert that retry messages appear in the Fiber node log."""
         log = self._read_fiber_log(fiber)
+        log_lower = log.lower()
         # PR-1213 logs: "Temporary {operation} error, scheduling retry"
         assert (
-            "scheduling retry" in log.lower() or "retry" in log.lower()
-        ), f"Expected retry log messages for '{label}' in {fiber.tmp_path}/node.log"
+            "scheduling retry" in log_lower
+        ), f"Expected 'scheduling retry' in {fiber.tmp_path}/node.log"
 
     # ------------------------------------------------------------------
     # Test Cases
@@ -385,5 +385,5 @@ class TestFundingRetry(FiberTest):
         log2 = self._read_fiber_log(self.fiber2)
         combined = (log1 + log2).lower()
         assert (
-            "scheduling retry" in combined or "retry" in combined
-        ), "Expected retry log messages in fiber node logs"
+            "scheduling retry" in combined
+        ), "Expected 'scheduling retry' in fiber node logs"

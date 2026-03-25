@@ -45,6 +45,7 @@ class CkbRpcProxy:
         self._blocked_methods = set()
         self._block_after = None  # block after N forwarded requests
         self._forwarded_count = 0
+        self._forwarded_total = 0
         self._notify_method = None
         self._notify_event = threading.Event()
         self._auto_block_method = None
@@ -65,8 +66,9 @@ class CkbRpcProxy:
     def block_methods(self, methods):
         """Block specific JSON-RPC methods by name.
 
-        Requests with a matching ``method`` field get an immediate TCP RST.
-        All other RPC methods are forwarded normally.
+        Requests with a matching ``method`` field receive an HTTP 200
+        response containing a JSON-RPC error object instead of being
+        forwarded. All other RPC methods are forwarded normally.
         """
         with self._lock:
             self._blocked_methods = set(methods)
@@ -82,7 +84,8 @@ class CkbRpcProxy:
         """Allow exactly *n* more requests through, then auto-block.
 
         After *n* requests have been forwarded, all subsequent requests
-        get a JSON-RPC error response until ``resume()`` is called.
+        get an immediate connection reset (TCP RST) until ``resume()``
+        is called.
         """
         with self._lock:
             self._block_after = n
@@ -237,7 +240,8 @@ class CkbRpcProxy:
                         proxy_ref._notify_method = None
                         proxy_ref._notify_event.set()
                         logger.info("CKB RPC proxy TRIGGER: saw method '%s'", method)
-                    _cnt = proxy_ref._forwarded_count
+                    proxy_ref._forwarded_total += 1
+                    _cnt = proxy_ref._forwarded_total
 
                 logger.info("CKB RPC proxy forwarding #%d: %s", _cnt, method or "?")
 
@@ -263,8 +267,7 @@ class CkbRpcProxy:
 
         self._server = http.server.HTTPServer(("127.0.0.1", port), _Handler)
         actual_port = self._server.server_address[1]
-        if self.port is None:
-            self.port = actual_port
+        self.port = actual_port
         self.url = f"http://127.0.0.1:{self.port}"
         self._thread = threading.Thread(target=self._server.serve_forever, daemon=True)
         self._thread.start()
