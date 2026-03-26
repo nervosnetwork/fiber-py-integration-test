@@ -485,7 +485,7 @@ class TestSettleInvoice(FiberTest):
         assert fiber1_payment["status"] != fiber3_payment["status"]
 
     def test_cancel_invoice(self):
-        self.open_channel(self.fiber1,self.fiber2, 1000 * 100000000, 1000 * 100000000)
+        self.open_channel(self.fiber1, self.fiber2, 1000 * 100000000, 1000 * 100000000)
         preimage = self.generate_random_preimage()
         payment_hash = sha256_hex(preimage)
         invoice = self.fiber2.get_client().new_invoice(
