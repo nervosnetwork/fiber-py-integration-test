@@ -651,7 +651,7 @@ jobs:
           name: jfoa-fiber_open_channel_with_external_funding_mixed-reports-${{ runner.os }}
           path: ./report
 
-  fiber_test_fnn_cli:
+  fiber_test_fnn_cli_fee_stats:
     needs: prepare
     runs-on: ubuntu-22.04
 
@@ -678,7 +678,7 @@ jobs:
           tar -xzf prepare-backup.tar.gz
 
       - name: Run fnn-cli tests
-        run: make fiber_test_demo FIBER_TEST_DEMO="test_cases/fiber/devnet/fnn-cli"
+        run: make fiber_test_demo FIBER_TEST_DEMO="test_cases/fiber/devnet/fnn-cli test_cases/fiber/devnet/fee_stats"
 
       - name: Publish reports
         if: failure()
