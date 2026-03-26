@@ -17,8 +17,6 @@ class TestMaxInboundPeers(SharedFiberTest):
     fiber7: Fiber
     fiber8: Fiber
 
-    debug = True
-
     def setUp(self):
         if getattr(TestMaxInboundPeers, "_channel_inited", False):
             return
