@@ -76,12 +76,17 @@ class LndNode:
     def addinvoice(self, amt=1000, memo="test"):
         return self.ln_cli_with_cmd(f"addinvoice --amt {amt} --memo {memo}")
 
+    def addholdinvoice(self, payment_hash, amt=1000, memo="test"):
+        return self.ln_cli_with_cmd(
+            f"addholdinvoice {payment_hash} --amt {amt} --memo {memo}"
+        )
+
     def payinvoice(self, payment_request):
         self.ln_cli_with_cmd_without_json(f"payinvoice {payment_request} --force")
 
     def ln_cli_with_cmd_without_json(self, cmd):
         return run_command(
-            f'{self.lnd_cli} -n regtest --lnddir="{self.tmp_path}" --no-macaroons --rpcserver "localhost:{self.rpc_port}" {cmd} --timeout 60s'
+            f'{self.lnd_cli} -n regtest --lnddir="{self.tmp_path}" --no-macaroons --rpcserver "localhost:{self.rpc_port}" {cmd}'
         )
 
     def ln_cli_with_cmd(self, cmd):
