@@ -4,7 +4,41 @@ fiber:
   bootnode_addrs:
     - "/ip4/54.179.226.154/tcp/8228/p2p/Qmes1EBD4yNo9Ywkfe6eRw9tG1nVNGLDmMud1xJMsoYFKy"
     - "/ip4/54.179.226.154/tcp/18228/p2p/QmdyQWjPtbK4NWWsvy8s69NGJaQULwgeQDT5ZpNDrTNaeV"
+  announce_private_addr: {{ fiber_announce_private_addr | default(true) }}
   announce_listening_addr: true
+  {% if fiber_proxy_url is defined or fiber_proxy_random_auth is defined %}
+  proxy:
+    {% if fiber_proxy_url is defined %}
+    proxy_url: {{ fiber_proxy_url | to_json }}
+    {% endif %}
+    {% if fiber_proxy_random_auth is defined %}
+    proxy_random_auth: {% if fiber_proxy_random_auth %}true{% else %}false{% endif %}
+    {% endif %}
+  {% endif %}
+  {% if fiber_listen_on_onion is defined or fiber_onion_server is defined or fiber_onion_p2p_listen_address is defined or fiber_onion_private_key_path is defined or fiber_tor_controller is defined or fiber_tor_password is defined or fiber_onion_external_port is defined %}
+  onion:
+    {% if fiber_listen_on_onion is defined %}
+    listen_on_onion: {% if fiber_listen_on_onion %}true{% else %}false{% endif %}
+    {% endif %}
+    {% if fiber_onion_server is defined %}
+    onion_server: {{ fiber_onion_server | to_json }}
+    {% endif %}
+    {% if fiber_onion_p2p_listen_address is defined %}
+    p2p_listen_address: {{ fiber_onion_p2p_listen_address | to_json }}
+    {% endif %}
+    {% if fiber_onion_private_key_path is defined %}
+    onion_private_key_path: {{ fiber_onion_private_key_path | to_json }}
+    {% endif %}
+    {% if fiber_tor_controller is defined %}
+    tor_controller: {{ fiber_tor_controller | to_json }}
+    {% endif %}
+    {% if fiber_tor_password is defined %}
+    tor_password: {{ fiber_tor_password | to_json }}
+    {% endif %}
+    {% if fiber_onion_external_port is defined %}
+    onion_external_port: {{ fiber_onion_external_port }}
+    {% endif %}
+  {% endif %}
   scripts:
     - name: FundingLock
       script:
