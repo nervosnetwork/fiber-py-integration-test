@@ -12,7 +12,7 @@ class TestCliAdvancedChannel(FiberTest):
     force close, only-pending filter, accept_channel, and update enabled."""
 
     start_fiber_config = {
-        "fiber_auto_accept_channel_ckb_funding_amount": 0,
+        "fiber_open_channel_auto_accept_min_ckb_funding_amount": 99999999999999999,
     }
 
     # Open/accept direction matches accept_channel/test_max_tlc_number_in_flight_debug.py:
