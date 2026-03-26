@@ -2,7 +2,7 @@ fiber:
   listening_addr: {{ fiber_listening_addr | default("/ip4/127.0.0.1/tcp/8228") }}
   chain: dev.toml
   announce_listening_addr: true
-  announce_private_addr: true
+  announce_private_addr: {{ fiber_announce_private_addr | default(true) }}
   gossip_store_maintenance_interval_ms: 1000
   gossip_network_maintenance_interval_ms: 1000
   open_channel_auto_accept_min_ckb_funding_amount: {{ fiber_open_channel_auto_accept_min_ckb_funding_amount | default(10000000000)}}
@@ -22,6 +22,39 @@ fiber:
   {% endif %}
   {% if fiber_max_inbound_peers is defined %}
   max_inbound_peers: {{ fiber_max_inbound_peers }}
+  {% endif %}
+  {% if fiber_proxy_url is defined or fiber_proxy_random_auth is defined %}
+  proxy:
+    {% if fiber_proxy_url is defined %}
+    proxy_url: {{ fiber_proxy_url | to_json }}
+    {% endif %}
+    {% if fiber_proxy_random_auth is defined %}
+    proxy_random_auth: {% if fiber_proxy_random_auth %}true{% else %}false{% endif %}
+    {% endif %}
+  {% endif %}
+  {% if fiber_listen_on_onion is defined or fiber_onion_server is defined or fiber_onion_p2p_listen_address is defined or fiber_onion_private_key_path is defined or fiber_tor_controller is defined or fiber_tor_password is defined or fiber_onion_external_port is defined %}
+  onion:
+    {% if fiber_listen_on_onion is defined %}
+    listen_on_onion: {% if fiber_listen_on_onion %}true{% else %}false{% endif %}
+    {% endif %}
+    {% if fiber_onion_server is defined %}
+    onion_server: {{ fiber_onion_server | to_json }}
+    {% endif %}
+    {% if fiber_onion_p2p_listen_address is defined %}
+    p2p_listen_address: {{ fiber_onion_p2p_listen_address | to_json }}
+    {% endif %}
+    {% if fiber_onion_private_key_path is defined %}
+    onion_private_key_path: {{ fiber_onion_private_key_path | to_json }}
+    {% endif %}
+    {% if fiber_tor_controller is defined %}
+    tor_controller: {{ fiber_tor_controller | to_json }}
+    {% endif %}
+    {% if fiber_tor_password is defined %}
+    tor_password: {{ fiber_tor_password | to_json }}
+    {% endif %}
+    {% if fiber_onion_external_port is defined %}
+    onion_external_port: {{ fiber_onion_external_port }}
+    {% endif %}
   {% endif %}
   scripts:
     - name: FundingLock
