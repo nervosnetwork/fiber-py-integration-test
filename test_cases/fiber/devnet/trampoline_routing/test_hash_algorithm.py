@@ -10,15 +10,15 @@ class TestHashAlgorithm(FiberTest):
         # key send
         self.fiber1.get_client().send_payment(
             {
-                "target_pubkey": self.fiber3.get_client().node_info()["node_id"],
+                "target_pubkey": self.fiber3.get_client().node_info()["pubkey"],
                 "currency": "Fibd",
                 "amount": hex(1 * 100000000),
                 "keysend": True,
                 "trampoline_hops": [
-                    self.fiber2.get_client().node_info()["node_id"],
+                    self.fiber2.get_client().node_info()["pubkey"],
                     # "fee_rate": hex((1 << 64) - 1),
                 ],
-                "hash_algorithm": "ckbhash",
+                "hash_algorithm": "ckb_hash",
             }
         )
 
@@ -29,14 +29,14 @@ class TestHashAlgorithm(FiberTest):
         # key send
         self.fiber1.get_client().send_payment(
             {
-                "target_pubkey": self.fiber3.get_client().node_info()["node_id"],
+                "target_pubkey": self.fiber3.get_client().node_info()["pubkey"],
                 "currency": "Fibd",
                 "amount": hex(1 * 100000000),
                 "keysend": True,
                 "trampoline_hops": [
-                    self.fiber2.get_client().node_info()["node_id"],
+                    self.fiber2.get_client().node_info()["pubkey"],
                     # "fee_rate": hex((1 << 64) - 1),
                 ],
-                "hash_algorithm": "ckbhash",
+                "hash_algorithm": "ckb_hash",
             }
         )

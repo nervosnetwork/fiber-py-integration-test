@@ -17,7 +17,7 @@ class TestCkbRemoveTx(FiberTest):
         """
         self.fiber1.get_client().open_channel(
             {
-                "peer_id": self.fiber2.get_peer_id(),
+                "pubkey": self.fiber2.get_pubkey(),
                 "funding_amount": hex(2000 * 100000000),
                 "public": True,
             }
@@ -49,7 +49,7 @@ class TestCkbRemoveTx(FiberTest):
         for i in range(100):
             self.fiber1.get_client().open_channel(
                 {
-                    "peer_id": self.fiber2.get_peer_id(),
+                    "pubkey": self.fiber2.get_pubkey(),
                     "funding_amount": hex(1000 * 100000000 + i),
                     "public": True,
                 }
@@ -57,7 +57,7 @@ class TestCkbRemoveTx(FiberTest):
             time.sleep(0.1)
         # self.fiber1.get_client().open_channel(
         #     {
-        #         "peer_id": self.fiber2.get_peer_id(),
+        #         "pubkey": self.fiber2.get_pubkey(),
         #         "funding_amount": hex(2000 * 100000000),
         #         "public": True,
         #     }
@@ -77,7 +77,7 @@ class TestCkbRemoveTx(FiberTest):
         """
         self.fiber1.get_client().open_channel(
             {
-                "peer_id": self.fiber2.get_peer_id(),
+                "pubkey": self.fiber2.get_pubkey(),
                 "funding_amount": hex(1000 * 100000000),
                 "public": True,
             }
@@ -89,7 +89,7 @@ class TestCkbRemoveTx(FiberTest):
         time.sleep(3)
         self.fiber1.get_client().open_channel(
             {
-                "peer_id": self.fiber2.get_peer_id(),
+                "pubkey": self.fiber2.get_pubkey(),
                 "funding_amount": hex(1000 * 100000000),
                 "public": True,
             }

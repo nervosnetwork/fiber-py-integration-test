@@ -1,0 +1,80 @@
+name: Fiber Test Job
+
+on:
+  workflow_call:
+    inputs:
+      test_dirs:
+        required: true
+        type: string
+      report_name:
+        required: true
+        type: string
+      pre_test_script:
+        required: false
+        type: string
+        default: ''
+      setup_node:
+        required: false
+        type: boolean
+        default: false
+      storage_modes:
+        required: false
+        type: string
+        default: '["default", "sqlite"]'
+
+jobs:
+  test:
+    runs-on: ubuntu-22.04
+    strategy:
+      fail-fast: false
+      matrix:
+        storage_mode: ${{ fromJSON(inputs.storage_modes) }}
+
+    steps:
+      - uses: actions/checkout@v3
+
+      - name: Set up Python 3.12
+        uses: actions/setup-python@v3
+        with:
+          python-version: "3.12"
+
+      - name: Set up Node.js
+        if: inputs.setup_node
+        uses: actions/setup-node@v3
+        with:
+          node-version: '18'
+
+      - name: Install dependencies
+        run: |
+          python -m pip install --upgrade pip
+          if [ -f requirements.txt ]; then pip install -r requirements.txt; fi
+
+      - name: Download prepare backup
+        uses: actions/download-artifact@v4
+        with:
+          name: prepare-backup-${{ runner.os }}
+          path: ./
+
+      - name: Extract tarball
+        run: tar -xzf prepare-backup.tar.gz
+
+      - name: Pre-test setup
+        if: inputs.pre_test_script != ''
+        run: |
+          ${{ inputs.pre_test_script }}
+
+      - name: Switch to sqlite binary
+        if: matrix.storage_mode == 'sqlite'
+        run: |
+          cp download/fiber/current/fnn.sqlite download/fiber/current/fnn
+          cp download/fiber/current/fnn-cli.sqlite download/fiber/current/fnn-cli
+
+      - name: Run fiber_test_demo
+        run: make fiber_test_demo FIBER_TEST_DEMO="${{ inputs.test_dirs }}"
+
+      - name: Publish reports
+        if: failure()
+        uses: actions/upload-artifact@v4
+        with:
+          name: jfoa-${{ inputs.report_name }}-${{ matrix.storage_mode }}-reports-${{ runner.os }}
+          path: ./report

@@ -30,7 +30,7 @@ class TestHopHint(FiberTest):  # a-b
         time.sleep(1)
         self.fibers[3].get_client().open_channel(  # d -a private channel
             {
-                "peer_id": self.fibers[0].get_peer_id(),
+                "pubkey": self.fibers[0].get_pubkey(),
                 "funding_amount": hex(fiber1_balance + DEFAULT_MIN_DEPOSIT_CKB),
                 "tlc_fee_proportional_millionths": hex(fiber1_fee),
                 "public": False,
@@ -38,7 +38,7 @@ class TestHopHint(FiberTest):  # a-b
         )
         time.sleep(1)
         self.wait_for_channel_state(
-            self.fibers[3].get_client(), self.fibers[0].get_peer_id(), "CHANNEL_READY"
+            self.fibers[3].get_client(), self.fibers[0].get_pubkey(), "ChannelReady"
         )
 
         # b-a(不通过hophit应该发送失败)
@@ -68,7 +68,7 @@ class TestHopHint(FiberTest):  # a-b
         fiber1_fee = 1000
         self.fiber1.get_client().open_channel(
             {
-                "peer_id": self.fiber2.get_peer_id(),
+                "pubkey": self.fiber2.get_pubkey(),
                 "funding_amount": hex(fiber1_balance + DEFAULT_MIN_DEPOSIT_CKB),
                 "tlc_fee_proportional_millionths": hex(fiber1_fee),
                 "public": False,
@@ -76,7 +76,7 @@ class TestHopHint(FiberTest):  # a-b
         )  # a-b private channel
         time.sleep(1)
         self.wait_for_channel_state(
-            self.fiber1.get_client(), self.fiber2.get_peer_id(), "CHANNEL_READY"
+            self.fiber1.get_client(), self.fiber2.get_pubkey(), "ChannelReady"
         )
         self.open_channel(self.fibers[1], self.fibers[2], 1000 * 100000000, 1)  # b-c
         self.open_channel(
@@ -87,7 +87,7 @@ class TestHopHint(FiberTest):  # a-b
         time.sleep(1)
         self.fibers[3].get_client().open_channel(  # d -a private channel
             {
-                "peer_id": self.fibers[0].get_peer_id(),
+                "pubkey": self.fibers[0].get_pubkey(),
                 "funding_amount": hex(fiber1_balance + DEFAULT_MIN_DEPOSIT_CKB),
                 "tlc_fee_proportional_millionths": hex(fiber1_fee),
                 "public": False,
@@ -95,7 +95,7 @@ class TestHopHint(FiberTest):  # a-b
         )
         time.sleep(1)
         self.wait_for_channel_state(
-            self.fibers[3].get_client(), self.fibers[0].get_peer_id(), "CHANNEL_READY"
+            self.fibers[3].get_client(), self.fibers[0].get_pubkey(), "ChannelReady"
         )
 
         try:
@@ -107,7 +107,7 @@ class TestHopHint(FiberTest):  # a-b
                     {
                         "target_pubkey": self.fibers[0]
                         .get_client()
-                        .node_info()["node_id"],
+                        .node_info()["pubkey"],
                         "amount": hex(10 * 100000000),
                         "keysend": True,
                     }
@@ -136,7 +136,7 @@ class TestHopHint(FiberTest):  # a-b
         fiber1_fee = 1000
         self.fiber1.get_client().open_channel(
             {
-                "peer_id": self.fiber2.get_peer_id(),
+                "pubkey": self.fiber2.get_pubkey(),
                 "funding_amount": hex(fiber1_balance + DEFAULT_MIN_DEPOSIT_CKB),
                 "tlc_fee_proportional_millionths": hex(fiber1_fee),
                 "public": False,
@@ -144,7 +144,7 @@ class TestHopHint(FiberTest):  # a-b
         )  # a-b private channel
         time.sleep(1)
         self.wait_for_channel_state(
-            self.fiber1.get_client(), self.fiber2.get_peer_id(), "CHANNEL_READY"
+            self.fiber1.get_client(), self.fiber2.get_pubkey(), "ChannelReady"
         )
         self.open_channel(self.fibers[1], self.fibers[2], 1000 * 100000000, 1)  # b-c
         self.open_channel(
@@ -155,7 +155,7 @@ class TestHopHint(FiberTest):  # a-b
         time.sleep(1)
         self.fibers[3].get_client().open_channel(  # d -a private channel
             {
-                "peer_id": self.fibers[0].get_peer_id(),
+                "pubkey": self.fibers[0].get_pubkey(),
                 "funding_amount": hex(fiber1_balance + DEFAULT_MIN_DEPOSIT_CKB),
                 "tlc_fee_proportional_millionths": hex(fiber1_fee),
                 "public": False,
@@ -163,19 +163,19 @@ class TestHopHint(FiberTest):  # a-b
         )
         time.sleep(1)
         self.wait_for_channel_state(
-            self.fibers[3].get_client(), self.fibers[0].get_peer_id(), "CHANNEL_READY"
+            self.fibers[3].get_client(), self.fibers[0].get_pubkey(), "ChannelReady"
         )
         # 查看d-a的channeloutpoint
-        print(f"a peer_id:{self.fibers[0].get_peer_id()}")
-        print(f"d peer_id:{self.fibers[3].get_peer_id()}")
+        print(f"a peer_id:{self.fibers[0].get_pubkey()}")
+        print(f"d peer_id:{self.fibers[3].get_pubkey()}")
         channels = (
             self.fibers[3]
             .get_client()
-            .list_channels({"peer_id": self.fibers[0].get_peer_id()})
+            .list_channels({"pubkey": self.fibers[0].get_pubkey()})
         )
         print(
             f"d-a,channel:{channels}"
-        )  # {'channels': [{'channel_id': '0xe59fc475a5e32bfd4130f5d7b73e2c77e94e40a1c4de0f4c4f7cb65a23cfa808', 'is_public': False, 'channel_outpoint': '0x7f2fc106cbc01d25e9682826ec131e67be8e9868fbb37edd6591bb7423feb21000000000', 'peer_id': 'QmT5SaY3CSSY9XvgoqJ521TXSUQ5DBZ58DTdafPKFBEcWf', 'funding_udt_type_script': None, 'state': {'state_name': 'CHANNEL_READY'}, 'local_balance': '0x174876e800', 'offered_tlc_balance': '0x0', 'remote_balance': '0x0', 'received_tlc_balance': '0x0', 'latest_commitment_transaction_hash': '0x93e75ade9b0016dbca0a56698fbf04f4a4ca5d8bc3c40fa781769e37ebb9fba2', 'created_at': '0x195d58690aa', 'enabled': True, 'tlc_expiry_delta': '0x5265c00', 'tlc_fee_proportional_millionths': '0x3e8'}, {'channel_id': '0xab117469b812d64410e1f4a6429475908f8672eda1a492772387880fd9046f07', 'is_public': False, 'channel_outpoint': '0xfe4f6fbfd2fb31ec9ca6dc7a4e43efa4e864002fae281c7c5e38fc51cd89465f00000000', 'peer_id': 'QmT5SaY3CSSY9XvgoqJ521TXSUQ5DBZ58DTdafPKFBEcWf', 'funding_udt_type_script': None, 'state': {'state_name': 'CHANNEL_READY'}, 'local_balance': '0x174876e800', 'offered_tlc_balance': '0x0', 'remote_balance': '0x0', 'received_tlc_balance': '0x0', 'latest_commitment_transaction_hash': '0xc6f38fe84030eba95376c63e76ccfa9605c07f5ca407e395ca53db609b305787', 'created_at': '0x195d2e09a4d', 'enabled': True, 'tlc_expiry_delta': '0x5265c00', 'tlc_fee_proportional_millionths': '0x3e8'}]}
+        )  # {'channels': [{'channel_id': '0xe59fc475a5e32bfd4130f5d7b73e2c77e94e40a1c4de0f4c4f7cb65a23cfa808', 'is_public': False, 'channel_outpoint': '0x7f2fc106cbc01d25e9682826ec131e67be8e9868fbb37edd6591bb7423feb21000000000', 'pubkey': 'QmT5SaY3CSSY9XvgoqJ521TXSUQ5DBZ58DTdafPKFBEcWf', 'funding_udt_type_script': None, 'state': {'state_name': 'CHANNEL_READY'}, 'local_balance': '0x174876e800', 'offered_tlc_balance': '0x0', 'remote_balance': '0x0', 'received_tlc_balance': '0x0', 'latest_commitment_transaction_hash': '0x93e75ade9b0016dbca0a56698fbf04f4a4ca5d8bc3c40fa781769e37ebb9fba2', 'created_at': '0x195d58690aa', 'enabled': True, 'tlc_expiry_delta': '0x5265c00', 'tlc_fee_proportional_millionths': '0x3e8'}, {'channel_id': '0xab117469b812d64410e1f4a6429475908f8672eda1a492772387880fd9046f07', 'is_public': False, 'channel_outpoint': '0xfe4f6fbfd2fb31ec9ca6dc7a4e43efa4e864002fae281c7c5e38fc51cd89465f00000000', 'pubkey': 'QmT5SaY3CSSY9XvgoqJ521TXSUQ5DBZ58DTdafPKFBEcWf', 'funding_udt_type_script': None, 'state': {'state_name': 'CHANNEL_READY'}, 'local_balance': '0x174876e800', 'offered_tlc_balance': '0x0', 'remote_balance': '0x0', 'received_tlc_balance': '0x0', 'latest_commitment_transaction_hash': '0xc6f38fe84030eba95376c63e76ccfa9605c07f5ca407e395ca53db609b305787', 'created_at': '0x195d2e09a4d', 'enabled': True, 'tlc_expiry_delta': '0x5265c00', 'tlc_fee_proportional_millionths': '0x3e8'}]}
         da_channel_outpoint = channels["channels"][0]["channel_outpoint"]
         print(f"d-a, channel_outpoint:{da_channel_outpoint}")
         # b-a,怎么填d-私-a的信息
@@ -185,14 +185,12 @@ class TestHopHint(FiberTest):  # a-b
             .get_client()
             .send_payment(  # b
                 {
-                    "target_pubkey": self.fibers[0].get_client().node_info()["node_id"],
+                    "target_pubkey": self.fibers[0].get_client().node_info()["pubkey"],
                     "amount": hex(10 * 100000000),
                     "keysend": True,
                     "hop_hints": [
                         {
-                            "pubkey": self.fibers[3]
-                            .get_client()
-                            .node_info()["node_id"],
+                            "pubkey": self.fibers[3].get_client().node_info()["pubkey"],
                             # 填的是 d 的 pubkey，表示在 d 节点使用 channel_outpoint 到 a
                             "channel_outpoint": da_channel_outpoint,
                             "fee_rate": hex(1000),
@@ -225,7 +223,7 @@ class TestHopHint(FiberTest):  # a-b
         time.sleep(1)
         self.fibers[3].get_client().open_channel(  # d -a private channel
             {
-                "peer_id": self.fibers[0].get_peer_id(),
+                "pubkey": self.fibers[0].get_pubkey(),
                 "funding_amount": hex(fiber1_balance + DEFAULT_MIN_DEPOSIT_CKB),
                 "tlc_fee_proportional_millionths": hex(fiber1_fee),
                 "public": False,
@@ -233,19 +231,19 @@ class TestHopHint(FiberTest):  # a-b
         )
         time.sleep(1)
         self.wait_for_channel_state(
-            self.fibers[3].get_client(), self.fibers[0].get_peer_id(), "CHANNEL_READY"
+            self.fibers[3].get_client(), self.fibers[0].get_pubkey(), "ChannelReady"
         )
         # 查看d-a的channeloutpoint
-        print(f"a peer_id:{self.fibers[0].get_peer_id()}")
-        print(f"d peer_id:{self.fibers[3].get_peer_id()}")
+        print(f"a peer_id:{self.fibers[0].get_pubkey()}")
+        print(f"d peer_id:{self.fibers[3].get_pubkey()}")
         channels = (
             self.fibers[3]
             .get_client()
-            .list_channels({"peer_id": self.fibers[0].get_peer_id()})
+            .list_channels({"pubkey": self.fibers[0].get_pubkey()})
         )
         print(
             f"d-a,channel:{channels}"
-        )  # {'channels': [{'channel_id': '0xe59fc475a5e32bfd4130f5d7b73e2c77e94e40a1c4de0f4c4f7cb65a23cfa808', 'is_public': False, 'channel_outpoint': '0x7f2fc106cbc01d25e9682826ec131e67be8e9868fbb37edd6591bb7423feb21000000000', 'peer_id': 'QmT5SaY3CSSY9XvgoqJ521TXSUQ5DBZ58DTdafPKFBEcWf', 'funding_udt_type_script': None, 'state': {'state_name': 'CHANNEL_READY'}, 'local_balance': '0x174876e800', 'offered_tlc_balance': '0x0', 'remote_balance': '0x0', 'received_tlc_balance': '0x0', 'latest_commitment_transaction_hash': '0x93e75ade9b0016dbca0a56698fbf04f4a4ca5d8bc3c40fa781769e37ebb9fba2', 'created_at': '0x195d58690aa', 'enabled': True, 'tlc_expiry_delta': '0x5265c00', 'tlc_fee_proportional_millionths': '0x3e8'}, {'channel_id': '0xab117469b812d64410e1f4a6429475908f8672eda1a492772387880fd9046f07', 'is_public': False, 'channel_outpoint': '0xfe4f6fbfd2fb31ec9ca6dc7a4e43efa4e864002fae281c7c5e38fc51cd89465f00000000', 'peer_id': 'QmT5SaY3CSSY9XvgoqJ521TXSUQ5DBZ58DTdafPKFBEcWf', 'funding_udt_type_script': None, 'state': {'state_name': 'CHANNEL_READY'}, 'local_balance': '0x174876e800', 'offered_tlc_balance': '0x0', 'remote_balance': '0x0', 'received_tlc_balance': '0x0', 'latest_commitment_transaction_hash': '0xc6f38fe84030eba95376c63e76ccfa9605c07f5ca407e395ca53db609b305787', 'created_at': '0x195d2e09a4d', 'enabled': True, 'tlc_expiry_delta': '0x5265c00', 'tlc_fee_proportional_millionths': '0x3e8'}]}
+        )  # {'channels': [{'channel_id': '0xe59fc475a5e32bfd4130f5d7b73e2c77e94e40a1c4de0f4c4f7cb65a23cfa808', 'is_public': False, 'channel_outpoint': '0x7f2fc106cbc01d25e9682826ec131e67be8e9868fbb37edd6591bb7423feb21000000000', 'pubkey': 'QmT5SaY3CSSY9XvgoqJ521TXSUQ5DBZ58DTdafPKFBEcWf', 'funding_udt_type_script': None, 'state': {'state_name': 'CHANNEL_READY'}, 'local_balance': '0x174876e800', 'offered_tlc_balance': '0x0', 'remote_balance': '0x0', 'received_tlc_balance': '0x0', 'latest_commitment_transaction_hash': '0x93e75ade9b0016dbca0a56698fbf04f4a4ca5d8bc3c40fa781769e37ebb9fba2', 'created_at': '0x195d58690aa', 'enabled': True, 'tlc_expiry_delta': '0x5265c00', 'tlc_fee_proportional_millionths': '0x3e8'}, {'channel_id': '0xab117469b812d64410e1f4a6429475908f8672eda1a492772387880fd9046f07', 'is_public': False, 'channel_outpoint': '0xfe4f6fbfd2fb31ec9ca6dc7a4e43efa4e864002fae281c7c5e38fc51cd89465f00000000', 'pubkey': 'QmT5SaY3CSSY9XvgoqJ521TXSUQ5DBZ58DTdafPKFBEcWf', 'funding_udt_type_script': None, 'state': {'state_name': 'CHANNEL_READY'}, 'local_balance': '0x174876e800', 'offered_tlc_balance': '0x0', 'remote_balance': '0x0', 'received_tlc_balance': '0x0', 'latest_commitment_transaction_hash': '0xc6f38fe84030eba95376c63e76ccfa9605c07f5ca407e395ca53db609b305787', 'created_at': '0x195d2e09a4d', 'enabled': True, 'tlc_expiry_delta': '0x5265c00', 'tlc_fee_proportional_millionths': '0x3e8'}]}
         da_channel_outpoint = channels["channels"][0]["channel_outpoint"]
         print(f"d-a, channel_outpoint:{da_channel_outpoint}")
         # b-a,怎么填d-私-a的信息
@@ -255,7 +253,7 @@ class TestHopHint(FiberTest):  # a-b
             .get_client()
             .send_payment(  # b
                 {
-                    "target_pubkey": self.fibers[0].get_client().node_info()["node_id"],
+                    "target_pubkey": self.fibers[0].get_client().node_info()["pubkey"],
                     "amount": hex(10 * 100000000),
                     "keysend": True,
                     "hop_hints": [
@@ -263,7 +261,7 @@ class TestHopHint(FiberTest):  # a-b
                             "pubkey": self.fibers[3]
                             .get_client()
                             .node_info()[
-                                "node_id"
+                                "pubkey"
                             ],  # 填的是 d 的 pubkey，表示在 d 节点使用 channel_outpoint 到 a
                             "channel_outpoint": da_channel_outpoint,
                             "fee_rate": hex(1000),

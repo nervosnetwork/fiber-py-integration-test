@@ -54,13 +54,13 @@ class TestFeeRate(SharedFiberTest):
         """fee 设置多少，就返回多少"""
         payment = self.fiber1.get_client().send_payment(
             {
-                "target_pubkey": self.fiber4.get_client().node_info()["node_id"],
+                "target_pubkey": self.fiber4.get_client().node_info()["pubkey"],
                 "currency": "Fibd",
                 "amount": hex(1 * 100000000),
                 "keysend": True,
                 "dry_run": True,
                 "trampoline_hops": [
-                    self.fiber2.get_client().node_info()["node_id"],
+                    self.fiber2.get_client().node_info()["pubkey"],
                 ],
             }
         )
@@ -68,14 +68,14 @@ class TestFeeRate(SharedFiberTest):
 
         payment = self.fiber1.get_client().send_payment(
             {
-                "target_pubkey": self.fiber4.get_client().node_info()["node_id"],
+                "target_pubkey": self.fiber4.get_client().node_info()["pubkey"],
                 "currency": "Fibd",
                 "amount": hex(1 * 100000000),
                 "keysend": True,
                 "dry_run": True,
                 "max_fee_amount": hex(400000),
                 "trampoline_hops": [
-                    self.fiber2.get_client().node_info()["node_id"],
+                    self.fiber2.get_client().node_info()["pubkey"],
                 ],
             }
         )
@@ -86,12 +86,12 @@ class TestFeeRate(SharedFiberTest):
         before_balance = self.get_fibers_balance()
         payment = self.fiber1.get_client().send_payment(
             {
-                "target_pubkey": self.fiber4.get_client().node_info()["node_id"],
+                "target_pubkey": self.fiber4.get_client().node_info()["pubkey"],
                 "currency": "Fibd",
                 "amount": hex(1 * 100000000),
                 "keysend": True,
                 "trampoline_hops": [
-                    self.fiber2.get_client().node_info()["node_id"],
+                    self.fiber2.get_client().node_info()["pubkey"],
                 ],
             }
         )
@@ -139,7 +139,7 @@ class TestFeeRate(SharedFiberTest):
         with pytest.raises(Exception) as exc_info:
             dryPayment = self.fiber1.get_client().send_payment(
                 {
-                    "target_pubkey": self.fiber6.get_client().node_info()["node_id"],
+                    "target_pubkey": self.fiber6.get_client().node_info()["pubkey"],
                     "currency": "Fibd",
                     "amount": hex(1 * 100000000),
                     "keysend": True,
@@ -157,7 +157,7 @@ class TestFeeRate(SharedFiberTest):
         # 使用 trampoline_hops dry run
         dryPayment = self.fiber1.get_client().send_payment(
             {
-                "target_pubkey": self.fiber6.get_client().node_info()["node_id"],
+                "target_pubkey": self.fiber6.get_client().node_info()["pubkey"],
                 "currency": "Fibd",
                 "amount": hex(1 * 100000000),
                 "keysend": True,
@@ -165,21 +165,21 @@ class TestFeeRate(SharedFiberTest):
                 # "max_fee_amount": hex(5000),
                 # "max_fee_rate": hex(5)
                 "trampoline_hops": [
-                    self.fiber5.get_client().node_info()["node_id"],
+                    self.fiber5.get_client().node_info()["pubkey"],
                 ],
             }
         )
         assert dryPayment["fee"] == hex(500000)
         payment = self.fiber1.get_client().send_payment(
             {
-                "target_pubkey": self.fiber6.get_client().node_info()["node_id"],
+                "target_pubkey": self.fiber6.get_client().node_info()["pubkey"],
                 "currency": "Fibd",
                 "amount": hex(1 * 100000000),
                 "keysend": True,
                 # "max_fee_amount": hex(5000),
                 # "max_fee_rate": hex(5)
                 "trampoline_hops": [
-                    self.fiber5.get_client().node_info()["node_id"],
+                    self.fiber5.get_client().node_info()["pubkey"],
                 ],
             }
         )
@@ -188,7 +188,7 @@ class TestFeeRate(SharedFiberTest):
         # 使用 trampoline_hops dry run ，预期失败
         dryPayment = self.fiber1.get_client().send_payment(
             {
-                "target_pubkey": self.fiber6.get_client().node_info()["node_id"],
+                "target_pubkey": self.fiber6.get_client().node_info()["pubkey"],
                 "currency": "Fibd",
                 "amount": hex(1 * 100000000),
                 "keysend": True,
@@ -200,7 +200,7 @@ class TestFeeRate(SharedFiberTest):
         print("dryPayment fee: ", int(dryPayment["fee"], 16))
         payment = self.fiber1.get_client().send_payment(
             {
-                "target_pubkey": self.fiber6.get_client().node_info()["node_id"],
+                "target_pubkey": self.fiber6.get_client().node_info()["pubkey"],
                 "currency": "Fibd",
                 "amount": hex(1 * 100000000),
                 "keysend": True,
@@ -235,7 +235,7 @@ class TestFeeRate(SharedFiberTest):
 
         payment = self.fiber1.get_client().send_payment(
             {
-                "target_pubkey": self.fiber6.get_client().node_info()["node_id"],
+                "target_pubkey": self.fiber6.get_client().node_info()["pubkey"],
                 "currency": "Fibd",
                 "amount": hex(1 * 100000000),
                 "keysend": True,
@@ -243,7 +243,7 @@ class TestFeeRate(SharedFiberTest):
                 "max_fee_rate": hex(10),
                 "max_fee_amount": dryPayment["fee"],
                 "trampoline_hops": [
-                    self.fiber5.get_client().node_info()["node_id"],
+                    self.fiber5.get_client().node_info()["pubkey"],
                 ],
             }
         )

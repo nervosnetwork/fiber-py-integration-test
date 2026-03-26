@@ -132,7 +132,7 @@ class TestFee(SharedFiberTest):
         """
         self.fiber1.get_client().send_payment(
             {
-                "target_pubkey": self.fiber7.get_client().node_info()["node_id"],
+                "target_pubkey": self.fiber7.get_client().node_info()["pubkey"],
                 "amount": hex(10 * 100000000),
                 "keysend": True,
                 "max_fee_amount": hex(10000000000),
@@ -148,7 +148,7 @@ class TestFee(SharedFiberTest):
         """
         self.fiber1.get_client().send_payment(
             {
-                "target_pubkey": self.fiber7.get_client().node_info()["node_id"],
+                "target_pubkey": self.fiber7.get_client().node_info()["pubkey"],
                 "amount": hex(10 * 100000000),
                 "keysend": True,
                 "max_fee_rate": hex(99),
@@ -167,7 +167,7 @@ class TestFee(SharedFiberTest):
         fee_limit = amount * 5 // 1000  # 0.5% × amount
         payment = self.fiber1.get_client().send_payment(
             {
-                "target_pubkey": self.fiber3.get_client().node_info()["node_id"],
+                "target_pubkey": self.fiber3.get_client().node_info()["pubkey"],
                 "amount": hex(amount),
                 "keysend": True,
                 "dry_run": True,
@@ -188,7 +188,7 @@ class TestFee(SharedFiberTest):
         fee_limit = amount * max_fee_rate // 1000
         payment = self.fiber1.get_client().send_payment(
             {
-                "target_pubkey": self.fiber3.get_client().node_info()["node_id"],
+                "target_pubkey": self.fiber3.get_client().node_info()["pubkey"],
                 "amount": hex(amount),
                 "keysend": True,
                 "max_fee_rate": hex(max_fee_rate),
@@ -213,7 +213,7 @@ class TestFee(SharedFiberTest):
         fee_limit = amount * max_fee_rate // 1000
         payment = self.fiber1.get_client().send_payment(
             {
-                "target_pubkey": self.fiber3.get_client().node_info()["node_id"],
+                "target_pubkey": self.fiber3.get_client().node_info()["pubkey"],
                 "amount": hex(amount),
                 "keysend": True,
                 "max_fee_rate": hex(max_fee_rate),
@@ -237,7 +237,7 @@ class TestFee(SharedFiberTest):
         with pytest.raises(Exception) as exc_info:
             self.fiber1.get_client().send_payment(
                 {
-                    "target_pubkey": self.fiber3.get_client().node_info()["node_id"],
+                    "target_pubkey": self.fiber3.get_client().node_info()["pubkey"],
                     "amount": hex(amount),
                     "keysend": True,
                     "max_fee_rate": hex(max_fee_rate),
@@ -258,7 +258,7 @@ class TestFee(SharedFiberTest):
         amount = 1 * 100000000
         dry = self.fiber1.get_client().send_payment(
             {
-                "target_pubkey": self.fiber3.get_client().node_info()["node_id"],
+                "target_pubkey": self.fiber3.get_client().node_info()["pubkey"],
                 "amount": hex(amount),
                 "keysend": True,
                 "dry_run": True,
@@ -269,7 +269,7 @@ class TestFee(SharedFiberTest):
         max_fee_amount = required_fee + 10000
         payment = self.fiber1.get_client().send_payment(
             {
-                "target_pubkey": self.fiber3.get_client().node_info()["node_id"],
+                "target_pubkey": self.fiber3.get_client().node_info()["pubkey"],
                 "amount": hex(amount),
                 "keysend": True,
                 "max_fee_rate": hex(10),  # 10%，足够大
@@ -293,7 +293,7 @@ class TestFee(SharedFiberTest):
         with pytest.raises(Exception) as exc_info:
             self.fiber1.get_client().send_payment(
                 {
-                    "target_pubkey": self.fiber3.get_client().node_info()["node_id"],
+                    "target_pubkey": self.fiber3.get_client().node_info()["pubkey"],
                     "amount": hex(amount),
                     "keysend": True,
                     "max_fee_rate": hex(0),
@@ -314,7 +314,7 @@ class TestFee(SharedFiberTest):
         with pytest.raises(Exception) as exc_info:
             self.fiber1.get_client().send_payment(
                 {
-                    "target_pubkey": self.fiber3.get_client().node_info()["node_id"],
+                    "target_pubkey": self.fiber3.get_client().node_info()["pubkey"],
                     "amount": hex(amount),
                     "keysend": True,
                     "max_fee_amount": hex(0),
@@ -336,7 +336,7 @@ class TestFee(SharedFiberTest):
         expected_fee_limit = amount * max_fee_rate // 1000  # 10000000
         payment = self.fiber1.get_client().send_payment(
             {
-                "target_pubkey": self.fiber3.get_client().node_info()["node_id"],
+                "target_pubkey": self.fiber3.get_client().node_info()["pubkey"],
                 "amount": hex(amount),
                 "keysend": True,
                 "max_fee_rate": hex(max_fee_rate),
@@ -359,7 +359,7 @@ class TestFee(SharedFiberTest):
         theoretical_fee_limit = amount * max_fee_rate // 1000  # = amount
         payment = self.fiber1.get_client().send_payment(
             {
-                "target_pubkey": self.fiber3.get_client().node_info()["node_id"],
+                "target_pubkey": self.fiber3.get_client().node_info()["pubkey"],
                 "amount": hex(amount),
                 "keysend": True,
                 "max_fee_rate": hex(max_fee_rate),
@@ -384,7 +384,7 @@ class TestFee(SharedFiberTest):
         with pytest.raises(Exception) as exc_info:
             self.fiber1.get_client().send_payment(
                 {
-                    "target_pubkey": self.fiber3.get_client().node_info()["node_id"],
+                    "target_pubkey": self.fiber3.get_client().node_info()["pubkey"],
                     "amount": hex(amount),
                     "keysend": True,
                     "max_fee_amount": hex(0),
@@ -408,7 +408,7 @@ class TestFee(SharedFiberTest):
 
         payment = self.fiber1.get_client().send_payment(
             {
-                "target_pubkey": self.fiber3.get_client().node_info()["node_id"],
+                "target_pubkey": self.fiber3.get_client().node_info()["pubkey"],
                 "amount": hex(amount),
                 "keysend": True,
                 "max_fee_rate": hex(max_fee_rate),
@@ -434,7 +434,7 @@ class TestFee(SharedFiberTest):
 
         payment = self.fiber1.get_client().send_payment(
             {
-                "target_pubkey": self.fiber3.get_client().node_info()["node_id"],
+                "target_pubkey": self.fiber3.get_client().node_info()["pubkey"],
                 "amount": hex(amount),
                 "keysend": True,
                 "max_fee_rate": hex(max_fee_rate),
@@ -450,7 +450,7 @@ class TestFee(SharedFiberTest):
 
         payment = self.fiber4.get_client().send_payment(
             {
-                "target_pubkey": self.fiber7.get_client().node_info()["node_id"],
+                "target_pubkey": self.fiber7.get_client().node_info()["pubkey"],
                 "amount": hex(amount),
                 "keysend": True,
                 # "max_fee_rate": hex(1),
@@ -463,7 +463,7 @@ class TestFee(SharedFiberTest):
         with pytest.raises(Exception) as exc_info:
             payment = self.fiber4.get_client().send_payment(
                 {
-                    "target_pubkey": self.fiber7.get_client().node_info()["node_id"],
+                    "target_pubkey": self.fiber7.get_client().node_info()["pubkey"],
                     "amount": hex(amount),
                     "keysend": True,
                     "max_fee_rate": hex(2),
@@ -485,7 +485,7 @@ class TestFee(SharedFiberTest):
 
         payment = self.fiber1.get_client().send_payment(
             {
-                "target_pubkey": self.fiber3.get_client().node_info()["node_id"],
+                "target_pubkey": self.fiber3.get_client().node_info()["pubkey"],
                 "amount": hex(amount),
                 "keysend": True,
                 "max_fee_rate": hex(max_fee_rate),
@@ -503,7 +503,7 @@ class TestFee(SharedFiberTest):
         with pytest.raises(Exception) as exc_info:
             self.fiber1.get_client().send_payment(
                 {
-                    "target_pubkey": self.fiber3.get_client().node_info()["node_id"],
+                    "target_pubkey": self.fiber3.get_client().node_info()["pubkey"],
                     "amount": hex(amount),
                     "keysend": True,
                     "max_fee_rate": hex(max_fee_rate),
@@ -529,7 +529,7 @@ class TestFee(SharedFiberTest):
 
         payment = self.fiber1.get_client().send_payment(
             {
-                "target_pubkey": self.fiber3.get_client().node_info()["node_id"],
+                "target_pubkey": self.fiber3.get_client().node_info()["pubkey"],
                 "amount": hex(amount),
                 "keysend": True,
                 "max_fee_rate": hex(max_fee_rate),
@@ -558,7 +558,7 @@ class TestFee(SharedFiberTest):
 
         payment = self.fiber1.get_client().send_payment(
             {
-                "target_pubkey": self.fiber3.get_client().node_info()["node_id"],
+                "target_pubkey": self.fiber3.get_client().node_info()["pubkey"],
                 "amount": hex(amount),
                 "keysend": True,
                 "max_fee_rate": hex(max_fee_rate),
@@ -583,7 +583,7 @@ class TestFee(SharedFiberTest):
         # 先获取实际需要的费用
         dry_run = self.fiber1.get_client().send_payment(
             {
-                "target_pubkey": self.fiber3.get_client().node_info()["node_id"],
+                "target_pubkey": self.fiber3.get_client().node_info()["pubkey"],
                 "amount": hex(amount),
                 "keysend": True,
                 "dry_run": True,
@@ -595,7 +595,7 @@ class TestFee(SharedFiberTest):
         exact_limit = required_fee
         payment = self.fiber1.get_client().send_payment(
             {
-                "target_pubkey": self.fiber3.get_client().node_info()["node_id"],
+                "target_pubkey": self.fiber3.get_client().node_info()["pubkey"],
                 "amount": hex(amount),
                 "keysend": True,
                 "max_fee_rate": hex(100),  # 设置足够大，使 FeeLimit = max_fee_amount
@@ -622,7 +622,7 @@ class TestFee(SharedFiberTest):
         # 先获取实际需要的费用
         dry_run = self.fiber1.get_client().send_payment(
             {
-                "target_pubkey": self.fiber3.get_client().node_info()["node_id"],
+                "target_pubkey": self.fiber3.get_client().node_info()["pubkey"],
                 "amount": hex(amount),
                 "keysend": True,
                 "dry_run": True,
@@ -636,7 +636,7 @@ class TestFee(SharedFiberTest):
         with pytest.raises(Exception) as exc_info:
             self.fiber1.get_client().send_payment(
                 {
-                    "target_pubkey": self.fiber3.get_client().node_info()["node_id"],
+                    "target_pubkey": self.fiber3.get_client().node_info()["pubkey"],
                     "amount": hex(amount),
                     "keysend": True,
                     "max_fee_rate": hex(100),  # 设置足够大
@@ -658,7 +658,7 @@ class TestFee(SharedFiberTest):
         # 先获取实际需要的费用
         dry_run = self.fiber1.get_client().send_payment(
             {
-                "target_pubkey": self.fiber3.get_client().node_info()["node_id"],
+                "target_pubkey": self.fiber3.get_client().node_info()["pubkey"],
                 "amount": hex(amount),
                 "keysend": True,
                 "dry_run": True,
@@ -671,7 +671,7 @@ class TestFee(SharedFiberTest):
 
         payment = self.fiber1.get_client().send_payment(
             {
-                "target_pubkey": self.fiber3.get_client().node_info()["node_id"],
+                "target_pubkey": self.fiber3.get_client().node_info()["pubkey"],
                 "amount": hex(amount),
                 "keysend": True,
                 "max_fee_rate": hex(100),  # 设置足够大

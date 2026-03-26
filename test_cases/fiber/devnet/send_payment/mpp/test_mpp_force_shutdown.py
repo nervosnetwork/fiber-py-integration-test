@@ -17,7 +17,7 @@
 #                 )
 #             except Exception as e:
 #                 pass
-#         self.fiber1.get_client().disconnect_peer({"peer_id": self.fiber2.get_peer_id()})
+#         self.fiber1.get_client().disconnect_peer({"pubkey": self.fiber2.get_pubkey()})
 #
 #     def test_000(self):
 #         self.fiber3 = self.start_new_fiber(

@@ -20,7 +20,7 @@ class TestDisconnectPeer(FiberTest):
         assert before_node_info["peers_count"] == "0x1"
 
         # Step 2: Disconnect from the peer
-        self.fiber1.get_client().disconnect_peer({"peer_id": self.fiber2.get_peer_id()})
+        self.fiber1.get_client().disconnect_peer({"pubkey": self.fiber2.get_pubkey()})
 
         # Step 3: Wait for 1 second to ensure the disconnection is processed
         time.sleep(1)
@@ -31,5 +31,7 @@ class TestDisconnectPeer(FiberTest):
 
         # Step 5: Attempt to disconnect from a non-existing peer
         self.fiber1.get_client().disconnect_peer(
-            {"peer_id": "QmNoDjLNbJujKpBorKHWPHPKoLrzND1fYtmmEVxkq35Hgp"}
+            {
+                "pubkey": "02192d74d0cb94344c9569c2e77901507e6d9cafd1cd71d2342635e11eeb0b4aaf"
+            }
         )

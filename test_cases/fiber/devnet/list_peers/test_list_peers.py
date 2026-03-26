@@ -9,17 +9,13 @@ class TestListPeers(FiberTest):
     def test_01(self):
         peer = self.fiber1.get_client().list_peers()
         assert (
-            peer["peers"][0]["pubkey"]
-            == self.fiber2.get_client().node_info()["node_id"]
+            peer["peers"][0]["pubkey"] == self.fiber2.get_client().node_info()["pubkey"]
         )
         assert (
             peer["peers"][0]["address"]
             in self.fiber2.get_client().node_info()["addresses"]
         )
-        assert (
-            peer["peers"][0]["peer_id"]
-            == self.fiber2.get_client().node_info()["addresses"][0].split("/")[-1]
-        )
+        assert len(peer["peers"][0]["pubkey"]) == 66
         # https://github.com/nervosnetwork/fiber/issues/718
         peers = self.fiber2.get_client().list_peers()
         assert len(peers["peers"][0]["address"]) != None

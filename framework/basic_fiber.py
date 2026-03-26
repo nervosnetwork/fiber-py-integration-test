@@ -272,7 +272,7 @@ class FiberTest(CkbTest):
     def wait_for_channel_state(
         self,
         client,
-        peer_id,
+        pubkey,
         expected_state,
         timeout=120,
         include_closed=False,
@@ -286,7 +286,7 @@ class FiberTest(CkbTest):
         """
         for _ in range(timeout):
             channels = client.list_channels(
-                {"peer_id": peer_id, "include_closed": include_closed}
+                {"pubkey": pubkey, "include_closed": include_closed}
             )
             if len(channels["channels"]) == 0:
                 time.sleep(1)
@@ -349,7 +349,7 @@ class FiberTest(CkbTest):
             16,
         ):
             open_channel_config = {
-                "peer_id": fiber2.get_peer_id(),
+                "pubkey": fiber2.get_pubkey(),
                 "funding_amount": hex(fiber1_balance + DEFAULT_MIN_DEPOSIT_CKB),
                 "tlc_fee_proportional_millionths": hex(fiber1_fee),
                 "public": True,
@@ -366,11 +366,11 @@ class FiberTest(CkbTest):
             )
             time.sleep(1)
             self.wait_for_channel_state(
-                fiber1.get_client(), fiber2.get_peer_id(), "CHANNEL_READY"
+                fiber1.get_client(), fiber2.get_pubkey(), "ChannelReady"
             )
             return
         open_channel_config = {
-            "peer_id": fiber2.get_peer_id(),
+            "pubkey": fiber2.get_pubkey(),
             "funding_amount": hex(
                 fiber1_balance + fiber2_balance + DEFAULT_MIN_DEPOSIT_CKB
             ),
@@ -381,12 +381,12 @@ class FiberTest(CkbTest):
         open_channel_config.update(other_config)
         fiber1.get_client().open_channel(open_channel_config)
         self.wait_for_channel_state(
-            fiber1.get_client(), fiber2.get_peer_id(), "CHANNEL_READY"
+            fiber1.get_client(), fiber2.get_pubkey(), "ChannelReady"
         )
-        channels = fiber1.get_client().list_channels({"peer_id": fiber2.get_peer_id()})
+        channels = fiber1.get_client().list_channels({"pubkey": fiber2.get_pubkey()})
         # payment = fiber1.get_client().send_payment(
         #     {
-        #         "target_pubkey": fiber2.get_client().node_info()["node_id"],
+        #         "target_pubkey": fiber2.get_client().node_info()["pubkey"],
         #         "amount": hex(fiber2_balance),
         #         "keysend": True,
         #     }
@@ -401,7 +401,7 @@ class FiberTest(CkbTest):
                 }
             )
         # self.wait_payment_state(fiber1, payment["payment_hash"], "Success")
-        # channels = fiber1.get_client().list_channels({"peer_id": fiber2.get_peer_id()})
+        # channels = fiber1.get_client().list_channels({"pubkey": fiber2.get_pubkey()})
         # assert channels["channels"][0]["local_balance"] == hex(fiber1_balance)
         # assert channels["channels"][0]["remote_balance"] == hex(fiber2_balance)
 
@@ -471,7 +471,7 @@ class FiberTest(CkbTest):
             try:
                 payment = fiber1.get_client().send_payment(
                     {
-                        "target_pubkey": fiber2.get_client().node_info()["node_id"],
+                        "target_pubkey": fiber2.get_client().node_info()["pubkey"],
                         "amount": hex(amount),
                         "keysend": True,
                         "allow_self_payment": True,
@@ -490,7 +490,7 @@ class FiberTest(CkbTest):
                 continue
         payment = fiber1.get_client().send_payment(
             {
-                "target_pubkey": fiber2.get_client().node_info()["node_id"],
+                "target_pubkey": fiber2.get_client().node_info()["pubkey"],
                 "amount": hex(amount),
                 "keysend": True,
                 "allow_self_payment": True,
@@ -592,11 +592,11 @@ class FiberTest(CkbTest):
     def get_fiber_graph_balance(self):
         """显示fiber网络中所有通道的余额信息"""
         # 初始化节点映射表
-        peer_id_map = {}
+        pubkey_map = {}
         idx = 0
         for fiber in self.fibers:
-            peer_id = fiber.get_peer_id()
-            peer_id_map[peer_id] = idx
+            pubkey = fiber.get_pubkey()
+            pubkey_map[pubkey] = idx
             idx += 1
 
         # 初始化通道映射表
@@ -609,14 +609,14 @@ class FiberTest(CkbTest):
         datas = {}
         # 遍历所有fiber节点获取通道信息
         for fiber in self.fibers:
-            peer_id = fiber.get_peer_id()
+            pubkey = fiber.get_pubkey()
             channels = fiber.get_client().list_channels({})
 
             # 遍历该节点的所有通道
             for channel in channels["channels"]:
-                remote_peer_id = channel["peer_id"]
+                remote_pubkey = channel["pubkey"]
                 # 记录通道信息到映射表
-                # channel_maps[peer_id_map[peer_id]][peer_id_map[remote_peer_id]][channel['channel_id']] = {
+                # channel_maps[pubkey_map[pubkey]][pubkey_map[remote_pubkey]][channel['channel_id']] = {
                 #     'local_balance': int(channel["local_balance"], 16),
                 #     'remote_balance': int(channel["remote_balance"], 16),
                 #     'offered_balance': int(channel["offered_tlc_balance"], 16),
@@ -625,10 +625,10 @@ class FiberTest(CkbTest):
                 #     'state': channel["state"]["state_name"]
                 # }
                 # self.logger.debug(
-                #     f"{channel['channel_id']}-{peer_id_map[peer_id]}({int(channel["local_balance"], 16)},{int(channel["offered_tlc_balance"], 16)})-{peer_id_map[remote_peer_id]}({int(channel["remote_balance"], 16)},{int(channel["received_tlc_balance"], 16)}),udt_type_script:{channel.get("funding_udt_type_script", None)}")
-                # datas.append(f"{channel['channel_id']}-{peer_id_map[peer_id]}({int(channel["local_balance"], 16)},{int(channel["offered_tlc_balance"], 16)})-{peer_id_map[remote_peer_id]}({int(channel["remote_balance"], 16)},{int(channel["received_tlc_balance"], 16)}),udt_type_script:{channel.get("funding_udt_type_script", None)}")
+                #     f"{channel['channel_id']}-{pubkey_map[pubkey]}({int(channel["local_balance"], 16)},{int(channel["offered_tlc_balance"], 16)})-{pubkey_map[remote_pubkey]}({int(channel["remote_balance"], 16)},{int(channel["received_tlc_balance"], 16)}),udt_type_script:{channel.get("funding_udt_type_script", None)}")
+                # datas.append(f"{channel['channel_id']}-{pubkey_map[pubkey]}({int(channel["local_balance"], 16)},{int(channel["offered_tlc_balance"], 16)})-{pubkey_map[remote_pubkey]}({int(channel["remote_balance"], 16)},{int(channel["received_tlc_balance"], 16)}),udt_type_script:{channel.get("funding_udt_type_script", None)}")
                 datas[channel["channel_id"]] = (
-                    f"{channel['channel_id']}-{peer_id_map[peer_id]}({int(channel['local_balance'], 16) / 100000000},{int(channel['offered_tlc_balance'], 16) / 100000000})-{peer_id_map[remote_peer_id]}({int(channel['remote_balance'], 16) / 100000000},{int(channel['received_tlc_balance'], 16) / 100000000}),udt_type_script:{channel.get('funding_udt_type_script', None)}"
+                    f"{channel['channel_id']}-{pubkey_map[pubkey]}({int(channel['local_balance'], 16) / 100000000},{int(channel['offered_tlc_balance'], 16) / 100000000})-{pubkey_map[remote_pubkey]}({int(channel['remote_balance'], 16) / 100000000},{int(channel['received_tlc_balance'], 16) / 100000000}),udt_type_script:{channel.get('funding_udt_type_script', None)}"
                 )
         for key in datas:
             self.logger.debug(f"{key}:{datas[key]}")
@@ -707,7 +707,7 @@ class FiberTest(CkbTest):
 
         for i in range(len(channels["channels"])):
             channel = channels["channels"][i]
-            if channel["state"]["state_name"] == "CHANNEL_READY":
+            if channel["state"]["state_name"] == "ChannelReady":
                 key = "ckb"
                 if channel["funding_udt_type_script"] is not None:
                     key = channel["funding_udt_type_script"]["args"]
@@ -923,7 +923,7 @@ class FiberTest(CkbTest):
             self.logger.debug(
                 f"commit_hash:{node_info['commit_hash']}",
             )
-            self.logger.debug(f"public_key:{node_info['node_id']}")
+            self.logger.debug(f"public_key:{node_info['pubkey']}")
             self.logger.debug(f"channel_count:{int(node_info['channel_count'], 16)}")
             self.logger.debug(f"peers_count:{int(node_info['peers_count'], 16)}")
             self.logger.debug(
@@ -957,8 +957,8 @@ class FiberTest(CkbTest):
                 self.logger.debug("-" * 40)
 
     def get_node_hops_info(self, fiber1, fiber2, balance, udt=None):
-        node2_id = fiber2.get_client().node_info()["node_id"]
-        channels = fiber1.get_client().list_channels({"peer_id": fiber2.get_peer_id()})
+        node2_id = fiber2.get_client().node_info()["pubkey"]
+        channels = fiber1.get_client().list_channels({"pubkey": fiber2.get_pubkey()})
         hops_info = []
         for channel in channels["channels"]:
             if channel["funding_udt_type_script"] != udt:
@@ -971,7 +971,7 @@ class FiberTest(CkbTest):
                 self.logger.debug(f"{channel['channel_outpoint']}:local_balance skip")
                 continue
             # check is true
-            if channel["state"]["state_name"] != "CHANNEL_READY":
+            if channel["state"]["state_name"] != "ChannelReady":
                 self.logger.debug(
                     f"{channel['channel_outpoint']}:channel state skip,{channel['state']['state_name']}"
                 )
@@ -996,8 +996,7 @@ class FiberTest(CkbTest):
         self.logger.debug(
             f"commit_hash:{node_info['commit_hash']}",
         )
-        self.logger.debug(f"public_key:{node_info['public_key']}")
-        self.logger.debug(f"peer_id:{node_info['peer_id']}")
+        self.logger.debug(f"pubkey:{node_info['pubkey']}")
         self.logger.debug(f"channel_count:{int(node_info['channel_count'], 16)}")
         self.logger.debug(f"peers_count:{int(node_info['peers_count'], 16)}")
         self.logger.debug(
@@ -1007,7 +1006,7 @@ class FiberTest(CkbTest):
         # 处理每个通道
         for channel in channels:
             channel_id = channel["channel_id"]
-            peer_id = channel["peer_id"]
+            pubkey = channel["pubkey"]
             state_name = channel["state"]["state_name"]
             local_balance = int(channel["local_balance"], 16) / 100000000
             offered_tlc_balance = int(channel["offered_tlc_balance"], 16) / 100000000
@@ -1020,7 +1019,7 @@ class FiberTest(CkbTest):
 
             # 打印结果
             self.logger.debug(f"Channel ID: {channel_id}")
-            self.logger.debug(f"Peer ID: {peer_id}")
+            self.logger.debug(f"Pubkey: {pubkey}")
             self.logger.debug(f"State: {state_name}")
             self.logger.debug(f"Local Balance: {local_balance}")
             self.logger.debug(f"Offered TLC Balance: {offered_tlc_balance}")

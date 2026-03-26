@@ -31,7 +31,7 @@ class TestMutilShutdown(FiberTest):
         for i in range(ckb_channel_size):
             self.fiber1.get_client().open_channel(
                 {
-                    "peer_id": self.fiber2.get_peer_id(),
+                    "pubkey": self.fiber2.get_pubkey(),
                     "funding_amount": hex(1000 * 100000000),
                     "public": True,
                     # "shutdown_script": {
@@ -42,14 +42,14 @@ class TestMutilShutdown(FiberTest):
                 }
             )
             self.wait_for_channel_state(
-                self.fiber1.get_client(), self.fiber2.get_peer_id(), "CHANNEL_READY"
+                self.fiber1.get_client(), self.fiber2.get_pubkey(), "ChannelReady"
             )
             time.sleep(1)
         # 2. Open UDT channels.
         for i in range(udt_channel_size):
             self.fiber1.get_client().open_channel(
                 {
-                    "peer_id": self.fiber2.get_peer_id(),
+                    "pubkey": self.fiber2.get_pubkey(),
                     "funding_amount": hex(200 * 100000000),
                     "public": True,
                     "funding_udt_type_script": self.get_account_udt_script(
@@ -64,7 +64,7 @@ class TestMutilShutdown(FiberTest):
             )
             time.sleep(1)
             self.wait_for_channel_state(
-                self.fiber1.get_client(), self.fiber2.get_peer_id(), "CHANNEL_READY"
+                self.fiber1.get_client(), self.fiber2.get_pubkey(), "ChannelReady"
             )
 
             # send tx

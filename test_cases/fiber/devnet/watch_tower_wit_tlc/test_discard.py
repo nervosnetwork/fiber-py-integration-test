@@ -43,8 +43,8 @@ class TestDiscard(FiberTest):
                 # self.send_payment(self.fiber3, self.fiber1,  10000000, False, udt=udt, try_count=0)
             except Exception as e:
                 pass
-        self.fiber2.get_client().disconnect_peer({"peer_id": self.fiber3.get_peer_id()})
-        self.fiber2.get_client().disconnect_peer({"peer_id": self.fiber1.get_peer_id()})
+        self.fiber2.get_client().disconnect_peer({"pubkey": self.fiber3.get_pubkey()})
+        self.fiber2.get_client().disconnect_peer({"pubkey": self.fiber1.get_pubkey()})
         list_channels = self.fiber2.get_client().list_channels({})
         for channel in list_channels["channels"]:
             self.fiber2.get_client().shutdown_channel(
@@ -96,8 +96,8 @@ class TestDiscard(FiberTest):
                 # self.send_payment(self.fiber3, self.fiber1,  10000000, False, udt=udt, try_count=0)
             except Exception as e:
                 pass
-        self.fiber2.get_client().disconnect_peer({"peer_id": self.fiber3.get_peer_id()})
-        self.fiber2.get_client().disconnect_peer({"peer_id": self.fiber1.get_peer_id()})
+        self.fiber2.get_client().disconnect_peer({"pubkey": self.fiber3.get_pubkey()})
+        self.fiber2.get_client().disconnect_peer({"pubkey": self.fiber1.get_pubkey()})
         time.sleep(1)
         list_channels = self.fiber2.get_client().list_channels({})
         for channel in list_channels["channels"]:

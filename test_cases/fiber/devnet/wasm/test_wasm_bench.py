@@ -79,7 +79,7 @@ class TestWasmBench(FiberTest):
         #     "close_script": self.get_account_script(account_private),
         #     "fee_rate": "0x3FC",
         # })
-        # self.wait_for_channel_state(wasmFiber.get_client(), self.fiber1.get_peer_id(), "CLOSED", include_closed=True)
+        # self.wait_for_channel_state(wasmFiber.get_client(), self.fiber1.get_pubkey(), "Closed", include_closed=True)
         # wasmFiber.get_client().shutdown_channel({
         #     "channel_id": wasmFiber.get_client().list_channels({})["channels"][0][
         #         "channel_id"
@@ -87,7 +87,7 @@ class TestWasmBench(FiberTest):
         #     "close_script": self.get_account_script(account_private),
         #     "fee_rate": "0x3FC",
         # })
-        # self.wait_for_channel_state(wasmFiber.get_client(), self.fiber1.get_peer_id(), "CLOSED", include_closed=True)
+        # self.wait_for_channel_state(wasmFiber.get_client(), self.fiber1.get_pubkey(), "Closed", include_closed=True)
         # assert len(wasmFiber.get_client().list_channels({})["channels"]) == 0
         # node_info0 = wasmFiber.get_client().node_info()
         #

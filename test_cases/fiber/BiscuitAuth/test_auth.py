@@ -354,7 +354,7 @@ class TestAuth(FiberTest):
         )
         #     disconnect_peer
         writePeersPermissionsFiberClient.disconnect_peer(
-            {"peer_id": self.fiber2.get_peer_id()}
+            {"pubkey": self.fiber2.get_pubkey()}
         )
         # read("peers")
         #     list_peers

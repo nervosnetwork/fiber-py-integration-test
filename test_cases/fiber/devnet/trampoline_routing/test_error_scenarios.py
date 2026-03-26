@@ -23,12 +23,12 @@ class TestErrorScenarios(FiberTest):
         with pytest.raises(Exception) as exc_info:
             payment = self.fiber1.get_client().send_payment(
                 {
-                    "target_pubkey": self.fiber3.get_client().node_info()["node_id"],
+                    "target_pubkey": self.fiber3.get_client().node_info()["pubkey"],
                     "currency": "Fibd",
                     "amount": hex(2000 * 100000000),  # 超过通道容量
                     "keysend": True,
                     "trampoline_hops": [
-                        self.fiber2.get_client().node_info()["node_id"],
+                        self.fiber2.get_client().node_info()["pubkey"],
                     ],
                 }
             )
@@ -52,13 +52,13 @@ class TestErrorScenarios(FiberTest):
         # 先发送一笔支付消耗部分容量
         payment1 = self.fiber1.get_client().send_payment(
             {
-                "target_pubkey": self.fiber4.get_client().node_info()["node_id"],
+                "target_pubkey": self.fiber4.get_client().node_info()["pubkey"],
                 "currency": "Fibd",
                 "amount": hex(30 * 100000000),
                 "keysend": True,
                 "trampoline_hops": [
-                    self.fiber2.get_client().node_info()["node_id"],
-                    self.fiber3.get_client().node_info()["node_id"],
+                    self.fiber2.get_client().node_info()["pubkey"],
+                    self.fiber3.get_client().node_info()["pubkey"],
                 ],
             }
         )
@@ -68,13 +68,13 @@ class TestErrorScenarios(FiberTest):
         with pytest.raises(Exception) as exc_info:
             payment2 = self.fiber1.get_client().send_payment(
                 {
-                    "target_pubkey": self.fiber4.get_client().node_info()["node_id"],
+                    "target_pubkey": self.fiber4.get_client().node_info()["pubkey"],
                     "currency": "Fibd",
                     "amount": hex(30 * 100000000),  # 可能超过剩余容量
                     "keysend": True,
                     "trampoline_hops": [
-                        self.fiber2.get_client().node_info()["node_id"],
-                        self.fiber3.get_client().node_info()["node_id"],
+                        self.fiber2.get_client().node_info()["pubkey"],
+                        self.fiber3.get_client().node_info()["pubkey"],
                     ],
                 }
             )
@@ -96,12 +96,12 @@ class TestErrorScenarios(FiberTest):
         with pytest.raises(Exception) as exc_info:
             payment = self.fiber1.get_client().send_payment(
                 {
-                    "target_pubkey": self.fiber4.get_client().node_info()["node_id"],
+                    "target_pubkey": self.fiber4.get_client().node_info()["pubkey"],
                     "currency": "Fibd",
                     "amount": hex(1 * 100000000),
                     "keysend": True,
                     "trampoline_hops": [
-                        self.fiber2.get_client().node_info()["node_id"],
+                        self.fiber2.get_client().node_info()["pubkey"],
                     ],
                 }
             )
@@ -128,12 +128,12 @@ class TestErrorScenarios(FiberTest):
         # 尝试通过无法到达目标的 trampoline 节点路由
         payment = self.fiber1.get_client().send_payment(
             {
-                "target_pubkey": self.fiber4.get_client().node_info()["node_id"],
+                "target_pubkey": self.fiber4.get_client().node_info()["pubkey"],
                 "currency": "Fibd",
                 "amount": hex(1 * 100000000),
                 "keysend": True,
                 "trampoline_hops": [
-                    self.fiber2.get_client().node_info()["node_id"],
+                    self.fiber2.get_client().node_info()["pubkey"],
                 ],
             }
         )
@@ -152,14 +152,12 @@ class TestErrorScenarios(FiberTest):
         with pytest.raises(Exception) as exc_info:
             payment = self.fiber1.get_client().send_payment(
                 {
-                    "target_pubkey": self.fiber3.get_client().node_info()["node_id"],
+                    "target_pubkey": self.fiber3.get_client().node_info()["pubkey"],
                     "currency": "Fibd",
                     "amount": hex(1 * 100000000),
                     "keysend": True,
                     "max_fee_amount": hex(1),  # 极低的费用预算
-                    "trampoline_hops": [
-                        self.fiber2.get_client().node_info()["node_id"]
-                    ],
+                    "trampoline_hops": [self.fiber2.get_client().node_info()["pubkey"]],
                 }
             )
         expected_error_message = "max_fee_amount is too low"
@@ -181,13 +179,13 @@ class TestErrorScenarios(FiberTest):
         with pytest.raises(Exception) as exc_info:
             payment = self.fiber1.get_client().send_payment(
                 {
-                    "target_pubkey": self.fiber3.get_client().node_info()["node_id"],
+                    "target_pubkey": self.fiber3.get_client().node_info()["pubkey"],
                     "currency": "Fibd",
                     "amount": hex(1 * 100000000),
                     "keysend": True,
                     "trampoline_hops": [
-                        self.fiber2.get_client().node_info()["node_id"],
-                        self.fiber2.get_client().node_info()["node_id"],  # 重复
+                        self.fiber2.get_client().node_info()["pubkey"],
+                        self.fiber2.get_client().node_info()["pubkey"],  # 重复
                     ],
                 }
             )
@@ -209,13 +207,13 @@ class TestErrorScenarios(FiberTest):
         with pytest.raises(Exception) as exc_info:
             payment = self.fiber1.get_client().send_payment(
                 {
-                    "target_pubkey": self.fiber3.get_client().node_info()["node_id"],
+                    "target_pubkey": self.fiber3.get_client().node_info()["pubkey"],
                     "currency": "Fibd",
                     "amount": hex(1 * 100000000),
                     "keysend": True,
                     "trampoline_hops": [
-                        self.fiber2.get_client().node_info()["node_id"],
-                        self.fiber3.get_client().node_info()["node_id"],  # 目标节点
+                        self.fiber2.get_client().node_info()["pubkey"],
+                        self.fiber3.get_client().node_info()["pubkey"],  # 目标节点
                     ],
                 }
             )
@@ -237,7 +235,7 @@ class TestErrorScenarios(FiberTest):
         with pytest.raises(Exception) as exc_info:
             payment = self.fiber1.get_client().send_payment(
                 {
-                    "target_pubkey": self.fiber3.get_client().node_info()["node_id"],
+                    "target_pubkey": self.fiber3.get_client().node_info()["pubkey"],
                     "currency": "Fibd",
                     "amount": hex(1 * 100000000),
                     "keysend": True,

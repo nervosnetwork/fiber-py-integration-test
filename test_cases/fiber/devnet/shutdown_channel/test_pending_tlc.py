@@ -70,12 +70,12 @@
 #         fiber3 = self.start_new_fiber(self.generate_account(1000))
 #         # self.open_channel(self.fiber1, self.fiber2, 1000 * 100000000, 1000 * 100000000, 1000, 1000)
 #         self.fiber1.get_client().open_channel({
-#             "peer_id": self.fiber2.get_peer_id(),
+#             "pubkey": self.fiber2.get_pubkey(),
 #             "funding_amount": hex(1000 * 100000000),
 #             "public": True,
 #             "commitment_delay_epoch": "0xa000000000000000"
 #         })
-#         self.wait_for_channel_state(self.fiber1.get_client(), self.fiber2.get_peer_id(), "CHANNEL_READY")
+#         self.wait_for_channel_state(self.fiber1.get_client(), self.fiber2.get_pubkey(), "ChannelReady")
 #         self.send_payment(self.fiber1, self.fiber2, 100 * 100000000)
 #         CHANNEL_ID = self.fiber1.get_client().list_channels({})["channels"][0]["channel_id"]
 #         # 09-node1-add-tlc1.bru
@@ -250,7 +250,7 @@
 #
 #     def test_udt_with_2tl2c(self):
 #         self.fiber1.get_client().open_channel({
-#             "peer_id": self.fiber2.get_peer_id(),
+#             "pubkey": self.fiber2.get_pubkey(),
 #             "funding_amount": hex(1000 * 100000000),
 #             "public": True,
 #             "commitment_delay_epoch": "0xa000000000000000",
@@ -259,7 +259,7 @@
 #             ),
 #         })
 #         time.sleep(1)
-#         self.wait_for_channel_state(self.fiber1.get_client(), self.fiber2.get_peer_id(), "CHANNEL_READY")
+#         self.wait_for_channel_state(self.fiber1.get_client(), self.fiber2.get_pubkey(), "ChannelReady")
 #         CHANNEL_ID = self.fiber1.get_client().list_channels({})["channels"][0]["channel_id"]
 #
 #         self.send_payment(self.fiber1, self.fiber2, 1000, True, self.get_account_udt_script(
@@ -296,7 +296,7 @@
 #     def test_udt(self):
 #         fiber3 = self.start_new_fiber(self.generate_account(1000))
 #         self.fiber1.get_client().open_channel({
-#             "peer_id": self.fiber2.get_peer_id(),
+#             "pubkey": self.fiber2.get_pubkey(),
 #             "funding_amount": hex(1000 * 100000000),
 #             "public": True,
 #             "funding_udt_type_script": self.get_account_udt_script(
@@ -304,7 +304,7 @@
 #             ),
 #         })
 #         time.sleep(1)
-#         self.wait_for_channel_state(self.fiber1.get_client(), self.fiber2.get_peer_id(), "CHANNEL_READY")
+#         self.wait_for_channel_state(self.fiber1.get_client(), self.fiber2.get_pubkey(), "ChannelReady")
 #         CHANNEL_ID = self.fiber1.get_client().list_channels({})["channels"][0]["channel_id"]
 #         tlcs = []
 #         payment_preimages = []

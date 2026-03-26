@@ -25,7 +25,7 @@ class TestCkbCell(FiberTest):
         capacity = self.Ckb_cli.wallet_get_capacity(self.account2["address"]["testnet"])
         temporary_channel_id = self.fiber2.get_client().open_channel(
             {
-                "peer_id": self.fiber1.get_peer_id(),
+                "pubkey": self.fiber1.get_pubkey(),
                 "funding_amount": hex((int(capacity) - 10) * 100000000),
                 "public": True,
                 # "tlc_fee_proportional_millionths": "0x4B0",
@@ -33,8 +33,8 @@ class TestCkbCell(FiberTest):
         )
         self.wait_for_channel_state(
             self.fiber2.get_client(),
-            self.fiber1.get_peer_id(),
-            "NEGOTIATING_FUNDING",
+            self.fiber1.get_pubkey(),
+            "NegotiatingFunding",
             120,
         )
 
@@ -73,14 +73,14 @@ class TestCkbCell(FiberTest):
         time.sleep(1)
         new_fiber.get_client().open_channel(
             {
-                "peer_id": self.fiber2.get_peer_id(),
+                "pubkey": self.fiber2.get_pubkey(),
                 "funding_amount": hex(990 * 100000000),
                 "public": True,
                 # "tlc_fee_proportional_millionths": "0x4B0",
             }
         )
         self.wait_for_channel_state(
-            new_fiber.get_client(), self.fiber2.get_peer_id(), "CHANNEL_READY", 120
+            new_fiber.get_client(), self.fiber2.get_pubkey(), "ChannelReady", 120
         )
         channels = new_fiber.get_client().graph_channels()
         assert len(channels["channels"]) == 1
@@ -118,14 +118,14 @@ class TestCkbCell(FiberTest):
         time.sleep(1)
         new_fiber.get_client().open_channel(
             {
-                "peer_id": self.fiber2.get_peer_id(),
+                "pubkey": self.fiber2.get_pubkey(),
                 "funding_amount": hex(990 * 100000000),
                 "public": True,
                 # "tlc_fee_proportional_millionths": "0x4B0",
             }
         )
         self.wait_for_channel_state(
-            new_fiber.get_client(), self.fiber2.get_peer_id(), "CHANNEL_READY", 120
+            new_fiber.get_client(), self.fiber2.get_pubkey(), "ChannelReady", 120
         )
         channels = new_fiber.get_client().graph_channels()
         assert len(channels["channels"]) == 1
@@ -157,14 +157,14 @@ class TestCkbCell(FiberTest):
         time.sleep(1)
         self.fiber2.get_client().open_channel(
             {
-                "peer_id": new_fiber.get_peer_id(),
+                "pubkey": new_fiber.get_pubkey(),
                 "funding_amount": hex(990 * 100000000),
                 "public": True,
                 # "tlc_fee_proportional_millionths": "0x4B0",
             }
         )
         self.wait_for_channel_state(
-            self.fiber2.get_client(), new_fiber.get_peer_id(), "CHANNEL_READY", 120
+            self.fiber2.get_client(), new_fiber.get_pubkey(), "ChannelReady", 120
         )
         channels = new_fiber.get_client().graph_channels()
         assert len(channels["channels"]) == 1
@@ -172,7 +172,7 @@ class TestCkbCell(FiberTest):
             990 * 100000000 - DEFAULT_MIN_DEPOSIT_CKB
         )
         node3_info = new_fiber.get_client().node_info()
-        fiber3_pub = node3_info["node_id"]
+        fiber3_pub = node3_info["pubkey"]
         payment = self.fiber2.get_client().send_payment(
             {
                 "target_pubkey": fiber3_pub,
@@ -196,14 +196,14 @@ class TestCkbCell(FiberTest):
         time.sleep(1)
         self.fiber2.get_client().open_channel(
             {
-                "peer_id": new_fiber.get_peer_id(),
+                "pubkey": new_fiber.get_pubkey(),
                 "funding_amount": hex(990 * 100000000),
                 "public": True,
                 # "tlc_fee_proportional_millionths": "0x4B0",
             }
         )
         self.wait_for_channel_state(
-            self.fiber2.get_client(), new_fiber.get_peer_id(), "CHANNEL_READY", 120
+            self.fiber2.get_client(), new_fiber.get_pubkey(), "ChannelReady", 120
         )
         channels = new_fiber.get_client().graph_channels()
         assert len(channels["channels"]) == 1
@@ -211,7 +211,7 @@ class TestCkbCell(FiberTest):
             990 * 100000000 - DEFAULT_MIN_DEPOSIT_CKB
         )
         node3_info = new_fiber.get_client().node_info()
-        fiber3_pub = node3_info["node_id"]
+        fiber3_pub = node3_info["pubkey"]
         payment = self.fiber2.get_client().send_payment(
             {
                 "target_pubkey": fiber3_pub,
@@ -238,22 +238,22 @@ class TestCkbCell(FiberTest):
         for i in range(open_count):
             self.new_fibers[i].get_client().open_channel(
                 {
-                    "peer_id": self.fiber2.get_peer_id(),
+                    "pubkey": self.fiber2.get_pubkey(),
                     "funding_amount": hex(200 * 100000000),
                     "public": True,
                 }
             )
             self.wait_for_channel_state(
                 self.new_fibers[i].get_client(),
-                self.fiber2.get_peer_id(),
-                "CHANNEL_READY",
+                self.fiber2.get_pubkey(),
+                "ChannelReady",
                 120,
             )
         for i in range(open_count):
             self.wait_for_channel_state(
                 self.new_fibers[i].get_client(),
-                self.fiber2.get_peer_id(),
-                "CHANNEL_READY",
+                self.fiber2.get_pubkey(),
+                "ChannelReady",
                 120,
             )
         send_payment_count = 10
@@ -286,7 +286,7 @@ class TestCkbCell(FiberTest):
             for i in range(open_count):
                 self.wait_for_channel_state(
                     self.new_fibers[i].get_client(),
-                    self.fiber2.get_peer_id(),
-                    "CHANNEL_READY",
+                    self.fiber2.get_pubkey(),
+                    "ChannelReady",
                     120,
                 )
