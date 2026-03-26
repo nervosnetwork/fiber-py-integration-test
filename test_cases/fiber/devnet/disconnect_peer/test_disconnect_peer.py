@@ -1,5 +1,7 @@
 import time
 
+import pytest
+
 from framework.basic_fiber import FiberTest
 
 
@@ -30,8 +32,14 @@ class TestDisconnectPeer(FiberTest):
         assert after_node_info["peers_count"] == "0x0"
 
         # Step 5: Attempt to disconnect from a non-existing peer
-        self.fiber1.get_client().disconnect_peer(
-            {
-                "pubkey": "02192d74d0cb94344c9569c2e77901507e6d9cafd1cd71d2342635e11eeb0b4aaf"
-            }
+        with pytest.raises(Exception) as exc_info:
+            self.fiber1.get_client().disconnect_peer(
+                {
+                    "pubkey": "02192d74d0cb94344c9569c2e77901507e6d9cafd1cd71d2342635e11eeb0b4aaf"
+                }
+            )
+        expected_error_message = "is not connected"
+        assert expected_error_message in exc_info.value.args[0], (
+            f"Expected substring '{expected_error_message}' "
+            f"not found in actual string '{exc_info.value.args[0]}'"
         )

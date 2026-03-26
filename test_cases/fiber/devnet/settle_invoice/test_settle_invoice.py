@@ -485,7 +485,7 @@ class TestSettleInvoice(FiberTest):
         assert fiber1_payment["status"] != fiber3_payment["status"]
 
     def test_cancel_invoice(self):
-        # self.open_channel(self.fiber1,self.fiber2, 1000 * 100000000, 1000 * 100000000)
+        self.open_channel(self.fiber1,self.fiber2, 1000 * 100000000, 1000 * 100000000)
         preimage = self.generate_random_preimage()
         payment_hash = sha256_hex(preimage)
         invoice = self.fiber2.get_client().new_invoice(
@@ -502,7 +502,8 @@ class TestSettleInvoice(FiberTest):
         )
         before_balance = self.get_fiber_balance(self.fiber2)
         time.sleep(1)
-        assert fiber1_payment["ckb"] == {
+        print("balance:", before_balance)
+        assert before_balance["ckb"] == {
             "local_balance": 100000000000,
             "offered_tlc_balance": 0,
             "received_tlc_balance": 100000000,
@@ -514,6 +515,7 @@ class TestSettleInvoice(FiberTest):
         )
         time.sleep(5)
         balance = self.get_fiber_balance(self.fiber2)
+        print("balance:", balance)
         assert balance["ckb"] == {
             "local_balance": 100000000000,
             "offered_tlc_balance": 0,

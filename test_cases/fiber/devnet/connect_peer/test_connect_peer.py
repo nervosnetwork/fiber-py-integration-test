@@ -32,7 +32,7 @@ class TestConnectPeer(FiberTest):
             .replace("0。0.0.0", "127.0.0.1")
         )  # full-width period in some configs
         self.fiber1.get_client().connect_peer({"address": addr, "save": True})
-
+        time.sleep(5)
         # Step 2: Disconnect
         self.fiber1.get_client().disconnect_peer({"pubkey": self.fiber2.get_pubkey()})
         # time.sleep(5)

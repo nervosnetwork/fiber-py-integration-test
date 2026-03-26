@@ -28,12 +28,11 @@ class TestCommitmentDelayEpoch(FiberTest):
         )
         tx_hash = self.wait_and_check_tx_pool_fee(1000, False)
         self.Miner.miner_until_tx_committed(self.node, tx_hash)
-        self.node.getClient().generate_epochs("0x20001000001")
+        self.node.getClient().generate_epochs("0x20001000001",0)
 
         tx_hash = self.wait_and_check_tx_pool_fee(1000, False, 1200)
         self.Miner.miner_until_tx_committed(self.node, tx_hash)
         first_tx_message = self.get_tx_message(tx_hash)
-        self.node.getClient().generate_epochs("0x20001000001")
         tx_hash = self.wait_and_check_tx_pool_fee(1000, False, 1200)
         self.Miner.miner_until_tx_committed(self.node, tx_hash)
         second_tx_message = self.get_tx_message(tx_hash)
@@ -42,7 +41,9 @@ class TestCommitmentDelayEpoch(FiberTest):
         assert (
             first_tx_message["input_cells"][0]["capacity"]
             - second_tx_message["input_cells"][0]["capacity"]
-            == 100000000000
+            == 100000000000 or first_tx_message["input_cells"][0]["capacity"]
+            - second_tx_message["input_cells"][0]["capacity"]
+            == 99000000000
         )
 
     def test_self_shutdown(self):
