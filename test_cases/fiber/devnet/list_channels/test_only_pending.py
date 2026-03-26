@@ -761,8 +761,7 @@ class TestListChannelsOnlyPending(FiberTest):
 
         for fc in failed_after:
             assert fc["state"]["state_flags"] in (
-                "Abandoned",
-                "FundingAborted",
+                "FUNDING_ABORTED",
             ), f"Unexpected close flag after restart: {fc['state']['state_flags']}"
             assert (
                 fc["failure_detail"] is not None
