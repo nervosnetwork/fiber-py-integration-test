@@ -106,15 +106,15 @@ class FiberCchTest(FiberTest):
         cls.btcNode.clean()
 
     def wait_cch_order_state(
-        self, client, payment_hash, status="succeeded", timeout=360, interval=1
+        self, client, payment_hash, status="Success", timeout=360, interval=1
     ):
         """
         Enum with values of
             Pending - Order is created and has not send out payments yet.
             IncomingAccepted - HTLC in the incoming payment is accepted.
             OutgoingInFlight - There's an outgoing payment in flight.
-            OutgoingSettled - The outgoing payment is settled.
-            Succeeded - Both payments are settled and the order succeeds.
+            OutgoingSuccess - The outgoing payment is settled.
+            Success - Both payments are settled and the order succeeds.
             Failed - Order is failed.
         Args:
             client:
@@ -129,7 +129,7 @@ class FiberCchTest(FiberTest):
             result = client.get_client().get_cch_order({"payment_hash": payment_hash})
             if result["status"] == status:
                 return
-            if result["status"] == "Failed" or result["status"] == "Succeeded":
+            if result["status"] == "Failed" or result["status"] == "Success":
                 raise Exception(f"payment failed, reason:{result['status']}")
             time.sleep(interval)
         raise TimeoutError(

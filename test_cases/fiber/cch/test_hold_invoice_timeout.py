@@ -72,4 +72,4 @@ class HoldInvoiceTimeout(FiberCchTest):
         assert invoice["state"] == "SETTLED"
         time.sleep(5)
         order = self.fiber1.get_client().get_cch_order({"payment_hash": payment_hash})
-        assert order["status"] == "Succeeded"
+        assert order["status"] == "Success"

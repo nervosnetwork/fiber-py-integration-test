@@ -340,7 +340,7 @@ class TestReceiveBtc(FiberCchTest):
         )
         self.LNDs[1].payinvoice(receive_btc_result["incoming_invoice"]["Lightning"])
         self.wait_cch_order_state(
-            self.fiber1, receive_btc_result["payment_hash"], "Succeeded"
+            self.fiber1, receive_btc_result["payment_hash"], "Success"
         )
         time.sleep(1)
         # check balance
