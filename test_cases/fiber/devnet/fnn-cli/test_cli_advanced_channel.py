@@ -36,7 +36,7 @@ class TestCliAdvancedChannel(FiberTest):
 
         # Poll acceptor's RPC until the pending channel appears
         rpc_client = FiberRPCClient(cli_acceptor.rpc_url)
-        for _ in range(120):  # up to 60s
+        for _ in range(120):  # up to ~60s sleep + RPC overhead
             try:
                 channels = rpc_client.list_channels({"include_closed": False})
                 pending = [
@@ -52,7 +52,7 @@ class TestCliAdvancedChannel(FiberTest):
 
         # Now attempt accept_channel via CLI with retries
         last_exc = None
-        for _ in range(120):  # increased from 60 to 120 (~63s total)
+        for _ in range(120):  # ~60s accept retry; total method timeout ~123s
             try:
                 return cli_acceptor.accept_channel(
                     temporary_channel_id=temporary_channel_id,
