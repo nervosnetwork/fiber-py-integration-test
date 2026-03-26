@@ -25,16 +25,34 @@ class TestCliAdvancedChannel(FiberTest):
     ):
         """Call accept_channel after the acceptor has registered the pending open.
 
-        Same timing as accept_channel/test_max_tlc_number_in_flight_debug.py:
-        RPC open_channel then time.sleep(1) then accept_channel. Here open is via
-        CLI on the initiator; the acceptor only has the temp id after P2P delivery.
-        Polling list_channels(only_pending) on the acceptor is unreliable (CLI/JSON
-        shape may not match temporary_channel_id), so we sleep like the debug test
-        then retry accept on 'No channel with temp id' until success or timeout.
+        First polls the acceptor's RPC list_channels until the pending channel
+        appears (NegotiatingFunding state), then retries accept_channel via CLI.
+        This is more reliable than blind retries in CI where P2P delivery may
+        take longer than expected.
         """
-        time.sleep(1)
+        from framework.fiber_rpc import FiberRPCClient
+
+        time.sleep(3)  # increased from 1s: give P2P message more time to propagate
+
+        # Poll acceptor's RPC until the pending channel appears
+        rpc_client = FiberRPCClient(cli_acceptor.rpc_url)
+        for _ in range(120):  # up to 60s
+            try:
+                channels = rpc_client.list_channels({"include_closed": False})
+                pending = [
+                    ch
+                    for ch in channels.get("channels", [])
+                    if ch.get("state", {}).get("state_name") == "NegotiatingFunding"
+                ]
+                if pending:
+                    break
+            except Exception:
+                pass
+            time.sleep(0.5)
+
+        # Now attempt accept_channel via CLI with retries
         last_exc = None
-        for _ in range(60):  # ~30s total with 0.5s backoff
+        for _ in range(120):  # increased from 60 to 120 (~63s total)
             try:
                 return cli_acceptor.accept_channel(
                     temporary_channel_id=temporary_channel_id,
