@@ -1,10 +1,10 @@
 import pytest
 
-from framework.basic_fiber import FiberTest
+from framework.basic_share_fiber import SharedFiberTest
 from framework.fnn_cli import FnnCli
 
 
-class TestCliInfo(FiberTest):
+class TestCliInfo(SharedFiberTest):
     """Verify that `fnn-cli info node_info` returns the same data as the RPC."""
 
     def test_node_info_json(self):

@@ -1,16 +1,69 @@
-import time
-
 import pytest
 
 from framework.basic_fiber import FiberTest
+from framework.basic_share_fiber import SharedFiberTest
 from framework.fnn_cli import FnnCli
 
 
-class TestCliErrorHandling(FiberTest):
-    """Systematic error-handling tests for fnn-cli commands.
+class TestCliErrorHandlingWithChannel(SharedFiberTest):
+    """Error-handling tests that require an open channel."""
 
-    Validates that invalid inputs, missing required arguments, and operations
-    on non-existent resources produce proper error messages via the CLI.
+    def setUp(self):
+        """One-time channel setup, guarded by _channel_inited flag."""
+        if getattr(TestCliErrorHandlingWithChannel, "_channel_inited", False):
+            return
+        TestCliErrorHandlingWithChannel._channel_inited = True
+
+        # Open channel between fiber1 and fiber2
+        self.open_channel(self.fiber1, self.fiber2, 200 * 100000000, 100 * 100000000)
+
+    # ───────────────────────────────────────────────
+    # channel - abandon (requires channel)
+    # ───────────────────────────────────────────────
+
+    def test_abandon_ready_channel(self):
+        """Abandoning a CHANNEL_READY channel should fail (already funded)."""
+        cli = FnnCli(f"http://127.0.0.1:{self.fiber1.rpc_port}")
+        channels = cli.list_channels()
+        channel_id = channels["channels"][0]["channel_id"]
+        with pytest.raises(Exception):
+            cli.abandon_channel(channel_id)
+
+    # ───────────────────────────────────────────────
+    # payment (requires channel)
+    # ───────────────────────────────────────────────
+
+    def test_send_payment_amount_exceeds_balance(self):
+        """Payment amount larger than channel balance should fail."""
+        cli = FnnCli(f"http://127.0.0.1:{self.fiber1.rpc_port}")
+        target_pubkey = self.fiber2.get_client().node_info()["pubkey"]
+        with pytest.raises(Exception):
+            cli.send_payment(
+                target_pubkey=target_pubkey,
+                amount=999 * 100000000,
+                keysend=True,
+                allow_self_payment=True,
+                timeout=5,
+            )
+
+    def test_send_payment_to_self_without_flag(self):
+        """Sending to self without allow_self_payment should fail."""
+        cli = FnnCli(f"http://127.0.0.1:{self.fiber1.rpc_port}")
+        target_pubkey = self.fiber1.get_client().node_info()["pubkey"]
+        with pytest.raises(Exception):
+            cli.send_payment(
+                target_pubkey=target_pubkey,
+                amount=1 * 100000000,
+                keysend=True,
+                timeout=5,
+            )
+
+
+class TestCliErrorHandlingNoChannel(SharedFiberTest):
+    """Error-handling tests that require a clean environment (no channels).
+
+    These tests validate error messages for operations on non-existent resources
+    or require the node to have no open channels.
     """
 
     # ───────────────────────────────────────────────
@@ -76,7 +129,7 @@ class TestCliErrorHandling(FiberTest):
             )
 
     # ───────────────────────────────────────────────
-    # channel - list
+    # channel - list (requires no channel)
     # ───────────────────────────────────────────────
 
     def test_list_channels_no_channels(self):
@@ -121,15 +174,6 @@ class TestCliErrorHandling(FiberTest):
         fake_channel_id = "0x" + "ef" * 32
         with pytest.raises(Exception):
             cli.abandon_channel(fake_channel_id)
-
-    def test_abandon_ready_channel(self):
-        """Abandoning a CHANNEL_READY channel should fail (already funded)."""
-        self.open_channel(self.fiber1, self.fiber2, 200 * 100000000, 100 * 100000000)
-        cli = FnnCli(f"http://127.0.0.1:{self.fiber1.rpc_port}")
-        channels = cli.list_channels()
-        channel_id = channels["channels"][0]["channel_id"]
-        with pytest.raises(Exception):
-            cli.abandon_channel(channel_id)
 
     # ───────────────────────────────────────────────
     # invoice
@@ -202,35 +246,8 @@ class TestCliErrorHandling(FiberTest):
                 timeout=5,
             )
 
-    def test_send_payment_amount_exceeds_balance(self):
-        """Payment amount larger than channel balance should fail."""
-        self.open_channel(self.fiber1, self.fiber2, 200 * 100000000, 100 * 100000000)
-        cli = FnnCli(f"http://127.0.0.1:{self.fiber1.rpc_port}")
-        target_pubkey = self.fiber2.get_client().node_info()["pubkey"]
-        with pytest.raises(Exception):
-            cli.send_payment(
-                target_pubkey=target_pubkey,
-                amount=999 * 100000000,
-                keysend=True,
-                allow_self_payment=True,
-                timeout=5,
-            )
-
-    def test_send_payment_to_self_without_flag(self):
-        """Sending to self without allow_self_payment should fail."""
-        self.open_channel(self.fiber1, self.fiber2, 200 * 100000000, 100 * 100000000)
-        cli = FnnCli(f"http://127.0.0.1:{self.fiber1.rpc_port}")
-        target_pubkey = self.fiber1.get_client().node_info()["pubkey"]
-        with pytest.raises(Exception):
-            cli.send_payment(
-                target_pubkey=target_pubkey,
-                amount=1 * 100000000,
-                keysend=True,
-                timeout=5,
-            )
-
     # ───────────────────────────────────────────────
-    # graph
+    # graph (requires no channel for empty checks)
     # ───────────────────────────────────────────────
 
     def test_graph_nodes_empty_before_channel(self):

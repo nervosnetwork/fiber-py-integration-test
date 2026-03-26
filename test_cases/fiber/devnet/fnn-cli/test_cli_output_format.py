@@ -3,11 +3,11 @@ import json
 import yaml
 import pytest
 
-from framework.basic_fiber import FiberTest
+from framework.basic_share_fiber import SharedFiberTest
 from framework.fnn_cli import FnnCli
 
 
-class TestCliOutputFormat(FiberTest):
+class TestCliOutputFormat(SharedFiberTest):
     """Test CLI output format options: json, yaml, and raw-data."""
 
     def test_json_output_is_valid_json(self):

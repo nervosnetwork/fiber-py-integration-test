@@ -1,25 +1,31 @@
+import hashlib
 import time
 
 import pytest
 
-from framework.basic_fiber import FiberTest
+from framework.basic_share_fiber import SharedFiberTest
 from framework.fnn_cli import FnnCli
 
 
-class TestCliSettleInvoice(FiberTest):
+class TestCliSettleInvoice(SharedFiberTest):
     """Test settle_invoice command via fnn-cli.
 
     settle_invoice requires a hold invoice (created with payment_hash only,
     no preimage) that has received a payment, then is settled using the preimage.
     """
 
-    def test_settle_invoice_via_cli(self):
-        """Create hold invoice via RPC, pay it, then settle via CLI."""
+    def setUp(self):
+        """One-time channel setup, guarded by _channel_inited flag."""
+        if getattr(TestCliSettleInvoice, "_channel_inited", False):
+            return
+        TestCliSettleInvoice._channel_inited = True
+
+        # Open channel between fiber1 and fiber2
         self.open_channel(self.fiber1, self.fiber2, 200 * 100000000, 100 * 100000000)
 
+    def test_settle_invoice_via_cli(self):
+        """Create hold invoice via RPC, pay it, then settle via CLI."""
         preimage = self.generate_random_preimage()
-        import hashlib
-
         payment_hash = "0x" + hashlib.sha256(bytes.fromhex(preimage[2:])).hexdigest()
 
         invoice = self.fiber2.get_client().new_invoice(
@@ -52,11 +58,7 @@ class TestCliSettleInvoice(FiberTest):
 
     def test_settle_invoice_cli_vs_rpc_consistency(self):
         """Verify that settle_invoice via CLI produces the same invoice state as RPC."""
-        self.open_channel(self.fiber1, self.fiber2, 200 * 100000000, 100 * 100000000)
-
         preimage = self.generate_random_preimage()
-        import hashlib
-
         payment_hash = "0x" + hashlib.sha256(bytes.fromhex(preimage[2:])).hexdigest()
 
         invoice = self.fiber2.get_client().new_invoice(
@@ -89,10 +91,7 @@ class TestCliSettleInvoice(FiberTest):
 
     def test_settle_invoice_wrong_preimage(self):
         """Settling with wrong preimage should fail."""
-        self.open_channel(self.fiber1, self.fiber2, 200 * 100000000, 100 * 100000000)
-
         preimage = self.generate_random_preimage()
-        import hashlib
 
         payment_hash = "0x" + hashlib.sha256(bytes.fromhex(preimage[2:])).hexdigest()
 

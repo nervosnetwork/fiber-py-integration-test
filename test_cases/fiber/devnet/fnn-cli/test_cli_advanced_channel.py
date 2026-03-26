@@ -2,12 +2,12 @@ import time
 
 import pytest
 
-from framework.basic_fiber import FiberTest
+from framework.basic_share_fiber import SharedFiberTest
 from framework.config import DEFAULT_MIN_DEPOSIT_CKB
 from framework.fnn_cli import FnnCli
 
 
-class TestCliAdvancedChannel(FiberTest):
+class TestCliAdvancedChannel(SharedFiberTest):
     """Test advanced channel CLI commands: open with extra params,
     force close, only-pending filter, accept_channel, and update enabled."""
 
@@ -25,49 +25,36 @@ class TestCliAdvancedChannel(FiberTest):
     ):
         """Call accept_channel after the acceptor has registered the pending open.
 
-        First polls the acceptor's RPC list_channels until the pending channel
-        appears (NegotiatingFunding state), then retries accept_channel via CLI.
-        This is more reliable than blind retries in CI where P2P delivery may
-        take longer than expected.
+        Polls the acceptor's CLI list_channels(only_pending=True) until the
+        temporary_channel_id appears, then calls accept_channel. Raises error
+        if the channel is not found within timeout.
         """
-        from framework.fiber_rpc import FiberRPCClient
-
-        time.sleep(3)  # increased from 1s: give P2P message more time to propagate
-
-        # Poll acceptor's RPC until the pending channel appears
-        rpc_client = FiberRPCClient(cli_acceptor.rpc_url)
-        for _ in range(120):  # up to ~60s sleep + RPC overhead
+        # Poll acceptor's CLI until the pending channel with matching temp_id appears
+        found = False
+        for _ in range(20):  # up to ~10s
             try:
-                channels = rpc_client.list_channels({"include_closed": False})
-                pending = [
-                    ch
-                    for ch in channels.get("channels", [])
-                    if ch.get("state", {}).get("state_name") == "NegotiatingFunding"
-                ]
-                if pending:
+                pending_channels = cli_acceptor.list_channels(only_pending=True)
+                for ch in pending_channels.get("channels", []):
+                    if ch.get("channel_id") == temporary_channel_id:
+                        found = True
+                        break
+                if found:
                     break
             except Exception:
                 pass
             time.sleep(0.5)
 
-        # Now attempt accept_channel via CLI with retries
-        last_exc = None
-        for _ in range(120):  # ~60s accept retry; total method timeout ~123s
-            try:
-                return cli_acceptor.accept_channel(
-                    temporary_channel_id=temporary_channel_id,
-                    funding_amount=funding_amount,
-                    **kwargs,
-                )
-            except Exception as e:
-                last_exc = e
-                err = str(e).lower()
-                if "no channel with temp id" not in err and "temp id" not in err:
-                    raise
-                time.sleep(0.5)
-        if last_exc:
-            raise last_exc
-        raise RuntimeError("accept_channel retry exhausted")
+        if not found:
+            raise RuntimeError(
+                f"temporary_channel_id {temporary_channel_id} not found in pending channels"
+            )
+
+        # Channel found, call accept_channel
+        return cli_acceptor.accept_channel(
+            temporary_channel_id=temporary_channel_id,
+            funding_amount=funding_amount,
+            **kwargs,
+        )
 
     # ───────────────────────────────────────────────
     # open_channel with advanced parameters

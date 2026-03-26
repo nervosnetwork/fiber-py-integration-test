@@ -2,11 +2,11 @@ import time
 
 import pytest
 
-from framework.basic_fiber import FiberTest
+from framework.basic_share_fiber import SharedFiberTest
 from framework.fnn_cli import FnnCli
 
 
-class TestCliPeer(FiberTest):
+class TestCliPeer(SharedFiberTest):
     """Test peer management commands via fnn-cli."""
 
     def test_list_peers(self):

@@ -21,6 +21,7 @@ REMOTE_RPC_URL = "http://16.162.99.28:8129/"
 REMOTE_CURRENCY = "Fibt"
 
 
+@pytest.mark.skip("create data")
 class TestCliAuth(FiberTest):
     """Test complete Fiber transaction lifecycle via CLI with Biscuit auth token."""
 

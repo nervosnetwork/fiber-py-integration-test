@@ -39,7 +39,6 @@ class TestTuiDataGenerator(FiberTest):
         )
 
     def test_generate_tui_data(self):
-        self.debug = True
 
         # ── Fund both nodes with CKB and UDT ───────────────────────
         self.faucet(

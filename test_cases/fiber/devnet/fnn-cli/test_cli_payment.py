@@ -1,18 +1,21 @@
-import time
-
-import pytest
-
-from framework.basic_fiber import FiberTest
+from framework.basic_share_fiber import SharedFiberTest
 from framework.fnn_cli import FnnCli
 
 
-class TestCliPayment(FiberTest):
+class TestCliPayment(SharedFiberTest):
     """Test payment and list_payments commands via fnn-cli."""
+
+    def setUp(self):
+        """One-time channel setup, guarded by _channel_inited flag."""
+        if getattr(TestCliPayment, "_channel_inited", False):
+            return
+        TestCliPayment._channel_inited = True
+
+        # Open channel between fiber1 and fiber2
+        self.open_channel(self.fiber1, self.fiber2, 200 * 100000000, 100 * 100000000)
 
     def test_send_keysend_payment_via_cli(self):
         """Open channel, send keysend payment via CLI, verify success."""
-        self.open_channel(self.fiber1, self.fiber2, 200 * 100000000, 100 * 100000000)
-
         cli1 = FnnCli(f"http://127.0.0.1:{self.fiber1.rpc_port}")
         target_pubkey = self.fiber2.get_client().node_info()["pubkey"]
 
@@ -31,8 +34,6 @@ class TestCliPayment(FiberTest):
 
     def test_send_invoice_payment_via_cli(self):
         """Create invoice via RPC on fiber2, pay it via CLI on fiber1."""
-        self.open_channel(self.fiber1, self.fiber2, 200 * 100000000, 100 * 100000000)
-
         preimage = self.generate_random_preimage()
         invoice = self.fiber2.get_client().new_invoice(
             {
@@ -52,7 +53,6 @@ class TestCliPayment(FiberTest):
 
     def test_get_payment_via_cli(self):
         """Send payment via RPC, retrieve status via CLI."""
-        self.open_channel(self.fiber1, self.fiber2, 200 * 100000000, 100 * 100000000)
         payment_hash = self.send_payment(self.fiber1, self.fiber2, 10 * 100000000)
 
         cli1 = FnnCli(f"http://127.0.0.1:{self.fiber1.rpc_port}")
@@ -62,8 +62,6 @@ class TestCliPayment(FiberTest):
 
     def test_list_payments_basic(self):
         """Send multiple payments, then list them via CLI."""
-        self.open_channel(self.fiber1, self.fiber2, 200 * 100000000, 100 * 100000000)
-
         hashes = []
         for _ in range(3):
             h = self.send_payment(self.fiber1, self.fiber2, 1 * 100000000)
@@ -80,7 +78,6 @@ class TestCliPayment(FiberTest):
 
     def test_list_payments_with_status_filter(self):
         """Filter list_payments by Success status."""
-        self.open_channel(self.fiber1, self.fiber2, 200 * 100000000, 100 * 100000000)
         self.send_payment(self.fiber1, self.fiber2, 1 * 100000000)
 
         cli1 = FnnCli(f"http://127.0.0.1:{self.fiber1.rpc_port}")
@@ -91,8 +88,6 @@ class TestCliPayment(FiberTest):
 
     def test_list_payments_with_limit(self):
         """Verify limit parameter restricts result count."""
-        self.open_channel(self.fiber1, self.fiber2, 200 * 100000000, 100 * 100000000)
-
         for _ in range(5):
             self.send_payment(self.fiber1, self.fiber2, 1 * 100000000)
 
@@ -103,8 +98,6 @@ class TestCliPayment(FiberTest):
 
     def test_list_payments_pagination(self):
         """Test pagination via the after cursor."""
-        self.open_channel(self.fiber1, self.fiber2, 200 * 100000000, 100 * 100000000)
-
         for _ in range(5):
             self.send_payment(self.fiber1, self.fiber2, 1 * 100000000)
 
@@ -123,7 +116,6 @@ class TestCliPayment(FiberTest):
 
     def test_list_payments_rpc_vs_cli(self):
         """CLI list_payments should return same data as RPC list_payments."""
-        self.open_channel(self.fiber1, self.fiber2, 200 * 100000000, 100 * 100000000)
         self.send_payment(self.fiber1, self.fiber2, 2 * 100000000)
 
         cli1 = FnnCli(f"http://127.0.0.1:{self.fiber1.rpc_port}")
@@ -143,7 +135,11 @@ class TestCliPayment(FiberTest):
 
     def test_send_payment_dry_run_via_cli(self):
         """Dry-run payment should not actually transfer funds."""
-        self.open_channel(self.fiber1, self.fiber2, 200 * 100000000, 100 * 100000000)
+        # Record balance before dry_run
+        channels_before = self.fiber1.get_client().list_channels(
+            {"pubkey": self.fiber2.get_pubkey()}
+        )
+        local_balance_before = int(channels_before["channels"][0]["local_balance"], 16)
 
         cli1 = FnnCli(f"http://127.0.0.1:{self.fiber1.rpc_port}")
         target_pubkey = self.fiber2.get_client().node_info()["pubkey"]
@@ -158,8 +154,9 @@ class TestCliPayment(FiberTest):
         assert result is not None
         assert "payment_hash" in result
 
-        channels = self.fiber1.get_client().list_channels(
+        # Verify balance unchanged after dry_run
+        channels_after = self.fiber1.get_client().list_channels(
             {"pubkey": self.fiber2.get_pubkey()}
         )
-        local_balance = int(channels["channels"][0]["local_balance"], 16)
-        assert local_balance == 200 * 100000000
+        local_balance_after = int(channels_after["channels"][0]["local_balance"], 16)
+        assert local_balance_after == local_balance_before

@@ -2,11 +2,11 @@ import time
 
 import pytest
 
-from framework.basic_fiber import FiberTest
+from framework.basic_share_fiber import SharedFiberTest
 from framework.fnn_cli import FnnCli
 
 
-class TestCliInvoice(FiberTest):
+class TestCliInvoice(SharedFiberTest):
     """Test invoice commands via fnn-cli."""
 
     def test_new_invoice_and_parse(self):

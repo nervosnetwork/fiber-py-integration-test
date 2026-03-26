@@ -1,25 +1,32 @@
 import time
 
-import pytest
-
-from framework.basic_fiber import FiberTest
+from framework.basic_share_fiber import SharedFiberTest
 from framework.fnn_cli import FnnCli
+from framework.test_fiber import Fiber
 
 
-class TestCliMultiHop(FiberTest):
+class TestCliMultiHop(SharedFiberTest):
     """Test multi-hop payment routing via fnn-cli (3-node topology).
 
     Topology: fiber1 <-> fiber2 <-> fiber3
     Payments: fiber1 -> fiber3 (routed through fiber2)
     """
 
-    def setup_three_node_topology(self):
-        """Set up a 3-node linear topology with channels: f1-f2 and f2-f3."""
+    fiber3: Fiber
+
+    def setUp(self):
+        """One-time 3-node topology setup, guarded by _channel_inited flag."""
+        if getattr(TestCliMultiHop, "_channel_inited", False):
+            return
+        TestCliMultiHop._channel_inited = True
+
+        # Create fiber3 and connect to fiber2
         account3 = self.generate_account(10000)
-        self.fiber3 = self.start_new_fiber(account3)
+        self.__class__.fiber3 = self.start_new_fiber(account3)
         self.fiber3.connect_peer(self.fiber2)
         time.sleep(1)
 
+        # Build topology: fiber1 <-> fiber2 <-> fiber3
         self.open_channel(self.fiber1, self.fiber2, 1000 * 100000000, 1000 * 100000000)
         self.open_channel(self.fiber2, self.fiber3, 1000 * 100000000, 1000 * 100000000)
 
@@ -31,8 +38,6 @@ class TestCliMultiHop(FiberTest):
 
     def test_keysend_multi_hop_via_cli(self):
         """Send keysend from fiber1 to fiber3 (routed through fiber2) via CLI."""
-        self.setup_three_node_topology()
-
         cli1 = FnnCli(f"http://127.0.0.1:{self.fiber1.rpc_port}")
         target_pubkey = self.fiber3.get_client().node_info()["pubkey"]
 
@@ -55,8 +60,6 @@ class TestCliMultiHop(FiberTest):
 
     def test_invoice_payment_multi_hop_via_cli(self):
         """Create invoice on fiber3, pay from fiber1 via CLI (routed through fiber2)."""
-        self.setup_three_node_topology()
-
         cli3 = FnnCli(f"http://127.0.0.1:{self.fiber3.rpc_port}")
         preimage = self.generate_random_preimage()
         invoice_result = cli3.new_invoice(
@@ -80,8 +83,6 @@ class TestCliMultiHop(FiberTest):
 
     def test_build_router_multi_hop_via_cli(self):
         """Build a 2-hop router via CLI: fiber1 -> fiber2 -> fiber3."""
-        self.setup_three_node_topology()
-
         graph_channels = self.fiber1.get_client().graph_channels({})
         assert len(graph_channels["channels"]) >= 2
 
@@ -115,8 +116,6 @@ class TestCliMultiHop(FiberTest):
 
     def test_send_payment_with_router_multi_hop_keysend(self):
         """Build router for 2-hop path, send keysend via CLI."""
-        self.setup_three_node_topology()
-
         graph_channels = self.fiber1.get_client().graph_channels({})
         fiber2_pubkey = self.fiber2.get_client().node_info()["pubkey"]
         fiber3_pubkey = self.fiber3.get_client().node_info()["pubkey"]
@@ -147,8 +146,6 @@ class TestCliMultiHop(FiberTest):
 
     def test_send_payment_with_router_multi_hop_invoice(self):
         """Build router for 2-hop path, pay invoice on fiber3 via CLI."""
-        self.setup_three_node_topology()
-
         preimage = self.generate_random_preimage()
         invoice = self.fiber3.get_client().new_invoice(
             {
@@ -196,8 +193,6 @@ class TestCliMultiHop(FiberTest):
 
     def test_multi_hop_balance_after_payment(self):
         """After a multi-hop payment, verify channel balances shifted correctly."""
-        self.setup_three_node_topology()
-
         channels_f1_before = self.fiber1.get_client().list_channels(
             {"pubkey": self.fiber2.get_pubkey()}
         )
@@ -231,8 +226,6 @@ class TestCliMultiHop(FiberTest):
 
     def test_multi_hop_with_max_fee_amount(self):
         """Send multi-hop payment with max_fee_amount constraint via CLI."""
-        self.setup_three_node_topology()
-
         cli1 = FnnCli(f"http://127.0.0.1:{self.fiber1.rpc_port}")
         target_pubkey = self.fiber3.get_client().node_info()["pubkey"]
 
@@ -255,8 +248,6 @@ class TestCliMultiHop(FiberTest):
 
     def test_multi_hop_dry_run(self):
         """Dry-run payment over multi-hop should not change balances."""
-        self.setup_three_node_topology()
-
         channels_before = self.fiber1.get_client().list_channels(
             {"pubkey": self.fiber2.get_pubkey()}
         )
@@ -286,7 +277,6 @@ class TestCliMultiHop(FiberTest):
 
     def test_multi_hop_get_payment_cli_vs_rpc(self):
         """get_payment via CLI and RPC should return identical data for multi-hop payment."""
-        self.setup_three_node_topology()
 
         cli1 = FnnCli(f"http://127.0.0.1:{self.fiber1.rpc_port}")
         target_pubkey = self.fiber3.get_client().node_info()["pubkey"]
