@@ -160,7 +160,7 @@ class FiberTest(CkbTest):
             return
         super().teardown_method(method)
         for fiber in self.fibers:
-            fiber.stop()
+            fiber.force_stop()
             fiber.clean()
 
     @classmethod

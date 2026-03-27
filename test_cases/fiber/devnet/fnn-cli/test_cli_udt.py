@@ -49,6 +49,7 @@ class TestCliUdtShared(SharedFiberTest):
 
         # Send some UDT to fiber2 for bidirectional payments
         self.send_payment(self.fiber1, self.fiber2, 1000 * 100000000, True, udt_script)
+        time.sleep(5)
 
     def _get_udt_type_script(self):
         return self.get_account_udt_script(self.fiber1.account_private)

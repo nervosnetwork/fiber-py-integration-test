@@ -154,7 +154,7 @@ class TestListPaymentsRpcShared(SharedFiberTest):
         self.send_payment(self.fiber1, self.fiber2, 1 * 100000000)
 
         success_result = self.fiber1.get_client().list_payments({"status": "Success"})
-        all_result = self.fiber1.get_client().list_payments({})
+        all_result = self.fiber1.get_client().list_payments({"limit": "0xff"})
 
         success_hashes = {p["payment_hash"] for p in success_result["payments"]}
         all_hashes = {p["payment_hash"] for p in all_result["payments"]}
@@ -347,7 +347,7 @@ class TestListPaymentsRpcShared(SharedFiberTest):
             self.fiber1, self.fiber2, 1 * 100000000
         )
 
-        result = self.fiber1.get_client().list_payments({})
+        result = self.fiber1.get_client().list_payments({"limit": "0xff"})
         result_hashes = {p["payment_hash"] for p in result["payments"]}
 
         assert keysend_hash in result_hashes

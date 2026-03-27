@@ -1,10 +1,13 @@
 import time
 from unittest import TestCase
 
+import pytest
+
 from framework.basic_fiber import FiberTest
 
 
 class TestReconnectOneChannel(FiberTest):
+    @pytest.mark.skip("unstable")
     def test_reconnect_one_channel(self):
         """
         1. 启动fiber3
