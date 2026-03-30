@@ -237,34 +237,37 @@ class TestReceiveBtc(FiberCchTest):
         fiber = Fiber.init_by_port(
             FiberConfigPath.CURRENT_TESTNET,
             self.Config.ACCOUNT_PRIVATE_2,
-            "fiber/node3",
-            "8629",
-            "8630",
+            "fiber/node_new",
+            "8351",
+            "8502",
         )
         fiber.prepare()
         fiber.start()
-
-        invoice = fiber.get_client().new_invoice(
-            {
-                "amount": hex(1000000),
-                "currency": "Fibt",
-                "description": "test invoice",
-                "udt_type_script": self.get_account_udt_script(
-                    self.fiber1.account_private
-                ),
-                "payment_preimage": self.generate_random_preimage(),
-                "hash_algorithm": "sha256",
-            }
-        )
-        with pytest.raises(Exception) as exc_info:
-            self.fiber1.get_client().receive_btc(
-                {"fiber_pay_req": invoice["invoice_address"]}
+        try:
+            invoice = fiber.get_client().new_invoice(
+                {
+                    "amount": hex(1000000),
+                    "currency": "Fibt",
+                    "description": "test invoice",
+                    "udt_type_script": self.get_account_udt_script(
+                        self.fiber1.account_private
+                    ),
+                    "payment_preimage": self.generate_random_preimage(),
+                    "hash_algorithm": "sha256",
+                }
             )
-        expected_error_message = "expected fibd, got fibt"
-        assert expected_error_message in exc_info.value.args[0], (
-            f"Expected substring '{expected_error_message}' "
-            f"not found in actual string '{exc_info.value.args[0]}'"
-        )
+            with pytest.raises(Exception) as exc_info:
+                self.fiber1.get_client().receive_btc(
+                    {"fiber_pay_req": invoice["invoice_address"]}
+                )
+            expected_error_message = "expected fibd, got fibt"
+            assert expected_error_message in exc_info.value.args[0], (
+                f"Expected substring '{expected_error_message}' "
+                f"not found in actual string '{exc_info.value.args[0]}'"
+            )
+        finally:
+            fiber.stop()
+            fiber.clean()
 
     @pytest.mark.skip(
         "fiber 发送交易失败，btc这边需要回滚 https://github.com/nervosnetwork/fiber/issues/1216"

@@ -51,17 +51,26 @@ echo "# Test Results Summary" >> $GITHUB_STEP_SUMMARY
 echo "Passed test cases: ${passed_cases}" >> $GITHUB_STEP_SUMMARY
 echo "Failed test cases: ${failed_cases}" >> $GITHUB_STEP_SUMMARY
 echo "ERROR test cases: ${error_cases}" >> $GITHUB_STEP_SUMMARY
+# Function to sanitize filename: replace invalid characters for artifact upload
+# Invalid chars: " : < > | * ? \r \n /
+# Also truncate to 200 chars max to avoid filesystem limits
+sanitize_filename() {
+    echo "$1" | tr '/:\"<>|*?\r\n' '___________' | cut -c1-200
+}
+
 # Check if there are any failed cases
 if [ -n "$failed_cases" ]; then
-    echo "Exist failed cases:${failed_cases//\//_}"
-    mv report/report.html "report/${failed_cases//\//_}.html"
+    sanitized=$(sanitize_filename "$failed_cases")
+    echo "Exist failed cases:${sanitized}"
+    mv report/report.html "report/${sanitized}.html"
     exit 1
 fi
 
 # Check if there are any error cases
 if [ -n "$error_cases" ]; then
-    echo "Exist error cases:${error_cases//\//_}"
-    mv report/report.html "report/${error_cases//\//_}.html"
+    sanitized=$(sanitize_filename "$error_cases")
+    echo "Exist error cases:${sanitized}"
+    mv report/report.html "report/${sanitized}.html"
     exit 2
 fi
 rm -rf report/report.html

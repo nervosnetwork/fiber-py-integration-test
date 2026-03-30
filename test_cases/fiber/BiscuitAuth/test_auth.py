@@ -60,11 +60,16 @@ EoEBChcKCHBheW1lbnRzGAMiCQoHCAESAxiACBIkCAASIM9orpucr8t8L1Qlv28OejTiNo1ws9vlxwzd
 
 
 class TestAuth(FiberTest):
-
     def test_demo(self):
         self.fiber1.stop()
-        self.fiber1.start(
-            rpc_biscuit_public_key="ed25519-private/f02ac69460ca158e88d5728cb8ae26aab9aa172f3db4e95ed6e9f729e2212535"
+        with pytest.raises(Exception) as exc_info:
+            self.fiber1.start(
+                rpc_biscuit_public_key="ed25519-private/f02ac69460ca158e88d5728cb8ae26aab9aa172f3db4e95ed6e9f729e2212535"
+            )
+        expected_error_message = "did not become open within"
+        assert expected_error_message in exc_info.value.args[0], (
+            f"Expected substring '{expected_error_message}' "
+            f"not found in actual string '{exc_info.value.args[0]}'"
         )
         # # todo asser start failed
         # run_command("lsof -i:8228", False)
