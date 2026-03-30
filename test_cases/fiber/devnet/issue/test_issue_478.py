@@ -17,12 +17,12 @@ class TestIssue478(FiberTest):
         self.fiber3 = self.start_new_fiber(
             self.generate_account(10000),
             config=None,
-            fiber_version=FiberConfigPath.CURRENT_DEV,
+            fiber_version=FiberConfigPath.CURRENT_TESTNET,
         )
         self.fiber4 = self.start_new_fiber(
             self.generate_account(10000),
             config=None,
-            fiber_version=FiberConfigPath.CURRENT_TESTNET,
+            fiber_version=FiberConfigPath.CURRENT_DEV,
         )
 
         self.fiber3.connect_peer(self.fiber4)
