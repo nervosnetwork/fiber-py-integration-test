@@ -186,6 +186,7 @@ class FiberTest(CkbTest):
                 account["address"]["testnet"],
                 ckb_balance,
                 self.node.rpcUrl,
+                3000,
             )
             self.Miner.miner_until_tx_committed(self.node, tx_hash, True)
 

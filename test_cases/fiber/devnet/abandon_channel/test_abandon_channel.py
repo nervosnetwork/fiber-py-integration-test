@@ -2,10 +2,10 @@ import time
 
 import pytest
 
-from framework.basic_fiber import FiberTest
+from framework.basic_share_fiber import SharedFiberTest
 
 
-class TestAbandonChannel(FiberTest):
+class TestAbandonChannel(SharedFiberTest):
     """
     abandon channel
     存在的chain id
@@ -21,6 +21,7 @@ class TestAbandonChannel(FiberTest):
     """
 
     def test_tmp_id(self):
+        before_channel = self.fiber1.get_client().list_channels({})
         channel = self.fiber1.get_client().open_channel(
             {
                 "pubkey": self.fiber2.get_pubkey(),
@@ -38,10 +39,11 @@ class TestAbandonChannel(FiberTest):
                 "funding_amount": hex(99 * 100000000),
             }
         )
+        time.sleep(1)
         channel = self.fiber1.get_client().list_channels({})
-        assert len(channel["channels"]) == 0
+        assert len(channel["channels"]) == len(before_channel["channels"])
         channel = self.fiber2.get_client().list_channels({})
-        assert len(channel["channels"]) == 0
+        assert len(channel["channels"]) == len(before_channel["channels"])
 
     def test_abandon_channel_accept(self):
         channel = self.fiber1.get_client().open_channel(
@@ -76,6 +78,9 @@ class TestAbandonChannel(FiberTest):
         )
 
     def test_abandon_channel_when_tx_send(self):
+        for i in range(5):
+            self.Miner.miner_with_version(self.node, "0x0")
+            time.sleep(1)
         channel = self.fiber1.get_client().open_channel(
             {
                 "pubkey": self.fiber2.get_pubkey(),
