@@ -157,13 +157,13 @@ class TestCliUdtLifecycle(FiberTest):
     def _fund_accounts_for_udt(self):
         """Faucet UDT tokens to both fiber nodes."""
         self.faucet(
-            self.fiber1.account_private,
+            self.fiber2.account_private,
             0,
             self.fiber1.account_private,
             10000 * 100000000,
         )
         self.faucet(
-            self.fiber2.account_private,
+            self.fiber1.account_private,
             0,
             self.fiber1.account_private,
             10000 * 100000000,
