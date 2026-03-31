@@ -500,8 +500,8 @@ class TestSettleInvoice(FiberTest):
         fiber1_payment = self.fiber1.get_client().send_payment(
             {"invoice": invoice["invoice_address"]}
         )
-        before_balance = self.get_fiber_balance(self.fiber2)
         time.sleep(1)
+        before_balance = self.get_fiber_balance(self.fiber2)
         print("balance:", before_balance)
         assert before_balance["ckb"] == {
             "local_balance": 100000000000,
