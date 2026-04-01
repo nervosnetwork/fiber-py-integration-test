@@ -7,6 +7,7 @@ class WasmFiber:
         self, private_key, peer_id, type="devnet", debug=False, databasePrefix="default"
     ):
         self.private_key = private_key
+        self.account_private = private_key
         self.peerId = peer_id
         self.type = type
         self.rppcClient = FiberRPCClient(

@@ -500,9 +500,11 @@ class FiberTest(CkbTest):
             }
         )
         if wait:
-            self.wait_payment_state(
-                fiber1, payment["payment_hash"], "Success", 600, 0.1
+            result = self.wait_payment_finished(
+                fiber1, payment["payment_hash"], 600, 0.1
             )
+            if result["status"] == "Failed":
+                raise Exception(f"failed:{result}")
         return payment["payment_hash"]
 
     def get_account_script(self, account_private_key):
@@ -710,7 +712,7 @@ class FiberTest(CkbTest):
             channel = channels["channels"][i]
             if channel["state"]["state_name"] == "ChannelReady":
                 key = "ckb"
-                if channel["funding_udt_type_script"] is not None:
+                if channel.get("funding_udt_type_script", None) is not None:
                     key = channel["funding_udt_type_script"]["args"]
                 if balance_map.get(key) is None:
                     balance_map[key] = {
