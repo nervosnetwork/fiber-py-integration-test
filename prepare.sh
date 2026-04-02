@@ -15,3 +15,6 @@ cp target/debug/fnn-cli ../download/fiber/current/fnn-cli.debug
 cargo build --release
 cp target/release/fnn ../download/fiber/current/fnn
 cp target/release/fnn-cli ../download/fiber/current/fnn-cli
+cd migrate
+cargo build --release
+cp target/release/fnn-migrate ../../download/fiber/current/fnn-migrate
