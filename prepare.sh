@@ -1,6 +1,6 @@
 set -ex
 
-DEFAULT_FIBER_BRANCH="v0.8.0-rc1"
+DEFAULT_FIBER_BRANCH="v0.8.0"
 DEFAULT_FIBER_URL="https://github.com/nervosnetwork/fiber.git"
 
 GitFIBERBranch="${GitBranch:-$DEFAULT_FIBER_BRANCH}"
