@@ -118,3 +118,9 @@ class WasmFiber:
         """
         client = FiberRPCClient(url)
         client.call("reset", [])
+
+    def force_stop(self):
+        pass
+
+    def clean(self):
+        pass

@@ -197,7 +197,7 @@ class Fiber:
 
     def migration(self):
         run_command(
-            f"echo YES | RUST_LOG=info,fnn=debug {get_project_root()}/{self.fiber_config_enum.fiber_bin_path}-migrate -p {self.tmp_path}/fiber/store"
+            f"echo YES | RUST_LOG=info,fnn=debug {get_project_root()}/{self.fiber_config_enum.fiber_bin_path}-migrate -d {self.tmp_path}/fiber"
         )
 
     def start(
