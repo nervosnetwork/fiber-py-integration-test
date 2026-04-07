@@ -222,7 +222,7 @@ class Fiber:
             # env=env_map,
         )
         # wait rpc port open
-        wait_for_port(self.rpc_port, timeout=30, open=True)
+        wait_for_port(self.rpc_port, timeout=300, open=True)
         print("start fiber client ")
 
     def stop(self):

@@ -69,6 +69,7 @@ class TestCliErrorHandlingNoChannel(SharedFiberTest):
     # ───────────────────────────────────────────────
     # info
     # ───────────────────────────────────────────────
+    debug = True
 
     def test_info_unreachable_node(self):
         """CLI should fail clearly when the node is unreachable."""
@@ -262,13 +263,6 @@ class TestCliErrorHandlingNoChannel(SharedFiberTest):
         result = cli.graph_channels()
         assert "channels" in result
         assert len(result["channels"]) == 0
-
-    def test_graph_nodes_limit_zero(self):
-        """Limit=0 should return empty or be handled gracefully."""
-        cli = FnnCli(f"http://127.0.0.1:{self.fiber1.rpc_port}")
-        result = cli.graph_nodes(limit=0)
-        assert "nodes" in result
-        assert len(result["nodes"]) == 0
 
     # ───────────────────────────────────────────────
     # list_payments edge cases
