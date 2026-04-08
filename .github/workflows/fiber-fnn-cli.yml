@@ -1,0 +1,376 @@
+name: fnn-cli test
+
+on:
+  push:
+    branches: ["main"]
+  pull_request:
+    branches: ["main"]
+  workflow_dispatch:
+    inputs:
+      GitUrl:
+        description: 'fiber git url'
+        default: 'https://github.com/nervosnetwork/fiber.git'
+      GitBranch:
+        description: 'fiber git branch'
+        default: 'develop'
+
+permissions:
+  contents: read
+
+jobs:
+  prepare:
+    runs-on: ubuntu-22.04
+
+    steps:
+      - uses: actions/checkout@v3
+      - name: Set up Python 3.12
+        uses: actions/setup-python@v3
+        with:
+          python-version: "3.12"
+
+      - name: Install dependencies
+        run: |
+          python -m pip install --upgrade pip
+          if [ -f requirements.txt ]; then pip install -r requirements.txt; fi
+
+      - name: Run make prepare
+        run: make prepare
+        env:
+          GitUrl: '${{ github.event.inputs.GitUrl }}'
+          GitBranch: '${{ github.event.inputs.GitBranch }}'
+
+      - name: Tar backup
+        run: |
+          rm -rf fiber
+          tar -czf prepare-backup.tar.gz \
+            download \
+            source/ckb-cli
+      - name: Backup data
+        uses: actions/upload-artifact@v4
+        with:
+          name: prepare-backup-${{ runner.os }}
+          path: prepare-backup.tar.gz
+
+  fnn_cli_test_info_peer_output:
+    needs: prepare
+    runs-on: ubuntu-22.04
+
+    steps:
+      - uses: actions/checkout@v3
+      - name: Set up Python 3.12
+        uses: actions/setup-python@v3
+        with:
+          python-version: "3.12"
+
+      - name: Install dependencies
+        run: |
+          python -m pip install --upgrade pip
+          if [ -f requirements.txt ]; then pip install -r requirements.txt; fi
+
+      - name: Download prepare backup
+        uses: actions/download-artifact@v4
+        with:
+          name: prepare-backup-${{ runner.os }}
+          path: ./
+
+      - name: Extract tarball and restore permissions
+        run: |
+          tar -xzf prepare-backup.tar.gz
+
+      - name: Run fnn-cli info, peer, output format tests
+        run: make fiber_test_demo FIBER_TEST_DEMO="test_cases/fiber/devnet/fnn-cli/test_cli_info.py test_cases/fiber/devnet/fnn-cli/test_cli_peer.py test_cases/fiber/devnet/fnn-cli/test_cli_output_format.py"
+
+      - name: Publish reports
+        if: failure()
+        uses: actions/upload-artifact@v4
+        with:
+          name: fnn-cli-info-peer-output-reports-${{ runner.os }}
+          path: ./report
+
+  fnn_cli_test_channel:
+    needs: prepare
+    runs-on: ubuntu-22.04
+
+    steps:
+      - uses: actions/checkout@v3
+      - name: Set up Python 3.12
+        uses: actions/setup-python@v3
+        with:
+          python-version: "3.12"
+
+      - name: Install dependencies
+        run: |
+          python -m pip install --upgrade pip
+          if [ -f requirements.txt ]; then pip install -r requirements.txt; fi
+
+      - name: Download prepare backup
+        uses: actions/download-artifact@v4
+        with:
+          name: prepare-backup-${{ runner.os }}
+          path: ./
+
+      - name: Extract tarball and restore permissions
+        run: |
+          tar -xzf prepare-backup.tar.gz
+
+      - name: Run fnn-cli channel tests
+        run: make fiber_test_demo FIBER_TEST_DEMO="test_cases/fiber/devnet/fnn-cli/test_cli_channel.py"
+
+      - name: Publish reports
+        if: failure()
+        uses: actions/upload-artifact@v4
+        with:
+          name: fnn-cli-channel-reports-${{ runner.os }}
+          path: ./report
+
+  fnn_cli_test_invoice:
+    needs: prepare
+    runs-on: ubuntu-22.04
+
+    steps:
+      - uses: actions/checkout@v3
+      - name: Set up Python 3.12
+        uses: actions/setup-python@v3
+        with:
+          python-version: "3.12"
+
+      - name: Install dependencies
+        run: |
+          python -m pip install --upgrade pip
+          if [ -f requirements.txt ]; then pip install -r requirements.txt; fi
+
+      - name: Download prepare backup
+        uses: actions/download-artifact@v4
+        with:
+          name: prepare-backup-${{ runner.os }}
+          path: ./
+
+      - name: Extract tarball and restore permissions
+        run: |
+          tar -xzf prepare-backup.tar.gz
+
+      - name: Run fnn-cli invoice tests
+        run: make fiber_test_demo FIBER_TEST_DEMO="test_cases/fiber/devnet/fnn-cli/test_cli_invoice.py"
+
+      - name: Publish reports
+        if: failure()
+        uses: actions/upload-artifact@v4
+        with:
+          name: fnn-cli-invoice-reports-${{ runner.os }}
+          path: ./report
+
+  fnn_cli_test_payment:
+    needs: prepare
+    runs-on: ubuntu-22.04
+
+    steps:
+      - uses: actions/checkout@v3
+      - name: Set up Python 3.12
+        uses: actions/setup-python@v3
+        with:
+          python-version: "3.12"
+
+      - name: Install dependencies
+        run: |
+          python -m pip install --upgrade pip
+          if [ -f requirements.txt ]; then pip install -r requirements.txt; fi
+
+      - name: Download prepare backup
+        uses: actions/download-artifact@v4
+        with:
+          name: prepare-backup-${{ runner.os }}
+          path: ./
+
+      - name: Extract tarball and restore permissions
+        run: |
+          tar -xzf prepare-backup.tar.gz
+
+      - name: Run fnn-cli payment tests
+        run: make fiber_test_demo FIBER_TEST_DEMO="test_cases/fiber/devnet/fnn-cli/test_cli_payment.py"
+
+      - name: Publish reports
+        if: failure()
+        uses: actions/upload-artifact@v4
+        with:
+          name: fnn-cli-payment-reports-${{ runner.os }}
+          path: ./report
+
+  list_payments_rpc_test:
+    needs: prepare
+    runs-on: ubuntu-22.04
+
+    steps:
+      - uses: actions/checkout@v3
+      - name: Set up Python 3.12
+        uses: actions/setup-python@v3
+        with:
+          python-version: "3.12"
+
+      - name: Install dependencies
+        run: |
+          python -m pip install --upgrade pip
+          if [ -f requirements.txt ]; then pip install -r requirements.txt; fi
+
+      - name: Download prepare backup
+        uses: actions/download-artifact@v4
+        with:
+          name: prepare-backup-${{ runner.os }}
+          path: ./
+
+      - name: Extract tarball and restore permissions
+        run: |
+          tar -xzf prepare-backup.tar.gz
+
+      - name: Run list_payments RPC tests
+        run: make fiber_test_demo FIBER_TEST_DEMO="test_cases/fiber/devnet/fnn-cli/test_list_payments_rpc.py"
+
+      - name: Publish reports
+        if: failure()
+        uses: actions/upload-artifact@v4
+        with:
+          name: list-payments-rpc-reports-${{ runner.os }}
+          path: ./report
+
+  fnn_cli_test_graph:
+    needs: prepare
+    runs-on: ubuntu-22.04
+
+    steps:
+      - uses: actions/checkout@v3
+      - name: Set up Python 3.12
+        uses: actions/setup-python@v3
+        with:
+          python-version: "3.12"
+
+      - name: Install dependencies
+        run: |
+          python -m pip install --upgrade pip
+          if [ -f requirements.txt ]; then pip install -r requirements.txt; fi
+
+      - name: Download prepare backup
+        uses: actions/download-artifact@v4
+        with:
+          name: prepare-backup-${{ runner.os }}
+          path: ./
+
+      - name: Extract tarball and restore permissions
+        run: |
+          tar -xzf prepare-backup.tar.gz
+
+      - name: Run fnn-cli graph tests
+        run: make fiber_test_demo FIBER_TEST_DEMO="test_cases/fiber/devnet/fnn-cli/test_cli_graph.py"
+
+      - name: Publish reports
+        if: failure()
+        uses: actions/upload-artifact@v4
+        with:
+          name: fnn-cli-graph-reports-${{ runner.os }}
+          path: ./report
+
+  fnn_cli_test_error_handling:
+    needs: prepare
+    runs-on: ubuntu-22.04
+
+    steps:
+      - uses: actions/checkout@v3
+      - name: Set up Python 3.12
+        uses: actions/setup-python@v3
+        with:
+          python-version: "3.12"
+
+      - name: Install dependencies
+        run: |
+          python -m pip install --upgrade pip
+          if [ -f requirements.txt ]; then pip install -r requirements.txt; fi
+
+      - name: Download prepare backup
+        uses: actions/download-artifact@v4
+        with:
+          name: prepare-backup-${{ runner.os }}
+          path: ./
+
+      - name: Extract tarball and restore permissions
+        run: |
+          tar -xzf prepare-backup.tar.gz
+
+      - name: Run fnn-cli error handling tests
+        run: make fiber_test_demo FIBER_TEST_DEMO="test_cases/fiber/devnet/fnn-cli/test_cli_error_handling.py"
+
+      - name: Publish reports
+        if: failure()
+        uses: actions/upload-artifact@v4
+        with:
+          name: fnn-cli-error-handling-reports-${{ runner.os }}
+          path: ./report
+
+  fnn_cli_test_multi_hop:
+    needs: prepare
+    runs-on: ubuntu-22.04
+
+    steps:
+      - uses: actions/checkout@v3
+      - name: Set up Python 3.12
+        uses: actions/setup-python@v3
+        with:
+          python-version: "3.12"
+
+      - name: Install dependencies
+        run: |
+          python -m pip install --upgrade pip
+          if [ -f requirements.txt ]; then pip install -r requirements.txt; fi
+
+      - name: Download prepare backup
+        uses: actions/download-artifact@v4
+        with:
+          name: prepare-backup-${{ runner.os }}
+          path: ./
+
+      - name: Extract tarball and restore permissions
+        run: |
+          tar -xzf prepare-backup.tar.gz
+
+      - name: Run fnn-cli multi-hop tests
+        run: make fiber_test_demo FIBER_TEST_DEMO="test_cases/fiber/devnet/fnn-cli/test_cli_multi_hop.py"
+
+      - name: Publish reports
+        if: failure()
+        uses: actions/upload-artifact@v4
+        with:
+          name: fnn-cli-multi-hop-reports-${{ runner.os }}
+          path: ./report
+
+  fnn_cli_test_advanced_channel:
+    needs: prepare
+    runs-on: ubuntu-22.04
+
+    steps:
+      - uses: actions/checkout@v3
+      - name: Set up Python 3.12
+        uses: actions/setup-python@v3
+        with:
+          python-version: "3.12"
+
+      - name: Install dependencies
+        run: |
+          python -m pip install --upgrade pip
+          if [ -f requirements.txt ]; then pip install -r requirements.txt; fi
+
+      - name: Download prepare backup
+        uses: actions/download-artifact@v4
+        with:
+          name: prepare-backup-${{ runner.os }}
+          path: ./
+
+      - name: Extract tarball and restore permissions
+        run: |
+          tar -xzf prepare-backup.tar.gz
+
+      - name: Run fnn-cli advanced channel and settle invoice tests
+        run: make fiber_test_demo FIBER_TEST_DEMO="test_cases/fiber/devnet/fnn-cli/test_cli_advanced_channel.py test_cases/fiber/devnet/fnn-cli/test_cli_settle_invoice.py test_cases/fiber/devnet/fnn-cli/test_cli_advanced_payment.py"
+
+      - name: Publish reports
+        if: failure()
+        uses: actions/upload-artifact@v4
+        with:
+          name: fnn-cli-advanced-reports-${{ runner.os }}
+          path: ./report
