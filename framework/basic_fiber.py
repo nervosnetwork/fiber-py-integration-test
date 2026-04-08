@@ -500,9 +500,7 @@ class FiberTest(CkbTest):
             }
         )
         if wait:
-            result = self.wait_payment_finished(
-                fiber1, payment["payment_hash"], 600
-            )
+            result = self.wait_payment_finished(fiber1, payment["payment_hash"], 600)
             if result["status"] == "Failed":
                 raise Exception(f"failed:{result}")
         return payment["payment_hash"]
