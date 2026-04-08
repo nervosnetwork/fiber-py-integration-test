@@ -69,8 +69,6 @@ class TestCliErrorHandlingNoChannel(SharedFiberTest):
     # ───────────────────────────────────────────────
     # info
     # ───────────────────────────────────────────────
-    debug = True
-
     def test_info_unreachable_node(self):
         """CLI should fail clearly when the node is unreachable."""
         cli = FnnCli("http://127.0.0.1:19999")
