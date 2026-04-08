@@ -17,6 +17,7 @@ import pytest
 from framework.basic_fiber import FiberTest
 from framework.fnn_cli import FnnCli
 
+
 @pytest.mark.fnn_cli
 @pytest.mark.skip(reason="PR-1253 fix not yet merged - see #1195")
 class TestCliUdtFundingAbortNoUdtCells(FiberTest):
