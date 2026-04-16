@@ -2,10 +2,12 @@
 
 未指定 ``-f`` 时 tor 会按系统惯例读取默认 ``torrc``；下列项由命令行覆盖：
 
-``RunAsDaemon``、``SocksPort``、``ControlPort``、``HashedControlPassword``。
+``RunAsDaemon``、``DataDirectory``、``SocksPort``、``ControlPort``、``HashedControlPassword``。
 
-``data_dir`` 只用于把该子进程的 stdout/stderr 记到 ``tor.log``，不传 ``--DataDirectory``，
-数据目录沿用系统 torrc。默认可执行文件为 PATH 中的 ``tor``。"""
+``data_dir`` 下写入 ``tor.log``，并在其下创建独立 ``tor_datadir`` 作为 ``--DataDirectory``，
+避免与系统 tor（如 apt 安装后 systemd 拉起的实例）共用状态或端口冲突时静默失败。
+
+默认可执行文件为 PATH 中的 ``tor``。"""
 
 from __future__ import annotations
 
@@ -134,7 +136,7 @@ def _wait_bootstrap(
 
 @dataclass
 class TorDaemon:
-    """data_dir：仅写子进程日志 tor.log（非 tor 的 DataDirectory）。"""
+    """data_dir：写 tor.log，并在其下创建 tor_datadir 作为 tor --DataDirectory。"""
 
     data_dir: str
     control_password: str
@@ -155,10 +157,14 @@ class TorDaemon:
             return
         log_dir = os.path.abspath(self.data_dir)
         os.makedirs(log_dir, mode=0o700, exist_ok=True)
+        state_dir = os.path.join(log_dir, "tor_datadir")
+        os.makedirs(state_dir, mode=0o700, exist_ok=True)
         args = [
             self._tor,
             "--RunAsDaemon",
             "0",
+            "--DataDirectory",
+            state_dir,
             "--SocksPort",
             str(self.socks_port),
             "--ControlPort",
@@ -177,6 +183,25 @@ class TorDaemon:
             start_new_session=True,
         )
 
+    def _raise_if_proc_exited(self, log_dir: str) -> None:
+        if self._proc is None:
+            return
+        code = self._proc.poll()
+        if code is None:
+            return
+        log_path = os.path.join(os.path.abspath(log_dir), "tor.log")
+        tail = ""
+        try:
+            with open(log_path, "rb") as f:
+                raw = f.read()[-8000:]
+                tail = raw.decode("utf-8", errors="replace")
+        except OSError:
+            pass
+        raise RuntimeError(
+            f"tor 子进程已退出 (exit {code})，请检查端口是否被系统 tor 占用或配置错误。"
+            f" 日志尾部:\n{tail}"
+        )
+
     def wait_ready(
         self,
         host: str = "127.0.0.1",
@@ -184,8 +209,32 @@ class TorDaemon:
         wait_bootstrap: bool = False,
         bootstrap_timeout: float = 300.0,
     ) -> None:
-        _wait_tcp(host, self.socks_port, timeout)
-        _wait_control(host, self.control_port, self.control_password, timeout)
+        log_dir = os.path.abspath(self.data_dir)
+        # 先等 Control 再 SOCKS：若 9050 已被系统 tor 占用而本进程绑定失败退出，
+        # 仅连 SOCKS 会误判成功，随后在 9051 上永久 Connection refused。
+        deadline = time.time() + timeout
+        err: Optional[Exception] = None
+        control_ok = False
+        while time.time() < deadline:
+            self._raise_if_proc_exited(log_dir)
+            slice_timeout = min(5.0, deadline - time.time())
+            if slice_timeout <= 0:
+                break
+            try:
+                _wait_control(
+                    host, self.control_port, self.control_password, slice_timeout
+                )
+                control_ok = True
+                break
+            except Exception as e:  # noqa: BLE001
+                err = e
+                time.sleep(0.3)
+        if not control_ok:
+            self._raise_if_proc_exited(log_dir)
+            raise TimeoutError(f"{timeout}s 内 Control 未就绪: {err!r}") from err
+
+        self._raise_if_proc_exited(log_dir)
+        _wait_tcp(host, self.socks_port, max(0.1, deadline - time.time()))
         if wait_bootstrap:
             _wait_bootstrap(
                 host, self.control_port, self.control_password, bootstrap_timeout, 1.0
