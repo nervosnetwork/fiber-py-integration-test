@@ -24,27 +24,34 @@ class TestData(FiberTest):
         """
         # 1. start fiber
         old_fiber_1 = self.start_new_fiber(
-            self.generate_account(10000), fiber_version=FiberConfigPath.V061_DEV
+            self.generate_account(10000), fiber_version=FiberConfigPath.V070_DEV
         )
         old_fiber_2 = self.start_new_fiber(
-            self.generate_account(10000), fiber_version=FiberConfigPath.V061_DEV
+            self.generate_account(10000), fiber_version=FiberConfigPath.V070_DEV
         )
         old_fiber_1.connect_peer(old_fiber_2)
         time.sleep(1)
 
         # 2. open_channel with fiber
-        self.open_channel(
-            old_fiber_1, old_fiber_2, 1000 * 100000000, 1000 * 100000000, 1000, 1000
+        # self.open_channel(
+        #     old_fiber_1, old_fiber_2, 1000 * 100000000, 1000 * 100000000, 1000, 1000
+        # )
+        old_fiber_1.get_client().open_channel(
+            {
+                "peer_id": old_fiber_1.get_client().list_peers()["peers"][0]["peer_id"],
+                "funding_amount": hex(1000 * 100000000 + DEFAULT_MIN_DEPOSIT_CKB),
+                "public": True,
+            }
         )
-
+        time.sleep(30)
         # 3. stress test with fiber
         for i in range(20):
-            self.send_payment(old_fiber_1, old_fiber_2, 1, False)
-            self.send_payment(old_fiber_2, old_fiber_1, 1, False)
+            self.send_invoice_payment(old_fiber_1, old_fiber_2, 1, False)
+            self.send_invoice_payment(old_fiber_2, old_fiber_1, 1, False)
 
         old_fiber_1.stop()
         old_fiber_2.stop()
-
+        time.sleep(5)
         #  4. migration and restart fiber CURRENT_DEV
         old_fiber_1.fiber_config_enum = FiberConfigPath.CURRENT_DEV
         old_fiber_2.fiber_config_enum = FiberConfigPath.CURRENT_DEV

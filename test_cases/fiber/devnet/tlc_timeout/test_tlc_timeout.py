@@ -29,13 +29,13 @@ class TestTlcTimeout(FiberTest):
             # open channel
             current_fiber.get_client().open_channel(
                 {
-                    "peer_id": linked_fiber.get_peer_id(),
+                    "pubkey": linked_fiber.get_pubkey(),
                     "funding_amount": hex(1000 * 100000000),
                     "public": True,
                 }
             )
             self.wait_for_channel_state(
-                current_fiber.get_client(), linked_fiber.get_peer_id(), "CHANNEL_READY"
+                current_fiber.get_client(), linked_fiber.get_pubkey(), "ChannelReady"
             )
 
         time.sleep(1)
@@ -115,13 +115,13 @@ class TestTlcTimeout(FiberTest):
             # open channel
             current_fiber.get_client().open_channel(
                 {
-                    "peer_id": linked_fiber.get_peer_id(),
+                    "pubkey": linked_fiber.get_pubkey(),
                     "funding_amount": hex(1000 * 100000000),
                     "public": True,
                 }
             )
             self.wait_for_channel_state(
-                current_fiber.get_client(), linked_fiber.get_peer_id(), "CHANNEL_READY"
+                current_fiber.get_client(), linked_fiber.get_pubkey(), "ChannelReady"
             )
 
         time.sleep(1)
@@ -148,7 +148,7 @@ class TestTlcTimeout(FiberTest):
         self.fiber2.get_client().shutdown_channel(
             {
                 "channel_id": self.fiber2.get_client().list_channels(
-                    {"peer_id": self.fibers[2].get_peer_id()}
+                    {"pubkey": self.fibers[2].get_pubkey()}
                 )["channels"][0]["channel_id"],
                 "force": True,
             }
@@ -156,12 +156,12 @@ class TestTlcTimeout(FiberTest):
         shutdown_tx = self.wait_and_check_tx_pool_fee(1000, False)
         self.Miner.miner_until_tx_committed(self.node, shutdown_tx)
         self.wait_for_channel_state(
-            self.fiber2.get_client(), self.fibers[2].get_peer_id(), "CLOSED", 320, True
+            self.fiber2.get_client(), self.fibers[2].get_pubkey(), "Closed", 320, True
         )
         self.wait_for_channel_state(
             self.fibers[2].get_client(),
-            self.fibers[1].get_peer_id(),
-            "CLOSED",
+            self.fibers[1].get_pubkey(),
+            "Closed",
             320,
             True,
         )
@@ -222,7 +222,7 @@ class TestTlcTimeout(FiberTest):
                 assert (
                     len(
                         self.fiber1.get_client().list_channels(
-                            {"peer_id": self.fiber2.get_peer_id()}
+                            {"pubkey": self.fiber2.get_pubkey()}
                         )["channels"]
                     )
                     == 1
@@ -255,13 +255,13 @@ class TestTlcTimeout(FiberTest):
             # open channel
             current_fiber.get_client().open_channel(
                 {
-                    "peer_id": linked_fiber.get_peer_id(),
+                    "pubkey": linked_fiber.get_pubkey(),
                     "funding_amount": hex(1000 * 100000000),
                     "public": True,
                 }
             )
             self.wait_for_channel_state(
-                current_fiber.get_client(), linked_fiber.get_peer_id(), "CHANNEL_READY"
+                current_fiber.get_client(), linked_fiber.get_pubkey(), "ChannelReady"
             )
 
         time.sleep(1)
@@ -290,7 +290,7 @@ class TestTlcTimeout(FiberTest):
         self.fiber2.get_client().shutdown_channel(
             {
                 "channel_id": self.fiber2.get_client().list_channels(
-                    {"peer_id": self.fibers[2].get_peer_id()}
+                    {"pubkey": self.fibers[2].get_pubkey()}
                 )["channels"][0]["channel_id"],
                 "force": True,
             }
@@ -298,8 +298,8 @@ class TestTlcTimeout(FiberTest):
         #
         # shutdown_tx = self.wait_and_check_tx_pool_fee(1000,False)
         # self.Miner.miner_until_tx_committed(self.node,shutdown_tx)
-        # self.wait_for_channel_state(self.fiber2.get_client(),self.fibers[2].get_peer_id(), "CLOSED",320,True)
-        # self.wait_for_channel_state(self.fibers[2].get_client(),self.fibers[1].get_peer_id(), "CLOSED",320,True)
+        # self.wait_for_channel_state(self.fiber2.get_client(),self.fibers[2].get_pubkey(), "Closed",320,True)
+        # self.wait_for_channel_state(self.fibers[2].get_client(),self.fibers[1].get_pubkey(), "Closed",320,True)
 
         # 获取tlc的过期时间
         tlc = self.get_pending_tlc(self.fibers[-1], payment["payment_hash"])
@@ -355,7 +355,7 @@ class TestTlcTimeout(FiberTest):
                 assert (
                     len(
                         self.fiber1.get_client().list_channels(
-                            {"peer_id": self.fiber2.get_peer_id()}
+                            {"pubkey": self.fiber2.get_pubkey()}
                         )["channels"]
                     )
                     == 1
@@ -386,13 +386,13 @@ class TestTlcTimeout(FiberTest):
             # open channel
             current_fiber.get_client().open_channel(
                 {
-                    "peer_id": linked_fiber.get_peer_id(),
+                    "pubkey": linked_fiber.get_pubkey(),
                     "funding_amount": hex(1000 * 100000000),
                     "public": True,
                 }
             )
             self.wait_for_channel_state(
-                current_fiber.get_client(), linked_fiber.get_peer_id(), "CHANNEL_READY"
+                current_fiber.get_client(), linked_fiber.get_pubkey(), "ChannelReady"
             )
 
         time.sleep(1)
@@ -525,7 +525,7 @@ class TestTlcTimeout(FiberTest):
         tlc_seconds_list.sort()
         # force shutdown d-e
         # self.nodeD.get_client().shutdown_channel({
-        #     "channel_id": self.nodeD.get_client().list_channels({"peer_id": self.nodeE.get_peer_id()})['channels'][0][
+        #     "channel_id": self.nodeD.get_client().list_channels({"pubkey": self.nodeE.get_pubkey()})['channels'][0][
         #         'channel_id'],
         #     "force": True
         # })

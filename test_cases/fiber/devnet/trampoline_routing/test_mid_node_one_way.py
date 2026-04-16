@@ -25,12 +25,12 @@ class TestMidNodeOneWay(FiberTest):
         with pytest.raises(Exception) as exc_info:
             payment = self.fiber1.get_client().send_payment(
                 {
-                    "target_pubkey": self.fiber3.get_client().node_info()["node_id"],
+                    "target_pubkey": self.fiber3.get_client().node_info()["pubkey"],
                     "currency": "Fibd",
                     "amount": hex(1 * 100000000),
                     "keysend": True,
                     # "trampoline_hops": [
-                    #     self.fiber2.get_client().node_info()["node_id"],
+                    #     self.fiber2.get_client().node_info()["pubkey"],
                     # ],
                 }
             )
@@ -43,12 +43,12 @@ class TestMidNodeOneWay(FiberTest):
         before_balance = self.get_fibers_balance()
         payment = self.fiber1.get_client().send_payment(
             {
-                "target_pubkey": self.fiber3.get_client().node_info()["node_id"],
+                "target_pubkey": self.fiber3.get_client().node_info()["pubkey"],
                 "currency": "Fibd",
                 "amount": hex(1 * 100000000),
                 "keysend": True,
                 "trampoline_hops": [
-                    self.fiber2.get_client().node_info()["node_id"],
+                    self.fiber2.get_client().node_info()["pubkey"],
                 ],
             }
         )

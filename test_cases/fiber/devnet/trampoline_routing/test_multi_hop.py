@@ -29,14 +29,14 @@ class TestMultiHopTrampoline(FiberTest):
         # 通过 3 个 trampoline 节点路由支付
         payment = self.fiber1.get_client().send_payment(
             {
-                "target_pubkey": self.fiber5.get_client().node_info()["node_id"],
+                "target_pubkey": self.fiber5.get_client().node_info()["pubkey"],
                 "currency": "Fibd",
                 "amount": hex(1 * 100000000),
                 "keysend": True,
                 "trampoline_hops": [
-                    self.fiber2.get_client().node_info()["node_id"],
-                    self.fiber3.get_client().node_info()["node_id"],
-                    self.fiber4.get_client().node_info()["node_id"],
+                    self.fiber2.get_client().node_info()["pubkey"],
+                    self.fiber3.get_client().node_info()["pubkey"],
+                    self.fiber4.get_client().node_info()["pubkey"],
                 ],
             }
         )
@@ -62,15 +62,15 @@ class TestMultiHopTrampoline(FiberTest):
         # 通过 4 个 trampoline 节点路由支付
         payment = self.fiber1.get_client().send_payment(
             {
-                "target_pubkey": self.fiber6.get_client().node_info()["node_id"],
+                "target_pubkey": self.fiber6.get_client().node_info()["pubkey"],
                 "currency": "Fibd",
                 "amount": hex(1 * 100000000),
                 "keysend": True,
                 "trampoline_hops": [
-                    self.fiber2.get_client().node_info()["node_id"],
-                    self.fiber3.get_client().node_info()["node_id"],
-                    self.fiber4.get_client().node_info()["node_id"],
-                    self.fiber5.get_client().node_info()["node_id"],
+                    self.fiber2.get_client().node_info()["pubkey"],
+                    self.fiber3.get_client().node_info()["pubkey"],
+                    self.fiber4.get_client().node_info()["pubkey"],
+                    self.fiber5.get_client().node_info()["pubkey"],
                 ],
             }
         )
@@ -93,14 +93,14 @@ class TestMultiHopTrampoline(FiberTest):
         # 每个 trampoline hop 使用不同的 fee_rate
         payment = self.fiber1.get_client().send_payment(
             {
-                "target_pubkey": self.fiber5.get_client().node_info()["node_id"],
+                "target_pubkey": self.fiber5.get_client().node_info()["pubkey"],
                 "currency": "Fibd",
                 "amount": hex(10 * 100000000),
                 "keysend": True,
                 "trampoline_hops": [
-                    self.fiber2.get_client().node_info()["node_id"],
-                    self.fiber3.get_client().node_info()["node_id"],
-                    self.fiber4.get_client().node_info()["node_id"],
+                    self.fiber2.get_client().node_info()["pubkey"],
+                    self.fiber3.get_client().node_info()["pubkey"],
+                    self.fiber4.get_client().node_info()["pubkey"],
                 ],
             }
         )
@@ -150,15 +150,15 @@ class TestMultiHopTrampoline(FiberTest):
         # 通过多个 trampoline 节点路由 UDT 支付
         payment = self.fiber1.get_client().send_payment(
             {
-                "target_pubkey": self.fiber5.get_client().node_info()["node_id"],
+                "target_pubkey": self.fiber5.get_client().node_info()["pubkey"],
                 "currency": "Fibd",
                 "amount": hex(1 * 100000000),
                 "keysend": True,
                 "udt_type_script": udt_script,
                 "trampoline_hops": [
-                    self.fiber2.get_client().node_info()["node_id"],
-                    self.fiber3.get_client().node_info()["node_id"],
-                    self.fiber4.get_client().node_info()["node_id"],
+                    self.fiber2.get_client().node_info()["pubkey"],
+                    self.fiber3.get_client().node_info()["pubkey"],
+                    self.fiber4.get_client().node_info()["pubkey"],
                 ],
             }
         )
@@ -200,15 +200,15 @@ class TestMultiHopTrampoline(FiberTest):
         with pytest.raises(Exception) as exc_info:
             payment = self.fiber1.get_client().send_payment(
                 {
-                    "target_pubkey": self.fiber5.get_client().node_info()["node_id"],
+                    "target_pubkey": self.fiber5.get_client().node_info()["pubkey"],
                     "currency": "Fibd",
                     "amount": hex(1 * 100000000),
                     "keysend": True,
                     "udt_type_script": udt_script,
                     "trampoline_hops": [
-                        self.fiber2.get_client().node_info()["node_id"],
-                        self.fiber3.get_client().node_info()["node_id"],
-                        self.fiber4.get_client().node_info()["node_id"],
+                        self.fiber2.get_client().node_info()["pubkey"],
+                        self.fiber3.get_client().node_info()["pubkey"],
+                        self.fiber4.get_client().node_info()["pubkey"],
                     ],
                 }
             )

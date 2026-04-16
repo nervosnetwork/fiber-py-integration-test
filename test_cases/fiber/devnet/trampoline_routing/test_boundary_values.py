@@ -54,7 +54,7 @@ class TestBoundaryValues(SharedFiberTest):
 
         payment = self.fiber1.get_client().send_payment(
             {
-                "target_pubkey": self.fiber7.get_client().node_info()["node_id"],
+                "target_pubkey": self.fiber7.get_client().node_info()["pubkey"],
                 "currency": "Fibd",
                 "amount": hex(1 * 100000000),
                 "keysend": True,
@@ -62,46 +62,46 @@ class TestBoundaryValues(SharedFiberTest):
                 "max_fee_amount": hex(1 * 100000000),
                 "max_fee_rate": hex(99),
                 # "trampoline_hops": [
-                #     self.fiber2.get_client().node_info()["node_id"],
-                #     self.fiber3.get_client().node_info()["node_id"],
-                #     self.fiber4.get_client().node_info()["node_id"],
-                #     self.fiber5.get_client().node_info()["node_id"],
-                #     self.fiber6.get_client().node_info()["node_id"],
+                #     self.fiber2.get_client().node_info()["pubkey"],
+                #     self.fiber3.get_client().node_info()["pubkey"],
+                #     self.fiber4.get_client().node_info()["pubkey"],
+                #     self.fiber5.get_client().node_info()["pubkey"],
+                #     self.fiber6.get_client().node_info()["pubkey"],
                 # ],
             }
         )
         payment = self.fiber1.get_client().send_payment(
             {
-                "target_pubkey": self.fiber7.get_client().node_info()["node_id"],
+                "target_pubkey": self.fiber7.get_client().node_info()["pubkey"],
                 "currency": "Fibd",
                 "amount": hex(1 * 100000000),
                 "keysend": True,
                 "max_fee_amount": payment["fee"],
                 "max_fee_rate": hex(99),
                 "trampoline_hops": [
-                    self.fiber2.get_client().node_info()["node_id"],
-                    self.fiber3.get_client().node_info()["node_id"],
-                    self.fiber4.get_client().node_info()["node_id"],
-                    self.fiber5.get_client().node_info()["node_id"],
-                    self.fiber6.get_client().node_info()["node_id"],
+                    self.fiber2.get_client().node_info()["pubkey"],
+                    self.fiber3.get_client().node_info()["pubkey"],
+                    self.fiber4.get_client().node_info()["pubkey"],
+                    self.fiber5.get_client().node_info()["pubkey"],
+                    self.fiber6.get_client().node_info()["pubkey"],
                 ],
             }
         )
         self.wait_payment_state(self.fiber1, payment["payment_hash"], "Failed")
         payment = self.fiber1.get_client().send_payment(
             {
-                "target_pubkey": self.fiber7.get_client().node_info()["node_id"],
+                "target_pubkey": self.fiber7.get_client().node_info()["pubkey"],
                 "currency": "Fibd",
                 "amount": hex(1 * 100000000),
                 "keysend": True,
                 "max_fee_amount": hex(600000),
                 "max_fee_rate": hex(99),
                 "trampoline_hops": [
-                    self.fiber2.get_client().node_info()["node_id"],
-                    self.fiber3.get_client().node_info()["node_id"],
-                    self.fiber4.get_client().node_info()["node_id"],
-                    self.fiber5.get_client().node_info()["node_id"],
-                    self.fiber6.get_client().node_info()["node_id"],
+                    self.fiber2.get_client().node_info()["pubkey"],
+                    self.fiber3.get_client().node_info()["pubkey"],
+                    self.fiber4.get_client().node_info()["pubkey"],
+                    self.fiber5.get_client().node_info()["pubkey"],
+                    self.fiber6.get_client().node_info()["pubkey"],
                 ],
             }
         )
@@ -162,18 +162,18 @@ class TestBoundaryValues(SharedFiberTest):
         with pytest.raises(Exception) as exc_info:
             payment = self.fiber1.get_client().send_payment(
                 {
-                    "target_pubkey": self.fiber8.get_client().node_info()["node_id"],
+                    "target_pubkey": self.fiber8.get_client().node_info()["pubkey"],
                     "currency": "Fibd",
                     "amount": hex(1 * 100000000),
                     "keysend": True,
                     "trampoline_hops": [
-                        self.fiber2.get_client().node_info()["node_id"],
-                        self.fiber3.get_client().node_info()["node_id"],
-                        self.fiber4.get_client().node_info()["node_id"],
-                        self.fiber5.get_client().node_info()["node_id"],
-                        self.fiber6.get_client().node_info()["node_id"],
+                        self.fiber2.get_client().node_info()["pubkey"],
+                        self.fiber3.get_client().node_info()["pubkey"],
+                        self.fiber4.get_client().node_info()["pubkey"],
+                        self.fiber5.get_client().node_info()["pubkey"],
+                        self.fiber6.get_client().node_info()["pubkey"],
                         self.fiber7.get_client().node_info()[
-                            "node_id"
+                            "pubkey"
                         ],  # 第6个，超过限制
                     ],
                 }
@@ -188,12 +188,12 @@ class TestBoundaryValues(SharedFiberTest):
         # 测试1: 最小金额支付（1 satoshi）
         payment = self.fiber1.get_client().send_payment(
             {
-                "target_pubkey": self.fiber3.get_client().node_info()["node_id"],
+                "target_pubkey": self.fiber3.get_client().node_info()["pubkey"],
                 "currency": "Fibd",
                 "amount": hex(1),  # 最小金额
                 "keysend": True,
                 "trampoline_hops": [
-                    self.fiber2.get_client().node_info()["node_id"],
+                    self.fiber2.get_client().node_info()["pubkey"],
                 ],
             }
         )
@@ -206,12 +206,12 @@ class TestBoundaryValues(SharedFiberTest):
 
         payment = self.fiber1.get_client().send_payment(
             {
-                "target_pubkey": self.fiber3.get_client().node_info()["node_id"],
+                "target_pubkey": self.fiber3.get_client().node_info()["pubkey"],
                 "currency": "Fibd",
                 "amount": hex(50 * 100000000),  # 大金额
                 "keysend": True,
                 "trampoline_hops": [
-                    self.fiber2.get_client().node_info()["node_id"],
+                    self.fiber2.get_client().node_info()["pubkey"],
                 ],
             }
         )
@@ -222,12 +222,12 @@ class TestBoundaryValues(SharedFiberTest):
         before_balance = self.get_fibers_balance()
         payment = self.fiber1.get_client().send_payment(
             {
-                "target_pubkey": self.fiber3.get_client().node_info()["node_id"],
+                "target_pubkey": self.fiber3.get_client().node_info()["pubkey"],
                 "currency": "Fibd",
                 "amount": hex(1 * 100000000),
                 "keysend": True,
                 "trampoline_hops": [
-                    self.fiber2.get_client().node_info()["node_id"],
+                    self.fiber2.get_client().node_info()["pubkey"],
                 ],
             }
         )
@@ -240,12 +240,12 @@ class TestBoundaryValues(SharedFiberTest):
         # 测试4: 极高的 fee_rate（接近上限）
         payment = self.fiber1.get_client().send_payment(
             {
-                "target_pubkey": self.fiber3.get_client().node_info()["node_id"],
+                "target_pubkey": self.fiber3.get_client().node_info()["pubkey"],
                 "currency": "Fibd",
                 "amount": hex(1 * 100000000),
                 "keysend": True,
                 "trampoline_hops": [
-                    self.fiber2.get_client().node_info()["node_id"],
+                    self.fiber2.get_client().node_info()["pubkey"],
                 ],
             }
         )
@@ -255,13 +255,13 @@ class TestBoundaryValues(SharedFiberTest):
         # 测试5: 最小 max_fee_amount
         payment = self.fiber1.get_client().send_payment(
             {
-                "target_pubkey": self.fiber3.get_client().node_info()["node_id"],
+                "target_pubkey": self.fiber3.get_client().node_info()["pubkey"],
                 "currency": "Fibd",
                 "amount": hex(1 * 100000000),
                 "keysend": True,
                 "max_fee_amount": hex(200000),  # 最小费用预算
                 "trampoline_hops": [
-                    self.fiber2.get_client().node_info()["node_id"],
+                    self.fiber2.get_client().node_info()["pubkey"],
                 ],
             }
         )
@@ -271,13 +271,13 @@ class TestBoundaryValues(SharedFiberTest):
         with pytest.raises(Exception) as exc_info:
             self.fiber1.get_client().send_payment(
                 {
-                    "target_pubkey": self.fiber3.get_client().node_info()["node_id"],
+                    "target_pubkey": self.fiber3.get_client().node_info()["pubkey"],
                     "currency": "Fibd",
                     "amount": hex(1 * 100000000),
                     "keysend": True,
                     "trampoline_hops": [
-                        self.fiber2.get_client().node_info()["node_id"],
-                        self.fiber3.get_client().node_info()["node_id"],
+                        self.fiber2.get_client().node_info()["pubkey"],
+                        self.fiber3.get_client().node_info()["pubkey"],
                     ],
                 }
             )

@@ -69,7 +69,7 @@ class TestFiber(CkbTest):
         channels = cls.fiber1.get_client().list_channels({})
         for i in range(len(channels["channels"])):
             channel = channels["channels"][i]
-            if channel["state"]["state_name"] != "CHANNEL_READY":
+            if channel["state"]["state_name"] != "ChannelReady":
                 continue
             cls.fiber1.get_client().shutdown_channel(
                 {
@@ -83,13 +83,13 @@ class TestFiber(CkbTest):
                 }
             )
             wait_for_channel_state(
-                cls.fiber1.get_client(), cls.cryptapeFiber1.get_peer_id(), "CLOSED", 120
+                cls.fiber1.get_client(), cls.cryptapeFiber1.get_pubkey(), "Closed", 120
             )
 
         channels = cls.fiber2.get_client().list_channels({})
         for i in range(len(channels["channels"])):
             channel = channels["channels"][i]
-            if channel["state"]["state_name"] != "CHANNEL_READY":
+            if channel["state"]["state_name"] != "ChannelReady":
                 continue
             cls.fiber2.get_client().shutdown_channel(
                 {
@@ -103,7 +103,7 @@ class TestFiber(CkbTest):
                 }
             )
             wait_for_channel_state(
-                cls.fiber2.get_client(), cls.cryptapeFiber2.get_peer_id(), "CLOSED", 120
+                cls.fiber2.get_client(), cls.cryptapeFiber2.get_pubkey(), "Closed", 120
             )
 
         cls.fiber1.stop()
@@ -115,7 +115,7 @@ class TestFiber(CkbTest):
         # open_channel
         temporary_channel_id = self.fiber1.get_client().open_channel(
             {
-                "peer_id": self.cryptapeFiber1.get_peer_id(),
+                "pubkey": self.cryptapeFiber1.get_pubkey(),
                 "funding_amount": hex(1000 * 100000000),
                 "public": True,
                 # "tlc_fee_proportional_millionths": "0x4B0",
@@ -124,7 +124,7 @@ class TestFiber(CkbTest):
 
         temporary_channel_id = self.fiber2.get_client().open_channel(
             {
-                "peer_id": self.cryptapeFiber2.get_peer_id(),
+                "pubkey": self.cryptapeFiber2.get_pubkey(),
                 "funding_amount": hex(1000 * 100000000),
                 "public": True,
                 # "tlc_fee_proportional_millionths": "0x4B0",
@@ -132,16 +132,16 @@ class TestFiber(CkbTest):
         )
         wait_for_channel_state(
             self.fiber1.get_client(),
-            self.cryptapeFiber1.get_peer_id(),
-            "CHANNEL_READY",
-            120,
+            self.cryptapeFiber1.get_pubkey(),
+            "ChannelReady",
+            200,
         )
 
         wait_for_channel_state(
             self.fiber2.get_client(),
-            self.cryptapeFiber2.get_peer_id(),
-            "CHANNEL_READY",
-            120,
+            self.cryptapeFiber2.get_pubkey(),
+            "ChannelReady",
+            200,
         )
         fiber1_channel_outpoint = self.fiber1.get_client().list_channels({})[
             "channels"
@@ -203,7 +203,7 @@ class TestFiber(CkbTest):
         }
         temporary_channel_id = self.fiber1.get_client().open_channel(
             {
-                "peer_id": self.cryptapeFiber1.get_peer_id(),
+                "pubkey": self.cryptapeFiber1.get_pubkey(),
                 "funding_amount": hex(20 * 100000000),
                 "public": True,
                 "funding_udt_type_script": funding_udt_type_script,
@@ -212,7 +212,7 @@ class TestFiber(CkbTest):
 
         temporary_channel_id = self.fiber2.get_client().open_channel(
             {
-                "peer_id": self.cryptapeFiber2.get_peer_id(),
+                "pubkey": self.cryptapeFiber2.get_pubkey(),
                 "funding_amount": hex(20 * 100000000),
                 "public": True,
                 "funding_udt_type_script": funding_udt_type_script,
@@ -220,15 +220,15 @@ class TestFiber(CkbTest):
         )
         wait_for_channel_state(
             self.fiber1.get_client(),
-            self.cryptapeFiber1.get_peer_id(),
-            "CHANNEL_READY",
+            self.cryptapeFiber1.get_pubkey(),
+            "ChannelReady",
             120,
         )
 
         wait_for_channel_state(
             self.fiber2.get_client(),
-            self.cryptapeFiber2.get_peer_id(),
-            "CHANNEL_READY",
+            self.cryptapeFiber2.get_pubkey(),
+            "ChannelReady",
             120,
         )
         fiber1_channel_outpoint = self.fiber1.get_client().list_channels({})[
@@ -343,7 +343,7 @@ def send_payment(
             payment = fiber1.send_payment(
                 {
                     "amount": hex(amount),
-                    "target_pubkey": fiber2.node_info()["node_id"],
+                    "target_pubkey": fiber2.node_info()["pubkey"],
                     "keysend": True,
                     "udt_type_script": udt,
                 }
@@ -400,10 +400,10 @@ def wait_payment_finished(client, payment_hash, timeout=300):
     raise TimeoutError("payment status did not become final within timeout period.")
 
 
-def wait_for_channel_state(client, peer_id, expected_state, timeout=120):
+def wait_for_channel_state(client, pubkey, expected_state, timeout=120):
     """Wait for a channel to reach a specific state."""
     for _ in range(timeout):
-        channels = client.list_channels({"peer_id": peer_id, "include_closed": True})
+        channels = client.list_channels({"pubkey": pubkey, "include_closed": True})
         if channels["channels"][0]["state"]["state_name"] == expected_state:
             print(f"Channel reached expected state: {expected_state}")
             return channels["channels"][0]["channel_id"]

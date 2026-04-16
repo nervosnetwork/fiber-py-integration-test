@@ -46,7 +46,7 @@
 #         # self.fiber1.get_client().list_peers()
 #         # self.fiber1.get_client().list_channels({})
 #         # self.fiber1.get_client().disconnect_peer(
-#         #     {"peer_id": self.cryptapeFiber1.get_peer_id()}
+#         #     {"pubkey": self.cryptapeFiber1.get_pubkey()}
 #         # )
 #         # send_payment(
 #         #     self.fiber1.get_client(),
@@ -59,7 +59,7 @@
 #     def test_0000(self):
 #         self.fiber1.get_client().open_channel(
 #             {
-#                 "peer_id": self.cryptapeFiber1.get_peer_id(),
+#                 "pubkey": self.cryptapeFiber1.get_pubkey(),
 #                 "funding_amount": hex(500 * 100000000),
 #                 "public": True,
 #                 # "tlc_fee_proportional_millionths": "0x4B0",
@@ -67,8 +67,8 @@
 #         )
 #         wait_for_channel_state(
 #             self.fiber1.get_client(),
-#             self.cryptapeFiber1.get_peer_id(),
-#             "CHANNEL_READY",
+#             self.cryptapeFiber1.get_pubkey(),
+#             "ChannelReady",
 #             120,
 #         )
 #
@@ -76,7 +76,7 @@
 # def wait_for_channel_state(client, peer_id, expected_state, timeout=120):
 #     """Wait for a channel to reach a specific state."""
 #     for _ in range(timeout):
-#         channels = client.list_channels({"peer_id": peer_id, "include_closed": True})
+#         channels = client.list_channels({"pubkey": peer_id, "include_closed": True})
 #         if channels["channels"][0]["state"]["state_name"] == expected_state:
 #             print(f"Channel reached expected state: {expected_state}")
 #             return channels["channels"][0]["channel_id"]
@@ -99,7 +99,7 @@
 #             payment = fiber1.send_payment(
 #                 {
 #                     "amount": hex(amount),
-#                     "target_pubkey": fiber2.node_info()["node_id"],
+#                     "target_pubkey": fiber2.node_info()["pubkey"],
 #                     "keysend": True,
 #                     "udt_type_script": udt,
 #                 }

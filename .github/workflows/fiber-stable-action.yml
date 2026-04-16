@@ -14,6 +14,9 @@ on:
       BuildFIBER:
         description: 'build fiber'
         default: 'true'
+      StableDuration:
+        description: 'stable test duration in seconds'
+        default: '300'
 
 permissions:
   contents: read
@@ -47,9 +50,19 @@ jobs:
           GitUrl: '${{ github.event.inputs.GitUrl }}'
           GitBranch: '${{ github.event.inputs.GitBranch }}'
           BuildFIBER: '${{ github.event.inputs.BuildFIBER }}'
-
+      - name: prepare wasm env
+        run: |
+          git clone https://github.com/gpBlockchain/fiber-wasm-demo.git
+          cd fiber-wasm-demo
+          bash prepare.sh
+          cd ../
+        env:
+          GitUrl: '${{ github.event.inputs.GitUrl }}'
+          GitBranch: '${{ github.event.inputs.GitBranch }}'
       - name: Run tests
         run:  make fiber_test_demo FIBER_TEST_DEMO="test_cases/fiber/devnet/stable"
+        env:
+          STABLE_DURATION: '${{ github.event.inputs.StableDuration }}'
 
       #    - name: Setup upterm session
       #      if: always()

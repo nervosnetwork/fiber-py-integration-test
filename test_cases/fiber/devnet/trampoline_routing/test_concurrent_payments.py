@@ -32,13 +32,13 @@ class TestConcurrentPayments(FiberTest):
                 payment = self.fiber1.get_client().send_payment(
                     {
                         "target_pubkey": target_fiber.get_client().node_info()[
-                            "node_id"
+                            "pubkey"
                         ],
                         "currency": "Fibd",
                         "amount": hex(amount),
                         "keysend": True,
                         "trampoline_hops": [
-                            self.fiber2.get_client().node_info()["node_id"],
+                            self.fiber2.get_client().node_info()["pubkey"],
                         ],
                     }
                 )
@@ -89,13 +89,13 @@ class TestConcurrentPayments(FiberTest):
                 payment = self.fiber1.get_client().send_payment(
                     {
                         "target_pubkey": target_fiber.get_client().node_info()[
-                            "node_id"
+                            "pubkey"
                         ],
                         "currency": "Fibd",
                         "amount": hex(amount),
                         "keysend": True,
                         "trampoline_hops": [
-                            trampoline_fiber.get_client().node_info()["node_id"],
+                            trampoline_fiber.get_client().node_info()["pubkey"],
                         ],
                     }
                 )
@@ -140,12 +140,12 @@ class TestConcurrentPayments(FiberTest):
         for i in range(3):
             payment = self.fiber1.get_client().send_payment(
                 {
-                    "target_pubkey": self.fiber3.get_client().node_info()["node_id"],
+                    "target_pubkey": self.fiber3.get_client().node_info()["pubkey"],
                     "currency": "Fibd",
                     "amount": hex(1 * 100000000),
                     "keysend": True,
                     "trampoline_hops": [
-                        self.fiber2.get_client().node_info()["node_id"],
+                        self.fiber2.get_client().node_info()["pubkey"],
                     ],
                 }
             )
@@ -159,12 +159,12 @@ class TestConcurrentPayments(FiberTest):
         def send_payment():
             payment = self.fiber1.get_client().send_payment(
                 {
-                    "target_pubkey": self.fiber3.get_client().node_info()["node_id"],
+                    "target_pubkey": self.fiber3.get_client().node_info()["pubkey"],
                     "currency": "Fibd",
                     "amount": hex(1 * 100000000),
                     "keysend": True,
                     "trampoline_hops": [
-                        self.fiber2.get_client().node_info()["node_id"],
+                        self.fiber2.get_client().node_info()["pubkey"],
                     ],
                 }
             )

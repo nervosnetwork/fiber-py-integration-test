@@ -35,7 +35,7 @@ class TestRestart(FiberTest):
         # open channel for fiber1 fiber2
         self.fiber1.get_client().open_channel(
             {
-                "peer_id": self.fiber2.get_peer_id(),
+                "pubkey": self.fiber2.get_pubkey(),
                 "funding_amount": hex(200 * 100000000),
                 "public": True,
             }
@@ -43,18 +43,18 @@ class TestRestart(FiberTest):
         # channels = self.fiber1.get_client().list_channels({})
         # N1N2_CHANNEL_ID = channels["channels"][0]["channel_id"]
         self.wait_for_channel_state(
-            self.fiber1.get_client(), self.fiber2.get_peer_id(), "CHANNEL_READY", 120
+            self.fiber1.get_client(), self.fiber2.get_pubkey(), "ChannelReady", 120
         )
         # open channel for fiber 2 fiber3
         self.fiber2.get_client().open_channel(
             {
-                "peer_id": self.fiber3.get_peer_id(),
+                "pubkey": self.fiber3.get_pubkey(),
                 "funding_amount": hex(200 * 100000000),
                 "public": True,
             }
         )
         self.wait_for_channel_state(
-            self.fiber2.get_client(), self.fiber3.get_peer_id(), "CHANNEL_READY", 120
+            self.fiber2.get_client(), self.fiber3.get_pubkey(), "ChannelReady", 120
         )
 
         # 1. 发送端重启，send_payment
@@ -66,7 +66,7 @@ class TestRestart(FiberTest):
         node_info = self.fiber1.get_client().node_info()
         assert int(node_info["peers_count"], 16) >= 1
         node3_info = self.fiber3.get_client().node_info()
-        fiber3_pub = node3_info["node_id"]
+        fiber3_pub = node3_info["pubkey"]
         payment = self.fiber1.get_client().send_payment(
             {
                 "target_pubkey": fiber3_pub,
@@ -132,7 +132,7 @@ class TestRestart(FiberTest):
         # open channel for fiber1 fiber2
         self.fiber1.get_client().open_channel(
             {
-                "peer_id": self.fiber2.get_peer_id(),
+                "pubkey": self.fiber2.get_pubkey(),
                 "funding_amount": hex(200 * 100000000),
                 "public": True,
             }
@@ -140,18 +140,18 @@ class TestRestart(FiberTest):
         # channels = self.fiber1.get_client().list_channels({})
         # N1N2_CHANNEL_ID = channels["channels"][0]["channel_id"]
         self.wait_for_channel_state(
-            self.fiber1.get_client(), self.fiber2.get_peer_id(), "CHANNEL_READY", 120
+            self.fiber1.get_client(), self.fiber2.get_pubkey(), "ChannelReady", 120
         )
         # open channel for fiber 2 fiber3
         self.fiber2.get_client().open_channel(
             {
-                "peer_id": self.fiber3.get_peer_id(),
+                "pubkey": self.fiber3.get_pubkey(),
                 "funding_amount": hex(200 * 100000000),
                 "public": True,
             }
         )
         self.wait_for_channel_state(
-            self.fiber2.get_client(), self.fiber3.get_peer_id(), "CHANNEL_READY", 120
+            self.fiber2.get_client(), self.fiber3.get_pubkey(), "ChannelReady", 120
         )
 
         # 1. 发送端重启，send_payment
@@ -263,7 +263,7 @@ class TestRestart(FiberTest):
         # open channel for fiber1 fiber2
         self.fiber1.get_client().open_channel(
             {
-                "peer_id": self.fiber2.get_peer_id(),
+                "pubkey": self.fiber2.get_pubkey(),
                 "funding_amount": hex(200 * 100000000),
                 "public": True,
             }
@@ -271,18 +271,18 @@ class TestRestart(FiberTest):
         # channels = self.fiber1.get_client().list_channels({})
         # N1N2_CHANNEL_ID = channels["channels"][0]["channel_id"]
         self.wait_for_channel_state(
-            self.fiber1.get_client(), self.fiber2.get_peer_id(), "CHANNEL_READY", 120
+            self.fiber1.get_client(), self.fiber2.get_pubkey(), "ChannelReady", 120
         )
         # open channel for fiber 2 fiber3
         self.fiber2.get_client().open_channel(
             {
-                "peer_id": self.fiber3.get_peer_id(),
+                "pubkey": self.fiber3.get_pubkey(),
                 "funding_amount": hex(200 * 100000000),
                 "public": True,
             }
         )
         self.wait_for_channel_state(
-            self.fiber2.get_client(), self.fiber3.get_peer_id(), "CHANNEL_READY", 120
+            self.fiber2.get_client(), self.fiber3.get_pubkey(), "ChannelReady", 120
         )
 
         # 1. 发送端重启，send_payment

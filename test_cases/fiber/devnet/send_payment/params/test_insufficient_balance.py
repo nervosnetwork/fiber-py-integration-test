@@ -30,7 +30,7 @@ class TestInsufficientBalance(FiberTest):
         with pytest.raises(Exception) as exc_info:
             self.fiber1.get_client().send_payment(
                 {
-                    "target_pubkey": self.fiber2.get_client().node_info()["node_id"],
+                    "target_pubkey": self.fiber2.get_client().node_info()["pubkey"],
                     "amount": hex(2000 * 100000000),
                     "keysend": True,
                 }
@@ -44,7 +44,7 @@ class TestInsufficientBalance(FiberTest):
         with pytest.raises(Exception) as exc_info:
             self.fiber1.get_client().send_payment(
                 {
-                    "target_pubkey": self.fiber2.get_client().node_info()["node_id"],
+                    "target_pubkey": self.fiber2.get_client().node_info()["pubkey"],
                     "amount": hex(2000 * 100000000),
                     "keysend": True,
                     "udt_type_script": self.get_account_udt_script(
@@ -70,7 +70,7 @@ class TestInsufficientBalance(FiberTest):
 
         payment = self.fiber1.get_client().send_payment(
             {
-                "target_pubkey": self.fiber2.get_client().node_info()["node_id"],
+                "target_pubkey": self.fiber2.get_client().node_info()["pubkey"],
                 "amount": hex(100 * 100000000),
                 "keysend": True,
             }
@@ -91,7 +91,7 @@ class TestInsufficientBalance(FiberTest):
         with pytest.raises(Exception) as exc_info:
             self.fiber1.get_client().send_payment(
                 {
-                    "target_pubkey": self.fiber2.get_client().node_info()["node_id"],
+                    "target_pubkey": self.fiber2.get_client().node_info()["pubkey"],
                     "amount": hex(800 * 100000000),
                     "keysend": True,
                 }
@@ -114,7 +114,7 @@ class TestInsufficientBalance(FiberTest):
         with pytest.raises(Exception) as exc_info:
             self.fiber1.get_client().send_payment(
                 {
-                    "target_pubkey": self.fiber2.get_client().node_info()["node_id"],
+                    "target_pubkey": self.fiber2.get_client().node_info()["pubkey"],
                     "amount": hex(1500 * 100000000),
                     "keysend": True,
                 }
@@ -169,7 +169,7 @@ class TestInsufficientBalance(FiberTest):
         with pytest.raises(Exception) as exc_info:
             self.fiber1.get_client().send_payment(
                 {
-                    "target_pubkey": self.fiber2.get_client().node_info()["node_id"],
+                    "target_pubkey": self.fiber2.get_client().node_info()["pubkey"],
                     "amount": hex(2000 * 100000000),
                     "keysend": True,
                     "dry_run": True,
@@ -196,7 +196,7 @@ class TestInsufficientBalance(FiberTest):
         with pytest.raises(Exception) as exc_info:
             self.fiber1.get_client().send_payment(
                 {
-                    "target_pubkey": self.fiber3.get_client().node_info()["node_id"],
+                    "target_pubkey": self.fiber3.get_client().node_info()["pubkey"],
                     "amount": hex(2000 * 100000000),
                     "keysend": True,
                 }
@@ -219,7 +219,7 @@ class TestInsufficientBalance(FiberTest):
         # Verify payment works before stopping
         payment = self.fiber1.get_client().send_payment(
             {
-                "target_pubkey": self.fiber2.get_client().node_info()["node_id"],
+                "target_pubkey": self.fiber2.get_client().node_info()["pubkey"],
                 "amount": hex(1 * 100000000),
                 "keysend": True,
             }
@@ -227,7 +227,7 @@ class TestInsufficientBalance(FiberTest):
         self.wait_payment_state(self.fiber1, payment["payment_hash"], "Success")
 
         # Stop the peer node
-        target_pubkey = self.fiber2.get_client().node_info()["node_id"]
+        target_pubkey = self.fiber2.get_client().node_info()["pubkey"]
         self.fiber2.stop()
         time.sleep(5)
 
@@ -272,7 +272,7 @@ class TestInsufficientBalance(FiberTest):
         with pytest.raises(Exception) as exc_info:
             self.fiber1.get_client().send_payment(
                 {
-                    "target_pubkey": self.fiber2.get_client().node_info()["node_id"],
+                    "target_pubkey": self.fiber2.get_client().node_info()["pubkey"],
                     "amount": hex(300 * 100000000),
                     "keysend": True,
                     "allow_self_payment": True,

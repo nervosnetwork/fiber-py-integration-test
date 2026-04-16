@@ -71,7 +71,9 @@ fiber_test_cases := \
 	test_cases/fiber/devnet/shutdown_channel \
 	test_cases/fiber/devnet/update_channel \
 	test_cases/fiber/devnet/issue \
-	test_cases/fiber/devnet/watch_tower
+	test_cases/fiber/devnet/watch_tower \
+	test_cases/fiber/devnet/fee_stats \
+	test_cases/fiber/devnet/fnn-cli
 
 fiber_testnet_cases := \
 	test_cases/fiber/testnet

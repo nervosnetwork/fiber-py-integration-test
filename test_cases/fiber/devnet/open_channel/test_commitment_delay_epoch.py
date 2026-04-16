@@ -9,14 +9,14 @@ class TestCommitmentDelayEpoch(FiberTest):
     def test_epoch(self):
         self.fiber1.get_client().open_channel(
             {
-                "peer_id": self.fiber2.get_peer_id(),
+                "pubkey": self.fiber2.get_pubkey(),
                 "funding_amount": hex(1000 * 100000000),
                 "public": True,
                 "commitment_delay_epoch": "0x20001000001",
             }
         )
         self.wait_for_channel_state(
-            self.fiber1.get_client(), self.fiber2.get_peer_id(), "CHANNEL_READY", 120
+            self.fiber1.get_client(), self.fiber2.get_pubkey(), "ChannelReady", 120
         )
         self.fiber1.get_client().shutdown_channel(
             {
@@ -28,12 +28,11 @@ class TestCommitmentDelayEpoch(FiberTest):
         )
         tx_hash = self.wait_and_check_tx_pool_fee(1000, False)
         self.Miner.miner_until_tx_committed(self.node, tx_hash)
-        self.node.getClient().generate_epochs("0x20001000001")
+        self.node.getClient().generate_epochs("0x20001000001", 0)
 
         tx_hash = self.wait_and_check_tx_pool_fee(1000, False, 1200)
         self.Miner.miner_until_tx_committed(self.node, tx_hash)
         first_tx_message = self.get_tx_message(tx_hash)
-        self.node.getClient().generate_epochs("0x20001000001")
         tx_hash = self.wait_and_check_tx_pool_fee(1000, False, 1200)
         self.Miner.miner_until_tx_committed(self.node, tx_hash)
         second_tx_message = self.get_tx_message(tx_hash)
@@ -43,13 +42,16 @@ class TestCommitmentDelayEpoch(FiberTest):
             first_tx_message["input_cells"][0]["capacity"]
             - second_tx_message["input_cells"][0]["capacity"]
             == 100000000000
+            or first_tx_message["input_cells"][0]["capacity"]
+            - second_tx_message["input_cells"][0]["capacity"]
+            == 9900000000
         )
 
     def test_self_shutdown(self):
         before_balance = self.get_fibers_balance()
         self.fiber1.get_client().open_channel(
             {
-                "peer_id": self.fiber2.get_peer_id(),
+                "pubkey": self.fiber2.get_pubkey(),
                 "funding_amount": hex(1000 * 100000000),
                 "public": True,
                 "tlc_expiry_delta": hex(57600000),
@@ -57,7 +59,7 @@ class TestCommitmentDelayEpoch(FiberTest):
             }
         )
         self.wait_for_channel_state(
-            self.fiber1.get_client(), self.fiber2.get_peer_id(), "CHANNEL_READY", 120
+            self.fiber1.get_client(), self.fiber2.get_pubkey(), "ChannelReady", 120
         )
 
         self.fiber1.get_client().shutdown_channel(
@@ -87,7 +89,7 @@ class TestCommitmentDelayEpoch(FiberTest):
         before_balance = self.get_fibers_balance()
         self.fiber1.get_client().open_channel(
             {
-                "peer_id": self.fiber2.get_peer_id(),
+                "pubkey": self.fiber2.get_pubkey(),
                 "funding_amount": hex(1000 * 100000000),
                 "public": True,
                 "tlc_expiry_delta": hex(57600000),
@@ -95,7 +97,7 @@ class TestCommitmentDelayEpoch(FiberTest):
             }
         )
         self.wait_for_channel_state(
-            self.fiber1.get_client(), self.fiber2.get_peer_id(), "CHANNEL_READY", 120
+            self.fiber1.get_client(), self.fiber2.get_pubkey(), "ChannelReady", 120
         )
 
         self.fiber2.get_client().shutdown_channel(

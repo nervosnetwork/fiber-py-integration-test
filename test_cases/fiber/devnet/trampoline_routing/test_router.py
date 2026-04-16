@@ -39,7 +39,7 @@ class TestRouter(FiberTest):
         with pytest.raises(Exception) as exc_info:
             self.fiber1.get_client().send_payment(
                 {
-                    "target_pubkey": self.fiber2.get_client().node_info()["node_id"],
+                    "target_pubkey": self.fiber2.get_client().node_info()["pubkey"],
                     "currency": "Fibd",
                     "amount": hex(1 * 100000000),
                     "keysend": True,
@@ -48,7 +48,7 @@ class TestRouter(FiberTest):
                     ),
                     "max_fee_amount": hex(2000001),
                     "trampoline_hops": [
-                        self.fiber3.get_client().node_info()["node_id"],
+                        self.fiber3.get_client().node_info()["pubkey"],
                     ],
                 }
             )
@@ -76,7 +76,7 @@ class TestRouter(FiberTest):
 
         payment = self.fiber3.get_client().send_payment(
             {
-                "target_pubkey": self.fiber4.get_client().node_info()["node_id"],
+                "target_pubkey": self.fiber4.get_client().node_info()["pubkey"],
                 "currency": "Fibd",
                 "amount": hex(1 * 100000000),
                 "keysend": True,
@@ -84,7 +84,7 @@ class TestRouter(FiberTest):
                     self.fiber1.account_private
                 ),
                 "trampoline_hops": [
-                    self.fiber2.get_client().node_info()["node_id"],
+                    self.fiber2.get_client().node_info()["pubkey"],
                 ],
             }
         )

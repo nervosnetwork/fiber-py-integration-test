@@ -1,9 +1,11 @@
+import os
 import time
 
 from framework.basic_fiber import FiberTest
 import concurrent.futures
 
 from framework.config import DEFAULT_MIN_DEPOSIT_CKB
+from framework.test_wasm_fiber import WasmFiber
 
 
 class TestStableStress(FiberTest):
@@ -13,15 +15,30 @@ class TestStableStress(FiberTest):
     #     self.
     def test_stable_stress(self):
         """
-        a->b->c->a
+        a->b->c->d(wasm)->a
             1. a->a  ckb and udt
             2. b->b  ckb and udt
             3. c->c  ckb and udt
+            4. d->d  ckb and udt (wasm node)
         Returns:
         """
         self.fiber3 = self.start_new_fiber(
             self.generate_account(10000, self.fiber1.account_private, 10000 * 100000000)
         )
+
+        # Create wasm fiber4 (d node)
+        account_private_wasm = self.generate_account(
+            10000, self.fiber1.account_private, 10000 * 100000000
+        )
+        WasmFiber.reset()
+        self.fiber4 = WasmFiber(
+            account_private_wasm,
+            "0201010101010101010101010101010101010101010101010101010101010101",
+            "devnet",
+        )
+        self.fiber4.account_private = account_private_wasm
+        self.fibers.append(self.fiber4)
+
         self.faucet(
             self.fiber2.account_private,
             0,
@@ -34,6 +51,7 @@ class TestStableStress(FiberTest):
             self.fiber1.account_private,
             10000 * 100000000,
         )
+        # a <-> b (CKB + UDT)
         self.open_channel(
             self.fiber1, self.fiber2, 1000 * 100000000, 1000 * 100000000, 0, 0
         )
@@ -47,6 +65,7 @@ class TestStableStress(FiberTest):
             self.get_account_udt_script(self.fiber1.account_private),
         )
 
+        # b <-> c (CKB + UDT)
         self.open_channel(
             self.fiber2, self.fiber3, 1000 * 100000000, 1000 * 100000000, 0, 0
         )
@@ -60,11 +79,26 @@ class TestStableStress(FiberTest):
             self.get_account_udt_script(self.fiber1.account_private),
         )
 
+        # c <-> d(wasm) (CKB + UDT) — wasm as fiber1 to avoid get_pubkey issue
         self.open_channel(
-            self.fiber3, self.fiber1, 1000 * 100000000, 1000 * 100000000, 0, 0
+            self.fiber4, self.fiber3, 1000 * 100000000, 1000 * 100000000, 0, 0
         )
         self.open_channel(
+            self.fiber4,
             self.fiber3,
+            1000 * 100000000,
+            1000 * 100000000,
+            0,
+            0,
+            self.get_account_udt_script(self.fiber1.account_private),
+        )
+
+        # d(wasm) <-> a (CKB + UDT)
+        self.open_channel(
+            self.fiber4, self.fiber1, 1000 * 100000000, 1000 * 100000000, 0, 0
+        )
+        self.open_channel(
+            self.fiber4,
             self.fiber1,
             1000 * 100000000,
             1000 * 100000000,
@@ -75,51 +109,32 @@ class TestStableStress(FiberTest):
 
         time.sleep(10)
         udt = self.get_account_udt_script(self.fiber1.account_private)
-        send_tx_size = 5 * 60 * 60 * 2
+        duration_seconds = int(os.environ.get("STABLE_DURATION", 300))
         tasks_submitted = 0
         start_time = time.time()
         times = []
         completed_counts = []
-        with concurrent.futures.ThreadPoolExecutor(max_workers=20) as executor:
-            futures = []
+        max_inflight = 64
+        completed_tasks = 0
 
-            for i in range(send_tx_size):
-                # Submit payment tasks for fiber1
-                futures.append(
-                    executor.submit(self.send_payment, self.fiber1, self.fiber1, 1)
-                )
-                futures.append(
-                    executor.submit(
-                        self.send_payment, self.fiber1, self.fiber1, 1, True, udt
-                    )
-                )
-
-                futures.append(
-                    executor.submit(self.send_payment, self.fiber2, self.fiber2, 1)
-                )
-                futures.append(
-                    executor.submit(
-                        self.send_payment, self.fiber2, self.fiber2, 1, True, udt
-                    )
-                )
-
-                futures.append(
-                    executor.submit(self.send_payment, self.fiber3, self.fiber3, 1)
-                )
-                futures.append(
-                    executor.submit(
-                        self.send_payment, self.fiber3, self.fiber3, 1, True, udt
-                    )
-                )
-                tasks_submitted += 6
-
-            # Wait for all tasks to complete
-            # concurrent.futures.wait(futures)
-            completed_tasks = 0
-            for future in concurrent.futures.as_completed(futures):
+        def _collect(pending_set, wait_all=False):
+            """Collect completed futures from pending set."""
+            nonlocal completed_tasks
+            if not pending_set:
+                return pending_set
+            done, pending_set = concurrent.futures.wait(
+                pending_set,
+                timeout=0 if not wait_all else 20,
+                return_when=(
+                    concurrent.futures.ALL_COMPLETED
+                    if wait_all
+                    else concurrent.futures.FIRST_COMPLETED
+                ),
+            )
+            for future in done:
                 completed_tasks += 1
                 try:
-                    result = future.result()
+                    future.result()
                     self.logger.debug(
                         f"Task {completed_tasks}/{tasks_submitted} completed"
                     )
@@ -127,17 +142,86 @@ class TestStableStress(FiberTest):
                     self.logger.error(
                         f"Task {completed_tasks}/{tasks_submitted} failed: {e}"
                     )
-
-                # Record time and completed tasks
                 elapsed_time = time.time() - start_time
                 times.append(elapsed_time)
                 completed_counts.append(completed_tasks)
+            return pending_set
 
-                if completed_tasks % 100 == 0:
-                    speed = completed_tasks / elapsed_time if elapsed_time > 0 else 0
-                    self.logger.info(
-                        f"Completed {completed_tasks}/{tasks_submitted} tasks in {elapsed_time:.2f} seconds. Speed: {speed:.2f} tasks/second"
+        tps_interval = 10  # print TPS every 10 seconds
+        last_tps_time = start_time
+        last_tps_completed = 0
+
+        with concurrent.futures.ThreadPoolExecutor(max_workers=16) as executor:
+            pending = set()
+
+            while time.time() - start_time < duration_seconds:
+                # Drain completed futures to keep in-flight count bounded
+                while len(pending) >= max_inflight:
+                    pending = _collect(pending)
+
+                # Submit one round of payment tasks (8 tasks)
+                pending.add(
+                    executor.submit(self.send_payment, self.fiber1, self.fiber1, 1)
+                )
+                pending.add(
+                    executor.submit(
+                        self.send_payment, self.fiber1, self.fiber1, 1, True, udt
                     )
+                )
+                pending.add(
+                    executor.submit(self.send_payment, self.fiber2, self.fiber2, 1)
+                )
+                pending.add(
+                    executor.submit(
+                        self.send_payment, self.fiber2, self.fiber2, 1, True, udt
+                    )
+                )
+                pending.add(
+                    executor.submit(self.send_payment, self.fiber3, self.fiber3, 1)
+                )
+                pending.add(
+                    executor.submit(
+                        self.send_payment, self.fiber3, self.fiber3, 1, True, udt
+                    )
+                )
+                pending.add(
+                    executor.submit(self.send_payment, self.fiber4, self.fiber4, 1)
+                )
+                pending.add(
+                    executor.submit(
+                        self.send_payment, self.fiber4, self.fiber4, 1, True, udt
+                    )
+                )
+                tasks_submitted += 8
+
+                # Periodic TPS report
+                now = time.time()
+                if now - last_tps_time >= tps_interval:
+                    elapsed = now - start_time
+                    interval_completed = completed_tasks - last_tps_completed
+                    interval_duration = now - last_tps_time
+                    interval_tps = (
+                        interval_completed / interval_duration
+                        if interval_duration > 0
+                        else 0
+                    )
+                    overall_tps = completed_tasks / elapsed if elapsed > 0 else 0
+                    self.logger.info(
+                        f"[TPS] elapsed={elapsed:.0f}s | interval({tps_interval}s): {interval_tps:.2f} tps | "
+                        f"overall: {overall_tps:.2f} tps | completed={completed_tasks} submitted={tasks_submitted} in-flight={len(pending)}"
+                    )
+                    last_tps_time = now
+                    last_tps_completed = completed_tasks
+
+            # Duration reached — drain remaining in-flight tasks with timeout
+            self.logger.info(
+                f"Duration {duration_seconds}s reached. Waiting for {len(pending)} remaining tasks..."
+            )
+            pending = _collect(pending, wait_all=True)
+            if pending:
+                self.logger.warning(
+                    f"Timeout: {len(pending)} tasks still pending, skipping"
+                )
 
             total_time = time.time() - start_time
             speed = completed_tasks / total_time if total_time > 0 else 0
@@ -145,7 +229,9 @@ class TestStableStress(FiberTest):
                 f"Completed {completed_tasks}/{tasks_submitted} tasks in {total_time:.2f} seconds. Final speed: {speed:.2f} tasks/second"
             )
 
-            self.logger.info(f"finished :{send_tx_size}")
+            self.logger.info(
+                f"finished, duration: {duration_seconds}s, tasks: {tasks_submitted}"
+            )
         self.get_fibers_balance_message()
         for fiber in self.fibers:
             message = self.get_fiber_balance(fiber)
@@ -154,8 +240,24 @@ class TestStableStress(FiberTest):
                 "offered_tlc_balance": 0,
                 "received_tlc_balance": 0,
             }
-            assert message[udt["args"]] == {
-                "local_balance": 200000000000 + DEFAULT_MIN_DEPOSIT_CKB,
-                "offered_tlc_balance": 0,
-                "received_tlc_balance": 0,
-            }
+
+        assert self.get_fiber_balance(self.fiber1)[udt["args"]] == {
+            "local_balance": 200000000000 + DEFAULT_MIN_DEPOSIT_CKB,
+            "offered_tlc_balance": 0,
+            "received_tlc_balance": 0,
+        }
+        assert self.get_fiber_balance(self.fiber2)[udt["args"]] == {
+            "local_balance": 200000000000 + DEFAULT_MIN_DEPOSIT_CKB,
+            "offered_tlc_balance": 0,
+            "received_tlc_balance": 0,
+        }
+        assert self.get_fiber_balance(self.fiber3)[udt["args"]] == {
+            "local_balance": 200000000000,
+            "offered_tlc_balance": 0,
+            "received_tlc_balance": 0,
+        }
+        assert self.get_fiber_balance(self.fiber4)[udt["args"]] == {
+            "local_balance": 200000000000 + DEFAULT_MIN_DEPOSIT_CKB * 2,
+            "offered_tlc_balance": 0,
+            "received_tlc_balance": 0,
+        }

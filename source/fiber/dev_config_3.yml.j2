@@ -6,6 +6,9 @@ fiber:
   gossip_store_maintenance_interval_ms: 1000
   gossip_network_maintenance_interval_ms: 1000
   open_channel_auto_accept_min_ckb_funding_amount: {{ fiber_open_channel_auto_accept_min_ckb_funding_amount | default(10000000000)}}
+  {% if fiber_auto_accept_channel_ckb_funding_amount is defined %}
+  auto_accept_channel_ckb_funding_amount: {{ fiber_auto_accept_channel_ckb_funding_amount }}
+  {% endif %}
   watchtower_check_interval_seconds: {{ fiber_watchtower_check_interval_seconds | default(60) }}
   {% if fiber_disable_built_in_watchtower is defined %}
   standalone_watchtower_rpc_url: {{ fiber_standalone_watchtower_rpc_url }}
@@ -16,6 +19,9 @@ fiber:
   {% endif %}
   {% if fiber_rpc_biscuit_public_key is defined %}
   rpc_biscuit_public_key: {{ fiber_rpc_biscuit_public_key }}
+  {% endif %}
+  {% if fiber_max_inbound_peers is defined %}
+  max_inbound_peers: {{ fiber_max_inbound_peers }}
   {% endif %}
   scripts:
     - name: FundingLock

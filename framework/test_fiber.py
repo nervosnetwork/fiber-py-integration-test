@@ -1,4 +1,5 @@
 import shutil
+import socket
 from enum import Enum
 import time
 import framework.helper.ckb_cli
@@ -14,9 +15,39 @@ from framework.fiber_rpc import FiberRPCClient
 from framework.config import get_tmp_path
 
 
+def wait_for_port(port, timeout=30, open=True):
+    """Wait for a port to open or close.
+
+    Args:
+        port: Port number to check.
+        timeout: Max seconds to wait.
+        open: If True, wait until port is open; if False, wait until port is closed.
+
+    Raises:
+        TimeoutError: If the port does not reach the expected state within timeout.
+    """
+    port = int(port)
+    deadline = time.time() + timeout
+    while time.time() < deadline:
+        with socket.socket(socket.AF_INET, socket.SOCK_STREAM) as s:
+            s.settimeout(1)
+            result = s.connect_ex(("127.0.0.1", port))
+            is_open = result == 0
+        if is_open == open:
+            return
+        time.sleep(0.3)
+    state = "open" if open else "closed"
+    raise TimeoutError(f"Port {port} did not become {state} within {timeout}s")
+
+
 class FiberConfigPath(Enum):
     CURRENT_DEV = (
         "/source/fiber/dev_config_3.yml.j2",
+        "download/fiber/current/fnn",
+    )
+
+    CURRENT_CCH = (
+        "/source/fiber/dev_config_cch.yml.j2",
         "download/fiber/current/fnn",
     )
 
@@ -27,12 +58,12 @@ class FiberConfigPath(Enum):
 
     CURRENT_MAINNET = (
         "/source/template/fiber/mainnet_config_3.yml.j2",
-        "download/fiber/0.7.1/fnn",
+        "download/fiber/0.8.0/fnn",
     )
 
     CURRENT_TESTNET = (
         "/source/template/fiber/testnet_config_3.yml.j2",
-        "download/fiber/0.7.1/fnn",
+        "download/fiber/0.8.0/fnn",
     )
 
     V070_DEV = (
@@ -108,17 +139,7 @@ class Fiber:
             self.tmp_path,
         )
         target_dir = os.path.join(self.tmp_path, "ckb")
-        os.makedirs(target_dir, exist_ok=True)  # 创建文件夹，如果已存在则不报错
-        # if os.path.exists(
-        #     f"{get_project_root()}/source/fiber/keys/{self.account_private.replace('0x', '')}"
-        # ):
-        #     shutil.copy(
-        #         f"{get_project_root()}/source/fiber/keys/{self.account_private.replace('0x', '')}",
-        #         f"{self.tmp_path}/ckb/key",
-        #     )
-        # else:
-        #     with open(f"{self.tmp_path}/ckb/key", "w") as f:
-        #         f.write(self.account_private.replace("0x", ""))
+        os.makedirs(target_dir, exist_ok=True)
         with open(f"{self.tmp_path}/ckb/key", "w") as f:
             f.write(self.account_private.replace("0x", ""))
 
@@ -176,7 +197,7 @@ class Fiber:
 
     def migration(self):
         run_command(
-            f"echo YES | RUST_LOG=info,fnn=debug {get_project_root()}/{self.fiber_config_enum.fiber_bin_path}-migrate -p {self.tmp_path}/fiber/store"
+            f"echo YES | RUST_LOG=info,fnn=debug {get_project_root()}/{self.fiber_config_enum.fiber_bin_path}-migrate -d {self.tmp_path}/fiber"
         )
 
     def start(
@@ -200,8 +221,8 @@ class Fiber:
             f" FIBER_SECRET_KEY_PASSWORD='{password}' RUST_LOG=info,fnn={fnn_log_level} {get_project_root()}/{self.fiber_config_enum.fiber_bin_path} -c {self.tmp_path}/config.yml -d {self.tmp_path} {rpc_biscuit_public_key_option}  >> {self.tmp_path}/node.log 2>&1 &"
             # env=env_map,
         )
-        # wait rpc start
-        time.sleep(0.5)
+        # wait rpc port open
+        wait_for_port(self.rpc_port, timeout=300, open=True)
         print("start fiber client ")
 
     def stop(self):
@@ -209,7 +230,7 @@ class Fiber:
             "kill $(lsof -i:" + self.rpc_port + " | grep LISTEN | awk '{print $2}')",
             False,
         )
-        time.sleep(1)
+        wait_for_port(self.rpc_port, timeout=30, open=False)
 
     def force_stop(self):
         # run_command(f"kill -9 $(lsof -t -i:{self.rpc_port} | head -1)", False)
@@ -217,7 +238,7 @@ class Fiber:
             "kill -9 $(lsof -i:" + self.rpc_port + " | grep LISTEN | awk '{print $2}')",
             False,
         )
-        time.sleep(3)
+        wait_for_port(self.rpc_port, timeout=30, open=False)
 
     def clean(self):
         run_command("rm -rf {tmp_path}".format(tmp_path=self.tmp_path))
@@ -228,8 +249,11 @@ class Fiber:
     def get_log_file(self):
         pass
 
-    def get_peer_id(self):
-        return self.get_client().node_info()["addresses"][0].split("/")[-1]
+    def get_pubkey(self):
+        return self.get_client().node_info()["pubkey"]
+
+    def get_pubkey(self):
+        return self.get_client().node_info()["pubkey"]
 
     def get_account(self):
         return framework.helper.ckb_cli.util_key_info_by_private_key(

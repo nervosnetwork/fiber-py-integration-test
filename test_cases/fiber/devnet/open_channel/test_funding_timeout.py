@@ -19,7 +19,7 @@ class TestFundingTimeout(FiberTest):
         for i in range(5):
             temporary_channel1 = self.fiber3.get_client().open_channel(
                 {
-                    "peer_id": self.fiber2.get_peer_id(),
+                    "pubkey": self.fiber2.get_pubkey(),
                     "funding_amount": hex(100 * 100000000),
                     "public": True,
                     "tlc_fee_proportional_millionths": "0x4B0",
@@ -50,7 +50,7 @@ class TestFundingTimeout(FiberTest):
     def test_channel_status_is_sign_or_await_ready(self):
         temporary_channel1 = self.fiber1.get_client().open_channel(
             {
-                "peer_id": self.fiber2.get_peer_id(),
+                "pubkey": self.fiber2.get_pubkey(),
                 "funding_amount": hex(1000 * 100000000),
                 "public": True,
                 "tlc_fee_proportional_millionths": "0x4B0",

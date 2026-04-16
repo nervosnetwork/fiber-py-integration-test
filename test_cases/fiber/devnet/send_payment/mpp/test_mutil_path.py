@@ -579,7 +579,7 @@ class MutilPathTestCase(FiberTest):
         self.open_channel(self.fiber2, self.fiber3, 1000 * 100000000, 0, 0, 0)
         channels = self.fiber2.get_client().list_channels(
             {
-                "peer_id": self.fiber3.get_peer_id(),
+                "pubkey": self.fiber3.get_pubkey(),
             }
         )
         channel_id = channels["channels"][0]["channel_id"]
@@ -599,7 +599,7 @@ class MutilPathTestCase(FiberTest):
         self.send_invoice_payment(self.fiber1, self.fiber3, 2000 * 100000000)
         channels = self.fiber2.get_client().list_channels(
             {
-                "peer_id": self.fiber3.get_peer_id(),
+                "pubkey": self.fiber3.get_pubkey(),
             }
         )
         for channel in channels["channels"]:
@@ -613,20 +613,20 @@ class MutilPathTestCase(FiberTest):
 
         self.fiber1.get_client().open_channel(
             {
-                "peer_id": self.fiber2.get_peer_id(),
+                "pubkey": self.fiber2.get_pubkey(),
                 "funding_amount": hex(1000 * 100000000 + DEFAULT_MIN_DEPOSIT_CKB),
                 "public": False,
             }
         )
         self.wait_for_channel_state(
-            self.fiber1.get_client(), self.fiber2.get_peer_id(), "CHANNEL_READY"
+            self.fiber1.get_client(), self.fiber2.get_pubkey(), "ChannelReady"
         )
         # self.fiber1.get_client().open_channel({
-        #     "peer_id": self.fiber1.get_peer_id(),
+        #     "pubkey": self.fiber1.get_pubkey(),
         #     "funding_amount": hex(1000 * 100000000),
         #     "public": True,
         # })
-        # self.wait_for_channel_state(self.fiber1, self.fiber2.get_peer_id(), "CHANNEL_READY")
+        # self.wait_for_channel_state(self.fiber1, self.fiber2.get_pubkey(), "ChannelReady")
         self.open_channel(self.fiber1, self.fiber2, 1000 * 100000000, 0, 0, 0)
         time.sleep(10)
         self.send_invoice_payment(self.fiber1, self.fiber2, 2000 * 100000000)

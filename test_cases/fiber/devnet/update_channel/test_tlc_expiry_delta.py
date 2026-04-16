@@ -16,7 +16,7 @@ class TestTlcExpiryDelta(FiberTest):
         channel = (
             self.fibers[0]
             .get_client()
-            .list_channels({"peer_id": self.fibers[1].get_peer_id()})
+            .list_channels({"pubkey": self.fibers[1].get_pubkey()})
         )
 
         # 0x0

@@ -149,7 +149,7 @@ class TestWatchTower(FiberTest):
                 "invoice": invoice["invoice_address"],
                 "dry_run": True,
                 "trampoline_hops": [
-                    self.fiber2.get_client().node_info()["node_id"],
+                    self.fiber2.get_client().node_info()["pubkey"],
                 ],
             }
         )
@@ -158,7 +158,7 @@ class TestWatchTower(FiberTest):
             {
                 "invoice": invoice["invoice_address"],
                 "trampoline_hops": [
-                    self.fiber2.get_client().node_info()["node_id"],
+                    self.fiber2.get_client().node_info()["pubkey"],
                 ],
             }
         )
@@ -167,7 +167,7 @@ class TestWatchTower(FiberTest):
             {
                 "invoice": udt_invoice["invoice_address"],
                 "trampoline_hops": [
-                    self.fiber2.get_client().node_info()["node_id"],
+                    self.fiber2.get_client().node_info()["pubkey"],
                 ],
             }
         )

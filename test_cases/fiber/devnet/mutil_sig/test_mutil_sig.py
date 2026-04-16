@@ -33,7 +33,7 @@ class MutilSigTestCase(FiberTest):
 
     def test_000001(self):
         udt = self.get_account_udt_script(self.fiber1.account_private)
-        fiber2_peer_id = self.fiber2.get_peer_id()
+        fiber2_pubkey = self.fiber2.get_pubkey()
         for i in range(10):
             for i in range(10):
                 self.send_payment(
@@ -41,7 +41,7 @@ class MutilSigTestCase(FiberTest):
                 )
             self.fiber1.get_client().disconnect_peer(
                 {
-                    "peer_id": fiber2_peer_id,
+                    "pubkey": fiber2_pubkey,
                 }
             )
             time.sleep(5)
@@ -79,7 +79,7 @@ class MutilSigTestCase(FiberTest):
         # self.fiber2.stop()
         # self.fiber2.start()
         # self.fiber1.get_client().disconnect_peer({
-        #     "peer_id": self.fiber2.get_peer_id()
+        #     "pubkey": self.fiber2.get_pubkey()
         #     ,
         # })
         # self.fiber1.connect_peer(self.fiber2)

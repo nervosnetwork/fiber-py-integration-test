@@ -22,14 +22,14 @@ class TestLongRouter(FiberTest):
             # open channel
             current_fiber.get_client().open_channel(
                 {
-                    "peer_id": linked_fiber.get_peer_id(),
+                    "pubkey": linked_fiber.get_pubkey(),
                     "funding_amount": hex(500 * 100000000),
                     "public": True,
                 }
             )
             # // AWAITING_TX_SIGNATURES
             self.wait_for_channel_state(
-                current_fiber.get_client(), linked_fiber.get_peer_id(), "CHANNEL_READY"
+                current_fiber.get_client(), linked_fiber.get_pubkey(), "ChannelReady"
             )
             # linked_fiber.get_client().update_channel(
             #     {
@@ -40,13 +40,13 @@ class TestLongRouter(FiberTest):
             #     }
             # )
             self.wait_for_channel_state(
-                current_fiber.get_client(), linked_fiber.get_peer_id(), "CHANNEL_READY"
+                current_fiber.get_client(), linked_fiber.get_pubkey(), "ChannelReady"
             )
 
         before_balance = self.get_fibers_balance()
 
         time.sleep(1)
-        pub_key = self.fibers[-1].get_client().node_info()["node_id"]
+        pub_key = self.fibers[-1].get_client().node_info()["pubkey"]
         payment = (
             self.fibers[0]
             .get_client()

@@ -24,7 +24,7 @@ class TestMaxTlcValueInFlight(FiberTest):
 
         self.fiber1.get_client().open_channel(
             {
-                "peer_id": self.fiber2.get_peer_id(),
+                "pubkey": self.fiber2.get_pubkey(),
                 "funding_amount": hex(1000 * 100000000),
                 "public": True,
                 "max_tlc_value_in_flight": "0x0",
@@ -41,7 +41,7 @@ class TestMaxTlcValueInFlight(FiberTest):
 
         time.sleep(1)
         self.wait_for_channel_state(
-            self.fiber1.get_client(), self.fiber2.get_peer_id(), "CHANNEL_READY", 120
+            self.fiber1.get_client(), self.fiber2.get_pubkey(), "ChannelReady", 120
         )
         time.sleep(5)
         # transfer
@@ -80,7 +80,7 @@ class TestMaxTlcValueInFlight(FiberTest):
         with pytest.raises(Exception) as exc_info:
             temporary_channel_id = self.fiber2.get_client().open_channel(
                 {
-                    "peer_id": self.fiber1.get_peer_id(),
+                    "pubkey": self.fiber1.get_pubkey(),
                     "funding_amount": hex(1000 * 100000000),
                     "public": True,
                     # "tlc_min_value": hex(2 * 100000000)
@@ -103,7 +103,7 @@ class TestMaxTlcValueInFlight(FiberTest):
         time.sleep(5)
         self.fiber1.get_client().open_channel(
             {
-                "peer_id": self.fiber2.get_peer_id(),
+                "pubkey": self.fiber2.get_pubkey(),
                 "funding_amount": hex(1000 * 100000000),
                 "public": True,
                 "max_tlc_value_in_flight": "0x1",
@@ -113,7 +113,7 @@ class TestMaxTlcValueInFlight(FiberTest):
 
         time.sleep(1)
         self.wait_for_channel_state(
-            self.fiber1.get_client(), self.fiber2.get_peer_id(), "CHANNEL_READY", 120
+            self.fiber1.get_client(), self.fiber2.get_pubkey(), "ChannelReady", 120
         )
         time.sleep(5)
         # transfer
@@ -210,7 +210,7 @@ class TestMaxTlcValueInFlight(FiberTest):
         """
         self.fiber1.get_client().open_channel(
             {
-                "peer_id": self.fiber2.get_peer_id(),
+                "pubkey": self.fiber2.get_pubkey(),
                 "funding_amount": hex(1000 * 100000000),
                 "public": True,
                 "max_tlc_value_in_flight": "0x1",
@@ -223,7 +223,7 @@ class TestMaxTlcValueInFlight(FiberTest):
 
         time.sleep(1)
         self.wait_for_channel_state(
-            self.fiber1.get_client(), self.fiber2.get_peer_id(), "CHANNEL_READY", 120
+            self.fiber1.get_client(), self.fiber2.get_pubkey(), "ChannelReady", 120
         )
         time.sleep(5)
         # transfer
@@ -326,7 +326,7 @@ class TestMaxTlcValueInFlight(FiberTest):
     def test_debug_ckb_max_tlc_value_in_flight_not_eq_default(self):
         self.fiber1.get_client().open_channel(
             {
-                "peer_id": self.fiber2.get_peer_id(),
+                "pubkey": self.fiber2.get_pubkey(),
                 "funding_amount": hex(1000 * 100000000),
                 "public": True,
                 "max_tlc_value_in_flight": hex(1 * 100000000),
@@ -335,7 +335,7 @@ class TestMaxTlcValueInFlight(FiberTest):
         )
 
         self.wait_for_channel_state(
-            self.fiber1.get_client(), self.fiber2.get_peer_id(), "CHANNEL_READY", 120
+            self.fiber1.get_client(), self.fiber2.get_pubkey(), "ChannelReady", 120
         )
         time.sleep(5)
         # transfer
@@ -376,7 +376,7 @@ class TestMaxTlcValueInFlight(FiberTest):
 
         self.fiber1.get_client().open_channel(
             {
-                "peer_id": self.fiber2.get_peer_id(),
+                "pubkey": self.fiber2.get_pubkey(),
                 "funding_amount": hex(1000 * 100000000),
                 "public": True,
                 "max_tlc_value_in_flight": hex(1 * 100000000),
@@ -385,7 +385,7 @@ class TestMaxTlcValueInFlight(FiberTest):
         )
 
         self.wait_for_channel_state(
-            self.fiber1.get_client(), self.fiber2.get_peer_id(), "CHANNEL_READY", 120
+            self.fiber1.get_client(), self.fiber2.get_pubkey(), "ChannelReady", 120
         )
         time.sleep(5)
         # transfer
@@ -513,7 +513,7 @@ class TestMaxTlcValueInFlight(FiberTest):
 
         self.fiber1.get_client().open_channel(
             {
-                "peer_id": self.fiber2.get_peer_id(),
+                "pubkey": self.fiber2.get_pubkey(),
                 "funding_amount": hex(1000 * 100000000),
                 "public": True,
                 "max_tlc_value_in_flight": hex(1 * 100000000),
@@ -526,7 +526,7 @@ class TestMaxTlcValueInFlight(FiberTest):
 
         time.sleep(1)
         self.wait_for_channel_state(
-            self.fiber1.get_client(), self.fiber2.get_peer_id(), "CHANNEL_READY", 120
+            self.fiber1.get_client(), self.fiber2.get_pubkey(), "ChannelReady", 120
         )
         time.sleep(5)
         # transfer

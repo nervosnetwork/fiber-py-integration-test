@@ -7,24 +7,21 @@ error_cases=""
 # Function to run pytest and process the output
 # Function to run pytest and process the output
 run_test() {
-    # Run pytest with verbose and no capture, redirect stderr to stdout
-    pytest_output=$(python3 -m pytest -vv "$1" 2>&1)
-
-    # Print pytest output
-    echo "$pytest_output" > pytest_output.txt
+    # Run pytest with verbose and no capture, stream output in real-time via tee
+    python3 -u -m pytest -vv "$1" 2>&1 | tee pytest_output.txt
 
     # Check if pytest output contains "failed"
-    if grep -q "FAILED test_cases" <<< "$pytest_output"; then
+    if grep -q "FAILED test_cases" pytest_output.txt; then
         # Handle failed test case
         echo "Test case $1 failed"
         failed_cases+=$(grep "FAILED test_cases" pytest_output.txt)
         return 1
     fi
 
-    if grep -q "ERROR test_cases" <<< "$pytest_output"; then
+    if grep -q "ERROR test_cases" pytest_output.txt; then
         # Handle failed test case
         echo "Test case $1 error"
-        error_cases+=$(grep "FAILED test_cases" pytest_output.txt)
+        error_cases+=$(grep "ERROR test_cases" pytest_output.txt)
         return 1
     fi
 
@@ -51,17 +48,26 @@ echo "# Test Results Summary" >> $GITHUB_STEP_SUMMARY
 echo "Passed test cases: ${passed_cases}" >> $GITHUB_STEP_SUMMARY
 echo "Failed test cases: ${failed_cases}" >> $GITHUB_STEP_SUMMARY
 echo "ERROR test cases: ${error_cases}" >> $GITHUB_STEP_SUMMARY
+# Function to sanitize filename: replace invalid characters for artifact upload
+# Invalid chars: " : < > | * ? \r \n /
+# Also truncate to 200 chars max to avoid filesystem limits
+sanitize_filename() {
+    echo "$1" | tr '/:\"<>|*?\r\n' '___________' | cut -c1-200
+}
+
 # Check if there are any failed cases
 if [ -n "$failed_cases" ]; then
-    echo "Exist failed cases:${failed_cases//\//_}"
-    mv report/report.html "report/${failed_cases//\//_}.html"
+    sanitized=$(sanitize_filename "$failed_cases")
+    echo "Exist failed cases:${sanitized}"
+    mv report/report.html "report/${sanitized}.html"
     exit 1
 fi
 
 # Check if there are any error cases
 if [ -n "$error_cases" ]; then
-    echo "Exist error cases:${error_cases//\//_}"
-    mv report/report.html "report/${error_cases//\//_}.html"
+    sanitized=$(sanitize_filename "$error_cases")
+    echo "Exist error cases:${sanitized}"
+    mv report/report.html "report/${sanitized}.html"
     exit 2
 fi
 rm -rf report/report.html

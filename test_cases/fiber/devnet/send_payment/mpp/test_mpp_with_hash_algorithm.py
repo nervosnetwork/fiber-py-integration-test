@@ -25,7 +25,7 @@ class TestMppWithHashAlgorithm(FiberTest):
                 # "max_fee_amount": hex(100000000),
                 # "trampoline_hops": [
                 #     {
-                #         "pubkey": self.fiber2.get_client().node_info()["node_id"],
+                #         "pubkey": self.fiber2.get_client().node_info()["pubkey"],
                 #         # "fee_rate": hex(100000),
                 #     },
                 # ]
@@ -50,7 +50,7 @@ class TestMppWithHashAlgorithm(FiberTest):
                 # "max_fee_amount": hex(100000000),
                 # "trampoline_hops": [
                 #     {
-                #         "pubkey": self.fiber2.get_client().node_info()["node_id"],
+                #         "pubkey": self.fiber2.get_client().node_info()["pubkey"],
                 #         # "fee_rate": hex(100000),
                 #     },
                 # ]

@@ -2,10 +2,14 @@ from framework.basic_fiber import FiberTest
 from framework.test_btc import BtcNode
 from framework.test_lnd import LndNode
 
+from framework.test_fiber import FiberConfigPath
+import time
+
 
 class FiberCchTest(FiberTest):
     LNDs: list[LndNode] = []
     btcNode: BtcNode
+    fiber_version = FiberConfigPath.CURRENT_CCH
 
     @classmethod
     def setup_class(cls):
@@ -100,3 +104,34 @@ class FiberCchTest(FiberTest):
             lnd.clean()
         cls.btcNode.stop()
         cls.btcNode.clean()
+
+    def wait_cch_order_state(
+        self, client, payment_hash, status="Success", timeout=360, interval=1
+    ):
+        """
+        Enum with values of
+            Pending - Order is created and has not send out payments yet.
+            IncomingAccepted - HTLC in the incoming payment is accepted.
+            OutgoingInFlight - There's an outgoing payment in flight.
+            OutgoingSuccess - The outgoing payment is settled.
+            Success - Both payments are settled and the order succeeds.
+            Failed - Order is failed.
+        Args:
+            client:
+            payment_hash:
+            status:
+            timeout:
+            interval:
+        Returns:
+
+        """
+        for i in range(timeout):
+            result = client.get_client().get_cch_order({"payment_hash": payment_hash})
+            if result["status"] == status:
+                return
+            if result["status"] == "Failed" or result["status"] == "Success":
+                raise Exception(f"payment failed, reason:{result['status']}")
+            time.sleep(interval)
+        raise TimeoutError(
+            f"payment:{payment_hash} status did not reach state: {result['status']}, expected:{status} , within timeout period."
+        )

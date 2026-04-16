@@ -16,7 +16,7 @@ class TlcMinValue(FiberTest):
 
         temporary_channel_id = self.fiber1.get_client().open_channel(
             {
-                "peer_id": self.fiber2.get_peer_id(),
+                "pubkey": self.fiber2.get_pubkey(),
                 "funding_amount": hex(200 * 100000000),
                 "public": True,
                 # "funding_fee_rate": "0xffff",
@@ -24,7 +24,7 @@ class TlcMinValue(FiberTest):
             }
         )
         self.wait_for_channel_state(
-            self.fiber1.get_client(), self.fiber2.get_peer_id(), "CHANNEL_READY", 120
+            self.fiber1.get_client(), self.fiber2.get_pubkey(), "ChannelReady", 120
         )
         time.sleep(5)
         # transfer
@@ -59,7 +59,7 @@ class TlcMinValue(FiberTest):
         ) == int(invoice_balance, 16)
 
         channels = self.fiber1.get_client().list_channels(
-            {"peer_id": self.fiber2.get_peer_id()}
+            {"pubkey": self.fiber2.get_pubkey()}
         )
         N1N2_CHANNEL_ID = channels["channels"][0]["channel_id"]
         self.fiber1.get_client().graph_channels()
@@ -108,7 +108,7 @@ class TlcMinValue(FiberTest):
 
         temporary_channel_id = self.fiber1.get_client().open_channel(
             {
-                "peer_id": self.fiber2.get_peer_id(),
+                "pubkey": self.fiber2.get_pubkey(),
                 "funding_amount": hex(200 * 100000000),
                 "public": True,
                 "tlc_min_value": hex(2 * 100000000),
@@ -118,7 +118,7 @@ class TlcMinValue(FiberTest):
         )
 
         self.wait_for_channel_state(
-            self.fiber1.get_client(), self.fiber2.get_peer_id(), "CHANNEL_READY", 120
+            self.fiber1.get_client(), self.fiber2.get_pubkey(), "ChannelReady", 120
         )
         # transfer
         before_channel = self.fiber1.get_client().list_channels({})
@@ -169,7 +169,7 @@ class TlcMinValue(FiberTest):
 
         self.send_payment(self.fiber2, self.fiber1, 2 * 100000000 - 1)
         channels = self.fiber1.get_client().list_channels(
-            {"peer_id": self.fiber2.get_peer_id()}
+            {"pubkey": self.fiber2.get_pubkey()}
         )
         N1N2_CHANNEL_ID = channels["channels"][0]["channel_id"]
         channels = self.fiber1.get_client().list_channels({})
@@ -206,7 +206,7 @@ class TlcMinValue(FiberTest):
 
         temporary_channel_id = self.fiber1.get_client().open_channel(
             {
-                "peer_id": self.fiber2.get_peer_id(),
+                "pubkey": self.fiber2.get_pubkey(),
                 "funding_amount": hex(200 * 100000000),
                 "public": True,
                 "tlc_min_value": hex(210 * 100000000),
@@ -215,7 +215,7 @@ class TlcMinValue(FiberTest):
             }
         )
         self.wait_for_channel_state(
-            self.fiber1.get_client(), self.fiber2.get_peer_id(), "CHANNEL_READY", 120
+            self.fiber1.get_client(), self.fiber2.get_pubkey(), "ChannelReady", 120
         )
         time.sleep(3)
         # transfer
@@ -265,7 +265,7 @@ class TlcMinValue(FiberTest):
 
         self.fiber1.get_client().open_channel(
             {
-                "peer_id": self.fiber2.get_peer_id(),
+                "pubkey": self.fiber2.get_pubkey(),
                 "funding_amount": hex(1000 * 100000000),
                 "public": True,
                 "tlc_min_value": hex(160 * 100000000),
@@ -282,7 +282,7 @@ class TlcMinValue(FiberTest):
 
         time.sleep(1)
         self.wait_for_channel_state(
-            self.fiber1.get_client(), self.fiber2.get_peer_id(), "CHANNEL_READY", 120
+            self.fiber1.get_client(), self.fiber2.get_pubkey(), "ChannelReady", 120
         )
         time.sleep(5)
         # transfer
@@ -410,7 +410,7 @@ class TlcMinValue(FiberTest):
         self.wait_payment_state(self.fiber2, payment["payment_hash"], "Success")
 
         channels = self.fiber1.get_client().list_channels(
-            {"peer_id": self.fiber2.get_peer_id()}
+            {"pubkey": self.fiber2.get_pubkey()}
         )
         N1N2_CHANNEL_ID = channels["channels"][0]["channel_id"]
         self.fiber1.get_client().graph_channels()
