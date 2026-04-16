@@ -708,6 +708,9 @@ jobs:
           sudo apt-get update
           sudo apt-get install -y tor
           tor --version
+          # apt 会拉起系统 tor（常只占 9050、无 Control）；停掉后由测试自启带 9051 的实例
+          sudo systemctl stop tor || true
+          sudo pkill -x tor || true
 
       - name: Download prepare backup
         uses: actions/download-artifact@v4
