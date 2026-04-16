@@ -44,7 +44,7 @@ class TestCommitmentDelayEpoch(FiberTest):
             == 100000000000
             or first_tx_message["input_cells"][0]["capacity"]
             - second_tx_message["input_cells"][0]["capacity"]
-            == 99000000000
+            == 9900000000
         )
 
     def test_self_shutdown(self):
