@@ -3,6 +3,15 @@ fiber:
   chain: dev.toml
   announce_listening_addr: true
   announce_private_addr: {{ fiber_announce_private_addr | default(true) }}
+  {% if fiber_reuse_port_for_websocket is defined %}
+  reuse_port_for_websocket: {% if fiber_reuse_port_for_websocket %}true{% else %}false{% endif %}
+  {% endif %}
+  {% if fiber_announced_addrs is defined %}
+  announced_addrs:
+  {% for addr in fiber_announced_addrs %}
+    - {{ addr }}
+  {% endfor %}
+  {% endif %}
   gossip_store_maintenance_interval_ms: 1000
   gossip_network_maintenance_interval_ms: 1000
   open_channel_auto_accept_min_ckb_funding_amount: {{ fiber_open_channel_auto_accept_min_ckb_funding_amount | default(10000000000)}}
