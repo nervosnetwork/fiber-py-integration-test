@@ -132,6 +132,24 @@ def _wait_bootstrap(
     raise TimeoutError(f"{timeout}s 内 Tor 未完成 bootstrap")
 
 
+def _wait_circuit_established(
+    host: str, port: int, password: str, timeout: float, interval: float
+) -> None:
+    """等待 status/circuit-established=1，Tor 认为已可建路承载流量（bootstrap 之后仍可能短暂为 0）。"""
+    deadline = time.time() + timeout
+    while time.time() < deadline:
+        try:
+            val = _control_getinfo(
+                host, port, password, "status/circuit-established", timeout=10.0
+            )
+            if val.strip() == "1":
+                return
+        except (OSError, RuntimeError, ConnectionError):
+            pass
+        time.sleep(interval)
+    raise TimeoutError(f"{timeout}s 内 Tor 未进入 circuit-established（网络仍不可用）")
+
+
 @dataclass
 class TorDaemon:
     """data_dir：仅写子进程日志 tor.log（非 tor 的 DataDirectory）。"""
@@ -181,14 +199,19 @@ class TorDaemon:
         self,
         host: str = "127.0.0.1",
         timeout: float = 60.0,
-        wait_bootstrap: bool = False,
-        bootstrap_timeout: float = 300.0,
+        wait_bootstrap: bool = True,
+        bootstrap_timeout: float = 600.0,
+        circuit_timeout: float = 300.0,
     ) -> None:
+        """端口与控制就绪后，若 ``wait_bootstrap`` 则等待目录同步完成并等到 circuit-established。"""
         _wait_tcp(host, self.socks_port, timeout)
         _wait_control(host, self.control_port, self.control_password, timeout)
         if wait_bootstrap:
             _wait_bootstrap(
                 host, self.control_port, self.control_password, bootstrap_timeout, 1.0
+            )
+            _wait_circuit_established(
+                host, self.control_port, self.control_password, circuit_timeout, 0.5
             )
 
     def stop(self, host: str = "127.0.0.1", timeout: float = 15.0) -> None:
