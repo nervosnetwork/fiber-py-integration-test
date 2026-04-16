@@ -47,9 +47,9 @@ class TestRpcMethodNotFound(FiberTest):
         )
 
         # Should be Method not found (-32601) from JSON-RPC layer
-        assert error_code == -32601, (
-            f"Expected 'Method not found' error code -32601, got code {error_code}: {error}"
-        )
+        assert (
+            error_code == -32601
+        ), f"Expected 'Method not found' error code -32601, got code {error_code}: {error}"
 
     def test_existing_method_still_works_without_auth(self):
         """Ensure existing RPC methods still work normally when auth is disabled."""
@@ -70,9 +70,9 @@ class TestRpcMethodNotFound(FiberTest):
             response = self._raw_rpc_call(url, method)
             assert "error" in response, f"Expected error for method '{method}'"
             error = response["error"]
-            assert error.get("code") == -32601, (
-                f"Method '{method}' returned unexpected error code {error.get('code')}: {error}"
-            )
-            assert error.get("code") != -32999, (
-                f"Method '{method}' returned Unauthorized. PR #1235 fix not applied."
-            )
+            assert (
+                error.get("code") == -32601
+            ), f"Method '{method}' returned unexpected error code {error.get('code')}: {error}"
+            assert (
+                error.get("code") != -32999
+            ), f"Method '{method}' returned Unauthorized. PR #1235 fix not applied."
