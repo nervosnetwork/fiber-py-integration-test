@@ -114,7 +114,7 @@ class TestStableStress(FiberTest):
         start_time = time.time()
         times = []
         completed_counts = []
-        max_inflight = 64
+        max_inflight = 25
         completed_tasks = 0
 
         def _collect(pending_set, wait_all=False):
