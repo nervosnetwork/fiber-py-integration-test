@@ -83,7 +83,7 @@ class TestFiber(CkbTest):
                 }
             )
             wait_for_channel_state(
-                cls.fiber1.get_client(), cls.cryptapeFiber1.get_pubkey(), "Closed", 120
+                cls.fiber1.get_client(), cls.cryptapeFiber1.get_pubkey(), "Closed", 200
             )
 
         channels = cls.fiber2.get_client().list_channels({})
@@ -103,7 +103,7 @@ class TestFiber(CkbTest):
                 }
             )
             wait_for_channel_state(
-                cls.fiber2.get_client(), cls.cryptapeFiber2.get_pubkey(), "Closed", 120
+                cls.fiber2.get_client(), cls.cryptapeFiber2.get_pubkey(), "Closed", 200
             )
 
         cls.fiber1.stop()
@@ -222,14 +222,14 @@ class TestFiber(CkbTest):
             self.fiber1.get_client(),
             self.cryptapeFiber1.get_pubkey(),
             "ChannelReady",
-            120,
+            200,
         )
 
         wait_for_channel_state(
             self.fiber2.get_client(),
             self.cryptapeFiber2.get_pubkey(),
             "ChannelReady",
-            120,
+            200,
         )
         fiber1_channel_outpoint = self.fiber1.get_client().list_channels({})[
             "channels"
@@ -400,7 +400,7 @@ def wait_payment_finished(client, payment_hash, timeout=300):
     raise TimeoutError("payment status did not become final within timeout period.")
 
 
-def wait_for_channel_state(client, pubkey, expected_state, timeout=120):
+def wait_for_channel_state(client, pubkey, expected_state, timeout=200):
     """Wait for a channel to reach a specific state."""
     for _ in range(timeout):
         channels = client.list_channels({"pubkey": pubkey, "include_closed": True})
