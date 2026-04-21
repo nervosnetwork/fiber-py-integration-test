@@ -152,6 +152,16 @@ class TestMySharedFeature(SharedFiberTest):
 For complete API reference, see [docs/references/api-reference.md](docs/references/api-reference.md).
 For detailed test patterns, see [docs/references/test-patterns.md](docs/references/test-patterns.md).
 
+## Test style: simple, obvious, easy to maintain
+
+New and refactored integration tests should be **straightforward** (“stupid” is good): a reader should follow the flow without hunting through helpers or clever abstractions.
+
+- **Linear setup and assertions**: Put steps in `setUp` / test methods in order. Avoid one-off private helpers unless the same logic is reused across tests or files.
+- **Obvious waits**: Prefer a plain `for` loop with `time.sleep(1)` and a clear timeout / `assert False, "…"` message over nested wait utilities when the condition is local to one test file.
+- **Assert behavior, not prose**: Prefer checks on RPC results (e.g. `list_peers`, channel state, payment status). Do not assert on many alternate error substrings unless the product contract requires it; `pytest.raises(Exception)` is acceptable when only “must fail” matters.
+- **Reuse the framework first**: Use `FiberTest` / `SharedFiberTest` helpers (`open_channel`, `send_payment`, `wait_*`, etc.) before adding new shared utilities in `framework/`.
+- **Scope**: One file (or class) per feature or PR regression; a short top-of-file comment naming the PR or behavior is enough—no long essays.
+
 ---
 
 ## Test Coverage Gap Analysis: Fiber vs Bitcoin LND
