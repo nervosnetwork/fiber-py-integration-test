@@ -130,6 +130,7 @@ class TestFiber(CkbTest):
                 # "tlc_fee_proportional_millionths": "0x4B0",
             }
         )
+        time.sleep(15)
         wait_for_channel_state(
             self.fiber1.get_client(),
             self.cryptapeFiber1.get_pubkey(),
@@ -177,6 +178,7 @@ class TestFiber(CkbTest):
     def test_ckb_02(self):
         self.fiber1.stop()
         self.fiber2.stop()
+        time.sleep(15)
         self.fiber1.start()
         self.fiber2.start()
         time.sleep(15)
