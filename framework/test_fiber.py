@@ -72,6 +72,11 @@ class FiberConfigPath(Enum):
         "download/fiber/0.7.0/fnn",
     )
 
+    V081_DEV = (
+        "/source/fiber/dev_config_3.yml.j2",
+        "download/fiber/0.8.1/fnn",
+    )
+
     V061_DEV = (
         "/source/fiber/dev_config_3.yml.j2",
         "download/fiber/0.6.1/fnn",
