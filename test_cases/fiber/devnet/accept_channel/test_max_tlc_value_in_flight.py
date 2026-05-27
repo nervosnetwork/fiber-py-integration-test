@@ -45,4 +45,3 @@ class TestMaxTlcValueInFlight(FiberTest):
             self.fiber1, self.fiber2, 1 * 100000000 + 1, False
         )
         self.wait_payment_state(self.fiber1, payment_hash, "Failed")
-
