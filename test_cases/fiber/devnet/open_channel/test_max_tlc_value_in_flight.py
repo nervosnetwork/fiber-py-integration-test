@@ -198,9 +198,11 @@ class TestMaxTlcValueInFlight(FiberTest):
         )
         self.wait_payment_state(self.fiber2, payment["payment_hash"], "Failed")
         after_channel_2 = self.fiber2.get_client().list_channels({})
-        assert int(before_channel_2["channels"][0]["local_balance"], 16) - int(
-            after_channel_2["channels"][0]["local_balance"], 16
-        ) == 0
+        assert (
+            int(before_channel_2["channels"][0]["local_balance"], 16)
+            - int(after_channel_2["channels"][0]["local_balance"], 16)
+            == 0
+        )
 
     def test_udt_max_tlc_value_in_flight_too_min(self):
         """
