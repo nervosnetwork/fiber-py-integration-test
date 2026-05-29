@@ -13,7 +13,6 @@ class TestForceCloseMultiPayments(FiberTest):
     should reach Success and every invoice should reach Paid.
     """
 
-    debug = True
     start_fiber_config = {"fiber_watchtower_check_interval_seconds": 3}
 
     def _wait_force_close_unlock(self, timeout=600):
