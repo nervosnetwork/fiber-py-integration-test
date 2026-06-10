@@ -32,6 +32,12 @@ fiber:
   {% if fiber_max_inbound_peers is defined %}
   max_inbound_peers: {{ fiber_max_inbound_peers }}
   {% endif %}
+  {% if fiber_to_be_accepted_channels_number_limit is defined %}
+  to_be_accepted_channels_number_limit: {{ fiber_to_be_accepted_channels_number_limit }}
+  {% endif %}
+  {% if fiber_to_be_accepted_channels_bytes_limit is defined %}
+  to_be_accepted_channels_bytes_limit: {{ fiber_to_be_accepted_channels_bytes_limit }}
+  {% endif %}
   {% if fiber_proxy_url is defined or fiber_proxy_random_auth is defined %}
   proxy:
     {% if fiber_proxy_url is defined %}
