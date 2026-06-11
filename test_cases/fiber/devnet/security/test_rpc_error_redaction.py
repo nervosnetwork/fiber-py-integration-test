@@ -1,5 +1,4 @@
 import json
-import time
 from pathlib import Path
 
 import requests
@@ -46,7 +45,7 @@ class TestRpcErrorRedaction(FiberTest):
         assert "payment_preimage" not in rendered
         assert payment_preimage not in rendered
 
-        time.sleep(1)
+        self.fiber1.stop()
         node_log = Path(self.fiber1.tmp_path) / "node.log"
         log_text = node_log.read_text(errors="replace")
         assert payment_preimage not in log_text
