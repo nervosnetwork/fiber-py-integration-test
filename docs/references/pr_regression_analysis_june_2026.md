@@ -20,6 +20,11 @@ Scope: PRs `#1371`, `#1363`, `#1387`, `#1388`, `#1386`, `#1385`, `#1384`,
 - `test_cases/fiber/devnet/open_channel_with_external_funding/test_external_funding_regressions.py`
   - Covers externally-funded channel behavior relevant to PR #1388, #1390,
     #1391, #1394, and #1404 through public RPC flows.
+- `test_cases/fiber/devnet/watch_tower/test_invalid_watchtower_private_key.py`
+  - Covers PR #1401 at the watchtower JSON-RPC boundary by sending a
+    syntactically valid but secp256k1-invalid private key to
+    `create_watch_channel`. A fixed binary must return a JSON-RPC error and
+    keep serving RPC requests.
 
 The target `fnn` binary is now available locally, so the new PR regression
 tests are enabled and were run as integration tests.
@@ -50,7 +55,7 @@ Template support was also added to `source/fiber/dev_config_3.yml.j2` for:
 | #1398 | Huge `list_payments.limit` must be clamped to 500. | `test_list_payments_huge_limit_is_clamped_and_paginates` | Passed. |
 | #1400 | Individual gossip messages must validate chain_hash before store/cursor updates. | No Python case: public RPC cannot inject signed wrong-chain gossip messages. | Documented as internal p2p/Rust coverage needed. |
 | #1404 | External funding peer input verification must use external lock script. | `test_external_funding_uses_external_wallet_and_remains_payable` | Passed. |
-| #1401 | Watchtower RPC invalid secp256k1 private keys must return an error, not panic. | No Python case added because constructing valid full watchtower payloads is low-level and already lives in JSON type conversion. | Documented as RPC conversion/Rust coverage needed. |
+| #1401 | Watchtower RPC invalid secp256k1 private keys must return an error, not panic. | `TestInvalidWatchtowerPrivateKey.test_create_watch_channel_rejects_invalid_private_key_without_panic` | Added. Current local `0.9.0-rc2` binary xfails because the RPC connection is closed after `Invalid secret key: InvalidSecretKey` panic; fixed binaries should pass. |
 | #1409 | Explicit router overflow validation must reject invalid routes before TLC dispatch. | `test_explicit_router_rejects_overflow_amount_before_tlc_dispatch` | Passed. |
 | #1407 | Forwarded TLC hash_algorithm/payment_hash consistency. | No Python case: requires malicious onion/TLC mismatch injection below public RPC. | Documented as channel actor/Rust coverage needed. |
 | #1403 | NodeAnnouncement `/p2p` peer ID mismatch must be rejected/stripped. | No Python case: public RPC cannot forge signed NodeAnnouncement addresses. | Documented as gossip/Rust coverage needed. |
@@ -75,6 +80,12 @@ Performed locally:
   test_cases/fiber/devnet/send_payment/params/test_payment_rpc_limits.py \
   test_cases/fiber/devnet/send_payment_with_router/test_router_overflow_and_trampoline_budget.py \
   test_cases/fiber/devnet/open_channel_with_external_funding/test_external_funding_regressions.py
+.venv/bin/python -m compileall \
+  test_cases/fiber/devnet/watch_tower/test_invalid_watchtower_private_key.py
+.venv/bin/python -m pytest --collect-only -q \
+  test_cases/fiber/devnet/watch_tower/test_invalid_watchtower_private_key.py
+.venv/bin/python -m pytest -q -s \
+  test_cases/fiber/devnet/watch_tower/test_invalid_watchtower_private_key.py
 ```
 
 Observed results:
@@ -82,6 +93,15 @@ Observed results:
 - `compileall` passed for the moved PR regression test files.
 - Focused `pytest --collect-only` collected the 9 PR regression tests.
 - Focused integration run reported `9 passed in 332.86s (0:05:32)`.
+- New PR #1401 test passed `compileall` and `pytest --collect-only`
+  (`1 test collected in 0.33s`).
+- Additional PR #1401 watchtower RPC run reported `1 xfailed in 42.50s`.
+  The xfail is expected for the currently installed local `fnn` binary
+  (`0.9.0-rc2` in the node log): the RPC request closes the connection and
+  node log records repeated `Invalid secret key: InvalidSecretKey` panics at
+  `crates/fiber-types/src/primitives.rs:395`. When the binary includes PR
+  #1401, this test should return a JSON-RPC `Invalid private key` error and
+  pass.
 - The first sandboxed run failed before test setup because `ckb-cli` could not
   update `/Users/xueyanli/.ckb-cli/keystore`; rerunning with elevated runtime
   permissions resolved the environment issue.
@@ -91,11 +111,23 @@ Observed results:
 The following PRs need lower-level Rust, JS/WASM, or protocol-injection
 coverage rather than Python integration coverage:
 
+- #1387: mock-chain UDT funding context changes only affect
+  `crates/fiber-lib/src/ckb/tests/test_utils.rs` and Rust mock-chain setup.
+  Python devnet tests use the real CKB dev node and cannot observe this helper
+  directly.
+- #1393: comment-only refinement in the same Rust synthetic funding
+  transaction helper; no runtime behavior changed.
 - #1395: validate `fiber-js/src/fiber.worker.ts` logs only non-sensitive
-  initialization fields.
-- #1396, #1400, #1403: wrong-chain or malformed gossip/open-channel message
-  injection requires p2p message construction/signing hooks.
-- #1401: invalid watchtower private-key conversion is best asserted at the
-  JSON type/RPC boundary with a minimal Rust RPC test.
+  initialization fields. This is a fiber-js worker concern, outside the Python
+  FNN integration harness.
+- #1396: wrong-chain inbound `OpenChannel` validation happens on received p2p
+  messages before `ChannelOpenRecord` persistence. Public `open_channel` RPC
+  always uses the local chain hash and cannot forge a peer `OpenChannel`.
+- #1400: wrong-chain individual gossip messages require constructing signed
+  gossip payloads with mismatched `chain_hash`; public graph/RPC APIs only
+  expose accepted graph state.
+- #1403: mismatched `/p2p` peer IDs in `NodeAnnouncement` require forged signed
+  node announcements. Public `connect_peer` and graph APIs cannot inject a
+  malformed announcement from another node ID.
 - #1407: malicious forwarded TLC hash mismatch requires channel actor or onion
   payload injection below normal `send_payment`.
