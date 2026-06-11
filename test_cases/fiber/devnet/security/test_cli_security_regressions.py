@@ -6,7 +6,6 @@ import subprocess
 from framework.basic_fiber import FiberTest
 from framework.util import get_project_root
 
-
 FNN_CLI = os.path.join(get_project_root(), "download/fiber/current/fnn-cli")
 
 

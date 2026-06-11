@@ -2,7 +2,6 @@ import time
 
 from framework.basic_fiber import FiberTest
 
-
 CKB = 100000000
 
 
