@@ -8,8 +8,15 @@ from framework.basic_fiber import FiberTest
 
 class TestRpcErrorRedaction(FiberTest):
     """
-    PR-1405 regression: RPC errors must not echo request params or sensitive
-    values back to the caller/logs.
+    PR-1405 regression: a settle_invoice RPC error must not echo the supplied
+    payment_preimage back to the caller, and must not write it to node.log.
+
+    Scope note: jsonrpsee's generic "Invalid params" (-32602) deserialization
+    error DOES echo the caller's own malformed input back to that same caller
+    (e.g. "failed to decode hex string <input>"). That is the caller's own data
+    returned only to the caller and is outside PR-1405's scope, so this test
+    deliberately uses a well-formed preimage and checks the handler-level error
+    path plus the log, which is what PR-1405 actually hardened.
     """
 
     def test_rpc_error_omits_request_data_and_preimage(self):
@@ -40,11 +47,13 @@ class TestRpcErrorRedaction(FiberTest):
         error = body["error"]
         rendered = json.dumps(body)
 
+        # The handler error must not echo the request params or the preimage.
         assert "data" not in error
         assert "params" not in rendered
         assert "payment_preimage" not in rendered
         assert payment_preimage not in rendered
 
+        # The preimage must never be persisted to the log (the real PR-1405 risk).
         self.fiber1.stop()
         node_log = Path(self.fiber1.tmp_path) / "node.log"
         log_text = node_log.read_text(errors="replace")

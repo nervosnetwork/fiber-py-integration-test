@@ -3,12 +3,21 @@ from pathlib import Path
 import stat
 import subprocess
 
+import pytest
+
 from framework.basic_fiber import FiberTest
 from framework.util import get_project_root
 
 FNN_CLI = os.path.join(get_project_root(), "download/fiber/current/fnn-cli")
 
+# Skip the CLI-binary tests (rather than erroring) when fnn-cli is not present,
+# e.g. running locally without the prepare/download step.
+requires_fnn_cli = pytest.mark.skipif(
+    not os.path.exists(FNN_CLI), reason=f"fnn-cli not found at {FNN_CLI}"
+)
 
+
+@requires_fnn_cli
 def test_auth_token_rejects_implicit_plaintext_remote_http():
     result = subprocess.run(
         [
@@ -32,6 +41,7 @@ def test_auth_token_rejects_implicit_plaintext_remote_http():
     assert "super-secret-token" not in combined
 
 
+@requires_fnn_cli
 def test_interactive_history_redacts_secret_values(tmp_path):
     secret = "0x" + "aa" * 32
     payment_hash = "0x" + "11" * 32
@@ -76,5 +86,11 @@ class TestFilesystemPermissions(FiberTest):
             assert private_mode(fiber_base) == 0o700
             assert private_mode(store) == 0o700
 
+            # The security property is "private" = no group/other access. Assert
+            # that directly instead of a fixed 0o600, which would falsely fail on
+            # RocksDB sub-directories (0o700) and is umask/platform sensitive.
             for entry in store.iterdir():
-                assert private_mode(entry) == 0o600, entry
+                assert private_mode(entry) & 0o077 == 0, (
+                    entry,
+                    oct(private_mode(entry)),
+                )
