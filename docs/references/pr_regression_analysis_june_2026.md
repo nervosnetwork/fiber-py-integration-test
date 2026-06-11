@@ -1,4 +1,4 @@
-# v0.9.0 PR Regression Test Analysis
+# June 2026 PR Regression Test Analysis
 
 Date: 2026-06-09
 
@@ -8,20 +8,20 @@ Scope: PRs `#1371`, `#1363`, `#1387`, `#1388`, `#1386`, `#1385`, `#1384`,
 
 ## Added Python Integration Tests
 
-- `test_cases/fiber/v0.9.0/pending_limits/test_auto_accept_pending_limits.py`
+- `test_cases/fiber/devnet/accept_channel/test_auto_accept_pending_limits.py`
   - Covers PR #1371 per-peer pending channel cap through public
     `open_channel` and `list_channels(only_pending=true)`.
-- `test_cases/fiber/v0.9.0/rpc_limits/test_payment_rpc_limits.py`
+- `test_cases/fiber/devnet/send_payment/params/test_payment_rpc_limits.py`
   - Covers PR #1363 amount overflow rejection and PR #1398
     `list_payments.limit` clamping behavior.
-- `test_cases/fiber/v0.9.0/router_limits/test_router_overflow_and_trampoline_budget.py`
+- `test_cases/fiber/devnet/send_payment_with_router/test_router_overflow_and_trampoline_budget.py`
   - Covers PR #1392 trampoline fee budget behavior and PR #1409 explicit
     router overflow validation.
-- `test_cases/fiber/v0.9.0/external_funding/test_external_funding_regressions.py`
+- `test_cases/fiber/devnet/open_channel_with_external_funding/test_external_funding_regressions.py`
   - Covers externally-funded channel behavior relevant to PR #1388, #1390,
     #1391, #1394, and #1404 through public RPC flows.
 
-The v0.9.0 `fnn` binary is now available locally, so the new PR regression
+The target `fnn` binary is now available locally, so the new PR regression
 tests are enabled and were run as integration tests.
 
 Template support was also added to `source/fiber/dev_config_3.yml.j2` for:
@@ -60,22 +60,26 @@ Template support was also added to `source/fiber/dev_config_3.yml.j2` for:
 Performed locally:
 
 ```bash
-.venv/bin/python -m compileall test_cases/fiber/v0.9.0
+.venv/bin/python -m compileall \
+  test_cases/fiber/devnet/accept_channel/test_auto_accept_pending_limits.py \
+  test_cases/fiber/devnet/send_payment/params/test_payment_rpc_limits.py \
+  test_cases/fiber/devnet/send_payment_with_router/test_router_overflow_and_trampoline_budget.py \
+  test_cases/fiber/devnet/open_channel_with_external_funding/test_external_funding_regressions.py
 .venv/bin/python -m pytest --collect-only -q \
-  test_cases/fiber/v0.9.0/pending_limits \
-  test_cases/fiber/v0.9.0/rpc_limits \
-  test_cases/fiber/v0.9.0/router_limits \
-  test_cases/fiber/v0.9.0/external_funding/test_external_funding_regressions.py
+  test_cases/fiber/devnet/accept_channel/test_auto_accept_pending_limits.py \
+  test_cases/fiber/devnet/send_payment/params/test_payment_rpc_limits.py \
+  test_cases/fiber/devnet/send_payment_with_router/test_router_overflow_and_trampoline_budget.py \
+  test_cases/fiber/devnet/open_channel_with_external_funding/test_external_funding_regressions.py
 .venv/bin/python -m pytest -q -s \
-  test_cases/fiber/v0.9.0/pending_limits \
-  test_cases/fiber/v0.9.0/rpc_limits \
-  test_cases/fiber/v0.9.0/router_limits \
-  test_cases/fiber/v0.9.0/external_funding/test_external_funding_regressions.py
+  test_cases/fiber/devnet/accept_channel/test_auto_accept_pending_limits.py \
+  test_cases/fiber/devnet/send_payment/params/test_payment_rpc_limits.py \
+  test_cases/fiber/devnet/send_payment_with_router/test_router_overflow_and_trampoline_budget.py \
+  test_cases/fiber/devnet/open_channel_with_external_funding/test_external_funding_regressions.py
 ```
 
 Observed results:
 
-- `compileall` passed for all files under `test_cases/fiber/v0.9.0`.
+- `compileall` passed for the moved PR regression test files.
 - Focused `pytest --collect-only` collected the 9 PR regression tests.
 - Focused integration run reported `9 passed in 332.86s (0:05:32)`.
 - The first sandboxed run failed before test setup because `ckb-cli` could not

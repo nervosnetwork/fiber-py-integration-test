@@ -43,8 +43,6 @@ asserts the observable consequences of the fix:
 import hashlib
 import time
 
-import pytest
-
 from framework.basic_fiber import FiberTest
 
 
@@ -60,7 +58,6 @@ DOWNSTREAM_CAPACITY = 2000 * 100000000
 INVOICE_AMOUNT = 600 * 100000000
 
 
-@pytest.mark.skip(reason="v0.9.0 fnn binary is not released yet")
 class TestPR1335MppForceClosePreimageRetention(FiberTest):
 
     start_fiber_config = {"fiber_watchtower_check_interval_seconds": 5}

@@ -7,8 +7,6 @@ while the invoice is already Received.
 
 import hashlib
 
-import pytest
-
 from framework.basic_fiber import FiberTest
 
 
@@ -17,7 +15,6 @@ def _sha256_hex(preimage_hex):
     return "0x" + hashlib.sha256(raw).hexdigest()
 
 
-@pytest.mark.skip(reason="v0.9.0 fnn binary is not released yet")
 class TestReceivedHoldTlcSettlement(FiberTest):
     def _new_hold_invoice(self, amount):
         preimage = self.generate_random_preimage()

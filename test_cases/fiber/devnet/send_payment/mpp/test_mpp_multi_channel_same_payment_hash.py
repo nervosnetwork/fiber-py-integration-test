@@ -18,8 +18,6 @@ Expected:
 
 import time
 
-import pytest
-
 from framework.basic_fiber import FiberTest
 from framework.util import ckb_hash
 
@@ -28,7 +26,6 @@ DOWNSTREAM_CAPACITY = 3000 * 100000000
 INVOICE_AMOUNT = 1500 * 100000000
 
 
-@pytest.mark.skip(reason="v0.9.0 fnn binary is not released yet")
 class TestMppMultiChannelSamePaymentHash(FiberTest):
 
     start_fiber_config = {"fiber_watchtower_check_interval_seconds": 5}

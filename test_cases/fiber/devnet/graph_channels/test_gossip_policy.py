@@ -48,8 +48,6 @@ not exposed via JSON-RPC, so they are not covered here.
 import re
 import time
 
-import pytest
-
 from framework.basic_fiber import FiberTest
 from framework.config import DEFAULT_MIN_DEPOSIT_CKB
 
@@ -124,7 +122,6 @@ def _wait_graph_channel(fiber, channel_outpoint, timeout=30):
     )
 
 
-@pytest.mark.skip(reason="v0.9.0 fnn binary is not released yet")
 class TestGossipPolicy(FiberTest):
     __test__ = True
 

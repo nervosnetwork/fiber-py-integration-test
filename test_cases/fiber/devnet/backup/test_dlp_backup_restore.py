@@ -19,8 +19,6 @@ tests target that final API.
 import os
 import time
 
-import pytest
-
 from framework.basic_fiber import FiberTest
 from framework.util import get_project_root, run_command
 
@@ -115,7 +113,6 @@ def _wait_state(client, pubkey, expected: str, timeout: int = 90) -> str:
     return last or "<no channel>"
 
 
-@pytest.mark.skip(reason="v0.9.0 fnn binary is not released yet")
 class TestDlpBackupAndRestore(FiberTest):
     """Regression suite for nervosnetwork/fiber PR #1197."""
 

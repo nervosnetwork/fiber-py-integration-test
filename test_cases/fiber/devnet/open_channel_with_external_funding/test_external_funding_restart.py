@@ -41,8 +41,6 @@ unreasonable for CI. Re-enable once the template surfaces the option.
 
 import time
 
-import pytest
-
 from test_cases.fiber.devnet.open_channel_with_external_funding.external_funding_base import (
     ExternalFundingBase,
 )
@@ -81,7 +79,6 @@ def _is_awaiting_external_funding(channel):
     )
 
 
-@pytest.mark.skip(reason="v0.9.0 fnn binary is not released yet")
 class TestExternalFundingRestart(ExternalFundingBase):
     """Each test method opens a fresh externally-funded channel and exercises
     a different restart point."""
@@ -261,19 +258,8 @@ class TestExternalFundingRestart(ExternalFundingBase):
         assert ch2["state"]["state_name"] == "ChannelReady"
 
     # ------------------------------------------------------------------
-    # 5. External-funding timeout (skipped — default is 5 min, not exposed
-    #    via dev_config_3 template).
+    # 5. External-funding timeout after restart.
     # ------------------------------------------------------------------
-    # @pytest.mark.skip(
-    #     reason="default external_funding_timeout_seconds is 5 min and the "
-    #     "dev_config_3 template does not expose the override; a local 7-min "
-    #     "run also exposes what looks like a fiber bug: after restart "
-    #     "has_funding_timeout_elapsed() uses a hydrated started_at and the "
-    #     "scheduled CheckFundingTimeout is logged as 'Ignore stale funding "
-    #     "timeout check', so the channel stays in "
-    #     "NegotiatingFunding(AWAITING_EXTERNAL_FUNDING) instead of moving to "
-    #     "Closed(FUNDING_ABORTED)."
-    # )
     def test_external_funding_timeout_still_applies_after_restart(self):
         self._restart_fibers_with_config_overrides(
             fiber1_overrides={"external_funding_timeout_seconds": 30}

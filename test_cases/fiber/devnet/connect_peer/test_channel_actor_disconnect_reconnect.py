@@ -9,8 +9,6 @@ including when there is a pending hold TLC during the offline window.
 import hashlib
 import time
 
-import pytest
-
 from framework.basic_fiber import FiberTest
 
 
@@ -25,7 +23,6 @@ def _pending_tlc_count(fiber, peer_pubkey):
     return len(channels[0].get("pending_tlcs", []))
 
 
-@pytest.mark.skip(reason="v0.9.0 fnn binary is not released yet")
 class TestChannelActorDisconnectReconnect(FiberTest):
     def _disconnect_and_reconnect(self):
         self.fiber1.get_client().disconnect_peer({"pubkey": self.fiber2.get_pubkey()})
