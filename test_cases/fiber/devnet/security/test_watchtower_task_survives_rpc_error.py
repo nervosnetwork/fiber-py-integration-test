@@ -57,7 +57,7 @@ class TestWatchtowerTaskSurvivesRpcError(FiberTest):
         self.node.getClient().generate_epochs("0x1", 0)
 
         # While the watchtower is offline, no settlement tx can be produced.
-        with pytest.raises(Exception):
+        with pytest.raises(TimeoutError):
             self.wait_and_check_tx_pool_fee(1000, False, 20 * 5)
 
         # Bring the watchtower back online and fund it so it can build the tx.
