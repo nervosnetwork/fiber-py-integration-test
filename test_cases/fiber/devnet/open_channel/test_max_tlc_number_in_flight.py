@@ -57,7 +57,7 @@ class TestMaxTlcNumberInFlight(FiberTest):
         with "Failed to build route" before it can exercise the channel limit.
         """
         # 因为测不了125 所以测60
-        max_tlc_number_in_flight = 64
+        max_tlc_number_in_flight = 10
         temporary_channel = self.fiber1.get_client().open_channel(
             {
                 "pubkey": self.fiber2.get_pubkey(),
@@ -84,27 +84,27 @@ class TestMaxTlcNumberInFlight(FiberTest):
         channel_id = self.fiber1.get_client().list_channels(
             {"pubkey": self.fiber2.get_pubkey()}
         )["channels"][0]["channel_id"]
-
+        self.send_payment(self.fiber2, self.fiber1, 100 * 100000000)
         amount = 1 * 100000000
         for i in range(max_tlc_number_in_flight):
             print("current max_tlc_number_in_flight:", i)
             invoice, payment_hash, _preimage = self.new_hold_invoice(
-                self.fiber1, amount, f"hold invoice {i}"
+                self.fiber2, amount, f"hold invoice {i}"
             )
-            payment = self.fiber2.get_client().send_payment(
+            payment = self.fiber1.get_client().send_payment(
                 {"invoice": invoice["invoice_address"]}
             )
-            self.wait_invoice_state(self.fiber1, payment_hash, "Received", 120, 1)
+            self.wait_invoice_state(self.fiber2, payment_hash, "Received", 120, 1)
             self.wait_payment_state(
-                self.fiber2, payment["payment_hash"], "Inflight", 30, 1
+                self.fiber1, payment["payment_hash"], "Inflight", 30, 1
             )
 
         invoice, payment_hash, _preimage = self.new_hold_invoice(
-            self.fiber1, amount, "hold invoice over limit"
+            self.fiber2, amount, "hold invoice over limit"
         )
         over_limit_failed = False
         try:
-            payment = self.fiber2.get_client().send_payment(
+            payment = self.fiber1.get_client().send_payment(
                 {"invoice": invoice["invoice_address"]}
             )
         except Exception as exc:
@@ -117,9 +117,9 @@ class TestMaxTlcNumberInFlight(FiberTest):
             over_limit_failed = True
         if not over_limit_failed:
             self.wait_payment_state(
-                self.fiber2, payment["payment_hash"], "Failed", 120, 1
+                self.fiber1, payment["payment_hash"], "Failed", 120, 1
             )
-            failed_payment = self.fiber2.get_client().get_payment(
+            failed_payment = self.fiber1.get_client().get_payment(
                 {"payment_hash": payment["payment_hash"]}
             )
             failed_error = str(failed_payment.get("failed_error"))
