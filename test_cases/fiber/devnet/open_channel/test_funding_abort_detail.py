@@ -12,7 +12,6 @@ import time
 from framework.basic_fiber import FiberTest
 from framework.fiber_rpc import FiberRPCClient
 
-
 CKB = 100000000
 
 
@@ -33,8 +32,8 @@ class TestFundingAbortDetail(FiberTest):
                 channel
                 for channel in pending["channels"]
                 if channel["state"]["state_name"] == "Closed"
-                and channel["state"]["state_flags"] == "FUNDING_ABORTED"
-                and isinstance(channel.get("failure_detail"), str)
+                   and channel["state"]["state_flags"] == "FUNDING_ABORTED"
+                   and isinstance(channel.get("failure_detail"), str)
             ]
             for channel in failed:
                 detail = channel["failure_detail"]
