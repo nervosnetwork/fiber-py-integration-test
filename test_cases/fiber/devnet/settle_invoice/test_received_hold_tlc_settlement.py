@@ -7,6 +7,8 @@ while the invoice is already Received.
 
 import hashlib
 
+import pytest
+
 from framework.basic_fiber import FiberTest
 
 
@@ -58,9 +60,16 @@ class TestReceivedHoldTlcSettlement(FiberTest):
         preimage, payment_hash, invoice_address = self._new_hold_invoice(1 * 100000000)
         first = self.fiber1.get_client().send_payment({"invoice": invoice_address})
         self.wait_invoice_state(self.fiber2, payment_hash, "Received", 120, 1)
-
-        duplicate = self.fiber1.get_client().send_payment({"invoice": invoice_address})
-        self.wait_payment_state(self.fiber1, duplicate["payment_hash"], "Failed", 120)
+        with pytest.raises(Exception) as exc_info:
+            duplicate = self.fiber1.get_client().send_payment(
+                {"invoice": invoice_address}
+            )
+        # Step 2: Verify that the expected error message is raised
+        expected_error_message = "Payment session already exists"
+        assert expected_error_message in exc_info.value.args[0], (
+            f"Expected substring '{expected_error_message}' "
+            f"not found in actual string '{exc_info.value.args[0]}'"
+        )
         assert (
             self.fiber2.get_client().get_invoice({"payment_hash": payment_hash})[
                 "status"

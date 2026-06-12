@@ -32,11 +32,6 @@ Scenarios covered here (mirroring the upstream Rust e2e tests):
      `ChannelReady`. The handshake resumes to `ChannelReady`.
   4. Restart the **acceptor** *after* `submit_signed_funding_tx` but before
      `ChannelReady`. The handshake resumes to `ChannelReady`.
-
-The "external funding timeout still applies after restart" scenario from the
-upstream Rust suite is intentionally skipped: the dev_config_3 template does
-not expose `external_funding_timeout_seconds`, and the default (5 min) is
-unreasonable for CI. Re-enable once the template surfaces the option.
 """
 
 import time
@@ -77,6 +72,15 @@ def _is_awaiting_external_funding(channel):
     return name == "AwaitingExternalFunding" or (
         name == "NegotiatingFunding" and "AWAITING_EXTERNAL_FUNDING" in (flags or "")
     )
+
+
+def _is_post_submit_commitment_replay_window(channel):
+    state = channel["state"]
+    name = state["state_name"]
+    flags = state.get("state_flags", "")
+    return (
+        name == "SigningCommitment" and "OUR_COMMITMENT_SIGNED_SENT" in (flags or "")
+    ) or name in ("AwaitingTxSignatures", "AwaitingChannelReady")
 
 
 class TestExternalFundingRestart(ExternalFundingBase):
@@ -156,6 +160,24 @@ class TestExternalFundingRestart(ExternalFundingBase):
         assert False, (
             f"channel {channel_id} did not appear as Closed in "
             f"list_channels(only_pending=true) within {timeout}s "
+            f"(last state: {last_state!r})"
+        )
+
+    def _wait_acceptor_commitment_replay_window(self, channel_id, timeout=20):
+        deadline = time.time() + timeout
+        last_state = None
+        while time.time() < deadline:
+            channels = _list_channels_with_peer(self.fiber2, self.fiber1.get_pubkey())
+            for channel in channels:
+                if channel["channel_id"] != channel_id:
+                    continue
+                last_state = channel["state"]
+                if _is_post_submit_commitment_replay_window(channel):
+                    return channel
+            time.sleep(0.1)
+        assert False, (
+            "acceptor did not reach the external-funding commitment replay "
+            f"window for channel {channel_id} within {timeout}s "
             f"(last state: {last_state!r})"
         )
 
@@ -258,7 +280,38 @@ class TestExternalFundingRestart(ExternalFundingBase):
         assert ch2["state"]["state_name"] == "ChannelReady"
 
     # ------------------------------------------------------------------
-    # 5. External-funding timeout after restart.
+    # 5. Restart acceptor after it has sent its external-funding
+    #    CommitmentSigned. This covers PR #1360's reestablish replay window.
+    # ------------------------------------------------------------------
+    def test_acceptor_restart_after_local_commitment_signed_reaches_ready(self):
+        channel_id, signed_tx = self._setup_external_open()
+        self.node.stop_miner()
+        result = _submit_signed(self.fiber1, channel_id, signed_tx)
+        assert result["funding_tx_hash"]
+
+        replay_window_channel = self._wait_acceptor_commitment_replay_window(channel_id)
+        assert _is_post_submit_commitment_replay_window(replay_window_channel)
+
+        self._restart(self.fiber2)
+        self.fiber1.connect_peer(self.fiber2)
+
+        self.Miner.miner_until_tx_committed(self.node, result["funding_tx_hash"], True)
+        self.node.start_miner()
+        ch1 = self._wait_state(
+            self.fiber1, self.fiber2.get_pubkey(), "ChannelReady", timeout=180
+        )
+        ch2 = self._wait_state(
+            self.fiber2, self.fiber1.get_pubkey(), "ChannelReady", timeout=180
+        )
+        assert ch1["state"]["state_name"] == "ChannelReady"
+        assert ch2["state"]["state_name"] == "ChannelReady"
+
+        payment_hash = self.send_payment(self.fiber1, self.fiber2, 1 * 100000000)
+        payment = self.fiber1.get_client().get_payment({"payment_hash": payment_hash})
+        assert payment["status"] == "Success"
+
+    # ------------------------------------------------------------------
+    # 6. External-funding timeout after restart.
     # ------------------------------------------------------------------
     def test_external_funding_timeout_still_applies_after_restart(self):
         self._restart_fibers_with_config_overrides(
