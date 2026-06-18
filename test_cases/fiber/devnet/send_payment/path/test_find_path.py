@@ -176,6 +176,9 @@ class FindPath(FiberTest):
             self.open_channel(
                 self.fibers[i], self.fibers[i + 3], 1000 * 100000000, 1000 * 100000000
             )
+        for fiber in self.fibers:
+            self.wait_graph_channels_sync(fiber, 7, 120)
+
         hashes = [[], [], [], [], [], []]
         for j in range(100):
             for i in range(len(self.fibers)):
@@ -191,16 +194,14 @@ class FindPath(FiberTest):
             for j in range(len(hashes[i])):
                 self.wait_payment_finished(self.fibers[i], hashes[i][j], 1200)
 
-        for i in range(len(self.fibers)):
-            for i in range(20):
-                payment_hash = self.send_payment(
-                    self.fibers[i], self.fibers[i], 500 * 10000000, False
-                )
-                result = self.wait_payment_finished(self.fibers[i], payment_hash, 1200)
+        for fiber in self.fibers:
+            for retry in range(20):
+                payment_hash = self.send_payment(fiber, fiber, 500 * 10000000, False)
+                result = self.wait_payment_finished(fiber, payment_hash, 1200)
                 if result["status"] == "Success":
                     break
                 time.sleep(1)
-                if i == 19:
+                if retry == 19:
                     raise Exception("payment failed")
         for i in range(len(self.fibers)):
             channels_balance = self.get_fiber_balance(self.fibers[i])

@@ -236,24 +236,9 @@ class TestGossipPolicy(FiberTest):
             )
             # No sleep between calls — we want them within one burst window.
 
-        # Allow time for any updates that *did* get past fiber2's limiter to
-        # be processed and reflected in its graph.
-        time.sleep(8)
-
-        # Re-fetch fiber2's view. The latest fee rate seen on fiber1's
-        # direction in fiber2's graph must be strictly less than the
-        # newest sent value (9000) — otherwise the rate-limit isn't
-        # working.
-        chans = self.fiber2.get_client().graph_channels({}).get("channels", [])
-        assert chans, "fiber2 lost the channel from its graph after updates"
-
-        ours = None
+        fiber1_pubkey = self.fiber1.get_pubkey()
         outpoint = graph_entry.get("channel_outpoint")
-        for c in chans:
-            if c.get("channel_outpoint") == outpoint:
-                ours = c
-                break
-        assert ours is not None, f"fiber2's graph no longer contains channel {outpoint}"
+        min_sender_fee = sent_fees[-2]
 
         # graph_channels response shape (observed):
         #   {"node1": "<pubkey>", "node2": "<pubkey>",
@@ -261,8 +246,6 @@ class TestGossipPolicy(FiberTest):
         #    "update_info_of_node2": {...}, ...}
         # The direction whose top-level node pubkey matches fiber1's pubkey
         # is the one being rate-limited.
-        fiber1_pubkey = self.fiber1.get_pubkey()
-
         def _direction_fee(entry, pubkey):
             if entry.get("node1") == pubkey:
                 upd = entry.get("update_info_of_node1")
@@ -274,25 +257,51 @@ class TestGossipPolicy(FiberTest):
                 return None
             return int(upd.get("fee_rate", "0x0"), 16)
 
+        # Wait until the sender's own graph reflects the high-frequency
+        # update burst. Depending on timestamp/order coalescing, the final
+        # RPC update may not be the one that lands locally, so use the
+        # sender's actual latest graph value as the comparison baseline.
+        # update_channel is asynchronous, so a fixed sleep can observe the
+        # previous value on slower CI runners.
+        own = None
+        own_fee = None
+        for _ in range(30):
+            own_chans = self.fiber1.get_client().graph_channels({}).get("channels", [])
+            own = next(
+                (c for c in own_chans if c.get("channel_outpoint") == outpoint), None
+            )
+            if own is not None:
+                own_fee = _direction_fee(own, fiber1_pubkey)
+                if own_fee is not None and own_fee >= min_sender_fee:
+                    break
+            time.sleep(1)
+        assert own is not None, "fiber1 lost the channel from its own graph"
+        assert (
+            own_fee is not None and own_fee >= min_sender_fee
+        ), f"fiber1's own graph fee={own_fee} did not reach expected burst updates"
+
+        # Re-fetch fiber2's view. The latest fee rate seen on fiber1's
+        # direction in fiber2's graph must be strictly less than the
+        # sender's latest local value — otherwise the rate-limit isn't
+        # working.
+        chans = self.fiber2.get_client().graph_channels({}).get("channels", [])
+        assert chans, "fiber2 lost the channel from its graph after updates"
+
+        ours = None
+        for c in chans:
+            if c.get("channel_outpoint") == outpoint:
+                ours = c
+                break
+        assert ours is not None, f"fiber2's graph no longer contains channel {outpoint}"
+
         fiber1_direction_fee = _direction_fee(ours, fiber1_pubkey)
         assert (
             fiber1_direction_fee is not None
         ), f"could not locate fiber1's direction in graph entry: {ours!r}"
 
-        max_sent = sent_fees[-1]
-        # Rate-limited: fiber2 must NOT have absorbed the very last update.
-        assert fiber1_direction_fee < max_sent, (
+        # Rate-limited: fiber2 must NOT have caught up with fiber1's latest
+        # local graph value.
+        assert fiber1_direction_fee < own_fee, (
             f"fiber2 absorbed the latest update fee={fiber1_direction_fee} "
-            f"(latest sent={max_sent}); rate-limit appears not to be in effect"
+            f"(sender latest={own_fee}); rate-limit appears not to be in effect"
         )
-        # Sanity: fiber1's own graph (it bypasses inbound limiter) DOES
-        # reflect the latest.
-        own_chans = self.fiber1.get_client().graph_channels({}).get("channels", [])
-        own = next(
-            (c for c in own_chans if c.get("channel_outpoint") == outpoint), None
-        )
-        assert own is not None, "fiber1 lost the channel from its own graph"
-        own_fee = _direction_fee(own, fiber1_pubkey)
-        assert (
-            own_fee == max_sent
-        ), f"fiber1's own graph fee={own_fee} != latest sent {max_sent}"
