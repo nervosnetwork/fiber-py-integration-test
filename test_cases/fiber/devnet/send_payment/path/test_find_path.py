@@ -195,14 +195,23 @@ class FindPath(FiberTest):
                 self.wait_payment_finished(self.fibers[i], hashes[i][j], 1200)
 
         for fiber in self.fibers:
+            last_error = None
             for retry in range(20):
-                payment_hash = self.send_payment(fiber, fiber, 500 * 10000000, False)
+                try:
+                    payment_hash = self.send_payment(
+                        fiber, fiber, 500 * 10000000, False, None, 0
+                    )
+                except Exception as e:
+                    last_error = e
+                    time.sleep(1)
+                    continue
                 result = self.wait_payment_finished(fiber, payment_hash, 1200)
                 if result["status"] == "Success":
                     break
+                last_error = result
                 time.sleep(1)
                 if retry == 19:
-                    raise Exception("payment failed")
+                    raise Exception(f"payment failed: {last_error}")
         for i in range(len(self.fibers)):
             channels_balance = self.get_fiber_balance(self.fibers[i])
             assert channels_balance["ckb"]["offered_tlc_balance"] == 0
