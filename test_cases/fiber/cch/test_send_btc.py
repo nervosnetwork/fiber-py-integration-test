@@ -292,7 +292,9 @@ class TestSendBtc(FiberCchTest):
         # todo  应该要失败才对，outgoing端没发出去, inbound 端应该回滚报错才对
         self.wait_payment_state(self.fiber2, payment["payment_hash"], "Faild")
 
-    @pytest.mark.skip("https://github.com/nervosnetwork/fiber/issues/979 https://github.com/nervosnetwork/fiber/issues/1488")
+    @pytest.mark.skip(
+        "https://github.com/nervosnetwork/fiber/issues/979 https://github.com/nervosnetwork/fiber/issues/1488"
+    )
     def test_payee_pub_key_not_exist(self):
         self.faucet(
             self.fiber2.account_private,
