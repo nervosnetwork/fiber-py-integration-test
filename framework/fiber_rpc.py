@@ -1,3 +1,4 @@
+import os
 import time
 
 import requests
@@ -260,7 +261,10 @@ class FiberRPCClient:
         for i in range(self.try_count):
             try:
                 response = requests.post(
-                    self.url, data=json.dumps(data), headers=headers
+                    self.url,
+                    data=json.dumps(data),
+                    headers=headers,
+                    timeout=self.timeout,
                 ).json()
                 LOGGER.debug(
                     "response:\n{response}".format(response=json.dumps(response))
@@ -277,6 +281,10 @@ class FiberRPCClient:
                     raise Exception(f"Error: {error_message}")
 
                 return response.get("result", None)
+            except requests.exceptions.Timeout as e:
+                raise Exception(
+                    f"RPC request timed out: method={method}, url={self.url}, timeout={self.timeout}s"
+                ) from e
             except requests.exceptions.ConnectionError as e:
                 LOGGER.debug(e)
                 LOGGER.debug("request too quickly, wait 2s")
