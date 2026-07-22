@@ -23,11 +23,7 @@ class FiberRPCClient:
         self.other_params = other_params
         self.try_count = try_count
         self.retryable_error_messages = retryable_error_messages or []
-        self.timeout = (
-            timeout
-            if timeout is not None
-            else float(os.environ.get("FIBER_RPC_TIMEOUT", "60"))
-        )
+        self.timeout = timeout or float(os.getenv("FIBER_RPC_TIMEOUT", "30"))
 
     def send_btc(self, btc_pay_req):
         return self.call("send_btc", [btc_pay_req])

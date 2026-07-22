@@ -1,14 +1,18 @@
 #!/bin/bash
+set -o pipefail
 
 # Initialize variables to store passed and failed test cases
 passed_cases=""
 failed_cases=""
 error_cases=""
+PYTHON_BIN="${PYTHON:-python3}"
+
 # Function to run pytest and process the output
 # Function to run pytest and process the output
 run_test() {
     # Run pytest with verbose and no capture, stream output in real-time via tee
-    python3 -u -m pytest -vv "$1" 2>&1 | tee pytest_output.txt
+    "$PYTHON_BIN" -u -m pytest -vv "$1" 2>&1 | tee pytest_output.txt
+    pytest_status=${PIPESTATUS[0]}
 
     # Check if pytest output contains "failed"
     if grep -q "FAILED test_cases" pytest_output.txt; then
@@ -22,6 +26,12 @@ run_test() {
         # Handle failed test case
         echo "Test case $1 error"
         error_cases+=$(grep "ERROR test_cases" pytest_output.txt)
+        return 1
+    fi
+
+    if [ "$pytest_status" -ne 0 ]; then
+        echo "Test case $1 error"
+        error_cases+="ERROR $1 exited with status $pytest_status"
         return 1
     fi
 
@@ -44,10 +54,12 @@ echo "Failed test cases:${failed_cases}"
 echo "ERROR test cases:${error_cases}"
 
 # Write summary to GITHUB_STEP_SUMMARY
-echo "# Test Results Summary" >> $GITHUB_STEP_SUMMARY
-echo "Passed test cases: ${passed_cases}" >> $GITHUB_STEP_SUMMARY
-echo "Failed test cases: ${failed_cases}" >> $GITHUB_STEP_SUMMARY
-echo "ERROR test cases: ${error_cases}" >> $GITHUB_STEP_SUMMARY
+if [ -n "${GITHUB_STEP_SUMMARY:-}" ]; then
+    echo "# Test Results Summary" >> "$GITHUB_STEP_SUMMARY"
+    echo "Passed test cases: ${passed_cases}" >> "$GITHUB_STEP_SUMMARY"
+    echo "Failed test cases: ${failed_cases}" >> "$GITHUB_STEP_SUMMARY"
+    echo "ERROR test cases: ${error_cases}" >> "$GITHUB_STEP_SUMMARY"
+fi
 # Function to sanitize filename: replace invalid characters for artifact upload
 # Invalid chars: " : < > | * ? \r \n /
 # Also truncate to 200 chars max to avoid filesystem limits
@@ -59,7 +71,9 @@ sanitize_filename() {
 if [ -n "$failed_cases" ]; then
     sanitized=$(sanitize_filename "$failed_cases")
     echo "Exist failed cases:${sanitized}"
-    mv report/report.html "report/${sanitized}.html"
+    if [ -f report/report.html ]; then
+        mv report/report.html "report/${sanitized}.html"
+    fi
     exit 1
 fi
 
@@ -67,8 +81,10 @@ fi
 if [ -n "$error_cases" ]; then
     sanitized=$(sanitize_filename "$error_cases")
     echo "Exist error cases:${sanitized}"
-    mv report/report.html "report/${sanitized}.html"
+    if [ -f report/report.html ]; then
+        mv report/report.html "report/${sanitized}.html"
+    fi
     exit 2
 fi
-rm -rf report/report.html
+rm -f report/report.html
 echo "No failed or error cases found"
