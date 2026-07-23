@@ -58,6 +58,7 @@ test_cases := \
 
 fiber_test_cases := \
     test_cases/fiber/devnet/open_channel \
+	test_cases/fiber/devnet/lock_scripts \
 	test_cases/fiber/devnet/accept_channel \
 	test_cases/fiber/devnet/cancel_invoice \
 	test_cases/fiber/devnet/connect_peer \
@@ -83,6 +84,9 @@ fiber_testnet_cases := \
 
 fiber_mainnet_cases := \
 	test_cases/fiber/mainnet
+
+fiber_lock_scripts_cases := \
+	test_cases/fiber/devnet/lock_scripts
 
 
 
@@ -118,6 +122,20 @@ fiber_testnet_test:
 fiber_mainnet_test:
 	@failed_cases=; \
     for test_case in $(fiber_mainnet_cases); do \
+        echo "Running tests for $$test_case"; \
+        if ! bash test.sh "$$test_case"; then \
+            echo "$$test_case" >> failed_test_cases.txt; \
+        fi \
+    done; \
+    if [ -s failed_test_cases.txt ]; then \
+        echo "Some test cases failed: $$(cat failed_test_cases.txt)"; \
+        rm -f failed_test_cases.txt; \
+        exit 1; \
+    fi
+
+fiber_lock_scripts_test:
+	@failed_cases=; \
+    for test_case in $(fiber_lock_scripts_cases); do \
         echo "Running tests for $$test_case"; \
         if ! bash test.sh "$$test_case"; then \
             echo "$$test_case" >> failed_test_cases.txt; \

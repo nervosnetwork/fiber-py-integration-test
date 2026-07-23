@@ -267,7 +267,7 @@ class RPCClient:
                 time.sleep(2)
                 continue
             except Exception as e:
-                LOGGER.error("Exception:", e)
+                LOGGER.error("Exception: %s", e)
                 raise e
         raise Exception("request time out")
 
