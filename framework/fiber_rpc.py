@@ -22,7 +22,12 @@ class FiberRPCClient:
         self.url = url
         self.other_params = other_params
         self.try_count = try_count
-        self.retryable_error_messages = retryable_error_messages or []
+        default_retryable_error_messages = [
+            "waiting for peer to send Init message",
+        ]
+        self.retryable_error_messages = default_retryable_error_messages + (
+            retryable_error_messages or []
+        )
         self.timeout = (
             timeout
             if timeout is not None
