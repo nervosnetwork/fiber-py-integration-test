@@ -143,7 +143,7 @@ jobs:
         continue-on-error: true
         uses: sarisia/actions-status-discord@v1
         with:
-          webhook: ${{ secrets.DISCORD_WEBHOOK_SYNC_SYNC }}
+          webhook: ${{ secrets.DISCORD_WEBHOOK_SYNC }}
           content: "<@802020984097734656>"
           title: "Fiber Sync State Failed"
           description: |
