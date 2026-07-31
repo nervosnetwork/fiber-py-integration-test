@@ -159,9 +159,7 @@ def sample_nodes_graph_sync_until_stable(
                 peers_count = _list_peers_count(client)
             except Exception as exc:
                 print(
-                    "[{}] elapsed={:.2f}s query failed: {}".format(
-                        label, elapsed, exc
-                    )
+                    "[{}] elapsed={:.2f}s query failed: {}".format(label, elapsed, exc)
                 )
                 continue
 
