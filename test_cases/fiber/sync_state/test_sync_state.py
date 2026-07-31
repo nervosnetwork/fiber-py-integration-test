@@ -13,7 +13,7 @@ import time
 from framework.basic import CkbTest
 from framework.test_fiber import Fiber, FiberConfigPath
 from framework.util import get_project_root
-from test_cases.fiber.graph_sync_metrics import (
+from framework.graph_sync_metrics import (
     read_positive_int_env,
     sample_nodes_graph_sync_until_stable,
 )
