@@ -73,7 +73,7 @@ jobs:
           ./venv/bin/python -m download
           ./venv/bin/python -m download_btc
           ./venv/bin/python -m download_lnd
-          install -m 0755 download/0.202.0/ckb-cli source/ckb-cli
+          install -m 0755 download/0.210.0/ckb-cli source/ckb-cli
 
       - name: Build stock and attack FNN binaries
         env:

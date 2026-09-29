@@ -12,14 +12,14 @@ import requests
 from tqdm import tqdm
 
 versions = [
-    "0.202.0",
+    "0.210.0",
 ]  # Replace with your versions
 
 DOWNLOAD_DIR = "download"
 SYSTEMS = {
     "Windows": {
         "url": "https://github.com/nervosnetwork/ckb/releases/download/v{version}/ckb_v{"
-        "version}_x86_64-pc-windows-gnu.zip",
+        "version}_x86_64-pc-windows-msvc.zip",
         "ext": ".zip",
     },
     "Linux": {
@@ -37,7 +37,7 @@ SYSTEMS = {
     "Darwin": {
         "x86_64": {
             "url": "https://github.com/nervosnetwork/ckb/releases/download/v{version}/ckb_v{"
-            "version}_aarch64-apple-darwin-portable.zip",
+            "version}_x86_64-apple-darwin-portable.zip",
             "ext": ".zip",
         },
         "arm64": {
@@ -127,8 +127,11 @@ def download_ckb(ckb_version):
             system=system, architecture=architecture
         )
     )
-    url = SYSTEMS[system][architecture]["url"].format(version=ckb_version)
-    ext = SYSTEMS[system][architecture]["ext"]
+    system_config = SYSTEMS[system]
+    if architecture:
+        system_config = system_config[architecture]
+    url = system_config["url"].format(version=ckb_version)
+    ext = system_config["ext"]
 
     filename = f"ckb_v{ckb_version}_binary{ext}"
     download_path = os.path.join(DOWNLOAD_DIR, ckb_version).split("-")[0]
