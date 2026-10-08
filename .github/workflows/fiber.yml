@@ -18,7 +18,7 @@ on:
         default: 'https://github.com/nervosnetwork/fiber.git'
       GitBranch:
         description: 'fiber -git branch'
-        default: 'v0.9.1'
+        default: 'develop'
   schedule:
     - cron: '0 0 */7 * *'
 
@@ -45,7 +45,7 @@ jobs:
         run: make prepare
         env:
           GitUrl: '${{ github.event.inputs.GitUrl }}'
-          GitBranch: ${{ github.event.inputs.GitBranch || 'v0.9.1' }}
+          GitBranch: ${{ github.event.inputs.GitBranch || 'develop' }}
 
 
       - name: Tar backup
@@ -231,7 +231,7 @@ jobs:
           tar -xzf prepare-backup.tar.gz
 
       - name: Run fiber_test_demo
-        run: make fiber_test_demo FIBER_TEST_DEMO="test_cases/fiber/devnet/send_payment/params test_cases/fiber/devnet/send_payment/path"
+        run: make fiber_test_demo FIBER_TEST_DEMO="test_cases/fiber/devnet/send_payment/params test_cases/fiber/devnet/send_payment/path test_cases/fiber/devnet/send_payment_with_router"
 
       - name: Publish reports
         if: failure()
