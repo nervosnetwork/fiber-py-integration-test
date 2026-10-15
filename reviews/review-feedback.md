@@ -1,0 +1,3 @@
+- model: unavailable | cases: PR1675-04 PR1675-07 | feedback: `1675-04` 和`PR1675-07` 可以先写测试，以测试结果为准，可以写自动化测试了，能复用的用例尽量复用，自动化框架里的fnn 我已经更新了
+- model: unavailable | cases: H32V2-34 | feedback: 不应该卡在`NegotiatingFunding`， 新节点应该abort channel 让旧节点知道channel 创建失败
+- model: unavailable | cases: H32V2-05 | feedback: 须迁移
