@@ -58,8 +58,8 @@ TLC 为条件付款。Legacy/V1 指链上 witness 布局，不等同节点软件
 
 ### SPEC-01：协商决定布局
 Condition: 新节点作为本地发起方或入站接收方建立新通道，覆盖普通资金、external funding 和入站 OpenChannel；本端/对端特性声明可能齐全或缺失。旧节点之间的 Legacy 开通不受新节点准入规则约束。
-Expected: 双方都声明完整 hash 特性时，新节点可建立 V1 通道；任一方缺失时，新节点拒绝该新通道且不创建本端待开通记录或 funding 交易。已存在 Legacy 通道的重建与结算不属于新建准入。
-Observable: 双方支持时真实承诺 args 为 58 字节、结算条目为 97 字节且可付款结算；缺失时本地 RPC 拒绝或入站请求被拒，本端 pending/open record 与链上 funding outpoint 均无新增。
+Expected: 双方都声明完整 hash 特性时，新节点可建立 V1 通道；任一方缺失时，新节点拒绝该新通道且不创建本端待开通记录或 funding 交易。入站拒绝还应向发起方发送带特性不兼容原因的 TxAbort，使待开通通道进入失败终态。已存在 Legacy 通道的重建与结算不属于新建准入。
+Observable: 双方支持时真实承诺 args 为 58 字节、结算条目为 97 字节且可付款结算；缺失时本地 RPC 拒绝或入站请求被拒，本端 pending/open record 与链上 funding outpoint 均无新增；入站拒绝后发起方收到 TxAbort、离开 NegotiatingFunding 并记录失败原因。
 Basis: [crates/fiber-lib/src/fiber/network.rs — required_new_channel_features / on_open_channel / on_accept_channel](https://github.com/nervosnetwork/fiber/blob/348c064f6c8c842fd30b14cbaf6ffd376c64a8c0/crates/fiber-lib/src/fiber/network.rs)；[CHANGELOG.md — Unreleased RC](https://github.com/nervosnetwork/fiber/blob/348c064f6c8c842fd30b14cbaf6ffd376c64a8c0/CHANGELOG.md)
 Source: explicit
 Testing: required
@@ -169,7 +169,7 @@ Source: observation
 Testing: required
 
 ### SPEC-14：自动接受默认值
-Condition: 接收方未配置自动出资或显式配置零，收到满足自动接受阈值的开通请求。
+Condition: 双方节点均声明完整 hash 特性；接收方未配置自动出资或显式配置零，收到满足自动接受阈值的 V1 开通请求。
 Expected: 默认出资100 CKB；显式零禁用自动接受且允许后续手动接受。
 Observable: node_info、真实 funding 出资、pending 到 ChannelReady 的变化。
 Basis: [crates/fiber-lib/src/fiber/config.rs — MIN_OCCUPIED_CAPACITY / auto_accept_channel_ckb_funding_amount](https://github.com/nervosnetwork/fiber/blob/8b95af3ab2caac570eba3be8e30f9157f95a4869/crates/fiber-lib/src/fiber/config.rs)
@@ -241,7 +241,7 @@ Testing: required
   - [pending] 待接受特性变化（H32V2-03） — 调整后的映射只证明可达的一半：断连后原 temporary_channel_id 从 only_pending 消失、accept 被拒且不建通道；旧测试关于重连后新建 57 字节通道的断言已移除。主预期（V1 特性在接收时固定、有效原请求 accept 时复用）仍不可观测：`list_channels` 不暴露协商特性，参考实现断连即清理待接受记录。重连后的新 Legacy 请求由 34 单独判断。
   - [pending] watchtower 持久观测点 — 对抗对端已能发出仅前缀有效的链上消费（见测试落地边界），但仍读不到节点持久化的 preimage/settlement store 与 snapshot/revocation_data，13/17/24 只能按链上结果与 TLC/付款终态判定，日志不作为证据。
   - [unanalysed] 独立 Watchtower 同时监控多通道的重启隔离 — 本批 12/39 仅证明各自单通道的注册/结算；并发时相邻记录不串扰需同一恢复窗口双通道对照，后续单独展开。
-  - [pending] 旧库升级策略（H32V2-05） — 直接读取还是必须迁移仍待产品决定；真实旧 bincode 库的待开通记录已可独立复核，watch 记录仍只有行为证据。
+  - [pending] 旧库升级策略（H32V2-05） — 已确认须迁移；旧接收方未接受的待开通请求在重启后的可见性与处理结果仍待决定。真实旧 bincode 库的待开通记录已可独立复核，watch 记录仍只有行为证据。
   - [not_applicable] 首次RAA前的空快照S0（H32V2-24） — 对端可用 `drop_raa` + `submit_commitment_transaction` 广播更早的空承诺，本端回收余额已写入用例。
   - [pending] 混合版本 MPP/长链路 — 28～32 行已补齐最关键的混合版本子集（链下 MPP、单片链上结算、多跳坏原像失败传播、分片级核对、多跳完整原像成功传播）；32 的上游收尾只断言“不再停留在进行中状态（LocalAnnounced/Committed/RemoteRemoved）”，成功路径的确切落点状态名尚未实测，未写死到行里；MPP 路由的极端分支（原子 MPP 部分成功语义、重组、性能极限、CCH）仍未展开；长链路反向（上游 Legacy→下游 V1）仍缺，需另立 ID。
   - [unanalysed] 未知必选P2P特性与所有外部资金中断窗口 — 超出所选布局协商和结算链。
@@ -259,11 +259,11 @@ Testing: required
 | `H32V2-02` | - [x] 新节点通过普通开通 RPC 向缺少完整 hash 特性的对端发起，或新节点自身不声明该特性而向支持特性的对端发起 | RPC 拒绝；本端无新增待开通记录/通道，链上无新增该请求的 funding 消费或广播 | 缺特性的新通道仍以弱 hash 布局建成，或拒绝后遗留待开通/资金副作用 | P0 |
 | `H32V2-03` | - [x] 新节点收到双方支持完整 hash 的 V1 请求且关闭自动接受；原请求仍有效时会话特性变化后手动接受，另检查断连清理后的原 temporary_channel_id | 有效原请求沿用接收时 V1 特性并形成 58/97 布局；已清理的原请求被识别为失效，不把重新发起的请求替代验证 | accept 时重新协商或错认请求导致两端承诺不一致 | P1 |
 | `H32V2-04` | - [x] V1通道已有已签名承诺与待处理TLC，双方节点及内置Watchtower用各自原库重启后广播原承诺 | 原channel_id、余额及最新签名承诺哈希保持一致；58/97布局不降级，原TLC正确链上结算 | 版本丢失使重启后 witness 被错解 | P0 |
-| `H32V2-05` | - [x] 由 PR base 节点创建已用通道、待开通和监控记录，保存一致 checkpoint，再以 head 节点读取副本 | 待确认：支持原库直接读取还是必须迁移；两种策略均须恢复原通道、保留Legacy语义并继续付款及结算，不静默切V1；启动拒绝或解码失败记录为兼容性失败并保护旧库，不当作通过 | 将新结构自序列化测试误当旧库兼容 | P0 |
+| `H32V2-05` | - [x] 由 PR base 节点创建已用通道、接收方未接受的待开通请求和监控记录，保存一致 checkpoint，再由 head 节点迁移副本、查询原待开通请求并继续使用原通道 | 旧库须迁移后由 head 节点读取；待确认：重启后的原待开通请求应可见且可接受、可见但失效，或清理并给出可观察结果。已用原通道须恢复、保持 Legacy 语义、继续付款和结算，不静默切 V1；迁移失败须保护旧 checkpoint，不当作通过 | 将新结构自序列化测试误当旧库兼容 | P0 |
 | `H32V2-06` | - [x] V1 通道含有效原像 TLC；分别使用两种算法和 offered/received 条目，并覆盖双方承诺方向 | 完整 hash 匹配的结算上链，指定收款者到账，付款成功且原像正确 | hash 长度变化导致正常兑付失败或付错人 | P0 |
 | `H32V2-07` | - [x] 两个旧节点预建并保留 Legacy 通道、两个新节点建立 V1 通道；令承诺 hash 等于已知原像摘要但仅修改末尾字节，其他签名和输入有效，分别提交两版结算并覆盖两种算法及两种条目方向 | Legacy保留前缀验证行为；V1拒绝消费、原cell仍live且无收款；本端不记录兑现或立即失败收尾，保留正常超时路径；不以新旧节点新建通道构造 Legacy | V1 仍仅检查20字节或只修复一个分支 | P0 |
 | `H32V2-09` | - [x] 分别在Legacy/V1及CKB/xUDT通道保留两笔不同金额TLC，先兑付一笔，再兑付剩余一笔和最终余额 | 派生cell保持原版本及剩余TLC；两笔只各付一次，最终无待结算资产，余额扣实际手续费后守恒 | 首次成功但派生布局丢失导致后续资产卡住 | P0 |
-| `H32V2-10` | - [x] Legacy/V1通道强关，分别含offered/received无原像TLC，在合约要求的到期条件前后提交回收 | 到期/承诺延迟条件未满足时拒绝，满足后按协议正确退款；付款不因无原像回收变Success | 动态偏移读错expiry或超时被提前放行 | P0 |
+| `H32V2-10` | - [x] 旧旧节点开 Legacy 通道、新新节点开 V1 通道；分别强关含 offered/received 无原像 TLC 的承诺，在合约要求的到期条件前后提交回收 | 到期/承诺延迟条件未满足时拒绝，满足后按协议正确退款；付款不因无原像回收变Success | 动态偏移读错expiry或超时被提前放行 | P0 |
 | `H32V2-11` | - [x] 升级合约已生效，分别由旧节点广播Legacy已撤销承诺、由新节点广播V1已撤销承诺的撤销证据，持有该承诺的一方在链上执行惩罚 | 有效撤销证据被接受：撤销交易消费承诺cell并按惩罚规则把资金归惩罚方，被撤销承诺不作为普通TLC结算成功 | 布局升级破坏撤销/惩罚分支 | P1 |
 | `H32V2-12` | - [x] 两个支持特性的新节点建立V1通道，向独立监控注册`commitment_contract_features="0x1"`并确认RPC成功；监控持久化后单独重启，强关含两笔已承诺TLC的通道并沿派生cell逐笔结算 | 重启后无需重新注册；承诺args为58字节，两笔已确认结算条目均按97字节布局、完整hash核对，链上收款和付款结果正确 | 旧字段断言失效；注册成功却丢失位图、重启后降级或派生结算错版 | P0 |
 | `H32V2-13` | - [x] 同通道两笔TLC前20字节相同但完整hash不同，仅一笔在非零解锁索引被结算；沿派生cell继续扫描并重启；另以未消费被监控outpoint的同前缀交易及不匹配快照作负对照 | 只更新精确证据指向的TLC；另一笔跨索引变化、派生扫描与重启仍待处理，直至自身兑现或超时；无关交易/快照不改变状态，无效原像不成为可用原像 | 前缀碰撞或错误快照污染付款状态 | P0 |
@@ -273,12 +273,12 @@ Testing: required
 | `H32V2-17` | - [x] 旧旧节点预建并保留 Legacy 通道；分别仅有旧prefix记录且无原像/坏原像/完整hash正确原像、Exact身份或算法不符、仅本地已知原像；另设Exact无原像TLC做到期前后对照 | 弱证据不触发本次新增的立即失败；旧记录完整hash正确的目标成功、同前缀其他目标不被成功或失败处理；Exact无原像offered TLC继续遵守到期条件；待确认：涉及新版节点处理的分支如何恢复原通道数据 | 为消除悬挂而误杀未被精确消费的TLC，或用新旧节点新建通道代替存量 Legacy | P0 |
 | `H32V2-18` | - [x] 旧旧节点预建并保留 Legacy 通道；异常原像花费已确认且付款无重试机会，分别在失败通知完成前和处理完成后重启升级后的本端，再重复扫描同一花费；保留无关未结算TLC | 恢复后完成原TLC失败通知和移除、付款最终Failed；已处理目标不重复计账或重新挂起，无关TLC保持自身状态；待确认：旧库恢复夹具能否保留通道和通知状态 | 崩溃丢失失败通知、重复计账或误结算其他TLC，或用新旧节点新建通道代替存量 Legacy | P1 |
 | `H32V2-19` | - [x] Legacy/V1分别经普通、外部注资、接收开通路径检查预留边界，覆盖短/长shutdown lock和CKB/UDT；充足预留分别强关结算0、1、多笔已承诺TLC | 按真实cell占用与交易长度计算；短锁CKB自动预留Legacy/V1分别99/100 CKB；扣占用后的预留恰好两倍承诺费通过该费用校验、少1 Shannon失败；充足时真实结算确认，V1每TLC witness增加12字节，锁参数等差异另计 | 预留仍按57字节或漏算每TLC新增12字节 | P1 |
-| `H32V2-20` | - [x] 接收方使用默认配置、短shutdown lock和充足CKB，分别收到满足条件的V1/Legacy请求，再以显式自动出资0作对照 | 默认自动出资100 CKB，两种版本均ChannelReady且各自保持V1/Legacy；链上支出按实际出资/矿工费核对；0保持待接受，手动接受后可用 | 默认出资不足或0禁用语义被覆盖 | P0 |
+| `H32V2-20` | - [x] 双方声明完整 hash 特性，接收方使用默认配置、短 shutdown lock 和充足 CKB，收到满足自动接受阈值的 V1 请求；再以显式自动出资 0 的新接收方作对照 | 默认自动出资 100 CKB，V1 通道双方达到 ChannelReady 且保持 V1 布局；链上支出按实际出资与矿工费核对；显式 0 时请求保持待接受，手动接受后可用 | 默认出资不足、零配置未禁用自动接受，或把缺失完整 hash 特性的 Legacy 请求误作可接受 | P0 |
 | `H32V2-21` | - [x] 原进程持续运行中确认type-id合约升级；升级后仅以旧旧组合新开 Legacy、以新新组合新开 V1，分别覆盖普通/外部注资，通道就绪后强关并链上结算 | funding确认且双方ChannelReady；旧旧保持Legacy、新新采用V1；承诺与settle均确认，settle实际执行升级后代码且资金到账，节点全程不重启；新旧组合的新开通道拒绝由02/34验证 | 仅开通或合作关闭成功却没有执行新版commitment-lock，或将新旧新开失败误判为升级回归 | P0 |
 | `H32V2-22` | - [x] 保留升级前Legacy通道已签名但尚未广播的原承诺，节点不停机升级合约后分别由本端/对端正常强关；覆盖无TLC对照及至少两笔已承诺未完成TLC的有效原像/到期退款、CKB/xUDT，以升级后新建V1作对照 | 原承诺经兼容依赖解析广播确认且未被换成新签承诺；后续settle实际执行新代码，多笔TLC沿派生cell逐次结算且全部资金正确到账；内置Watchtower本端最终Closed并清除结算等待，无需重启 | 原承诺依赖失活、升级后强关失败或链上结束而节点仍等待 | P0 |
 | `H32V2-23` | - [x] Legacy至少两笔TLC先在旧合约结算一笔，保留派生cell，节点不停机升级合约，再以有效原像或到期退款处理剩余项；覆盖CKB/xUDT并用升级后新建V1连续结算作对照 | 同一派生outpoint被新代码正确消费，Legacy/V1各自保持布局，剩余收款/退款准确且无重复或遗留应结算cell | 仅原始承诺兼容但中间结算状态不兼容 | P0 |
 | `H32V2-24` | - [x] Legacy/V1通道尚无撤销记录，远端仍持有效的空TLC快照S0，pending S1已有TLC；在首次RAA前广播S0并由监控回收 | 延迟条件满足后按原承诺witness hash选中S0，保留有效空TLC清单并实际确认余额结算、资金到账；不误选S1、不等待S1到期、不因空清单跳过提款 | 正确空快照被当成不存在，双方本金卡住 | P0 |
-| `H32V2-25` | - [x] Legacy/V1承诺仍含未逐笔解锁TLC，在最终余额sweep所需条件已满足后一次消费最后承诺cell，随后核对付款及上下游状态 | 最后一格cell被消费时，仍未逐笔解锁的TLC必须形成精确无原像消费证据；按实际发生的路径判定（逐笔索引unlock会收缩清单，0xfe/0xff余额sweep保留清单并一次消费），但两笔TLC都要在各自应失败的时间条件满足后收尾，不得悬挂；上游失败传播、通道关闭，且不把sweep标作付款成功 | 最后cell已花费但未逐条unlock的TLC继续悬挂 | P1 |
+| `H32V2-25` | - [x] 旧旧节点开 Legacy 通道、新新节点开 V1 通道；承诺仍含未逐笔解锁 TLC，在最终余额 sweep 所需条件已满足后一次消费最后承诺 cell，随后核对付款及上下游状态 | 最后一格cell被消费时，仍未逐笔解锁的TLC必须形成精确无原像消费证据；按实际发生的路径判定（逐笔索引unlock会收缩清单，0xfe/0xff余额sweep保留清单并一次消费），但两笔TLC都要在各自应失败的时间条件满足后收尾，不得悬挂；上游失败传播、通道关闭，且不把sweep标作付款成功 | 最后cell已花费但未逐条unlock的TLC继续悬挂 | P1 |
 | `H32V2-26` | - [x] Legacy承诺在旧合约下已上链且首次settle尚未发生，节点持续运行中升级合约再结算；覆盖本端/远端承诺、CKB/xUDT、有效原像及到期退款，并以升级后新建V1作对照 | 首次及后续settle引用升级后的live代码并确认，布局保持原版本、金额正确，无遗留应结算cell且全程不重启 | 只测升级后广播或中间派生状态，遗漏已上链原始承诺升级窗口 | P0 |
 | `H32V2-27` | - [x] 旧旧节点在升级前建立 Legacy 通道；不停机升级合约后，在该存量通道及升级后旧旧新建 Legacy、新新新建 V1 通道完成待处理付款，再由任一方合作关闭，覆盖CKB/xUDT | 合作关闭确认且funding已花费，双方收款与余额扣费一致、原进程最终Closed；不以新旧节点新建 Legacy；此项为相邻回归，不算执行新版commitment-lock证据 | 遗漏原有通道合作关闭，或把关闭状态当链上到账/合约执行 | P0 |
 | `H32V2-28` | - [x] MPP 发票的分片分别经 V1 与 Legacy 通道完成链下付款（同收款方、两种版本通道并存） | 收齐全部分片后收款端才公开原像，付款 Success 且原像正确；两条通道余额各按所属分片金额变动，不出现提前兑现或分片丢失 | 混合版本破坏 MPP 聚合或提前公开原像 | P0 |
@@ -287,7 +287,7 @@ Testing: required
 | `H32V2-31` | - [x] 同一 payment_hash 的分片分属 V1 与 Legacy 通道；Legacy 片被仅前缀匹配的坏原像链上消费，同付款的另一 V1 片为已承诺未结算 TLC，另有既未兑现也未到期的分片作对照 | Legacy 片按失败处理且不写入可用原像；同一坏原像不能消费 V1 片（完整 32 字节不匹配、原 cell 仍 live、无收款）；未到期且无精确证据的分片继续等待，不被该证据失败或成功处理。不可达组合已排除：同一 hash 既在 V1 被完整原像兑现、又在 Legacy 被前缀原像消费需要 160 位第二原像，不列为预期。待确认：MPP 是否允许部分成功及付款整体终态 | 混合布局下精确身份/弱证据判定串通道，或一片证据误杀/误完成其他分片 | P1 |
 | `H32V2-32` | - [x] 至少三跳链路混用 V1/Legacy（上游 V1→下游 Legacy），付款未到期且发起端无重试机会；下游 Legacy 对端以完整 32 字节 hash 正确的有效原像完成该跳精确 TLC 的已确认消费 | 中继按下游通道版本识别精确身份并证明原像完整匹配，随即向上游传播成功；发起端付款 Success 且记录的原像就是该原像，对端到账；各跳通道保持可用、余额只按该笔付款与真实手续费变动；上游 TLC 按成功路径终态收尾、不再停留在进行中状态（LocalAnnounced/Committed/RemoteRemoved），不悬挂、不按失败传播 | 以坏原像失败收尾的实现把完整原像匹配的正常消费一并失败，或跨版本成功无法上传导致资金卡住 | P0 |
 | `H32V2-33` | - [x] 新节点通过外部资金开通 RPC 向缺少完整 hash 特性的对端发起，或新节点自身不声明该特性而向支持特性的对端发起 | RPC 拒绝且不返回可签名的 funding 交易；本端无新增待开通记录/通道，链上无新增该请求的 funding 消费或广播 | 外部资金路径绕过准入，或拒绝后留下可被提交的资金交易 | P0 |
-| `H32V2-34` | - [x] 缺少完整 hash 特性的旧节点向新节点发送入站 OpenChannel；再由支持特性的对端向自身关闭该特性的新节点发送同类请求，分别记录接收前的 pending/open 状态 | 两种缺失方向均被接收方新节点拒绝；本端不新增待接受记录/通道，也不触发自动接受或 funding 广播 | 入站路径在任一侧缺特性时绕过准入，留下可被手动接受的 Legacy 请求 | P0 |
+| `H32V2-34` | - [x] 缺少完整 hash 特性的旧节点向新节点发送入站 OpenChannel；再由支持特性的对端向自身关闭该特性的新节点发送同类请求，分别观察接收方记录与发起方通道状态 | 两种缺失方向均被接收方新节点拒绝；接收方不新增待接受记录/通道，也不触发自动接受或 funding 广播；新节点向发起方发送含 `ONCHAIN_FULL_PAYMENT_HASH` 不兼容原因的 TxAbort，发起方离开 NegotiatingFunding、记录失败终态和原因 | 入站缺特性时绕过准入，或接收方只写日志、让发起方无限等待 ChannelReady | P0 |
 | `H32V2-35` | - [ ] 新节点在待接受集合已有一个历史 Legacy 请求时，对其原 temporary_channel_id 调用 accept_channel | accept 被拒，原 pending 记录不被删除，不建立通道或广播 funding 交易；该历史请求如何构造见树中的夹具待办 | 已保存的弱布局请求绕过新准入，或拒绝前删除记录造成状态丢失 | P1 |
 | `H32V2-36` | - [x] 双方声明完整 hash，支持特性的对端向新节点发送入站 OpenChannel，关闭自动接受后由新节点手动 accept 并保留一笔待结算 TLC | 原请求被接受并达到 ChannelReady，承诺 args 为 58 字节且 TLC 条目为 97 字节；强关后该 TLC 链上结算及付款成功 | 拒绝策略误伤合法入站开通，或手动接受丢失 V1 布局 | P0 |
 | `H32V2-37` | - [x] 对同一已认证node_id和channel_id已有有效V1监控记录时，发送结构完整但`commitment_contract_features="0x2"`的`create_watch_channel`请求，再触发原记录真实链上结算 | RPC拒绝未知位，原监控记录保持V1布局并继续正确结算，不被覆盖或新建错误版本记录 | 未知位被当成Legacy/V1接受，或拒绝前覆盖既有监控数据 | P1 |
@@ -301,7 +301,7 @@ Testing: required
 - 本仓库的 UDT 资产统一为 xUDT，xUDT 用例计入资产覆盖；一般费用用例 19 仍覆盖 UDT 容量。
 - 03与24产品期望明确，pending指场景可达性/夹具，不是将正确版本或S0余额回收变成可选结果。暂不执行的既有反馈继续有效；普通撤销路径不替代首次RAA前S0。
 - 11先核对已有SETTLE-16映射的具体版本/资产范围；只补必要差异，不重复实现或宣称该旧映射自动覆盖H32V2-11。11按人工纠正只测两个场景：旧节点广播Legacy已撤销承诺的旧证据、新节点广播V1已撤销承诺的V1旧证据，均由持有该证据的一方在新版合约下完成链上惩罚；版本只由P2P特性宣告决定，链上合约不参与选择。
-- 优先级保留v1核心门槛：10超时与20默认自动接受恢复P0。05只待决定迁移方式，不将拒绝升级当成功。25最终sweep的角色/时序已按建议口径确认：最后一格cell被消费时剩余TLC必须形成精确无原像证据、不得悬挂；最后一格由逐笔索引unlock还是0xfe/0xff余额sweep消费属实现选择，不作为产品预期。
+- 优先级保留v1核心门槛：10超时与20默认自动接受恢复P0。05已确认须迁移，待开通请求重启后的处理结果仍待决定；不将迁移失败当成功。25最终sweep的角色/时序已按建议口径确认：最后一格cell被消费时剩余TLC必须形成精确无原像证据、不得悬挂；最后一格由逐笔索引unlock还是0xfe/0xff余额sweep消费属实现选择，不作为产品预期。
 
 ## 测试落地边界
 
@@ -311,6 +311,7 @@ Testing: required
 - 自动化阶段先最小确定性 witness/断言测试，再选单条已确认的 devnet；运行前固定真实 fnn/合约身份、端口、数据目录与 Python 环境。框架 CURRENT_DEV 默认路径不代表它必然就是本次 head。
 - 对抗对端（本轮新增夹具）：`gpBlockchain/fiber` 的 p2p-tap debug RPC 已并入 head `8b95af3`（本地分支 `p2p-tap-full-payment-hash`：合并 `869b4469` + 仅测试用 preimage 钩子 `c857ad39`），产物 `download/fiber/attack-full-payment-hash/fnn`，来源与 SHA-256 见同目录 `provenance.env`；`FIBER_TEST_DISABLE_FULL_HASH_FEATURE=1` 时协商 Legacy，`FIBER_TEST_ALLOW_FULL_HASH_MISMATCH=1` 时该对端的 watchtower 也会构造 V1 全哈希不匹配结算。诚实路径不变（`event_handler` 传 `force=false`），`framework/test_fiber.py` 只新增该二进制入口与按节点注入环境变量。
 - 已在本机 devnet 实际执行的用例：11（Legacy 旧证据方向 `test_legacy_revoked_commitment_is_punished_by_head_watchtower` 与 V1 方向 `test_v1_revoked_commitment_is_punished_by_head_watchtower`，本地日志 `report/h32v2-runs/revoked-commitment-11.log`，未随仓库提交，2 passed in 1250.82s）、21（`test_full_hash_channels.py::test_upgrade_then_settle_committed_tlc_with_new_code`，666.16s）、19（`test_commitment_fee_boundary_is_version_aware`、`test_xudt_witness_width_and_settlement_are_versioned`，后者的 CKB witness 宽度断言在内）、28（`test_full_hash_mixed_mpp.py::test_mixed_version_mpp_completes_offchain`，80.79s）。**其余新增/合并的用例仍未执行 devnet**：attack-fnn 批次（07/14/15/16/17/18）、时间跳跃批次（10/25/17 的精确身份等）、03、09/12/13 的 xUDT 与多笔矩阵、22/23/24/26/27 的新增 xUDT 变体、29~31。任何"已映射"都不等于执行通过，未执行项按未验证处理。
+- 2026-10-14 PR #110 定向维护记录（独立于上面的历史快照）：H32V2-28/29 改用旧旧节点预建 Legacy 桥接通道、保留原库升级参与节点、再新建 V1 直连的可达拓扑；保留原付款及链上断言。当前本机 `v0.9.1 (9a561b3)` → `v0.10.0-rc1 (2ba4b25)` 上，28 单条聚焦测试 `1 passed in 100.32s`，29 单条聚焦测试 `1 passed in 95.77s`；因此上段“29～31 未执行”仅是此前快照，当前仍未执行的是 30/31。独立代码复核对 28/29 均判为 partial：28 未直接观察仅收到一片时的窗口；29 只验证 V1 片链上结算，Legacy 片后续终态及反向 Legacy 链上结算未覆盖。映射与单次通过不等于整行全部分支完成。
 - 本轮验证命令：`python3 scripts/check_test_map.py`（已入库评审文件中 31 行用例、31 行有映射；退出码 1 由既有 `PMP-01..05` 与 `SETTLE-01` 孤儿映射导致，两者都引用未随本仓库提交的其他评审文档）与 `venv/bin/python -m pytest test_cases/fiber/devnet/compatibility/ --collect-only -q`（退出 0，49 项）。v2结构检查调用已安装skill中的 `check_test_design.py --root <本仓库> --review reviews/full-payment-hash-settlement-v2.md --json`。无 `--require-complete`，本轮不是全量自动化门禁。
 
 ## 历史 B 设计复核与未决事项

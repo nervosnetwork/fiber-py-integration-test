@@ -655,8 +655,9 @@ class TestFullHashChannels(ContractUpgradeSupport):
 
     # TEST-MAP: H32V2-34
     # TEST-EVIDENCE-BEGIN: H32V2-34
-    # Evidence | partial | A Legacy-only peer sends OpenChannel to the new node; the receiving node
-    # rejects it before adding a pending/open record. Local feature-off needs a configurable fixture.
+    # Evidence | partial | A Legacy-only peer sends OpenChannel to the new node; the receiver
+    # creates no pending/open record and returns TxAbort. The old sender records a failed opening
+    # with the public feature mismatch reason. Local feature-off still needs a fixture.
     # TEST-EVIDENCE-END: H32V2-34
     @pytest.mark.skip("https://github.com/nervosnetwork/fiber/issues/1697")
     def test_new_node_rejects_legacy_inbound_open(self):
@@ -690,8 +691,7 @@ class TestFullHashChannels(ContractUpgradeSupport):
             }
         )
         temporary_id = request["temporary_channel_id"]
-        # Wait for the sender to observe rejection, so an empty receiver snapshot cannot pass
-        # merely because the OpenChannel message has not yet arrived.
+        # The receiver must abort the sender's pending opening, not merely log rejection.
         started = time.monotonic()
         deadline = started + 60
         sender_record = None
@@ -707,13 +707,12 @@ class TestFullHashChannels(ContractUpgradeSupport):
                 and sender_record["state"]["state_name"] == "Closed"
             ):
                 break
-            # The old sender can remove a rejected record before the first poll.
-            # Require a short stable interval rather than accepting the first empty read.
-            if sender_record is None and time.monotonic() - started >= 3:
-                break
             time.sleep(1)
         else:
             self.fail(f"Legacy inbound request was not rejected: {sender_record}")
+        assert sender_record is not None
+        assert sender_record["channel_outpoint"] is None
+        assert "ONCHAIN_FULL_PAYMENT_HASH" in sender_record["failure_detail"]
         assert self._channel_snapshot(self.fiber2) == before
         assert temporary_id not in self._channel_snapshot(self.fiber2)["pending"]
         assert self.wallet_balances() == wallet_before
@@ -778,17 +777,17 @@ class TestFullHashChannels(ContractUpgradeSupport):
 
     # TEST-MAP: H32V2-20
     # TEST-EVIDENCE-BEGIN: H32V2-20
-    # Evidence | covered | node_info default 100 CKB/explicit zero, actual funding capacity+fee spending,
-    # receiver contribution bound; pending zero lacks outpoint/Ready, manual acceptance followed by
-    # version-checked committed close and payouts.
+    # Evidence | covered | V1 node_info default 100 CKB/explicit zero, actual funding capacity+fee
+    # spending and receiver contribution bound; pending zero lacks outpoint/Ready, manual acceptance
+    # followed by V1-checked committed close and payouts.
     # TEST-EVIDENCE-END: H32V2-20
-    # H32-19 证明链：新节点默认自动接受、短 shutdown lock、充足 CKB；同一新接收方分别收到 V1 与
-    # Legacy 的自动接受请求，再以显式配置 0 作人工接受对照。
+    # H32-19 证明链：新节点默认自动接受、短 shutdown lock、充足 CKB；接收方收到 V1
+    # 自动接受请求，再以显式配置 0 作人工接受对照。
     # 1) 默认值：接收方 node_info 的 auto_accept_channel_ckb_funding_amount 必须是 100 CKB
     #    （V1 预留值；仍是 99 CKB 会让 V1 开通失败）。
-    # 2) 两种版本都走自动接受：new1→new2 为 V1、old1→new2 为 Legacy，都要到达 ChannelReady；
-    #    版本由链上证据确认——record_channel 按版本取 100/99 CKB 预留，assert_settled 核对承诺锁
-    #    58 字节 + 末位 0x01（V1）或 57 字节（Legacy）以及双方到账。
+    # 2) new1→new2 自动接受并达到 ChannelReady；链上证据核对 V1 的 100 CKB 预留、
+    #    承诺锁 58 字节 + 末位 0x01 及双方到账。旧节点→新节点缺少完整 hash 特性，
+    #    按 H32V2-34 拒绝，不在本用例中当作 Legacy 成功路径。
     # 3) 出资与费用核对：比较开通前后的钱包余额，接收方（account2）实际支出必须落在
     #    [100 CKB, 100 CKB + 实际矿工费]，且双方支出合计等于 funding 输出容量加矿工费。
     # 4) 显式 0 的对照：另起一个 fiber_auto_accept_channel_ckb_funding_amount=0 的节点，其
@@ -799,26 +798,19 @@ class TestFullHashChannels(ContractUpgradeSupport):
     def test_default_auto_accept_and_explicit_zero(self):
         # 默认快照已部署升级后的 commitment-lock，直接用当前代码 cell。
         code_tx = self.current_contract_code_tx()
-        # 两种协商版本共用同一个新接收方 new2（自动接受开启）：new1→v1、old1→legacy。
-        for sender, version in ((self.new1, "v1"), (self.old1, "legacy")):
-            with self.subTest(version=version):
-                self.select_peers(sender, self.new2, version)
-                info = self.fiber2.get_client().node_info()
-                # 默认自动出资必须是 100 CKB；仍是 99 CKB 会让 V1 开通失败。
-                assert (
-                    int(info["auto_accept_channel_ckb_funding_amount"], 16) == 100 * CKB
-                )
-                before = self.wallet_balances()
-                self.open_ready()
-                after = self.wallet_balances()
-                spent = [a - b for a, b in zip(before, after)]
-                funding = self.ckb.get_transaction(self.funding_tx)["transaction"]
-                fee = self.get_tx_message(self.funding_tx)["fee"]
-                # 链上支出按实际出资与矿工费核对：接收方应支出默认出资 100 CKB + 实际矿工费。
-                assert sum(spent) == int(funding["outputs"][0]["capacity"], 16) + fee
-                assert 100 * CKB <= spent[1] <= 100 * CKB + fee
-                # 自动接受出来的通道仍按版本核对承诺锁布局与到账，确认版本各自保持。
-                self.assert_settled(self.force_close(self.fiber1), code_tx)
+        # 自动接受只验证双方均支持完整 hash 特性的新新 V1 通道。
+        self.select_peers(self.new1, self.new2, "v1")
+        info = self.fiber2.get_client().node_info()
+        assert int(info["auto_accept_channel_ckb_funding_amount"], 16) == 100 * CKB
+        before = self.wallet_balances()
+        self.open_ready()
+        after = self.wallet_balances()
+        spent = [a - b for a, b in zip(before, after)]
+        funding = self.ckb.get_transaction(self.funding_tx)["transaction"]
+        fee = self.get_tx_message(self.funding_tx)["fee"]
+        assert sum(spent) == int(funding["outputs"][0]["capacity"], 16) + fee
+        assert 100 * CKB <= spent[1] <= 100 * CKB + fee
+        self.assert_settled(self.force_close(self.fiber1), code_tx)
 
         # 对照：显式配置 auto_accept_channel_ckb_funding_amount=0 的节点必须关闭自动接受。
         self.select_peers(self.new1, self.manual, "v1")
