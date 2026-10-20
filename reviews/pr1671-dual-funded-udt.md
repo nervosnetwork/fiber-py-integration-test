@@ -1,6 +1,6 @@
 # PR #1671 双方出资 xUDT 通道测试分析
 
-本次把 OffCKB 工程发现的 UDT 通道出资问题补充到 Fiber 的 Python 开发链测试中，检查找零、默认费率下的手续费、锁脚本依赖，以及开通后的支付和协作关闭。共 8 条用例，复用现有框架和相关旧测试。本文保留源码分析、历史复现、检查方法和实际运行结果。
+本次把 OffCKB 工程发现的 UDT 通道出资问题补充到 Fiber 的 Python 开发链测试中，检查找零、默认费率下的手续费、锁脚本依赖，以及开通后的支付和协作关闭。已实现原有 8 条用例及本轮确认的 2 条旧用例完整流程补充，复用现有框架和相关旧测试。本文保留源码分析、历史复现、检查方法和实际运行结果。
 
 测试代码以 `nervosnetwork/fiber-py-integration-test` 的 `v0.10.0` 为基础，提交为 `6088115aec85f002bfbedd8f3b3d919b6601cec5`，即 2026-10-20 拉取时 [PR #110](https://github.com/nervosnetwork/fiber-py-integration-test/pull/110) 的最新提交。
 
@@ -59,17 +59,32 @@ PR 只修改 `crates/fiber-lib/src/ckb/funding/funding_tx.rs`。以下修复目�
 | `PR1671-07` | - [x] 以默认费率建立出资 5000、3000 的 xUDT 通道，先由 A 向 B 支付 100 单位发票，再由 B 向 A 支付 70 单位发票 | 每笔都在付款方查到 Success、收款方查到发票 Paid；通道余额依次为 4900、3100 和 4970、3030，双方记录的本地与远端余额相互对应，所有 TLC 已处理完成 | 通道开通后支付资产或记账出错，或反向付款时查错节点 | P1 |
 | `PR1671-08` | - [x] 以默认费率建立出资 5000、3000 的 xUDT 通道，完成 A→B 100、B→A 70 单位发票支付，处理完所有 TLC 后协作关闭 | 关闭交易已确认并花费原通道资金 cell，双方通道为 Closed；汇总各自锁下所有未花费 cell，该种代币分别为 9970、10030，没有重复返还，双方 CKB 总额只减少实际手续费 | 只检查关闭请求返回成功，漏掉交易未确认、找零漏算或资金返还错误 | P1 |
 
+## 旧用例完整流程补充
+
+本轮只补齐迁移旧用例时遗漏的支付、协作关闭和资金返还流程。Fiber PR #1671 的三个直接修复点均在注资交易构造中；支付和关闭属于开通后的既有行为。第二条的多输入开通步骤仍经过该注资逻辑，因此有交集，但新增检查的重点是保留旧用例的完整流程。用户于 2026-10-20 确认以下两条用例，要求在 #115 追加一个独立提交；现有 8 条用例保持原意。
+
+两条均使用默认注资费率 1000、同一种 xUDT，双方另有充足普通 CKB。下表代币金额均为最小单位，不乘 `100000000`。每个 UDT cell 携带 142 CKB。开通须检查交易确认及双方就绪；付款须在实际付款方查到 `Success`、收款方发票为 `Paid`，并等到双方 `pending_tlcs` 为空。关闭须等双方 `Closed`、实际关闭交易确认且花费原通道资金 cell；最终钱包余额汇总双方所有相关 cell，CKB 总额只减少实际开通和关闭手续费。
+
+| 用例 | 场景 | 预期结果 | 防止的问题 | 优先级 |
+| --- | --- | --- | --- | --- |
+| `UDT-CLOSE-01` | - [x] 双方各持一个含 10000 单位 xUDT 的 cell，A 出资 5000、B 零出资接受；A 向 B 支付 100 后协作关闭 | 支付后通道余额为 4900/100；关闭交易分别返还 4900/100，最终钱包余额为 9900/10100；B 原有 UDT cell 始终未花费，状态和 CKB 手续费检查符合上述要求 | 迁移原零出资用例时，只保留首次支付，遗漏同一通道关闭及返还检查 | P1 |
+| `UDT-CLOSE-02` | - [x] A 持一个 10000 单位 xUDT cell，B 持两个各 5000 单位的 cell；A 出资 5000、B 投入全部 10000，B 向 A 支付 1000 后协作关闭 | 注资实际使用 A 的 1 个和 B 的 2 个 UDT 输入，A 找零 5000、B 无 UDT 找零；支付后通道余额为 6000/9000；关闭分别返还 6000/9000，最终钱包余额为 11000/9000，状态和 CKB 手续费检查符合上述要求 | 迁移原多输入用例时，用其他通道的支付或关闭检查替代“接受方多输入全额出资→反向付款→关闭”的完整流程 | P1 |
+
+对应原方法分别为 `test_udt_funding_amount_zero` 和 `test_udt_multi_funding_amount_gt_account`。后者原本是发起方部分出资、接受方把两个 cell 的代币全部投入，并由接受方向发起方付款；本次保留这些条件，将代币金额缩小以复用现有准备代码。普通 CKB 输入按实际容量需要补充，不把本条误作“仅 UDT 输入”的依赖检查。
+
+复用 `test_dual_funded_udt.py` 的资产准备、开通、付款和余额检查，增加两条线性测试。资产准备方法新增可选的接受方 cell 数量，默认行为不变；原 08 的关闭请求、双方 Closed、关闭交易确认、花费资金 cell 和手续费检查提取为本文件共用方法，返还数量和最终钱包余额仍在各测试中直接断言。聚焦验证覆盖新增两条、原 03 的双方各两个 UDT 输入开通、原 08 的双向支付后关闭；另收集整个 accept_channel 目录，检查 CI 能否找到全部测试。实际结果在文末补充。
+
 ## 旧代码如何整合
 
-本组测试放在 `test_cases/fiber/devnet/accept_channel/test_dual_funded_udt.py`，使用一个 `FiberTest` 类。原来跳过或重复的场景合并到这里，保留双向付款、协作关闭和资金返还检查。
+本组测试放在 `test_cases/fiber/devnet/accept_channel/test_dual_funded_udt.py`，使用一个 `FiberTest` 类。现有 8 条覆盖了开通、双向付款、协作关闭和资金返还的分项检查，但并未完整保留下面两种旧流程；本轮已按确认的两条独立用例补齐。
 
-该目录已被 Makefile 和 `.github/workflows/fiber.yml` 的现有任务执行，因此不新增 CI 任务，也不修改触发条件。按 CI 使用的目录检查，pytest 能识别到 33 项测试，其中包括本批全部 9 项。现有 `make fiber_test` 及后续运行的 accept_channel 任务都会自动包含这些测试。现有工作流仅对目标为 `main` 的 PR 自动触发；本 PR 提交到 `v0.10.0`，通过 `workflow_dispatch` 指定测试分支手动运行。
+该目录已被 Makefile 和 `.github/workflows/fiber.yml` 的现有任务执行，因此不新增 CI 任务，也不修改触发条件。按 CI 使用的目录检查，本轮 pytest 能识别到 35 项测试，其中包括本文件全部 11 项（原有 9 项及新增 2 项）。现有 `make fiber_test` 及后续运行的 accept_channel 任务都会自动包含这些测试。现有工作流仅对目标为 `main` 的 PR 自动触发；本 PR 提交到 `v0.10.0`，通过 `workflow_dispatch` 指定测试分支手动运行。
 
 | 现有代码 | 本次处理 |
 | --- | --- |
 | `accept_channel/test_funding_amount.py::test_udt_funding_amount_lt_account` | 原来因缺少 secp 依赖而被 `pytest.mark.skip` 跳过。对应检查合并到 01、07、08；修正 B 付款后在 A 查状态，以及最后余额常量与实际付款量不符的问题，删除被替代的旧方法。 |
-| 同文件 `test_udt_multi_funding_amount_gt_account` | 原来同样被跳过。方法名写的是超过余额，实际投入两次发行的全部代币，测试的是全额出资和支付。对应检查合并到 03、04、05、07、08，直接核对交易实际使用的输入，删除旧方法。 |
-| 同文件 `test_udt_funding_amount_zero` | 零出资接受后的首次支付由 06 检查，关闭和资金返还由 08 检查；余额改为汇总全部相关 cell。 |
+| 同文件 `test_udt_multi_funding_amount_gt_account` | 原来同样被跳过。方法名写的是超过余额，实际是 A 部分出资、B 将两次发行的代币全部投入，再由 B 付款给 A 并关闭。03、04、05 检查相关开通条件，07、08 使用另一种出资组合，不能替代这条完整流程；由 UDT-CLOSE-02 保留同一通道的完整流程。 |
+| 同文件 `test_udt_funding_amount_zero` | 原来没有跳过。06 检查了零出资接受后的首次支付；08 为双方出资，不能替代零出资通道关闭及返还。由 UDT-CLOSE-01 保留同一通道的完整流程，余额汇总全部相关 cell。 |
 | `FiberTest.faucet`、`generate_account`、`get_account_udt_script`，`UdtContract.list_cell` / `balance` | 继续用于准备账户、取得代币类型脚本和汇总链上余额；测试另行核对 cell 的数量、容量和实际使用的输入。 |
 | `framework/helper/ckb_cli.py` 中的 `tx_init`、`tx_add_input`、`tx_add_output` 及签名提交方法 | 用于创建指定数量、每个 142 CKB 的 xUDT cell。共用的准备步骤放在本测试文件，不修改框架原有的发行方法。 |
 | `FiberTest.open_channel` | 小金额分支没有传入 UDT 类型脚本，还会增加 CKB 预留；其他分支会通过支付分配余额。这些步骤不能验证真实的双方 UDT 出资，因此本批直接调用开通和接受 RPC，保留通用方法原样。 |
@@ -101,7 +116,7 @@ FNN 使用本机已有的 `v0.10.0-rc1 (8419c00 2026-10-16)` 构建，源码完�
 
 本地运行时通过符号链接复用 CKB、CLI 和 FNN，这些链接、二进制和原始日志不随测试代码提交。CI 仍使用仓库 `make prepare` 准备的 `download/fiber/current/fnn`。
 
-## 验证结果
+## 首轮验证结果（原 8 条用例）
 
 2026-10-20 使用上述环境和项目现有 Python 虚拟环境运行：
 
@@ -119,4 +134,29 @@ python3 scripts/check_test_map.py
 
 测试结束后，所用 CKB 和 Fiber RPC 端口已释放。完整日志仅保存在本机 `/private/tmp/pr1671-focused.log`，不提交到仓库。
 
-本次文字修改后，已对比修改前后的可执行代码，确认只改了注释和说明，测试输入、操作和断言均未变化。9 项测试仍可正常识别，Black 格式检查和 `git diff --check` 通过；本次没有重新启动节点运行测试。
+首轮验证完成后曾调整文字，当时已对比修改前后的可执行代码，确认只改了注释和说明，测试输入、操作和断言均未变化。9 项测试仍可正常识别，Black 格式检查和 `git diff --check` 通过；本次没有重新启动节点运行测试。
+
+## 本轮补漏验证（UDT-CLOSE-01、02）
+
+2026-10-20 在上述同一环境运行。重新核对 FNN、CKB、Python 版本及 FNN 二进制 SHA256，与首轮记录一致。
+
+```bash
+python -u -m pytest \
+  test_cases/fiber/devnet/accept_channel/test_dual_funded_udt.py::TestDualFundedUdt::test_zero_acceptor_funding_returns_paid_balances_on_close \
+  test_cases/fiber/devnet/accept_channel/test_dual_funded_udt.py::TestDualFundedUdt::test_full_multi_cell_acceptor_funding_can_pay_and_close \
+  test_cases/fiber/devnet/accept_channel/test_dual_funded_udt.py::TestDualFundedUdt::test_full_multi_cell_funding_needs_no_plain_ckb_input \
+  test_cases/fiber/devnet/accept_channel/test_dual_funded_udt.py::TestDualFundedUdt::test_cooperative_close_returns_paid_balances_and_all_change \
+  -v -s -o addopts='' --tb=short --maxfail=1
+# 4 passed in 472.89s (0:07:52)，退出码 0
+
+python -m pytest test_cases/fiber/devnet/accept_channel --collect-only -q -o addopts=''
+# 35 tests collected in 0.16s，其中本文件 11 项；退出码 0
+
+python3 scripts/check_test_map.py
+# 58/62 个评审 ID 已映射；本 PR 的 10 个 ID 均已映射，新增两条各有一处映射。
+# 退出码 1：仍为原分支已有的 PMP-01～05、SETTLE-01 六个代码 ID 在文档中没有对应用例，本次没有新增缺失或重复评审 ID。
+```
+
+聚焦范围为新增两条完整流程，以及共用准备代码的原 03、共用关闭代码的原 08。新两条及这两条回归均通过，未重跑本文件其余 7 项节点测试。零出资流程的实际 UDT 输入数为 1/0；接受方全额出资流程为 1/2，交易另补普通 CKB 输入；原 03 仍为 2/2 个 UDT 输入、0 个普通 CKB 输入。两条新增流程的支付状态、发票状态、关闭交易、逐方返还、最终钱包余额和 CKB 手续费检查均通过。
+
+Black 检查和 `git diff --check` 通过。测试退出后，专用 CKB/Fiber RPC 及 P2P 端口已释放。原始日志保存在本机 `/private/tmp/pr1671-close-focused.log`，不提交到仓库。本轮不修改 CI 配置，不重复触发远端 CI；现有 accept_channel 目录任务会收集这两条新测试。本轮代码、文档和之前的纠正反馈作为一个独立提交追加到 #115，保留原提交。

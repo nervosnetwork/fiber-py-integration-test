@@ -177,7 +177,95 @@ class TestDualFundedUdt(FiberTest):
         self._pay_invoice(self.fiber2, self.fiber1, 70)
         self._assert_channel_balances((4970, 3030))
 
-        # 2. 等待双方通道关闭，再找到花费原通道资金 cell 的关闭交易。
+        # 2. 等待双方关闭及实际关闭交易确认，并检查通道资金 cell 已花费。
+        closing, closing_fee = self._close_udt_channel()
+
+        # 3. 汇总双方所有找零和返还的 cell，检查代币与 CKB 总额。
+        assert [self._asset_balance(i) for i in range(2)] == [9970, 10030]
+        assert [self._output_amount(closing, lock) for lock in self.locks] == [
+            4970,
+            3030,
+        ]
+        assert sum(self._ckb_balances()) == ckb_before - self.funding_fee - closing_fee
+
+    # TEST-MAP: UDT-CLOSE-01
+    def test_zero_acceptor_funding_returns_paid_balances_on_close(self):
+        """
+        1. 为双方各准备一个含 10000 单位 xUDT 的 cell，记录 CKB 总额。
+        2. A 出资 5000、B 零出资接受，检查 B 原有 UDT cell 未花费。
+        3. A 向 B 支付 100，检查支付成功及通道余额为 4900、100。
+        4. 协作关闭后检查实际返还、最终钱包余额及 CKB 手续费，B 原 cell 仍未花费。
+        """
+        # 1. 准备独立资产，记录接受方原有 cell 和开通前 CKB 总额。
+        self._prepare_asset()
+        acceptor_point = self.initial_cells[1][0]["out_point"]
+        ckb_before = sum(self._ckb_balances())
+
+        # 2. 零出资接受不使用 B 的 UDT，A 得到 5000 找零。
+        self._open_udt_channel(5000, 0)
+        self._assert_udt_inputs((1, 0))
+        self._assert_funding_change((5000, 0))
+        assert acceptor_point not in [
+            i["previous_output"] for i in self.funding["inputs"]
+        ]
+        assert (
+            self.node.getClient().get_live_cell(
+                acceptor_point["index"], acceptor_point["tx_hash"], True
+            )["status"]
+            == "live"
+        )
+
+        # 3. 等待付款成功、发票已付和 TLC 清空，再核对双方通道余额。
+        self._pay_invoice(self.fiber1, self.fiber2, 100)
+        self._assert_channel_balances((4900, 100))
+
+        # 4. 在同一通道上关闭并核对返还，汇总找零和原有余额。
+        closing, closing_fee = self._close_udt_channel()
+        assert [self._output_amount(closing, lock) for lock in self.locks] == [
+            4900,
+            100,
+        ]
+        assert [self._asset_balance(i) for i in range(2)] == [9900, 10100]
+        assert sum(self._ckb_balances()) == ckb_before - self.funding_fee - closing_fee
+        assert (
+            self.node.getClient().get_live_cell(
+                acceptor_point["index"], acceptor_point["tx_hash"], True
+            )["status"]
+            == "live"
+        )
+
+    # TEST-MAP: UDT-CLOSE-02
+    def test_full_multi_cell_acceptor_funding_can_pay_and_close(self):
+        """
+        1. 为 A 准备一个 10000 单位 cell，为 B 准备两个各 5000 单位 cell。
+        2. A 出资 5000、B 投入全部 10000，核对实际输入和找零。
+        3. B 向 A 支付 1000，检查支付成功及通道余额为 6000、9000。
+        4. 协作关闭后检查返还和最终钱包余额为 11000、9000，CKB 只减少手续费。
+        """
+        # 1. A 持一个 UDT cell，B 持两个，每方代币总量均为 10000。
+        self._prepare_asset(acceptor_cells=2)
+        ckb_before = sum(self._ckb_balances())
+
+        # 2. B 的出资必须实际使用两个 UDT 输入，且不能产生 UDT 找零。
+        self._open_udt_channel(5000, 10000)
+        self._assert_udt_inputs((1, 2))
+        self._assert_funding_change((5000, 0))
+        assert self._asset_balance(1) == 0
+
+        # 3. 在 B 查询付款成功，在 A 查询发票已付，等待 TLC 清空后核对余额。
+        self._pay_invoice(self.fiber2, self.fiber1, 1000)
+        self._assert_channel_balances((6000, 9000))
+
+        # 4. 关闭同一通道，逐方核对实际返还及包含 A 找零的最终钱包余额。
+        closing, closing_fee = self._close_udt_channel()
+        assert [self._output_amount(closing, lock) for lock in self.locks] == [
+            6000,
+            9000,
+        ]
+        assert [self._asset_balance(i) for i in range(2)] == [11000, 9000]
+        assert sum(self._ckb_balances()) == ckb_before - self.funding_fee - closing_fee
+
+    def _close_udt_channel(self):
         self.fiber1.get_client().shutdown_channel(
             {
                 "channel_id": self.channel_id,
@@ -216,7 +304,6 @@ class TestDualFundedUdt(FiberTest):
             assert False, "No confirmed transaction spent the channel funding cell"
         closing = self._committed_transaction(closing_hash)
 
-        # 3. 汇总双方所有找零和返还的 cell，检查代币与 CKB 总额。
         assert [i["previous_output"] for i in closing["inputs"]] == [self.funding_point]
         assert (
             self.node.getClient().get_live_cell(
@@ -224,14 +311,9 @@ class TestDualFundedUdt(FiberTest):
             )["status"]
             != "live"
         )
-        assert [self._asset_balance(i) for i in range(2)] == [9970, 10030]
-        assert [self._output_amount(closing, lock) for lock in self.locks] == [
-            4970,
-            3030,
-        ]
         closing_fee = self.get_tx_message(closing_hash)["fee"]
         assert closing_fee > 0
-        assert sum(self._ckb_balances()) == ckb_before - self.funding_fee - closing_fee
+        return closing, closing_fee
 
     def _wallet_cells(self, lock):
         cells, cursor = [], None
@@ -286,7 +368,11 @@ class TestDualFundedUdt(FiberTest):
             time.sleep(1)
         assert False, f"Indexer did not reach transaction block {block_number}: {tip}"
 
-    def _prepare_asset(self, cells_per_account=1):
+    def _prepare_asset(self, cells_per_account=1, acceptor_cells=None):
+        cell_counts = (
+            cells_per_account,
+            cells_per_account if acceptor_cells is None else acceptor_cells,
+        )
         assert toml.load(self.node.ckb_toml_path)["tx_pool"]["min_fee_rate"] == 1000
         assert int(self.node.getClient().tx_pool_info()["min_fee_rate"], 16) == 1000
         self.logger.info(
@@ -320,22 +406,20 @@ class TestDualFundedUdt(FiberTest):
                 hex(self.udtContract.contract_tx_index),
                 tx_file,
             )
-            for lock in self.locks:
-                for _ in range(cells_per_account):
+            for lock, count in zip(self.locks, cell_counts):
+                for _ in range(count):
                     self.Ckb_cli.tx_add_output(
                         {
                             "capacity": hex(142 * CKB),
                             "lock": lock,
                             "type": self.udt_script,
                         },
-                        to_big_uint128_le_compatible(10000 // cells_per_account),
+                        to_big_uint128_le_compatible(10000 // count),
                         tx_file,
                     )
             self.Ckb_cli.tx_add_output(
                 {
-                    "capacity": hex(
-                        capacity - 2 * cells_per_account * 142 * CKB - 10000
-                    ),
+                    "capacity": hex(capacity - sum(cell_counts) * 142 * CKB - 10000),
                     "lock": self.issuer_lock,
                     "type": None,
                 },
@@ -357,12 +441,11 @@ class TestDualFundedUdt(FiberTest):
         assert len(secp_deps) == 1
         self.secp_dep = secp_deps[0]
         self.initial_cells = [self._asset_cells(i) for i in range(2)]
-        for cells in self.initial_cells:
-            assert len(cells) == cells_per_account
+        for cells, count in zip(self.initial_cells, cell_counts):
+            assert len(cells) == count
             assert all(int(c["output"]["capacity"], 16) == 142 * CKB for c in cells)
             assert all(
-                to_int_from_big_uint128_le(c["output_data"])
-                == 10000 // cells_per_account
+                to_int_from_big_uint128_le(c["output_data"]) == 10000 // count
                 for c in cells
             )
         assert [self._asset_balance(i) for i in range(2)] == [10000, 10000]
