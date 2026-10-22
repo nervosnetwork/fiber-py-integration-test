@@ -1,0 +1,6 @@
+- model: unavailable | cases: PR1675-04 PR1675-07 | feedback: `1675-04` 和`PR1675-07` 可以先写测试，以测试结果为准，可以写自动化测试了，能复用的用例尽量复用，自动化框架里的fnn 我已经更新了
+- model: unavailable | cases: H32V2-34 | feedback: 不应该卡在`NegotiatingFunding`， 新节点应该abort channel 让旧节点知道channel 创建失败
+- model: unavailable | cases: H32V2-05 | feedback: 须迁移
+- model: unavailable | cases: PR1671 CI 接入 | feedback: 没必要啊 手动触发一下就行 但是之后的CI得跑到这些用例
+- model: unavailable | cases: PR1671-01～08 中文表述 | feedback: 生硬的英语翻中文全给我检查并改正一下
+- model: unavailable | cases: UDT-CLOSE-01 UDT-CLOSE-02 | feedback: 那先把这两处遗漏补齐，按规则先给我看用例，确认后再改自动化、跑聚焦测试，更新到这个 PR，因为这个上额外的修改（帮我确认一下） 跟这个pr的场景无关，可以再搞一个commit做这个事情。
