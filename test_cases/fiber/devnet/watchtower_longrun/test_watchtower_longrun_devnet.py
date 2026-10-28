@@ -54,6 +54,16 @@ class TestWatchtowerLongrunDevnet(FiberTest):
             self._verifier.wait()
         super().teardown_method(method)
 
+    def _account(self):
+        # the faucet can race on a not-yet-committed change cell; retry after a few blocks
+        for n in range(10):
+            try:
+                return self.generate_account(20000)
+            except Exception:
+                if n == 9:
+                    raise
+                time.sleep(5)
+
     def _run(self, *args, env=None, timeout=900):
         e = dict(os.environ, PYTHONPATH=self.root)
         e.update(env or {})
@@ -105,9 +115,10 @@ class TestWatchtowerLongrunDevnet(FiberTest):
         srv = HTTPServer(("127.0.0.1", DISCORD_PORT), _Discord)
         threading.Thread(target=srv.serve_forever, daemon=True).start()
 
-        f3 = self.start_new_fiber(self.generate_account(20000))
-        f4 = self.start_new_fiber(self.generate_account(20000))
-        f5 = self.start_new_fiber(self.generate_account(20000))
+        # stale data dirs from an interrupted run would restore channels from an old chain
+        for n in (3, 4, 5):
+            shutil.rmtree(os.path.join(self.root, "tmp", "fiber", f"node{n}"), ignore_errors=True)
+        f3, f4, f5 = (self.start_new_fiber(self._account()) for _ in range(3))
         f1, f2 = self.fiber1, self.fiber2
         fibers = [f1, f2, f3, f4, f5]
         for a, b in zip(fibers, fibers[1:]):

@@ -9,3 +9,8 @@ pid.txt
 .idea
 venv
 config/watchtower_longrun_topology.yaml
+
+# local artifacts
+tmp/
+report/
+source/ckb-cli

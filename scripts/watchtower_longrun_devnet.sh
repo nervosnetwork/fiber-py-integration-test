@@ -7,4 +7,6 @@ set -euo pipefail
 cd "$(dirname "$0")/.."
 PY=${PYTHON:-python3}
 [ -x download/fiber/current/fnn ] || { echo "missing download/fiber/current/fnn (debug build)"; exit 1; }
-exec "$PY" -m pytest -s test_cases/fiber/devnet/watchtower_longrun/test_watchtower_longrun_devnet.py "$@"
+cleanup() { pkill -f "$PWD/tmp/fiber/node[0-9]*/fiber" 2>/dev/null || true; pkill -f "$PWD/download/fiber/current/fnn" 2>/dev/null || true; }
+cleanup; trap cleanup EXIT
+"$PY" -m pytest -s test_cases/fiber/devnet/watchtower_longrun/test_watchtower_longrun_devnet.py "$@"
