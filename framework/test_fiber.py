@@ -277,6 +277,8 @@ class Fiber:
             "kill -9 $(lsof -i:" + self.rpc_port + " | grep LISTEN | awk '{print $2}')",
             False,
         )
+        # boxes without lsof: fall back to fuser so the port really gets closed
+        run_command(f"command -v lsof >/dev/null || fuser -k -9 {self.rpc_port}/tcp", False)
         wait_for_port(self.rpc_port, timeout=30, open=False)
 
     def clean(self):
