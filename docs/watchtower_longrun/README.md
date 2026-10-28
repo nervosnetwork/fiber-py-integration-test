@@ -23,7 +23,7 @@ With 4 controlled nodes `[[N1,N2],[N4,N5,{parallel:2}]]` covers WTL-12 too.
 | 05 | unclosed route channels Ready, no scenario payment_hash still pending |
 | 06 | public-node channels never ShuttingDown/Closed (latched FAIL); alert before an unresolved TLC expires |
 | 07 | keysend N1->N5 over spare channels succeeds after 01-05 |
-| 08 | all resolved before `deadline_hours`; otherwise every pending case FAIL + Discord alert |
+| 08 | all resolved before `deadline_hours` (`timeout_deadline_hours`, default 16d, when the scenario has timeout TLCs); otherwise every pending case FAIL + Discord alert |
 | 09 | builder pre-check: bad RPC / missing channel -> exit 2, `build_failed` record, nothing closed |
 | 10 | scenario stayed in flight across a verifier restart without duplicate events/alerts |
 | 11 | invalid config -> exit 3 before any RPC write |

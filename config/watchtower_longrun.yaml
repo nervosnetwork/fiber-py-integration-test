@@ -1,7 +1,9 @@
 # Watchtower long-run (testnet) config. See docs/watchtower_longrun/README.md
 # Builder (CI trigger) reads everything except `verifier:`; the verifier reads `verifier:`.
 scenarios_per_day: 1            # how many scenarios the daily trigger builds
-deadline_hours: 30              # verifier marks unresolved cases FAIL after this (WTL-08)
+deadline_hours: 30              # verifier marks unresolved cases FAIL after this (WTL-08), preimage-only scenarios
+timeout_deadline_hours: 384     # 16d: scenarios with timeout TLCs. fnn adds a random +N*4h privacy delta (4h..14d,
+                                # tlc_expiry_limit default) to every TLC expiry, so timeout claims may land ~14d late
 send_mode: sequential          # sequential | concurrent; concurrent hit fnn "revocation nonce ledger has been unbalanced" on devnet
 payment_timeout_seconds: 300    # per payment (sequential) / whole batch
 scenario:

@@ -74,6 +74,13 @@ limits: {max_tlcs_per_scenario: 50, max_scenarios_per_day: 4}
 - **testnet**：使用链上已部署的 fiber 合约（commitment-lock / funding-lock 等由 fnn 的 testnet 配置指定），不做任何合约升级。
 - **devnet（仅本地 e2e）**：链快照 `source/fiber/data.fiber.tar.gz` 里以 type-id 部署的 commitment-lock 是旧版本，与 develop fnn（如 4777d5d）不匹配，会导致 watchtower 结算交易被拒（error 11 InvalidExpiry）。设置 `FIBER_CONTRACTS_DIR`（如 `$FIBER_SRC/tests/deploy/contracts`）后，e2e 用 `framework/helper/upgrade_type_id_contract.py` 原地升级该 type-id cell（code_hash 不变）。此升级**只用于 devnet**。
 
+## 7.2 超时路径只在 testnet 验证（决定 2026-10-28）
+
+- fnn 在路由时给每个 TLC expiry 叠加随机隐私量 `random_range(1..max) × DEFAULT_TLC_EXPIRY_DELTA(4h)`（`graph.rs` `rand_tlc_expiry_delta`），上限为 `tlc_expiry_limit`（默认 14 天），且 send_payment 无法关闭。channel `tlc_expiry_delta` 配置是生效的（devnet 实测 60s），但实际 TLC 过期在 4h–14d 之间随机。
+- **devnet e2e 不验证超时回收**：WTL-03、WTL-12、WTL-13 以及 WTL-04..07 中依赖 timeout TLC 的部分报告为 `SKIP (testnet-only)`；preimage/链上部分仍在一次运行内断言（场景 B 只含 preimage TLC，可完整走到 04..08、10）。devnet 上仍断言 timeout TLC 的 preimage 没有泄露上链（WTL-03 负向检查），以及 C 场景的 deadline FAIL（WTL-08 负向）。运行结果 PASS/FAIL/SKIP，无 FAIL 即退出 0。
+- **testnet**：含 timeout TLC 的场景使用 `timeout_deadline_hours`（默认 384h = 16 天，> 14 天上限 + 链上确认余量）；只含 preimage 的场景仍用 `deadline_hours`（30h）。
+- **代价（迟报）**：timeout 路径的故障（watchtower 没有在过期后回收）最晚要到场景创建后约 16 天才被判 FAIL / Discord 告警；同时最多约 16 个场景并行处于 open 状态（每天 1 个）。早期信号仍有：每轮 verifier 对未解决的 timeout TLC 按其实际 expiry 做 `expiry_alert_margin_ms` 告警，preimage 泄露、公共 channel 异常（WTL-06）等立即 FAIL。
+
 ## 8. 需要用户提供
 1. 5 个节点的链路顺序、哪两个是公共节点、各节点 RPC 地址（自控节点）和公共节点 pubkey/地址。
 2. 自控节点配置：`tlc_expiry_delta` 设为最小值、watchtower 已开启、check interval；节点钱包有足够测试网 CKB（每日开新 channel + 手续费）。

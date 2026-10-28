@@ -48,6 +48,13 @@ LOG = logging.getLogger("wtl.builder")
 RECORD_VERSION = 1
 
 
+def deadline_hours(cfg, tlcs):
+    """Scenarios with timeout TLCs need > fnn's max random privacy expiry delta (14d)."""
+    if cfg.get("timeout_deadline_hours") is not None and any(t.get("kind") == "timeout" for t in tlcs):
+        return cfg["timeout_deadline_hours"]
+    return cfg.get("deadline_hours", 30)
+
+
 class BuildError(Exception):
     """Failure after TLCs were sent; carries them so the record is debuggable."""
     def __init__(self, msg, tlcs=None):
@@ -391,7 +398,7 @@ class Builder:
             "id": scen_id,
             "status": "built",
             "created_at_ms": now_ms(),
-            "deadline_ms": now_ms() + int(cfg.get("deadline_hours", 30) * 3600 * 1000),
+            "deadline_ms": now_ms() + int(deadline_hours(cfg, tlcs) * 3600 * 1000),
             "close_set_index": set_idx,
             "close_set": [[a, b, p] for a, b, p in close_set],
             "spare_parallel": spare,
