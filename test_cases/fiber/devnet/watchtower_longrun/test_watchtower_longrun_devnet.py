@@ -101,6 +101,13 @@ class TestWatchtowerLongrunDevnet(FiberTest):
         return out, stat
 
     def _open(self, a, b, ckb_amount):
+        # connect_peer is async: wait for Init before open_channel ("feature not found")
+        for _ in range(60):
+            a.connect_peer(b)
+            time.sleep(2)
+            peers = a.get_client().list_peers().get("peers", [])
+            if any(p.get("pubkey") == b.get_pubkey() for p in peers):
+                break
         self.open_channel(a, b, ckb_amount * CKB, 0, other_config={"tlc_expiry_delta": hex(TLC_DELTA_MS)})
         for ch in b.get_client().list_channels({"pubkey": a.get_pubkey()})["channels"]:
             b.get_client().update_channel({"channel_id": ch["channel_id"], "tlc_expiry_delta": hex(TLC_DELTA_MS)})
