@@ -21,6 +21,26 @@
 4. `shutdown_channel({channel_id, force: true})`，记录 commitment tx。
 5. 写场景记录，退出。
 
+## 3.1 可配置的每日交易量（`config/watchtower_longrun.yaml`）
+```yaml
+scenarios_per_day: 2            # 每天构造几个强关场景，每个场景强关 1 个 C-C channel
+run_times: ["02:00", "14:00"]   # 可选，同一天多场景的触发时刻（Asia/Shanghai）；为空则同一次 CI 内依次执行
+scenario:
+  normal_payments: {count: 3, amount_ckb: 1}     # send_payment 普通支付，强关前链下完成
+  preimage_tlcs:   {count: 2, amount_ckb: 2}     # hold invoice，强关前 settle → 期望 preimage 链上取回
+  timeout_tlcs:    {count: 2, amount_ckb: 2}     # hold invoice，永不 settle → 期望超时链上取回
+  final_tlc_expiry_delta_ms: 9600000             # 160 min，最小值
+force_close:
+  candidates: [[N1, N2], [N4, N5]]  # 允许强关的 C-C channel（按拓扑填写）
+  strategy: round_robin             # round_robin | fixed
+  reopen_capacity_ckb: 1000         # 强关后重开 channel 的出资
+deadline_hours: 30
+limits: {max_tlcs_per_scenario: 50, max_scenarios_per_day: 4}
+```
+- `workflow_dispatch` 输入（全部可选，覆盖 yaml）：`scenarios_per_day`、`normal_count`、`preimage_count`、`timeout_count`、`amount_ckb`、`dry_run`（只做预检与容量计算，不发交易）。定时触发只用 yaml。
+- 映射规则：**一个场景 = 一次强关 = 一个 C-C channel**。同一天多个场景按 `candidates` 轮换；若某候选 channel 还没重开好（重开需等 funding 上链确认，通常数分钟），则下一个场景使用另一个候选，或先 `open_channel` 一条新的 C-C 平行 channel（`reopen_capacity_ckb`）。可用 C-C channel 数不足时按 WTL-11 拒绝。
+- 容量 / CKB 估算（预检时计算并写入记录）：每场景被强关 channel 需容纳 `pending = preimage_count×amount + timeout_count×amount`，同时整条路径上每个 channel（含公共节点 channel）的付款方向余额 ≥ 该场景全部 TLC 总额 + 手续费；pending TLC 在 fnn 中受每 channel TLC 数量上限（`max_tlc_number_in_flight`）与 `max_tlc_value_in_flight` 限制，`count` 需小于此值。每次强关消耗：commitment + 每个 TLC 一笔取回交易的手续费 + 每个 TLC output 的 cell 占用（取回后释放）+ 重开 channel 的出资（约 `reopen_capacity_ckb`，会在下次强关后回到钱包）。经过公共节点的 timeout TLC 会把这部分资金在公共节点 channel 上锁到 TLC 解决为止，建议 timeout 总额远小于公共节点 channel 容量。
+
 ## 4. 场景记录（JSON，`$DATA_DIR/scenarios/<date>-<id>.json`）
 ```json
 {"id":"2026-10-29-01","created_at":"...","topology":[{"name":"N1","pubkey":"...","controlled":true}],
@@ -47,7 +67,7 @@
 2. 自控节点配置：`tlc_expiry_delta` 设为最小值、watchtower 已开启、check interval；节点钱包有足够测试网 CKB（每日开新 channel + 手续费）。
 3. 在节点机上注册 self-hosted runner（标签建议 `fiber-testnet`）。
 4. Discord webhook URL；网页是否需要公网访问。
-5. 每日 TLC 数量和金额、失败判定的 deadline。
+5. 默认配置值（每天场景数、每场景各类 TLC 数量与金额）和失败判定的 deadline；可在 yaml 或手动运行时调整。
 
 ## 9. 风险
 - 公共节点的 `tlc_expiry_delta` 可能是默认 4h，超时类 TLC 可能要跨天；另外公共节点会因 TLC 过期而**自己**强关和我们之间的 channel（上游 TLC 过期未 remove 时 fnn 会强关），这恰恰是 WTL-06 要防的问题，hold invoice 必须保证在上游过期前于链下结算/失败。
