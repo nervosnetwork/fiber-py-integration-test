@@ -11,20 +11,14 @@ PY=${PYTHON:-python3}
 cleanup() {
   for pid in $(pgrep -f "ckb (run|miner)" || true); do case "$(readlink /proc/$pid/cwd 2>/dev/null)" in "$PWD"/tmp/*) kill -9 "$pid" 2>/dev/null || true;; esac; done
   pkill -f "$PWD/tmp/fiber/node[0-9]*/fiber" 2>/dev/null || true; pkill -f "$PWD/download/fiber/current/fnn" 2>/dev/null || true; }
-# Devnet genesis (source/template/ckb/fiber/dev.toml) embeds source/contract/fiber/*, pinned to the
-# release fnn. A develop fnn needs the matching contracts from its own tree, otherwise settlement
-# txs fail commitment-lock with error 11 (InvalidExpiry). FIBER_CONTRACTS_DIR overlays them for
-# this run only and restores the pinned files on exit.
-FIBER_CONTRACTS_DIR=${FIBER_CONTRACTS_DIR:-}
-BK=tmp/wtl-contract-backup
-restore_contracts() { if [ -d "$BK" ]; then cp "$BK"/* source/contract/fiber/; rm -rf "$BK"; fi; }
-restore_contracts
-if [ -n "$FIBER_CONTRACTS_DIR" ]; then
-  mkdir -p "$BK"; cp source/contract/fiber/{commitment-lock,funding-lock,auth} "$BK"/
-  cp "$FIBER_CONTRACTS_DIR"/{commitment-lock,funding-lock,auth} source/contract/fiber/
-  echo "using fiber contracts from $FIBER_CONTRACTS_DIR"
-fi
-cleanup; sleep 2; trap 'cleanup; restore_contracts' EXIT
+# FIBER_CONTRACTS_DIR (e.g. $FIBER_SRC/tests/deploy/contracts): the test upgrades the snapshot's
+# type-id commitment-lock cell to the binary matching the fnn under test.
+# one devnet at a time: e2e and the concurrency repro share ckb :8114 and fnn ports
+exec 9>/tmp/fiber-devnet.lock; flock -n 9 || { echo "another devnet run holds /tmp/fiber-devnet.lock"; exit 1; }
+export FIBER_CONTRACTS_DIR=${FIBER_CONTRACTS_DIR:-}
+BK=tmp/wtl-contract-backup  # restore leftovers from the earlier (ineffective) genesis overlay
+if [ -d "$BK" ]; then cp "$BK"/* source/contract/fiber/; rm -rf "$BK"; fi
+cleanup; sleep 2; trap cleanup EXIT
 # fiber stores from an earlier chain gossip stale channels -> peers flag each other as malicious
 rm -rf tmp/fiber/node* tmp/wtl-e2e
 # debug fnn: secret-key KDF migration on first start can take >300s

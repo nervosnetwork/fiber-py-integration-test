@@ -114,6 +114,14 @@ class TestWatchtowerLongrunDevnet(FiberTest):
 
     def test_watchtower_longrun_devnet(self):
         self.root = get_project_root()
+        # The devnet snapshot's commitment-lock predates develop fnn; a mismatched lock rejects every
+        # watchtower settlement with error 11 (InvalidExpiry). Upgrade the type-id cell in place.
+        cdir = os.environ.get("FIBER_CONTRACTS_DIR")
+        if cdir:
+            from framework.helper.upgrade_type_id_contract import upgrade_type_id_cell, SNAPSHOT_COMMITMENT_LOCK
+            print("commitment-lock upgrade tx:", upgrade_type_id_cell(*SNAPSHOT_COMMITMENT_LOCK, os.path.join(cdir, "commitment-lock")))
+            for _ in range(5):
+                self.Miner.miner_with_version(self.node, "0x0")
         self.work = os.path.join(self.root, "tmp", "wtl-e2e")
         shutil.rmtree(self.work, ignore_errors=True)
         os.makedirs(self.work)
