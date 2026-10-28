@@ -70,6 +70,10 @@ limits: {max_tlcs_per_scenario: 50, max_scenarios_per_day: 4}
 ## 7. CI
 `.github/workflows/testnet-watchtower-longrun.yml`：`schedule`（每日一次）+ `workflow_dispatch`；`runs-on: [self-hosted, fiber-testnet]`；只跑触发脚本并上传场景记录为 artifact，同时写入服务器 `$DATA_DIR`。监控以 systemd 服务常驻，不在 CI 中。
 
+## 7.1 合约版本（devnet 与 testnet 的区别）
+- **testnet**：使用链上已部署的 fiber 合约（commitment-lock / funding-lock 等由 fnn 的 testnet 配置指定），不做任何合约升级。
+- **devnet（仅本地 e2e）**：链快照 `source/fiber/data.fiber.tar.gz` 里以 type-id 部署的 commitment-lock 是旧版本，与 develop fnn（如 4777d5d）不匹配，会导致 watchtower 结算交易被拒（error 11 InvalidExpiry）。设置 `FIBER_CONTRACTS_DIR`（如 `$FIBER_SRC/tests/deploy/contracts`）后，e2e 用 `framework/helper/upgrade_type_id_contract.py` 原地升级该 type-id cell（code_hash 不变）。此升级**只用于 devnet**。
+
 ## 8. 需要用户提供
 1. 5 个节点的链路顺序、哪两个是公共节点、各节点 RPC 地址（自控节点）和公共节点 pubkey/地址。
 2. 自控节点配置：`tlc_expiry_delta` 设为最小值、watchtower 已开启、check interval；节点钱包有足够测试网 CKB（每日开新 channel + 手续费）。
