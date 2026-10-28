@@ -314,7 +314,7 @@ class TestWatchtowerLongrunDevnet(FiberTest):
                 put(case, False, f"A={A.get(case)}")
             else:
                 put(case, True, TESTNET_ONLY + f" (A={st(A, case)}, B={st(B, case)})", skip=True)
-        put("web", "WTL" in page and len(api) >= 4, f"dashboard {len(page)}B, api scenarios={len(api)}")
+        put("web", all(s["id"] in page for s in api) and len(api) >= 4, f"dashboard {len(page)}B, api scenarios={len(api)}")
         put("daily", any("daily summary" in p for p in _Discord.posts), f"discord posts={len(_Discord.posts)}")
         print("\nCASE      RESULT  REASON")
         for k in sorted(report):
