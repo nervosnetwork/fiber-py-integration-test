@@ -14,4 +14,6 @@ cleanup() {
 cleanup; sleep 2; trap cleanup EXIT
 # fiber stores from an earlier chain gossip stale channels -> peers flag each other as malicious
 rm -rf tmp/fiber/node* tmp/wtl-e2e
+# debug fnn: secret-key KDF migration on first start can take >300s
+export FIBER_START_TIMEOUT=${FIBER_START_TIMEOUT:-900}
 "$PY" -m pytest -s test_cases/fiber/devnet/watchtower_longrun/test_watchtower_longrun_devnet.py "$@"
