@@ -48,6 +48,13 @@ LOG = logging.getLogger("wtl.builder")
 RECORD_VERSION = 1
 
 
+class BuildError(Exception):
+    """Failure after TLCs were sent; carries them so the record is debuggable."""
+    def __init__(self, msg, tlcs=None):
+        super().__init__(msg)
+        self.tlcs = list(tlcs or [])
+
+
 class PrecheckError(Exception):
     pass
 
@@ -302,31 +309,40 @@ class Builder:
             tlcs.append({"payment_hash": payment_hash, "preimage": preimage, "kind": kind, "amount": amount,
                          "route": [x["channel_outpoint"] for x in hops], "expected": {"normal": "offchain", "preimage": "preimage", "timeout": "timeout"}[kind]})
 
-        for _ in range(counts["normal_payments"]):
-            pay("normal", amounts["normal_payments"], hold=False)
-        for _ in range(counts["preimage_tlcs"]):
-            pay("preimage", amounts["preimage_tlcs"], hold=True)
-        for _ in range(counts["timeout_tlcs"]):
-            pay("timeout", amounts["timeout_tlcs"], hold=True)
+        # send_mode: "sequential" (default) waits for each payment to settle/arrive
+        # before sending the next; "concurrent" fires all first (kept for repro of
+        # fnn "revocation nonce ledger has been unbalanced").
+        sequential = cfg.get("send_mode", "sequential") != "concurrent"
+        pay_timeout = cfg.get("payment_timeout_seconds", 300)
 
-        # wait: normal payments Success, hold invoices Received on receiver
-        deadline = time.time() + cfg.get("payment_timeout_seconds", 300)
-        while True:
-            ok = True
-            for t in tlcs:
-                if t["kind"] == "normal":
-                    st = prpc.get_payment({"payment_hash": t["payment_hash"]})["status"]
-                    ok &= st == "Success"
-                    if st == "Failed":
-                        raise PrecheckError(f"normal payment {t['payment_hash']} failed")
-                else:
-                    st = rrpc.get_invoice({"payment_hash": t["payment_hash"]})["status"]
-                    ok &= st == "Received"
-            if ok:
-                break
-            if time.time() > deadline:
-                raise PrecheckError("payments did not reach Success/Received in time")
-            time.sleep(2)
+        def wait_tlcs(group):
+            deadline = time.time() + pay_timeout
+            while True:
+                ok = True
+                for t in group:
+                    if t["kind"] == "normal":
+                        st = prpc.get_payment({"payment_hash": t["payment_hash"]})["status"]
+                        ok &= st == "Success"
+                        if st == "Failed":
+                            raise BuildError(f"normal payment {t['payment_hash']} failed", tlcs)
+                    else:
+                        st = rrpc.get_invoice({"payment_hash": t["payment_hash"]})["status"]
+                        ok &= st == "Received"
+                    t["last_status"] = st
+                if ok:
+                    return
+                if time.time() > deadline:
+                    raise BuildError("payments did not reach Success/Received in time: " + ", ".join(f"{t['kind']}={t.get('last_status')}" for t in group), tlcs)
+                time.sleep(1)
+
+        plan = [("normal", amounts["normal_payments"], False)] * counts["normal_payments"] + \
+               [("preimage", amounts["preimage_tlcs"], True)] * counts["preimage_tlcs"] + \
+               [("timeout", amounts["timeout_tlcs"], True)] * counts["timeout_tlcs"]
+        for kind, amt, hold in plan:
+            pay(kind, amt, hold)
+            if sequential:
+                wait_tlcs([tlcs[-1]])
+        wait_tlcs(tlcs)
 
         # snapshot channels along the route (+ pending tlcs/expiries)
         channels = []
@@ -399,11 +415,11 @@ class Builder:
         return rec
 
 
-def write_failure(records_dir, reason, stage):
+def write_failure(records_dir, reason, stage, tlcs=None):
     os.makedirs(records_dir, exist_ok=True)
     sid = dt.datetime.now().strftime("%Y%m%d-%H%M%S") + "-failed"
     rec = {"version": RECORD_VERSION, "id": sid, "status": "build_failed", "stage": stage, "reason": reason,
-           "created_at_ms": now_ms(), "deadline_ms": now_ms(), "tlcs": [], "channels": [], "force_closes": []}
+           "created_at_ms": now_ms(), "deadline_ms": now_ms(), "tlcs": tlcs or [], "channels": [], "force_closes": []}
     write_json_atomic(os.path.join(records_dir, f"{sid}.json"), rec)
     return rec
 
@@ -444,9 +460,10 @@ def main(argv=None):
         try:
             results.append(b.build_one(slot))
         except Exception as e:  # noqa: any error before the record is written
-            LOG.exception("scenario %d aborted (WTL-09): %s", slot, e)
+            label = "WTL-09" if isinstance(e, PrecheckError) else "build"
+            LOG.exception("scenario %d aborted (%s): %s", slot, label, e)
             if not a.dry_run:
-                write_failure(a.records_dir, str(e), "build")
+                write_failure(a.records_dir, str(e), "precheck" if isinstance(e, PrecheckError) else "build", getattr(e, "tlcs", None))
             return 2
     print(json.dumps([{"id": r.get("id"), "dry_run": r.get("dry_run", False), **({k: r[k] for k in ("needed_shannons", "inventory")} if r.get("dry_run") else {})} for r in results], indent=2))
     return 0

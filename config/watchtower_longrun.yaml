@@ -2,6 +2,8 @@
 # Builder (CI trigger) reads everything except `verifier:`; the verifier reads `verifier:`.
 scenarios_per_day: 1            # how many scenarios the daily trigger builds
 deadline_hours: 30              # verifier marks unresolved cases FAIL after this (WTL-08)
+send_mode: sequential          # sequential | concurrent; concurrent hit fnn "revocation nonce ledger has been unbalanced" on devnet
+payment_timeout_seconds: 300    # per payment (sequential) / whole batch
 scenario:
   normal_payments: {count: 2, amount_ckb: 1}   # settled off-chain before the close
   preimage_tlcs:   {count: 2, amount_ckb: 1}   # hold invoice, settled after the close -> on-chain preimage claim
