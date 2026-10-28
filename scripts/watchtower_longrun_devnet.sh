@@ -23,4 +23,14 @@ cleanup; sleep 2; trap cleanup EXIT
 rm -rf tmp/fiber/node* tmp/wtl-e2e
 # debug fnn: secret-key KDF migration on first start can take >300s
 export FIBER_START_TIMEOUT=${FIBER_START_TIMEOUT:-900}
+# TLC expiry: fnn adds a privacy random delta of N x 4h (DEFAULT_TLC_EXPIRY_DELTA, graph.rs
+# rand_tlc_expiry_delta) to every payment, so timeout TLCs expire 4h..14d out regardless of the
+# 60s deltas we set. Wall-clock time can't be changed here (the watch_tower_wit_tlc tests use
+# `sudo date`), so ckb+fnn run under libfaketime with an offset file the test advances.
+FAKETIME_LIB=${FAKETIME_LIB:-/workspace/libfaketime/src/libfaketime.so.1}
+if [ -f "$FAKETIME_LIB" ]; then
+  export WTL_FAKETIME_FILE=/tmp/wtl-faketime.rc; echo "+0" > "$WTL_FAKETIME_FILE"
+  export LD_PRELOAD=$FAKETIME_LIB FAKETIME_TIMESTAMP_FILE=$WTL_FAKETIME_FILE FAKETIME_DONT_FAKE_MONOTONIC=1 FAKETIME_CACHE_DURATION=1
+  echo "faketime enabled ($FAKETIME_LIB)"
+fi
 "$PY" -m pytest -s test_cases/fiber/devnet/watchtower_longrun/test_watchtower_longrun_devnet.py "$@"

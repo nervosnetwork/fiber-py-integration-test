@@ -76,8 +76,36 @@ class TestWatchtowerLongrunDevnet(FiberTest):
         print("builder stdout:", r.stdout[-3000:], "\nstderr:", r.stderr[-6000:])
         return r
 
+    def _jump_past_expiry(self):
+        ft = os.environ.get("WTL_FAKETIME_FILE")
+        if not ft:
+            print("faketime not enabled; timeout TLCs will only expire on wall time")
+            return
+        exps = []
+        for f in os.listdir(self.records):
+            for t in json.load(open(os.path.join(self.records, f))).get("tlcs", []):
+                if t.get("kind") == "timeout" and t.get("expiry_ms"):
+                    exps.append(t["expiry_ms"])
+        if not exps:
+            return
+        # wait for preimage claims (WTL-02) before expiring anything
+        for _ in range(40):
+            cases, _ = self._cases()
+            if all(c.get("WTL-02", ("PASS",))[0] in ("PASS", "N/A") for c in cases.values()):
+                break
+            time.sleep(5)
+        offset_s = int((max(exps) - time.time() * 1000) / 1000) + 1800
+        with open(ft, "w") as f:
+            f.write(f"+{offset_s}\n")
+        print(f"faketime offset +{offset_s}s")
+        time.sleep(3)
+        for _ in range(3):  # >37 blocks so median time passes the jump
+            self.node.getClient().generate_epochs("0x1", wait_time=1)
+
     def _start_verifier(self):
-        env = dict(os.environ, PYTHONPATH=self.root, WTL_DISCORD_WEBHOOK=f"http://127.0.0.1:{DISCORD_PORT}/hook")
+        # verifier stays on wall time (deadlines / WTL-08 are real-time)
+        base = {k: v for k, v in os.environ.items() if not k.startswith(("LD_PRELOAD", "FAKETIME"))}
+        env = dict(base, PYTHONPATH=self.root, WTL_DISCORD_WEBHOOK=f"http://127.0.0.1:{DISCORD_PORT}/hook")
         log = open(os.path.join(self.work, "verifier.log"), "a")
         self._verifier = subprocess.Popen([sys.executable, "-m", "watchtower_longrun.verifier", "--config", self.cfg_path,
                                  "--topology", self.topo_path, "--records-dir", self.records, "--db", self.db,
@@ -210,9 +238,12 @@ class TestWatchtowerLongrunDevnet(FiberTest):
         verifier.send_signal(signal.SIGKILL)
         verifier.wait()
         verifier = self._start_verifier()
+        # timeout TLCs carry fnn's random +N*4h privacy delta: jump ckb/fnn fake time past the
+        # latest expiry (verifier runs on wall time so deadlines stay real)
+        self._jump_past_expiry()
         try:
-            deadline = time.time() + 1500
-            while time.time() < deadline:
+            deadline = time.monotonic() + 1500
+            while time.monotonic() < deadline:
                 cases, stat = self._cases()
                 print(json.dumps(stat))
                 if stat and all(s != "open" for s in stat.values()) and len(stat) >= 4:
