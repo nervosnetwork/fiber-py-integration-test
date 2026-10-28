@@ -1,0 +1,47 @@
+# Daily trigger for the testnet watchtower long-run (builder only).
+# The builder force closes and writes a record, then EXITS. Recovery is
+# verified by the long-running verifier service on the same runner host
+# (deploy/watchtower_longrun/*.service), not by this workflow.
+name: testnet-watchtower-longrun
+
+on:
+  schedule:
+    - cron: "0 2 * * *"   # 02:00 UTC = 10:00 Asia/Shanghai
+  workflow_dispatch:
+    inputs:
+      scenarios:      {description: "override scenarios_per_day", required: false}
+      normal_count:   {description: "override normal payments per scenario", required: false}
+      preimage_count: {description: "override preimage TLCs per scenario", required: false}
+      timeout_count:  {description: "override timeout TLCs per scenario", required: false}
+      amount_ckb:     {description: "override amount (CKB) for all TLC types", required: false}
+      close_set:      {description: "use close_sets[i] (strategy=fixed)", required: false}
+      dry_run:        {description: "validate + pre-check only, no force close", type: boolean, default: false}
+
+concurrency:
+  group: testnet-watchtower-longrun
+  cancel-in-progress: false
+
+jobs:
+  build-scenario:
+    runs-on: [self-hosted, fiber-testnet]
+    timeout-minutes: 60
+    env:
+      WTL_TOPOLOGY: /etc/wtl/topology.yaml
+      WTL_RECORDS_DIR: /var/lib/wtl/records
+    steps:
+      - uses: actions/checkout@v4
+      - name: Install deps
+        run: |
+          python3 -m venv .venv
+          .venv/bin/pip install -q requests pyyaml
+      - name: Build scenario(s)
+        env:
+          WTL_NORMAL_COUNT: ${{ inputs.normal_count }}
+          WTL_PREIMAGE_COUNT: ${{ inputs.preimage_count }}
+          WTL_TIMEOUT_COUNT: ${{ inputs.timeout_count }}
+          WTL_AMOUNT_CKB: ${{ inputs.amount_ckb }}
+          WTL_CLOSE_SET: ${{ inputs.close_set }}
+          WTL_DRY_RUN: ${{ inputs.dry_run && '1' || '' }}
+          WTL_SCENARIOS: ${{ inputs.scenarios }}
+        # inputs are passed only via env (no shell interpolation of user input)
+        run: .venv/bin/python -m watchtower_longrun.builder --config config/watchtower_longrun.yaml

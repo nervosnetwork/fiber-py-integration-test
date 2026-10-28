@@ -1,0 +1,30 @@
+# Watchtower long-run (testnet) config. See docs/watchtower_longrun/README.md
+# Builder (CI trigger) reads everything except `verifier:`; the verifier reads `verifier:`.
+scenarios_per_day: 1            # how many scenarios the daily trigger builds
+deadline_hours: 30              # verifier marks unresolved cases FAIL after this (WTL-08)
+scenario:
+  normal_payments: {count: 2, amount_ckb: 1}   # settled off-chain before the close
+  preimage_tlcs:   {count: 2, amount_ckb: 1}   # hold invoice, settled after the close -> on-chain preimage claim
+  timeout_tlcs:    {count: 2, amount_ckb: 1}   # hold invoice never settled -> on-chain timeout claim
+  final_tlc_expiry_delta_ms: null              # null = invoice default (24h on fnn release)
+tlc_expiry_delta_ms: null       # used only when the builder has to open a replacement channel
+force_close:
+  strategy: round_robin         # round_robin | fixed | random
+  fixed_index: 0
+  spare_parallel: 1             # extra Ready channel kept on every closed pair (WTL-07/13)
+  reopen_capacity_ckb: 1000     # capacity for channels the builder opens to refill a pair
+  # each entry is one scenario's close set; refs must be controlled-controlled hops
+  close_sets:
+    # with the 3-controlled testnet layout C-C-P-P-C only N1-N2 can be closed:
+    - [[N1, N2, {parallel: 2}]]                 # covers 01-06,13 (12 = N/A)
+    # with 4 controlled nodes (C-C-P-C-C) this also covers WTL-12:
+    # - [[N1, N2], [N4, N5, {parallel: 2}]]
+post_check_amount_ckb: 1
+limits:
+  max_tlcs_per_scenario: 50
+  max_scenarios_per_day: 4
+verifier:
+  interval_seconds: 60
+  expiry_alert_margin_ms: 7200000   # alert when an unresolved timeout TLC is <2h from expiry
+  max_fee_ckb_per_channel: 1
+  daily_summary_hour: 9             # local time of the monitor host

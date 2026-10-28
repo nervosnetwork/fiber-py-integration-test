@@ -21,3 +21,12 @@
 | `WTL-12` | - [ ] 同一场景同时强关链路两端的自控 channel（如 N1-N2 与 N4-N5），同一笔支付的 TLC 在两端都上链，其中部分 hold invoice 已 settle、部分不 settle | 已 settle 的 TLC 在收款侧由 watchtower 用 preimage 链上取回，付款侧对应 TLC 也用同一 preimage 链上取回；不 settle 的 TLC 在两端都超时取回；各端金额一致 | 多个 channel 同时上链时 preimage 未在上游链上使用，或两端取回冲突导致资金损失 | P0 |
 | `WTL-13` | - [ ] 同一场景强关两个节点之间的多条平行 C-C channel，TLC 分布在不同平行 channel 上 | 每条平行 channel 的 commitment 与 TLC 各自正确取回，互不干扰，未强关的平行 channel 保持 `ChannelReady` | watchtower 按节点对而非 channel 处理导致取回错乱 | P1 |
 | `WTL-10` | - [ ] 监控进程重启 | 从场景记录与链上状态恢复进度，不重复计数、不丢场景 | 常驻进程重启导致结果错误 | P2 |
+
+## Case → scenario mapping (implementation note, rows above unchanged)
+
+Every builder-created scenario (one per `scenarios_per_day`) carries normal + preimage + timeout
+TLCs over the N1→N5 route, then force-closes one close set. The verifier evaluates in each scenario:
+WTL-01/02/03/04/05/06/07/08/13 (close set with `parallel`) and WTL-12 (close set containing both
+route ends — needs 4 controlled nodes). WTL-09 / WTL-11 are produced by builder runs that fail
+pre-check / config validation (`build_failed` records). WTL-10 is PASS when the verifier was
+restarted during the scenario's life. See `docs/watchtower_longrun/README.md`.
