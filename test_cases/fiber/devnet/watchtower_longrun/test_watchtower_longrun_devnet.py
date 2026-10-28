@@ -237,8 +237,8 @@ class TestWatchtowerLongrunDevnet(FiberTest):
                 stop.wait(8)
         threading.Thread(target=drive, daemon=True).start()
 
-        # ---- WTL-10: kill -9 the verifier mid-flight and restart it
-        time.sleep(40)
+        # ---- WTL-10: kill -9 the verifier mid-flight and restart it (B resolves in ~40s, so restart early)
+        time.sleep(8)
         verifier.send_signal(signal.SIGKILL)
         verifier.wait()
         verifier = self._start_verifier()
@@ -314,8 +314,8 @@ class TestWatchtowerLongrunDevnet(FiberTest):
                 put(case, False, f"A={A.get(case)}")
             else:
                 put(case, True, TESTNET_ONLY + f" (A={st(A, case)}, B={st(B, case)})", skip=True)
-        page_ok = "WTL" in page and any("daily summary" in p for p in _Discord.posts)
-        put("web/daily", page_ok, "dashboard + daily summary")
+        put("web", "WTL" in page and len(api) >= 4, f"dashboard {len(page)}B, api scenarios={len(api)}")
+        put("daily", any("daily summary" in p for p in _Discord.posts), f"discord posts={len(_Discord.posts)}")
         print("\nCASE      RESULT  REASON")
         for k in sorted(report):
             print(f"{k:9} {report[k][0]:6}  {report[k][1]}")
