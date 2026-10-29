@@ -44,7 +44,7 @@ limits:
   max_tlcs_per_scenario: 50
   max_scenarios_per_day: 4
 verifier:
-  interval_seconds: 60
+  interval_seconds: 300             # poll every 5 min (devnet e2e overrides to 3s)
   expiry_alert_margin_ms: 7200000   # alert when an unresolved timeout TLC is <2h from expiry
   max_fee_ckb_per_channel: 1
   daily_summary_hour: 9

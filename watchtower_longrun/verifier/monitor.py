@@ -411,7 +411,7 @@ def main(argv=None):
         host, port = a.web.rsplit(":", 1)
         threading.Thread(target=serve, args=(store, topo, host, int(port)), daemon=True).start()
     signal.signal(signal.SIGTERM, lambda *_: mon.stop.set())
-    mon.run(a.interval or cfg.get("interval_seconds", 60))
+    mon.run(a.interval or cfg.get("interval_seconds", 300))
     return 0
 
 
