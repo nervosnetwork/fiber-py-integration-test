@@ -12,7 +12,7 @@ The system is two **independent** parts that share only the records directory:
 ## One scenario verifies many cases
 
 Default testnet close set `[[N1,N2,{parallel:2}]]`: one scenario -> rows WTL-01..07, 08, 09, 10, 11, 13 (WTL-12 = N/A, needs both route ends controlled).
-With 4 controlled nodes `[[N1,N2],[N4,N5,{parallel:2}]]` covers WTL-12 too.
+Testnet default (C-C-P-P-C-C, N1..N6) rotates `[N1,N2]`, `[N5,N6]`, `[[N1,N2],[N5,N6]]` (covers WTL-12). The devnet e2e uses a 5-node C-C-P-C-C chain.
 
 | case | how the verifier decides |
 | --- | --- |

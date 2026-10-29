@@ -12,6 +12,7 @@
 - 方案 A（推荐）`C1-C2-P1-C3-P2` 或 `C1-C2-C3-P1-P2`：强关 C1-C2（付款端）或 C2-C3。被强关 channel 靠近付款端时，hold invoice 的 TLC 会经过公共节点，可以验证 WTL-05/06 下公共节点 channel 链下回滚。
 - 方案 B `P1-C1-C2-C3-P2`：公共节点在两端，付款/收款方是公共节点，我们无法在公共节点上创建 hold invoice 或发起支付，**不可行**，除非公共节点只做中间跳。
 - 付款端（N1）与收款端（N5）必须是自控节点（要调 `send_payment` 和 hold invoice/`settle_invoice`），因此可行拓扑为 `C - x - x - x - C`，两个公共节点位于 N2–N4 中的两个，剩下一个自控节点必须和端点相邻才有 C-C channel：`C-C-P-P-C`、`C-P-P-C-C`、`C-P-C-P-C`（**无 C-C 相邻对，不可行**）。推荐 `C1-C2-P1-P2-C3` 强关 C1-C2，或 `C1-P1-P2-C2-C3` 强关 C2-C3（收款端，preimage 取回发生在收款侧更直接）。
+  > **更新（2026-10-29）**：testnet 默认拓扑改为 6 节点 `C-C-P-P-C-C`（N1..N6，N3/N4 公共），见文末 "Testnet topology (default)"。下文 N5 作为收款端的描述在 testnet 上对应 N6。
 - 每日轮换：两个方向（付款侧/收款侧）交替，覆盖 preimage 在上游/下游的两种情形。强关后需要重新开该 channel（自控节点之间，可自动 open_channel），保证第二天可用。
 
 ## 3. 触发脚本（`test_cases/fiber/testnet/watchtower_longrun/trigger.py`，复用 `framework/fiber_rpc.py`）
@@ -97,6 +98,9 @@ limits: {max_tlcs_per_scenario: 50, max_scenarios_per_day: 4}
 
 ## Liquidity upkeep and wallet balance
 
-- **Rebalance** (`rebalance.*`): the builder checks each route hop's best upstream (payer-side) share before pre-check (`pre`) and after each scenario (`post`, after `post_delay_seconds`). If any share is below `target_ratio`, it sends sequential keysends of `amount_ckb` from the receiver (N5) back to the payer (N1). It sends at most `max_payments` per stage and stops at the first failure. Each attempt is logged to the record's `liquidity` list with `min_ratio_before`/`min_ratio_after`.
-- **Auto-open** (`liquidity.*`): if a hop's best upstream balance is below `max(min_upstream_ckb_by_hop[hop] or min_upstream_ckb, scenario need)`, the builder opens an `open_capacity_ckb` channel from the upstream node. This only happens when the upstream node is controlled. Public-public hops and public upstreams are never opened; they rely on rebalance, and otherwise the build is recorded as `build_failed` (WTL-09) with the reason.
+- **Rebalance** (`rebalance.*`): the builder checks each route hop's best upstream (payer-side) share before pre-check (`pre`) and after each scenario (`post`, after `post_delay_seconds`). If any share is below `target_ratio`, it sends sequential keysends of `amount_ckb` from the receiver (N6) back to the payer (N1). It sends at most `max_payments` per stage and stops at the first failure. Each attempt is logged to the record's `liquidity` list with `min_ratio_before`/`min_ratio_after`.
+- **Auto-open** (`liquidity.*`): if a hop's best upstream balance is below `max(min_upstream_ckb_by_hop[hop] or min_upstream_ckb, scenario need)`, the builder opens an `open_capacity_ckb` channel from the upstream node. The builder opens from the upstream node when it is controlled (testnet N2-N3 from N2). When the upstream is public and the downstream is controlled (testnet N4-N5) and `open_from_downstream` is set, it opens from the downstream node (N5); this helps the N6→N1 return path, and the forward direction relies on rebalance. Public-public hops (N3-N4) are never opened, and otherwise the build is recorded as `build_failed` (WTL-09) with the reason.
 - **Wallet** (`wallet.min_ckb`): the pre-check reads each controlled node's on-chain wallet (`node_info.default_funding_lock_script` → ckb `get_cells_capacity`). If a balance is below the minimum, the build fails (`build_failed`). Balances are stored in the record as `wallets_shannons`. The verifier also polls the balances, shows `wallet_ckb` on `/nodes` and `/api/nodes`, adds a `wallets (CKB)` line to the daily summary, and posts a Discord warning (once per day per node) when a balance is below `verifier.wallet_warn_ckb`.
+
+## Testnet topology (default)
+`C-C-P-P-C-C`: N1, N2, N5 and N6 are controlled, and N3 and N4 are public. The route has 5 hops, N1→N6. Close sets rotate through `[N1,N2]`, `[N5,N6]`, and `[[N1,N2],[N5,N6]]`; the last one covers WTL-12. The public hops N2-N3, N3-N4 and N4-N5 are never closed. The devnet e2e keeps its own 5-node C-C-P-C-C topology.
