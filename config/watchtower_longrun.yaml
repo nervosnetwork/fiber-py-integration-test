@@ -32,6 +32,7 @@ rebalance:
   max_payments: 5               # per stage; stages: "pre" (before pre-check/inventory) and "post" (after the scenario)
   after_scenario: true
   post_delay_seconds: 10
+  post_wait_close_seconds: 600  # post rebalance waits until force-closed victims leave the sender's graph
   payment_timeout_seconds: 120
 liquidity:
   auto_open: true               # hop upstream balance < min_upstream_ckb (or < scenario need); testnet: N2-N3 opens from N2, N4-N5 from N5:

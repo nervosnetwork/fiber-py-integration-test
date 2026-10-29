@@ -192,7 +192,7 @@ class TestWatchtowerLongrunDevnet(FiberTest):
                             "close_sets": [[["N1", "N2"], ["N4", "N5", {"parallel": 2}]], [["N1", "N2"]]]},
             "post_check_amount_ckb": 1,
             "rebalance": {"enabled": True, "target_ratio": 0.9999, "amount_ckb": 1, "max_payments": 2,
-                          "after_scenario": True, "post_delay_seconds": 5, "payment_timeout_seconds": 60},
+                          "after_scenario": True, "post_delay_seconds": 5, "post_wait_close_seconds": 300, "payment_timeout_seconds": 60},
             "liquidity": {"auto_open": True, "min_upstream_ckb": 0, "open_capacity_ckb": 1000},
             "wallet": {"min_ckb": 1},
             "limits": {"max_tlcs_per_scenario": 50, "max_scenarios_per_day": 4},

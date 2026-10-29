@@ -81,6 +81,20 @@ def outpoint_tx(op):
     return "0x" + raw[:64], int.from_bytes(bytes.fromhex(raw[64:72]), "little")
 
 
+def liquidity_action(topo, a, b, lq):
+    """What auto-open does for a short hop a->b: open_upstream | open_downstream | fail.
+    public-public is always fail (never opened)."""
+    if topo.controlled(a):
+        return "open_upstream"
+    if topo.controlled(b) and lq.get("open_from_downstream", False):
+        return "open_downstream"
+    return "fail"
+
+
+def liquidity_plan(topo, lq):
+    return {f"{a}-{b}": liquidity_action(topo, a, b, lq) for a, b in topo.hop_pairs()}
+
+
 class Builder:
     def __init__(self, cfg, topo, records_dir, dry_run=False):
         self.cfg = cfg
@@ -155,27 +169,30 @@ class Builder:
             res.append(c)
         return res
 
-    def open_channel(self, a, b, capacity_ckb, tlc_expiry_delta):
-        if not self.topo.controlled(a):
+    def open_channel(self, a, b, capacity_ckb, tlc_expiry_delta, from_downstream=False):
+        """Open a new a-b channel funded by a (default) or by b (from_downstream: balance ends up
+        on b's side, i.e. return-direction liquidity only)."""
+        opener, peer = (b, a) if from_downstream else (a, b)
+        if not self.topo.controlled(opener):
             # funding from b would put the balance on the wrong side (we need a->b liquidity)
-            raise PrecheckError(f"need a new channel {a}-{b} but the upstream end {a} is a public node")
+            raise PrecheckError(f"need a new channel {a}-{b} but the opening end {opener} is a public node")
         before = {c["channel_id"] for c in self.channels_between(a, b)}
-        rpc = self.rpcs[a]
+        rpc = self.rpcs[opener]
         try:
-            rpc.connect_peer({"pubkey": self.pubkeys[b]})
+            rpc.connect_peer({"pubkey": self.pubkeys[peer]})
         except RpcError:
             pass
-        params = {"pubkey": self.pubkeys[b], "funding_amount": h(int(capacity_ckb * CKB_SHANNONS)), "public": True}
+        params = {"pubkey": self.pubkeys[peer], "funding_amount": h(int(capacity_ckb * CKB_SHANNONS)), "public": True}
         if tlc_expiry_delta:
             params["tlc_expiry_delta"] = h(tlc_expiry_delta)
-        LOG.info("open_channel %s->%s %s CKB", a, b, capacity_ckb)
+        LOG.info("open_channel %s->%s %s CKB", opener, peer, capacity_ckb)
         rpc.open_channel(params)
         deadline = time.time() + self.cfg.get("open_channel_timeout_seconds", 900)
         while time.time() < deadline:
             for c in self.ready_channels(a, b):
                 if c["channel_id"] not in before:
-                    if tlc_expiry_delta:
-                        self.rpcs[b].update_channel({"channel_id": c["channel_id"], "tlc_expiry_delta": h(tlc_expiry_delta)})
+                    if tlc_expiry_delta and self.rpcs.get(peer):
+                        self.rpcs[peer].update_channel({"channel_id": c["channel_id"], "tlc_expiry_delta": h(tlc_expiry_delta)})
                     return c
             time.sleep(3)
         raise PrecheckError(f"open_channel {a}-{b} not ready in time")
@@ -205,6 +222,29 @@ class Builder:
             if time.time() > deadline:
                 raise PrecheckError(f"payer graph still misses {len(missing)} route channels")
             time.sleep(3)
+
+    def graph_outpoints(self, rpc):
+        seen, after = set(), None
+        while True:
+            p = {"limit": h(500)}
+            if after:
+                p["after"] = after
+            r = rpc.graph_channels(p)
+            seen.update(c["channel_outpoint"] for c in r["channels"])
+            if len(r["channels"]) < 500:
+                return seen
+            after = r["last_cursor"]
+
+    def wait_closed_out_of_graph(self, outpoints, timeout):
+        """Post-scenario rebalance raced the victim force closes: the sender's graph still listed the
+        closing channels, so routes could pick them. Wait until they are pruned (funding spent)."""
+        sender = self.rpcs[self.topo.order[-1]]
+        t0 = time.time()
+        while True:
+            left = set(outpoints) & self.graph_outpoints(sender)
+            if not left or time.time() - t0 > timeout:
+                return {"waited_s": round(time.time() - t0, 1), "still_in_graph": len(left)}
+            time.sleep(5)
 
     def wait_funding_committed(self, txs, timeout, confirmations):
         ckb = self.topo.ckb()
@@ -278,7 +318,10 @@ class Builder:
         """Hops whose best upstream balance is below liquidity.min_upstream_ckb (or below `need`):
         controlled upstream -> open a new channel from it; public upstream -> rely on rebalance, else fail."""
         lq = self.cfg.get("liquidity", {})
-        if not lq.get("auto_open", False) or self.dry_run:
+        if not lq.get("auto_open", False):
+            return
+        if self.dry_run:
+            LOG.info("liquidity plan (dry-run, applied only to short hops): %s", liquidity_plan(self.topo, lq))
             return
         base_floor = lq.get("min_upstream_ckb", 0)
         by_hop = lq.get("min_upstream_ckb_by_hop", {}) or {}
@@ -288,13 +331,17 @@ class Builder:
             floor = max(int(by_hop.get(f"{a}-{b}", base_floor) * CKB_SHANNONS), need)
             if bal >= floor:
                 continue
-            if self.topo.controlled(a):
-                LOG.info("liquidity: %s-%s upstream %s < %s -> open %s CKB from %s", a, b, bal, floor, cap, a)
-                c = self.open_channel(a, b, cap, self.cfg.get("tlc_expiry_delta_ms"))
-                self.liquidity_log.append({"stage": "auto_open", "hop": f"{a}-{b}", "upstream_before": bal, "channel_id": c["channel_id"]})
-            else:
+            act = liquidity_action(self.topo, a, b, lq)
+            if act == "fail":
                 raise PrecheckError(f"{a}-{b}: upstream balance {bal / CKB_SHANNONS:.1f} CKB < {floor / CKB_SHANNONS:.1f} CKB, "
                                     f"upstream {a} is a public node (cannot open), rebalance did not recover it")
+            down = act == "open_downstream"
+            opener = b if down else a
+            LOG.info("liquidity: %s-%s upstream %s < %s -> open %s CKB from %s%s", a, b, bal, floor, cap, opener,
+                     " (downstream: return-direction liquidity only; forward relies on rebalance)" if down else "")
+            c = self.open_channel(a, b, cap, self.cfg.get("tlc_expiry_delta_ms"), from_downstream=down)
+            self.liquidity_log.append({"stage": "auto_open_downstream" if down else "auto_open", "hop": f"{a}-{b}",
+                                       "opener": opener, "upstream_before": bal, "channel_id": c["channel_id"]})
 
     # ---------- selection ----------
     def choose_close_set(self, slot):
@@ -519,6 +566,11 @@ class Builder:
                         LOG.warning("cancel_invoice %s: %s", t["payment_hash"], e)
         if cfg.get("rebalance", {}).get("after_scenario", True):
             time.sleep(cfg.get("rebalance", {}).get("post_delay_seconds", 10))  # let preimage settles propagate
+            closed = [c["outpoint"] for c in channels if c["force_close"]]
+            if closed:
+                w = self.wait_closed_out_of_graph(closed, cfg.get("rebalance", {}).get("post_wait_close_seconds", 600))
+                LOG.info("post rebalance: victim channels out of sender graph: %s", w)
+                self.liquidity_log.append(dict(stage="post_wait_close", **w))
             try:
                 self.rebalance("post")
             except Exception as e:  # noqa: best effort, next run's "pre" rebalance retries
