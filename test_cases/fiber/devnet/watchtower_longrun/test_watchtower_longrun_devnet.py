@@ -193,7 +193,7 @@ class TestWatchtowerLongrunDevnet(FiberTest):
             "post_check_amount_ckb": 1,
             "rebalance": {"enabled": True, "target_ratio": 0.9999, "amount_ckb": 1, "max_payments": 2,
                           "after_scenario": True, "post_delay_seconds": 5, "post_wait_close_seconds": 300, "payment_timeout_seconds": 60},
-            "liquidity": {"auto_open": True, "min_upstream_ckb": 0, "open_capacity_ckb": 1000},
+            "liquidity": {"auto_open": True, "min_upstream_ckb": 0, "open_capacity_ckb": 1000, "seed_return_ckb": 300},
             "wallet": {"min_ckb": 1},
             "limits": {"max_tlcs_per_scenario": 50, "max_scenarios_per_day": 4},
             "verifier": {"interval_seconds": 3, "expiry_alert_margin_ms": 3_600_000, "max_fee_ckb_per_channel": 1, "daily_summary_hour": 0,

@@ -39,6 +39,8 @@ liquidity:
   min_upstream_ckb: 50          #   controlled upstream node -> open a new channel from it;
   min_upstream_ckb_by_hop: {}   #   per-hop floor, e.g. {"N1-N2": 200}
   open_capacity_ckb: 1000       #   public upstream + controlled downstream (N4-N5) -> open from downstream (N5) if open_from_downstream
+  seed_return_ckb: 300          # rebalance: hop lacks downstream-side balance and both ends controlled -> keysend upstream->downstream once
+                                #   (fnn auto-accepts opens with only the reserve from the acceptor, accept_channel funding not usable)
   open_from_downstream: true    #   (adds N5-side liquidity for the N6->N1 return path; payer side relies on rebalance); public-public -> never
 wallet:
   min_ckb: 2000                 # pre-check: controlled node on-chain wallet below this -> build_failed (WTL-09)

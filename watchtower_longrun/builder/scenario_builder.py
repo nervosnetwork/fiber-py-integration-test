@@ -284,8 +284,8 @@ class Builder:
         payer, receiver = self.topo.order[0], self.topo.order[-1]
         if not self.rpcs[receiver]:
             return []
-        done = []
-        for _ in range(int(rb.get("max_payments", 5))):
+        done, seeded = [], False
+        for _ in range(int(rb.get("max_payments", 5)) + 1):
             ratios = self.hop_ratios()
             low = {f"{a}-{b}": round(r, 3) for (a, b), (_, _, r) in ratios.items() if r < rb.get("target_ratio", 0.3)}
             if not low:
@@ -299,6 +299,19 @@ class Builder:
                             for c in self.ready_channels(a, b)), default=0)
                 if back < amt:
                     short[f"{a}-{b}"] = back
+            seed = int(self.cfg.get("liquidity", {}).get("seed_return_ckb", 0) * CKB_SHANNONS)
+            if short and seed and not seeded:
+                # fnn auto-accepts our opens with only the reserve on the acceptor side, so channels are
+                # one-sided; for hops with both ends controlled push balance to the downstream side by a keysend
+                seeded = True
+                for hop in list(short):
+                    a, b = hop.split("-")
+                    if self.topo.controlled(a) and self.topo.controlled(b):
+                        st = self.push_balance(a, b, max(seed, amt))
+                        done.append({"stage": stage, "hop": hop, "amount": max(seed, amt), "status": f"seed_return:{st}",
+                                     "min_ratio_before": min(low.values()), "min_ratio_after": round(min(r for (_, _, r) in self.hop_ratios().values()), 4)})
+                        self.liquidity_log.append(done[-1])
+                continue
             if short:
                 LOG.warning("rebalance (%s): skipped, no return liquidity (downstream-side balance < %s) on %s", stage, amt, short)
                 done.append({"stage": stage, "low": low, "amount": amt, "status": "skipped_no_return_liquidity", "short_hops": short,
@@ -310,7 +323,7 @@ class Builder:
                 r = self.rpcs[receiver].send_payment({"target_pubkey": self.pubkeys[payer], "amount": h(amt), "keysend": True})
                 st = self._wait_payment(self.rpcs[receiver], r["payment_hash"], rb.get("payment_timeout_seconds", 120))
             except RpcError as e:
-                st = f"error: {str(e)[:120]}"
+                st = f"error: {str(e)[:300]}"
             after = min(r for (_, _, r) in self.hop_ratios().values())
             done.append({"stage": stage, "low": low, "amount": amt, "status": st,
                          "min_ratio_before": min(low.values()), "min_ratio_after": round(after, 4)})
@@ -318,6 +331,15 @@ class Builder:
             if st != "Success":
                 break
         return done
+
+    def push_balance(self, a, b, amt):
+        """keysend a->b (direct neighbours) so b gets spendable balance on the a-b channel."""
+        LOG.info("seed_return: keysend %s CKB %s->%s", amt / CKB_SHANNONS, a, b)
+        try:
+            r = self.rpcs[a].send_payment({"target_pubkey": self.pubkeys[b], "amount": h(amt), "keysend": True})
+            return self._wait_payment(self.rpcs[a], r["payment_hash"], self.cfg.get("rebalance", {}).get("payment_timeout_seconds", 120))
+        except RpcError as e:
+            return f"error: {str(e)[:300]}"
 
     def _wait_payment(self, rpc, ph, timeout):
         deadline = time.time() + timeout
