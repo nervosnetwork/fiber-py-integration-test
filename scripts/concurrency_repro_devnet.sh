@@ -13,4 +13,4 @@ rm -rf tmp/fiber/node*
 # wait until :8114 is free so the fresh ckb can bind it
 for _ in $(seq 30); do (exec 3<>/dev/tcp/127.0.0.1/8114) 2>/dev/null || break; sleep 2; done
 export FIBER_START_TIMEOUT=${FIBER_START_TIMEOUT:-900}
-timeout 1500 venv/bin/python -m pytest -s test_cases/fiber/devnet/concurrency_repro "$@"
+timeout ${REPRO_TIMEOUT:-3600} venv/bin/python -m pytest -s test_cases/fiber/devnet/concurrency_repro "$@"

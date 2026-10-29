@@ -1,7 +1,7 @@
 """Repro: N concurrent (pipelined) TLCs on ONE channel -> does fnn force close it via the
 revocation-nonce-ledger watchdog (fiber #1701 / cd97934)? Not an assertion of correctness:
 records per-round outcome to /workspace/logs/concurrency-repro/. Run:
-  FIBER_START_TIMEOUT=900 venv/bin/python -m pytest -s test_cases/fiber/devnet/concurrency_repro
+  REPRO_ROUNDS=10 REPRO_TLCS=12 bash scripts/concurrency_repro_devnet.sh   (defaults 3 x 6)
 """
 import json, os, secrets, shutil, time
 
