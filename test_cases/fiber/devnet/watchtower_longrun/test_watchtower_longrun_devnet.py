@@ -183,8 +183,13 @@ class TestWatchtowerLongrunDevnet(FiberTest):
             "force_close": {"strategy": "fixed", "fixed_index": 0, "spare_parallel": 1, "reopen_capacity_ckb": 1000,
                             "close_sets": [[["N1", "N2"], ["N4", "N5", {"parallel": 2}]], [["N1", "N2"]]]},
             "post_check_amount_ckb": 1,
+            "rebalance": {"enabled": True, "target_ratio": 0.9999, "amount_ckb": 1, "max_payments": 2,
+                          "after_scenario": True, "post_delay_seconds": 5, "payment_timeout_seconds": 60},
+            "liquidity": {"auto_open": True, "min_upstream_ckb": 0, "open_capacity_ckb": 1000},
+            "wallet": {"min_ckb": 1},
             "limits": {"max_tlcs_per_scenario": 50, "max_scenarios_per_day": 4},
-            "verifier": {"interval_seconds": 3, "expiry_alert_margin_ms": 3_600_000, "max_fee_ckb_per_channel": 1, "daily_summary_hour": 0},
+            "verifier": {"interval_seconds": 3, "expiry_alert_margin_ms": 3_600_000, "max_fee_ckb_per_channel": 1, "daily_summary_hour": 0,
+                         "wallet_warn_ckb": 10 ** 12},
         }
         self.cfg_path = self._write_yaml("config.yaml", base)
 
@@ -216,7 +221,9 @@ class TestWatchtowerLongrunDevnet(FiberTest):
         verifier = self._start_verifier()
         # ---- builder: scenario A (multi close + parallel), exits after force close
         # A carries timeout TLCs that cannot expire within a devnet run -> long deadline, never resolves here
-        r = self._builder(dict(base, deadline_hours=24))
+        # A also exercises auto-open: N1-N2 floor above any channel balance -> builder opens one from N1
+        n12_before = len(f1.get_client().list_channels({"pubkey": f2.get_pubkey()})["channels"])
+        r = self._builder(dict(base, deadline_hours=24, liquidity=dict(base["liquidity"], min_upstream_ckb_by_hop={"N1-N2": 5000})))
         assert r.returncode == 0, r.stderr
         # ---- builder: scenario B overlaps A (N1-N2 only), preimage-only so it fully resolves on devnet
         r = self._builder(base, extra=["--close-set", "1", "--preimage-count", "1", "--timeout-count", "0", "--normal-count", "1"])
@@ -264,6 +271,8 @@ class TestWatchtowerLongrunDevnet(FiberTest):
             for s in api:
                 assert urllib.request.urlopen(f"http://127.0.0.1:{WEB_PORT}/scenario/{s['id']}").status == 200
             assert urllib.request.urlopen(f"http://127.0.0.1:{WEB_PORT}/nodes").status == 200
+            nodes_api = json.loads(urllib.request.urlopen(f"http://127.0.0.1:{WEB_PORT}/api/nodes").read())
+            n12_after = len(f1.get_client().list_channels({"pubkey": f2.get_pubkey()})["channels"])
         finally:
             stop.set()
             verifier.terminate()
@@ -306,6 +315,22 @@ class TestWatchtowerLongrunDevnet(FiberTest):
         # TEST-MAP: WTL-10
         put("WTL-10", st(B, "WTL-10") == "PASS" and dup == 0 and len(fposts) == len(set(fposts)),
             f"B={B.get('WTL-10')} dup_events={dup}")
+        recs = {}
+        for fn in os.listdir(self.records):
+            rr = json.load(open(os.path.join(self.records, fn)))
+            recs[rr["id"]] = rr
+        la = recs.get(a, {}).get("liquidity", []) if a else []
+        lb = recs.get(b, {}).get("liquidity", []) if b else []
+        opened = [x for x in la if x.get("stage") == "auto_open" and x.get("hop") == "N1-N2"]
+        put("auto-open", bool(opened) and n12_after > n12_before, f"A auto_open={opened[:1]} N1-N2 channels {n12_before}->{n12_after}")
+        posts = [x for x in lb if x.get("stage") == "post"]
+        put("rebalance", bool(posts) and all(x["status"] == "Success" for x in posts) and posts[-1]["min_ratio_after"] > posts[0]["min_ratio_before"],
+            f"B post rebalance {[(x['status'], x['min_ratio_before'], x['min_ratio_after']) for x in posts]}")
+        nodes = nodes_api
+        wl = [n for n in nodes if "wallet_ckb" in (n.get("data") or {})]
+        put("wallet", len(wl) == 4 and all(len(recs.get(x, {}).get("wallets_shannons", {})) == 4 for x in (a, b))
+            and any("wallet" in p and "warn" in p for p in _Discord.posts) and any("wallets (CKB)" in p for p in _Discord.posts),
+            f"/nodes wallets={[(n['name'], n['data']['wallet_ckb']) for n in wl]}")
         put("WTL-11", True, "4 invalid configs rejected (exit 3) before any RPC")
         # TEST-MAP: WTL-12
         # TEST-MAP: WTL-13

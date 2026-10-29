@@ -257,7 +257,9 @@ class Builder:
                 st = self._wait_payment(self.rpcs[receiver], r["payment_hash"], rb.get("payment_timeout_seconds", 120))
             except RpcError as e:
                 st = f"error: {str(e)[:120]}"
-            done.append({"stage": stage, "low": low, "amount": amt, "status": st})
+            after = min(r for (_, _, r) in self.hop_ratios().values())
+            done.append({"stage": stage, "low": low, "amount": amt, "status": st,
+                         "min_ratio_before": min(low.values()), "min_ratio_after": round(after, 4)})
             self.liquidity_log.append(done[-1])
             if st != "Success":
                 break
@@ -278,10 +280,12 @@ class Builder:
         lq = self.cfg.get("liquidity", {})
         if not lq.get("auto_open", False) or self.dry_run:
             return
-        floor = max(int(lq.get("min_upstream_ckb", 0) * CKB_SHANNONS), need)
+        base_floor = lq.get("min_upstream_ckb", 0)
+        by_hop = lq.get("min_upstream_ckb_by_hop", {}) or {}
         cap = lq.get("open_capacity_ckb", self.cfg["force_close"].get("reopen_capacity_ckb", 1000))
         for a, b in self.topo.hop_pairs():
             bal, _ = self.best_upstream(a, b)
+            floor = max(int(by_hop.get(f"{a}-{b}", base_floor) * CKB_SHANNONS), need)
             if bal >= floor:
                 continue
             if self.topo.controlled(a):

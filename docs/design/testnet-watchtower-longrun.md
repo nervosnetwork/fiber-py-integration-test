@@ -94,3 +94,9 @@ limits: {max_tlcs_per_scenario: 50, max_scenarios_per_day: 4}
 - "下游已有 preimage、上游未 remove" 的窗口依赖时序，可能需要断开 peer。
 - 每日强关会消耗测试网 CKB，需重开 channel。
 - 本草案尚未在本地 devnet 跑通完整 5 节点流程；现有 devnet 用例（`devnet/watch_tower_wit_tlc/`）已覆盖 2 节点 preimage/超时取回，可作为下一步原型参考。
+
+## Liquidity upkeep and wallet balance
+
+- **Rebalance** (`rebalance.*`): the builder checks each route hop's best upstream (payer-side) share before pre-check (`pre`) and after each scenario (`post`, after `post_delay_seconds`). If any share is below `target_ratio`, it sends sequential keysends of `amount_ckb` from the receiver (N5) back to the payer (N1). It sends at most `max_payments` per stage and stops at the first failure. Each attempt is logged to the record's `liquidity` list with `min_ratio_before`/`min_ratio_after`.
+- **Auto-open** (`liquidity.*`): if a hop's best upstream balance is below `max(min_upstream_ckb_by_hop[hop] or min_upstream_ckb, scenario need)`, the builder opens an `open_capacity_ckb` channel from the upstream node. This only happens when the upstream node is controlled. Public-public hops and public upstreams are never opened; they rely on rebalance, and otherwise the build is recorded as `build_failed` (WTL-09) with the reason.
+- **Wallet** (`wallet.min_ckb`): the pre-check reads each controlled node's on-chain wallet (`node_info.default_funding_lock_script` → ckb `get_cells_capacity`). If a balance is below the minimum, the build fails (`build_failed`). Balances are stored in the record as `wallets_shannons`. The verifier also polls the balances, shows `wallet_ckb` on `/nodes` and `/api/nodes`, adds a `wallets (CKB)` line to the daily summary, and posts a Discord warning (once per day per node) when a balance is below `verifier.wallet_warn_ckb`.

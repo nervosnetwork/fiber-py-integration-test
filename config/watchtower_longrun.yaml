@@ -36,6 +36,7 @@ rebalance:
 liquidity:
   auto_open: true               # hop upstream balance < min_upstream_ckb (or < scenario need):
   min_upstream_ckb: 50          #   controlled upstream node -> open a new channel from it;
+  min_upstream_ckb_by_hop: {}   #   per-hop floor, e.g. {"N1-N2": 200}
   open_capacity_ckb: 1000       #   public upstream -> never opened; rely on rebalance, else build_failed (WTL-09)
 wallet:
   min_ckb: 2000                 # pre-check: controlled node on-chain wallet below this -> build_failed (WTL-09)

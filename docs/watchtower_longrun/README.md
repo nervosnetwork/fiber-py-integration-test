@@ -58,3 +58,6 @@ Result: `tmp/wtl-e2e/result.json`, verifier log `tmp/wtl-e2e/verifier.log`.
 
 Secrets: the Discord webhook lives only in `WTL_DISCORD_WEBHOOK` (env file / runner secret), never in git.
 Safety: the builder refuses any close set that touches a non-controlled node; it never calls `shutdown_channel` on public-node channels.
+
+### Liquidity / wallet
+See the `rebalance`, `liquidity`, `wallet` and `verifier.wallet_warn_ckb` keys in `config/watchtower_longrun.yaml`. Auto-open only happens from a controlled upstream node; a public-public hop that runs out of liquidity becomes `build_failed`. The devnet e2e asserts `auto-open`, `rebalance` and `wallet`.
