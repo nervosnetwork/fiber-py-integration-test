@@ -1,0 +1,19 @@
+# Long-running verifier (monitor + read-only web) for the testnet watchtower long-run.
+# Install: see docs/watchtower_longrun/README.md
+[Unit]
+Description=Fiber watchtower long-run verifier
+After=network-online.target
+
+[Service]
+Type=simple
+User=wtl
+WorkingDirectory=/opt/fiber-py-integration-test
+EnvironmentFile=/etc/wtl/verifier.env
+ExecStart=/opt/fiber-py-integration-test/.venv/bin/python -m watchtower_longrun.verifier \
+  --config config/watchtower_longrun.yaml --topology /etc/wtl/topology.yaml \
+  --records-dir /var/lib/wtl/records --db /var/lib/wtl/verifier.sqlite --web 127.0.0.1:8088
+Restart=always
+RestartSec=10
+
+[Install]
+WantedBy=multi-user.target

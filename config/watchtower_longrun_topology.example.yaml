@@ -1,0 +1,14 @@
+# Testnet topology, ordered along the payment route N1 -> N6.
+# Layout C-C-P-P-C-C: N1,N2,N5,N6 controlled; N3,N4 public (hops N2-N3,N3-N4,N4-N5 never closed).
+# Copy to config/watchtower_longrun_topology.yaml (git-ignored) and fill in.
+# Public nodes: rpc_url usually unknown -> leave empty, pubkey required.
+ckb_rpc_url: https://testnet.ckb.dev/
+explorer_tx_url: https://testnet.explorer.nervos.org/transaction/{}
+currency: Fibt
+nodes:
+  - {name: N1, controlled: true,  rpc_url: "http://127.0.0.1:8227", pubkey: null}
+  - {name: N2, controlled: true,  rpc_url: "http://127.0.0.1:8228", pubkey: null}
+  - {name: N3, controlled: false, rpc_url: null, pubkey: "02...public node pubkey"}
+  - {name: N4, controlled: false, rpc_url: null, pubkey: "03...public node pubkey"}
+  - {name: N5, controlled: true,  rpc_url: "http://127.0.0.1:8229", pubkey: null}
+  - {name: N6, controlled: true,  rpc_url: "http://127.0.0.1:8230", pubkey: null}
