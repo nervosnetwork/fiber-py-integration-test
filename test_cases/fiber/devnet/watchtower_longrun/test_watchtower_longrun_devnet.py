@@ -170,6 +170,14 @@ class TestWatchtowerLongrunDevnet(FiberTest):
         for a, b in zip(fibers, fibers[1:]):
             self._open(a, b, 2000)
         time.sleep(10)  # gossip
+        # channels are single-funded by the upstream side: push some liquidity to N5 so the
+        # N5->N1 rebalance keysend has a path on every hop
+        for _ in range(3):
+            ph = f1.get_client().send_payment({"target_pubkey": f5.get_pubkey(), "amount": hex(50 * CKB), "keysend": True})["payment_hash"]
+            for _ in range(60):
+                if f1.get_client().get_payment({"payment_hash": ph})["status"] in ("Success", "Failed"):
+                    break
+                time.sleep(1)
 
         names = ["N1", "N2", "N3", "N4", "N5"]
         self.topo_path = self._write_yaml("topology.yaml", {
