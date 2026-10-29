@@ -465,6 +465,11 @@ class Builder:
             t["expiry_ms"] = max(exps) if exps else None
             t["min_expiry_ms"] = min(exps) if exps else None
 
+        # force_close.skip (concurrency repro): build + send exactly like a real scenario, close nothing
+        if cfg["force_close"].get("skip"):
+            for ch in channels:
+                ch["force_close"] = False
+            closing = []
         # never force close a channel whose funding tx is not yet committed on CKB
         # (fnn would broadcast a commitment tx that spends an unknown outpoint and give up)
         self.wait_funding_committed([c["funding_tx"] for c in channels if c["force_close"]],
@@ -505,6 +510,13 @@ class Builder:
             if t["kind"] == "preimage":
                 rrpc.settle_invoice({"payment_hash": t["payment_hash"], "payment_preimage": t["preimage"]})
                 t["settled_at_ms"] = now_ms()
+        if cfg["force_close"].get("skip") and cfg["force_close"].get("cancel_holds", True):
+            for t in tlcs:  # release hold TLCs so the next round starts clean
+                if t["kind"] == "timeout":
+                    try:
+                        rrpc.cancel_invoice({"payment_hash": t["payment_hash"]})
+                    except Exception as e:  # noqa
+                        LOG.warning("cancel_invoice %s: %s", t["payment_hash"], e)
         if cfg.get("rebalance", {}).get("after_scenario", True):
             time.sleep(cfg.get("rebalance", {}).get("post_delay_seconds", 10))  # let preimage settles propagate
             try:
