@@ -7,8 +7,9 @@ Not a correctness assertion; results -> /workspace/logs/concurrency-repro/builde
 """
 import glob, json, os, shutil, threading, time
 
-from test_cases.fiber.devnet.watchtower_longrun.test_watchtower_longrun_devnet import (
-    TestWatchtowerLongrunDevnet as _E2E, FINAL_DELTA_MS, TLC_DELTA_MS)
+from test_cases.fiber.devnet.watchtower_longrun import test_watchtower_longrun_devnet as _e2e  # module import: not collected
+
+FINAL_DELTA_MS, TLC_DELTA_MS = _e2e.FINAL_DELTA_MS, _e2e.TLC_DELTA_MS
 from framework.util import get_project_root
 
 OUT = os.environ.get("REPRO_OUT", "/workspace/logs/concurrency-repro")
@@ -22,7 +23,7 @@ CAUSES = {"watchdog": "unbalanced for over", "shutdowning": "in shutdowning stat
           "inactive": "is inactive for a time"}
 
 
-class TestBuilder5HopConcurrent(_E2E):
+class TestBuilder5HopConcurrent(_e2e.TestWatchtowerLongrunDevnet):
     test_watchtower_longrun_devnet = None  # don't re-run the e2e
 
     def _log(self, f):
