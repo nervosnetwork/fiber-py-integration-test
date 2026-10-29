@@ -291,6 +291,20 @@ class Builder:
             if not low:
                 break
             amt = int(rb.get("amount_ckb", 100) * CKB_SHANNONS)
+            # the return path needs receiver-side balance on every hop; after victims on the last hop
+            # close, only channels funded by the upstream remain -> receiver has nothing to send
+            short = {}
+            for a, b in self.topo.hop_pairs():
+                back = max((i(c["remote_balance"]) if c["_view"] == a else i(c["local_balance"])
+                            for c in self.ready_channels(a, b)), default=0)
+                if back < amt:
+                    short[f"{a}-{b}"] = back
+            if short:
+                LOG.warning("rebalance (%s): skipped, no return liquidity (downstream-side balance < %s) on %s", stage, amt, short)
+                done.append({"stage": stage, "low": low, "amount": amt, "status": "skipped_no_return_liquidity", "short_hops": short,
+                             "min_ratio_before": min(low.values()), "min_ratio_after": min(low.values())})
+                self.liquidity_log.append(done[-1])
+                break
             LOG.info("rebalance (%s): low hops %s -> keysend %s CKB %s->%s", stage, low, amt / CKB_SHANNONS, receiver, payer)
             try:
                 r = self.rpcs[receiver].send_payment({"target_pubkey": self.pubkeys[payer], "amount": h(amt), "keysend": True})

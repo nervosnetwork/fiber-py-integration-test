@@ -355,5 +355,16 @@ class TestWatchtowerLongrunDevnet(FiberTest):
             print(f"{k:9} {report[k][0]:6}  {report[k][1]}")
         with open(os.path.join(self.work, "result.json"), "w") as f:
             json.dump({"report": report, "cases": cases, "status": stat, "discord": _Discord.posts}, f, indent=1)
+        # archive fnn node logs + records before teardown wipes tmp/fiber (never overwritten)
+        arch = os.path.join(os.environ.get("WTL_ARCHIVE_ROOT", "/workspace/logs"), "wtl-e2e-nodes-" + time.strftime("%Y%m%d-%H%M%S"))
+        os.makedirs(arch, exist_ok=True)
+        for nm, f in zip(names, fibers):
+            try:
+                shutil.copy(f"{f.tmp_path}/node.log", os.path.join(arch, f"{nm}.log"))
+            except OSError as e:
+                print("archive", nm, e)
+        shutil.copytree(self.records, os.path.join(arch, "records"), dirs_exist_ok=True)
+        shutil.copy(os.path.join(self.work, "result.json"), arch)
+        print("node logs archived to", arch)
         bad = {k: v for k, v in report.items() if v[0] == "FAIL"}
         assert not bad, bad
