@@ -98,3 +98,12 @@ class Topology:
 
     def hop_pairs(self):
         return list(zip(self.order, self.order[1:]))
+
+
+def wallet_shannons(ckb, node_info):
+    """On-chain CKB of a fiber node's funding wallet (default_funding_lock_script), via the ckb indexer."""
+    lock = node_info.get("default_funding_lock_script")
+    if not lock:
+        return None
+    r = ckb.get_cells_capacity({"script": lock, "script_type": "lock"})
+    return i(r["capacity"]) if r else 0

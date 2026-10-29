@@ -17,7 +17,7 @@ import sys
 import threading
 import time
 
-from watchtower_longrun.common import CKB_SHANNONS, Rpc, RpcError, Topology, h, i, load_yaml, now_ms, state_name
+from watchtower_longrun.common import CKB_SHANNONS, wallet_shannons, Rpc, RpcError, Topology, h, i, load_yaml, now_ms, state_name
 from watchtower_longrun.verifier.chain import Chain
 from watchtower_longrun.verifier.discord import Notifier
 from watchtower_longrun.verifier.store import Store
@@ -322,6 +322,14 @@ class Monitor:
                     info = rpc.node_info()
                     d.update(reachable=True, pubkey=info.get("pubkey"), version=info.get("version"),
                              channel_count=i(info.get("channel_count", 0)), peers_count=i(info.get("peers_count", 0)))
+                    if self.topo.controlled(n):
+                        w = wallet_shannons(self.chain.ckb, info)
+                        if w is not None:
+                            d["wallet_ckb"] = round(w / CKB_SHANNONS, 2)
+                            warn = self.cfg.get("wallet_warn_ckb")
+                            if warn is not None and d["wallet_ckb"] < warn:
+                                d["wallet_low"] = True
+                                self.alert(f"wallet:{n}:{now_ms() // 86400_000}", f":warning: WTL node {n} wallet {d['wallet_ckb']} CKB < wallet_warn_ckb {warn}")
                 except Exception as e:  # noqa
                     d["error"] = str(e)[:200]
                     if self.topo.controlled(n):
@@ -347,6 +355,9 @@ class Monitor:
         since = now_ms() - 86400_000
         recent = [r for r in rows if (r["finalized_at_ms"] or 0) >= since or r["status"] == "open"]
         lines = [f"**WTL daily summary** — open {sum(r['status']=='open' for r in rows)}, last 24h finalized {sum(r['status'] in ('pass','fail') and (r['finalized_at_ms'] or 0)>=since for r in rows)}"]
+        wl = [f"{n['name']}={n['data']['wallet_ckb']}{'(LOW)' if n['data'].get('wallet_low') else ''}" for n in self.store.node_status() if "wallet_ckb" in n["data"]]
+        if wl:
+            lines.append("wallets (CKB): " + " ".join(wl))
         for r in recent:
             cs = self.store.cases(r["id"])
             cells = " ".join(f"{c[4:]}:{cs[c]['status'][0] if c in cs else '-'}" for c in CASES)

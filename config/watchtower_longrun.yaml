@@ -24,6 +24,21 @@ force_close:
     # with 4 controlled nodes (C-C-P-C-C) this also covers WTL-12:
     # - [[N1, N2], [N4, N5, {parallel: 2}]]
 post_check_amount_ckb: 1
+# liquidity upkeep (builder). Sends are sequential.
+rebalance:
+  enabled: true
+  target_ratio: 0.3             # rebalance when a route hop's best upstream (payer-side) share drops below this
+  amount_ckb: 100               # one keysend receiver(N5) -> payer(N1) per step
+  max_payments: 5               # per stage; stages: "pre" (before pre-check/inventory) and "post" (after the scenario)
+  after_scenario: true
+  post_delay_seconds: 10
+  payment_timeout_seconds: 120
+liquidity:
+  auto_open: true               # hop upstream balance < min_upstream_ckb (or < scenario need):
+  min_upstream_ckb: 50          #   controlled upstream node -> open a new channel from it;
+  open_capacity_ckb: 1000       #   public upstream -> never opened; rely on rebalance, else build_failed (WTL-09)
+wallet:
+  min_ckb: 2000                 # pre-check: controlled node on-chain wallet below this -> build_failed (WTL-09)
 limits:
   max_tlcs_per_scenario: 50
   max_scenarios_per_day: 4
@@ -31,4 +46,5 @@ verifier:
   interval_seconds: 60
   expiry_alert_margin_ms: 7200000   # alert when an unresolved timeout TLC is <2h from expiry
   max_fee_ckb_per_channel: 1
-  daily_summary_hour: 9             # local time of the monitor host
+  daily_summary_hour: 9
+  wallet_warn_ckb: 5000             # Discord warning (once/day/node) when a controlled wallet drops below; shown on /nodes + daily summary             # local time of the monitor host

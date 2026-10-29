@@ -26,7 +26,8 @@ import secrets
 import sys
 import time
 
-from watchtower_longrun.common import (
+from watchtower_longrun.common import (  # noqa
+    wallet_shannons,
     CKB_SHANNONS,
     RpcError,
     Topology,
@@ -89,6 +90,8 @@ class Builder:
         self.rpcs = {n: topo.rpc(n) for n in topo.order}
         self.ckb = topo.ckb()
         self.pubkeys = {}
+        self.wallets = {}
+        self.liquidity_log = []
         os.makedirs(records_dir, exist_ok=True)
 
     # ---------- pre-checks (WTL-09) ----------
@@ -112,6 +115,12 @@ class Builder:
                 self.pubkeys[n] = info.get("pubkey") or info.get("node_id")
                 if node.get("pubkey") and node["pubkey"] != self.pubkeys[n]:
                     problems.append(f"{n}: pubkey mismatch")
+                if node.get("controlled"):
+                    w = wallet_shannons(self.ckb, info)
+                    self.wallets[n] = w
+                    wmin = self.cfg.get("wallet", {}).get("min_ckb", 0)
+                    if w is not None and w < wmin * CKB_SHANNONS:
+                        problems.append(f"{n}: wallet {w / CKB_SHANNONS:.0f} CKB < wallet.min_ckb {wmin}")
             except Exception as e:  # noqa
                 problems.append(f"{n}: rpc unreachable: {e}")
         if problems:
@@ -147,8 +156,9 @@ class Builder:
         return res
 
     def open_channel(self, a, b, capacity_ckb, tlc_expiry_delta):
-        if not (self.topo.controlled(a) and self.topo.controlled(b)):
-            raise PrecheckError(f"need a new channel {a}-{b} but it involves a public node")
+        if not self.topo.controlled(a):
+            # funding from b would put the balance on the wrong side (we need a->b liquidity)
+            raise PrecheckError(f"need a new channel {a}-{b} but the upstream end {a} is a public node")
         before = {c["channel_id"] for c in self.channels_between(a, b)}
         rpc = self.rpcs[a]
         try:
@@ -213,6 +223,75 @@ class Builder:
                 raise PrecheckError(f"funding tx not committed: {sorted(pending)}")
             time.sleep(2)
 
+    # ---------- liquidity ----------
+    def best_upstream(self, a, b):
+        chans = self.ready_with_balance(a, b)
+        return max((self.upstream_balance(c) for c in chans), default=0), chans
+
+    def hop_ratios(self):
+        out = {}
+        for a, b in self.topo.hop_pairs():
+            bal, chans = self.best_upstream(a, b)
+            cap = max((self.upstream_balance(c) + (i(c["remote_balance"]) if c["_view_is_a"] else i(c["local_balance"])) for c in chans), default=0)
+            out[(a, b)] = (bal, cap, bal / cap if cap else 0.0)
+        return out
+
+    def rebalance(self, stage):
+        """Pull liquidity back along the route: keysend receiver(N5) -> payer(N1), sequentially."""
+        rb = self.cfg.get("rebalance", {})
+        if not rb.get("enabled") or self.dry_run:
+            return []
+        payer, receiver = self.topo.order[0], self.topo.order[-1]
+        if not self.rpcs[receiver]:
+            return []
+        done = []
+        for _ in range(int(rb.get("max_payments", 5))):
+            ratios = self.hop_ratios()
+            low = {f"{a}-{b}": round(r, 3) for (a, b), (_, _, r) in ratios.items() if r < rb.get("target_ratio", 0.3)}
+            if not low:
+                break
+            amt = int(rb.get("amount_ckb", 100) * CKB_SHANNONS)
+            LOG.info("rebalance (%s): low hops %s -> keysend %s CKB %s->%s", stage, low, amt / CKB_SHANNONS, receiver, payer)
+            try:
+                r = self.rpcs[receiver].send_payment({"target_pubkey": self.pubkeys[payer], "amount": h(amt), "keysend": True})
+                st = self._wait_payment(self.rpcs[receiver], r["payment_hash"], rb.get("payment_timeout_seconds", 120))
+            except RpcError as e:
+                st = f"error: {str(e)[:120]}"
+            done.append({"stage": stage, "low": low, "amount": amt, "status": st})
+            self.liquidity_log.append(done[-1])
+            if st != "Success":
+                break
+        return done
+
+    def _wait_payment(self, rpc, ph, timeout):
+        deadline = time.time() + timeout
+        while time.time() < deadline:
+            st = rpc.get_payment({"payment_hash": ph})["status"]
+            if st in ("Success", "Failed"):
+                return st
+            time.sleep(2)
+        return "Timeout"
+
+    def ensure_liquidity(self, need):
+        """Hops whose best upstream balance is below liquidity.min_upstream_ckb (or below `need`):
+        controlled upstream -> open a new channel from it; public upstream -> rely on rebalance, else fail."""
+        lq = self.cfg.get("liquidity", {})
+        if not lq.get("auto_open", False) or self.dry_run:
+            return
+        floor = max(int(lq.get("min_upstream_ckb", 0) * CKB_SHANNONS), need)
+        cap = lq.get("open_capacity_ckb", self.cfg["force_close"].get("reopen_capacity_ckb", 1000))
+        for a, b in self.topo.hop_pairs():
+            bal, _ = self.best_upstream(a, b)
+            if bal >= floor:
+                continue
+            if self.topo.controlled(a):
+                LOG.info("liquidity: %s-%s upstream %s < %s -> open %s CKB from %s", a, b, bal, floor, cap, a)
+                c = self.open_channel(a, b, cap, self.cfg.get("tlc_expiry_delta_ms"))
+                self.liquidity_log.append({"stage": "auto_open", "hop": f"{a}-{b}", "upstream_before": bal, "channel_id": c["channel_id"]})
+            else:
+                raise PrecheckError(f"{a}-{b}: upstream balance {bal / CKB_SHANNONS:.1f} CKB < {floor / CKB_SHANNONS:.1f} CKB, "
+                                    f"upstream {a} is a public node (cannot open), rebalance did not recover it")
+
     # ---------- selection ----------
     def choose_close_set(self, slot):
         fc = self.cfg["force_close"]
@@ -240,6 +319,8 @@ class Builder:
         total = sum(amounts[t] * counts[t] for t in amounts)
         need = int(total * 1.01) + CKB_SHANNONS  # fees margin
         victims_needed = {(a, b): par for a, b, par in close_set}
+        self.rebalance("pre")
+        self.ensure_liquidity(need)
 
         # channel inventory + capacity check (WTL-11 capacity part / WTL-09)
         inventory = {}
@@ -408,6 +489,8 @@ class Builder:
             "tlcs": tlcs,
             "counts": counts,
             "post_check_amount": int(cfg.get("post_check_amount_ckb", 1) * CKB_SHANNONS),
+            "wallets_shannons": self.wallets,
+            "liquidity": list(self.liquidity_log),
         }
         path = os.path.join(self.records_dir, f"{scen_id}.json")
         write_json_atomic(path, rec)
@@ -418,6 +501,13 @@ class Builder:
             if t["kind"] == "preimage":
                 rrpc.settle_invoice({"payment_hash": t["payment_hash"], "payment_preimage": t["preimage"]})
                 t["settled_at_ms"] = now_ms()
+        if cfg.get("rebalance", {}).get("after_scenario", True):
+            time.sleep(cfg.get("rebalance", {}).get("post_delay_seconds", 10))  # let preimage settles propagate
+            try:
+                self.rebalance("post")
+            except Exception as e:  # noqa: best effort, next run's "pre" rebalance retries
+                LOG.warning("post-scenario rebalance failed: %s", e)
+            rec["liquidity"] = list(self.liquidity_log)
         write_json_atomic(path, rec)  # record already exists; refresh with settle times
         return rec
 
