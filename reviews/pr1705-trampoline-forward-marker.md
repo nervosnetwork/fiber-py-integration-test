@@ -4,7 +4,7 @@
 
 依据：[PR #1705](https://github.com/nervosnetwork/fiber/pull/1705)，2026-11-05 合入 develop，merge commit `811db5bc8096fab19852bcdc3b20709db8655047`，head `f2f06c48d1002cef2ddd9130974fcd086f8e6dad`；CI 固定的 `v0.10.0-rc2`（`7aa1d5de`）已包含。改动在 [`channel.rs`](https://github.com/nervosnetwork/fiber/blob/7aa1d5de724fb28b8ddfc663f5da792ff48f1ee9/crates/fiber-lib/src/fiber/channel.rs)：`apply_remove_tlc` 删除标记；移除前记录 `was_waiting_forward`；失败 TLC 打 `AppliedFlags::REMOVE`；恢复通道时 `drop_stale_waiting_forward_tlc_tasks`。
 
-测试仓库基线：`v0.10.0` 分支 `bd1051d`（PR #110 head）。本轮只做静态分析。
+测试仓库基线：`v0.10.0` 分支 `bd1051d`（PR #110 head）。本批两条用例已于 2026-11-10 确认（G1）：`PR1705-02` 保留，只用 RPC 断言；不使用 debug 日志作判据。
 
 ## 变更与现有测试影响
 
@@ -28,17 +28,17 @@ Testing: required
 Condition: A→T→C 公开通道，另有与网络不连通的节点 B；A 经 T 多次付 C（成功）和付 B（失败）。
 Expected: 成功付款 `Success`、失败付款 `Failed`；T 两条通道的 `pending_tlcs` 最终为空；失败付款不改变 A–T 余额，成功付款按金额加手续费变化。T 重启并重连后，再经 T 付 C 成功。
 Observable: `list_channels` 的 `pending_tlcs`、`local_balance` / `remote_balance`，付款状态。
-Basis: [PR 说明](https://github.com/nervosnetwork/fiber/pull/1705)、[`drop_stale_waiting_forward_tlc_tasks`](https://github.com/nervosnetwork/fiber/blob/7aa1d5de724fb28b8ddfc663f5da792ff48f1ee9/crates/fiber-lib/src/fiber/channel.rs)、上游 `test_trampoline_forward_marker_lifecycle`。
+Basis: [PR 说明](https://github.com/nervosnetwork/fiber/pull/1705)、[`drop_stale_waiting_forward_tlc_tasks`](https://github.com/nervosnetwork/fiber/blob/7aa1d5de724fb28b8ddfc663f5da792ff48f1ee9/crates/fiber-lib/src/fiber/channel.rs)、上游 `test_trampoline_forward_marker_lifecycle`。本条为推断，2026-11-10 确认保留。
 Source: inference
 Testing: required
 
 ### SPEC-03：标记数量本身归零
 Condition: 同 SPEC-02。
 Expected: T 上 `waiting_forward_tlc_tasks` 不保留已离开通道的 TLC。
-Observable: 仅节点内部状态；RPC 不暴露。debug 日志 `schedule_next_retry_task ... waiting_forward: N` 会打印数量，但只在调度重试时出现。
+Observable: 仅节点内部状态；RPC 不暴露。
 Basis: [PR 说明](https://github.com/nervosnetwork/fiber/pull/1705)。
 Source: explicit
-Testing: not_tested — RPC 不暴露；是否接受 debug 日志作为判据待确认，上游 Rust 用例已直接断言。
+Testing: not_tested — RPC 不暴露该状态；2026-11-10 确认不使用 debug 日志作判据。上游 Rust 用例已直接断言。
 
 ## 测试树
 
@@ -48,7 +48,7 @@ Testing: not_tested — RPC 不暴露；是否接受 debug 日志作为判据待
     - PR1705-01 [primary] -> SPEC-01：T 自有同 hash 发票保持 Open；直接付款对照变 Paid
   - 成功 / 失败转发后的通道状态
     - PR1705-02 [primary] -> SPEC-02：pending_tlcs 清空、余额守恒、T 重启后继续可用
-  - [not_applicable] 标记数量直接断言 — SPEC-03；RPC 不暴露，上游已覆盖；日志判据待确认
+  - [not_applicable] 标记数量直接断言 — SPEC-03；RPC 不暴露，已确认不用 debug 日志，上游已覆盖
   - [unanalysed] 从旧版本（带泄漏标记）升级到新版本后的清理 — 需要先用修复前构建制造泄漏再换二进制；可按 migration 目录的升级模式扩展
 <!-- TEST-TREE-END -->
 
@@ -66,6 +66,7 @@ Testing: not_tested — RPC 不暴露；是否接受 debug 日志作为判据待
 ## 验证设计
 
 - 独立预期：发票状态和余额变化由测试自己选的金额、手续费上限和“成功 / 失败”分组决定；手续费以 A 的 `get_payment` 返回的 `fee` 为准，再核对 A–T 余额差等于金额加手续费。
+- 判据只用 RPC：付款状态、T 两条通道 `pending_tlcs` 为空、含 `get_payment` 手续费的余额守恒、T 重启后付款 `Success`；节点日志只在失败时附带，不作判据。
 - 实际入口与观察：真实节点 RPC `new_invoice → send_payment(trampoline_hops) → settle_invoice`，观察 `get_invoice`、`get_payment`、`list_channels`；重启用框架的 `stop` / `start`。
 - 缺陷敏感性：`PR1705-01` 防的是修复引入的回归，修复前构建也应通过；`PR1705-02` 修复前大概率也通过（泄漏本身不可见），二者都不作修复前负对照。真正的泄漏只能由上游 Rust 用例证明。
 - 证明边界：不证明内部标记数量为 0；不覆盖从旧版本升级时的清理。

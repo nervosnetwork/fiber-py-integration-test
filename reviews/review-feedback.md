@@ -13,3 +13,6 @@
 - model: unavailable | cases: PR1677-11 | feedback: 路由场景可以复杂一点
 - model: unavailable | cases: PR1677-11 | feedback: 每十分钟改成每分钟
 - model: unavailable | cases: PR1677-09 | feedback: PR1677-09 不需要 可以删
+- model: unavailable | cases: PR1711-03 | feedback: 只断言没有 reestablish 超时强关（交易池无承诺交易，状态不是 ShuttingDown(WAITING_COMMITMENT_CONFIRMATION) / Closed(UNCOOPERATIVE_LOCAL)），不断言最终状态，去掉待确认
+- model: unavailable | cases: PR1705-02 | feedback: 保留；只用 RPC 断言（付款状态、T 两条通道 pending_tlcs 为空、含 get_payment 手续费的余额守恒、重启 T 后付款 Success），日志只在失败时附带
+- model: unavailable | cases: PR1705 SPEC-03 | feedback: 不用 debug 日志 waiting_forward 作判据；保持 not_tested，原因是 RPC 不暴露且决定不用 debug 日志
