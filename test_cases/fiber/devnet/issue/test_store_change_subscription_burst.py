@@ -50,8 +50,14 @@ def collect_events(
     deadline = time.time() + deadline_seconds
     settle_until = None
     ws.settimeout(1)
-    while time.time() < deadline:
-        if settle_until is not None and time.time() >= settle_until:
+    while True:
+        # two separate bounds: the main deadline applies only until the target
+        # is reached; the trailing window then gets its full settle_seconds
+        now = time.time()
+        if settle_until is None:
+            if now >= deadline:
+                break
+        elif now >= settle_until:
             break
         try:
             msg = json.loads(ws.recv())
