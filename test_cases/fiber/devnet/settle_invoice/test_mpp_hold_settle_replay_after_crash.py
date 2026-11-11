@@ -11,8 +11,12 @@ def sha256_hex(preimage_hex):
 
 class TestMppHoldSettleReplayAfterCrash(FiberTest):
     """
-    PR-1709: a fulfill queued while settling a received MPP hold invoice must
-    not block the settle replay after the payee restarts.
+    PR-1709 crash-recovery regression: settling a received MPP hold invoice
+    while the payer is offline, then crashing the payee, must still recover
+    after restart (payment Success, invoice Paid, no pending TLCs). Whether the
+    crash lands inside the internal durable-queue/hold-store handoff window is
+    timing-dependent and NOT a precondition of these cases; the upstream unit
+    tests cover the internal replay path itself.
     """
 
     # TEST-MAP: PR1709-01
@@ -38,8 +42,9 @@ class TestMppHoldSettleReplayAfterCrash(FiberTest):
         # barrier: both TLC parts have arrived at the payee before cutting the peer
         self.wait_invoice_state(self.fiber2, payment_hash, "Received", 120, 1)
 
-        # peer offline -> fulfills queue; SIGKILL the payee right after settle so the
-        # durable-queue/hold-store handoff is interrupted and restart must replay the settle
+        # peer offline, settle, then SIGKILL the payee right after the settle RPC
+        # returns; restart both sides and reconnect. Crash timing relative to the
+        # internal handoff is not controlled on purpose (crash-recovery regression).
         self.fiber1.stop()
         self.fiber2.get_client().settle_invoice(
             {"payment_hash": payment_hash, "payment_preimage": preimage}

@@ -20,13 +20,13 @@
 
 ## 用例
 
-公共约定：devnet；fiber1 ↔ fiber2 开通道（双方各 1000 CKB）；fiber2 使用 `fiber_watchtower_check_interval_seconds: 5`（仿现有 watchtower 套件）；fiber2 账户用 faucet 补足第二枚独立 cell（默认单 cell，不补则 watchtower 交易占住后 funding 无 cell 可选）。「旧承诺攻击」：备份 fiber1 数据目录 → fiber1 向 fiber2 付款成功 → 回滚 fiber1 数据 → fiber1 force close（广播旧承诺）→ 挖出该承诺 → fiber2 的 watchtower 发出 revocation tx 入池。「不挖」指先 `stop_miner()` 停自动矿工且不调用任何挖矿方法，交易池状态由 CKB RPC 查询确认；异常清理中恢复矿工。耗时：`PR1707-01` 实测约 70 秒；`PR1707-02` 预估约 2 分钟（多一次 fiber2 停启）。等待上限：交易池计数 300 秒，付款状态与 `ChannelReady` 走框架默认上限（约 120 秒），fiber2 重启后 RPC 恢复由框架启动屏障保证。
+公共约定：devnet；fiber1 ↔ fiber2 开通道（双方各 1000 CKB）；fiber2 使用 `fiber_watchtower_check_interval_seconds: 5`（仿现有 watchtower 套件）；fiber2 账户用 faucet 补足第二枚独立 cell（默认单 cell，不补则 watchtower 交易占住后 funding 无 cell 可选）。「旧承诺攻击」：备份 fiber1 数据目录 → fiber1 向 fiber2 付款成功 → 回滚 fiber1 数据 → fiber1 force close（广播旧承诺）→ 挖出该承诺 → fiber2 的 watchtower 发出 revocation tx 入池。「不挖」指先 `stop_miner()` 停自动矿工且不调用任何挖矿方法，交易池状态由 CKB RPC 查询确认；异常清理中恢复矿工。耗时：`PR1707-01/02` 合计实测约 127 秒（2026-11-11，rc2）。等待上限（对照框架源码核实）：交易池计数 `wait_tx_pool(2, 300)` 约 60 秒 + RPC 耗时（0.2 秒 × 300 次轮询）；`wait_and_check_tx_pool_fee` 默认约 24 秒 + RPC 耗时；付款状态 `wait_payment_state` 默认约 360 秒；`ChannelReady` 默认 120 秒；fiber2 重启后 RPC 恢复由启动端口屏障保证（默认 300 秒）。新实现若显式采用其他时限，按最终调用如实更新此处。
 
 <!-- TEST-CASES-BEGIN -->
 | 用例 | 场景 | 预期结果 | 防止的问题 | 优先级 |
 | --- | --- | --- | --- | --- |
 | `PR1707-01` | - [x] 旧承诺攻击使 fiber2 的 watchtower 发出 revocation tx 并确认其入池；**不挖**，随后 fiber2 从同一账户向 fiber3 发起 `open_channel`；最后挖出全部交易 | revocation tx 与 funding tx 的输入 cell 无交集；两笔交易都上链；fiber2↔fiber3 通道进入 `ChannelReady`；fiber2 对 fiber1 的维权资金到账 | funding 选中 watchtower 已花费的 cell，维权交易上链后 funding 变死交易、通道永久 Pending、资金被锁 | P0 |
-| `PR1707-02` | - [ ] 旧承诺攻击使 fiber2 的 watchtower 发出 revocation tx 并确认入池；不挖，停启 fiber2（模拟节点重启）并确认原 revocation tx 仍在池中；随后 fiber2 从同一账户向 fiber3 发起 `open_channel`；最后挖出全部交易 | 重启后原 revocation tx 仍 pending；revocation tx 与 funding tx 的输入 cell 无交集；两笔交易都上链；fiber2↔fiber3 通道进入 `ChannelReady` | 节点重启后内存中的 cell 预留丢失，funding 误选 watchtower 已花费的输入，funding 变死交易、通道永久 Pending | P1 |
+| `PR1707-02` | - [x] 旧承诺攻击使 fiber2 的 watchtower 发出 revocation tx 并确认入池；不挖，停启 fiber2（模拟节点重启）并确认原 revocation tx 仍在池中；随后 fiber2 从同一账户向 fiber3 发起 `open_channel`；最后挖出全部交易 | 重启后原 revocation tx 仍 pending；revocation tx 与 funding tx 的输入 cell 无交集；两笔交易都上链；fiber2↔fiber3 通道进入 `ChannelReady` | 节点重启后内存中的 cell 预留丢失，funding 误选 watchtower 已花费的输入，funding 变死交易、通道永久 Pending | P1 |
 <!-- TEST-CASES-END -->
 
 ## 测试树
@@ -53,7 +53,7 @@
 
 ### SPEC-02：节点重启后 funding 仍避开池内 watchtower 交易的 cell
 - Condition: watchtower 交易已入池未上链；节点随后停启（进程级 `held_cells` 预留随重启清空），再以同一账户发起 open_channel。
-- Expected: 原 watchtower 交易在重启后仍 pending；funding 不选用其输入 cell（重启后由选币侧的 `get_live_cell_with_include_tx_pool` 池内检查兜底）；两笔交易都能上链；新通道 Ready。
+- Expected: 原 watchtower 交易在重启后仍 pending；funding 不选用其输入 cell；两笔交易都能上链；新通道 Ready。
 - Observable: 重启后 CKB RPC `get_raw_tx_pool` 仍含原 revocation 交易；两笔交易输入 outpoint 无交集、均 committed；新通道 `ChannelReady`。
 - Basis: [PR #1707 diff](https://github.com/nervosnetwork/fiber/pull/1707)（held_cells 为进程内存注册表；选币侧含 `get_live_cell_with_include_tx_pool` 检查）。
 - Source: explicit

@@ -53,7 +53,7 @@
 - Testing: required
 
 ### SPEC-02：冲突失败不残留、可重开
-- Condition: 一次 funding 因池冲突（代理注入 -1111）失败结束，且对侧已记录通道中止（选币预留已释放）；代理注入构造下不存在真实的竞争交易。
+- Condition: 一次 funding 因池冲突（代理注入 -1111）失败结束，对侧已记录通道中止（选币预留已释放），且代理已恢复转发 `send_transaction`；代理注入构造下不存在真实的竞争交易。
 - Expected: 同一节点重新发起开通道可正常完成。
 - Observable: 新通道 Ready；旧失败记录不干扰新通道。
 - Basis: 兼容性推断，PR 未单独声明；`abort_funding` 移除 pending 记录与 in-flight 任务（旧版源码观察，diff 未触碰该路径）。

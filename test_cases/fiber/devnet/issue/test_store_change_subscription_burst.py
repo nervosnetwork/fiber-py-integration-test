@@ -1,7 +1,8 @@
 import hashlib
 import json
-import threading
 import time
+from collections import Counter
+from concurrent.futures import ThreadPoolExecutor
 
 import websocket
 
@@ -33,50 +34,145 @@ def subscribe_store_changes(rpc_port):
             return ws, msg["result"]
 
 
-def count_notifications(ws, deadline_seconds):
-    """Count subscription notifications until the deadline; return (count, payloads)."""
-    count = 0
-    payloads = []
+def collect_events(
+    ws, relevant_hashes, target_count, deadline_seconds=120, settle_seconds=5
+):
+    """Collect store-change events in arrival order.
+
+    Each event is (event_type, payment_hash, payload). Once `target_count`
+    events whose payment_hash is in `relevant_hashes` have been seen, keep
+    observing for a fixed trailing window (`settle_seconds`) so duplicates
+    arriving right after the last target event are still caught. Raises
+    TimeoutError if the target is not reached before the deadline.
+    """
+    events = []
+    relevant_seen = 0
     deadline = time.time() + deadline_seconds
-    ws.settimeout(2)
+    settle_until = None
+    ws.settimeout(1)
     while time.time() < deadline:
+        if settle_until is not None and time.time() >= settle_until:
+            break
         try:
             msg = json.loads(ws.recv())
         except websocket.WebSocketTimeoutException:
             continue
-        if "params" in msg and "subscription" in msg.get("params", {}):
-            count += 1
-            payloads.append(json.dumps(msg))
-    return count, payloads
+        params = msg.get("params", {})
+        if "subscription" not in params:
+            continue
+        result = params.get("result")
+        if not isinstance(result, dict) or not result:
+            continue
+        event_type = next(iter(result))
+        payload = result[event_type]
+        payment_hash = payload.get("payment_hash")
+        events.append((event_type, payment_hash, payload))
+        if settle_until is None and payment_hash in relevant_hashes:
+            relevant_seen += 1
+            if relevant_seen >= target_count:
+                settle_until = time.time() + settle_seconds
+    if relevant_seen < target_count:
+        raise TimeoutError(
+            f"saw {relevant_seen}/{target_count} relevant events within {deadline_seconds}s"
+        )
+    return events
+
+
+def assert_batch_complete(events, normal_hashes, marker_hash):
+    """Assert the exact event set for `normal_hashes` + one hash-only marker.
+
+    No event lost, no duplicates, each invoice's PutCkbInvoiceStatus(Open)
+    precedes its PutPreimage, and the marker's Open is the last relevant
+    event. Events outside this batch (e.g. leftovers from an earlier batch)
+    are neither counted nor treated as failures.
+    """
+    normal = set(normal_hashes)
+    assert len(normal) == len(
+        normal_hashes
+    ), "duplicate payment_hash in created invoices"
+    relevant = [(t, h, p) for t, h, p in events if h in normal or h == marker_hash]
+
+    counts = Counter((t, h) for t, h, _ in relevant)
+    duplicates = {k: v for k, v in counts.items() if v > 1}
+    assert not duplicates, f"duplicate store-change events: {list(duplicates)[:5]}"
+
+    for t, h, p in relevant:
+        if t == "PutCkbInvoiceStatus":
+            assert (
+                p.get("invoice_status") == "Open"
+            ), f"unexpected status event: {t} {h} {p}"
+
+    missing = []
+    for h in normal_hashes:
+        for t in ("PutCkbInvoiceStatus", "PutPreimage"):
+            if (t, h) not in counts:
+                missing.append((t, h))
+    if marker_hash is not None and ("PutCkbInvoiceStatus", marker_hash) not in counts:
+        missing.append(("PutCkbInvoiceStatus", marker_hash))
+    assert not missing, f"missing {len(missing)} events, e.g. {missing[:3]}"
+
+    expected_total = 2 * len(normal_hashes) + (1 if marker_hash is not None else 0)
+    assert (
+        len(relevant) == expected_total
+    ), f"expected {expected_total} relevant events, got {len(relevant)}"
+
+    first_index = {}
+    for idx, (t, h, _) in enumerate(relevant):
+        first_index.setdefault((t, h), idx)
+    for h in normal_hashes:
+        assert (
+            first_index[("PutCkbInvoiceStatus", h)] < first_index[("PutPreimage", h)]
+        ), f"PutPreimage arrived before PutCkbInvoiceStatus for {h}"
+    if marker_hash is not None:
+        last = relevant[-1]
+        assert (last[0], last[1]) == (
+            "PutCkbInvoiceStatus",
+            marker_hash,
+        ), f"marker event is not the last relevant event: {last}"
 
 
 class TestStoreChangeSubscriptionBurst(FiberTest):
     """
-    PR-1718: a burst of store changes must not kill store-change subscriptions.
+    PR-1718 regression: a burst of store changes must not kill or starve
+    store-change subscriptions; subscribers do not affect each other.
     """
 
     BURST_THREADS = 16
-    BURST_PER_THREAD = 10
 
-    def _burst_invoices(self):
-        """Create burst invoices from concurrent threads; return total count."""
+    def _new_invoice(self, description):
+        return self.fiber1.get_client().new_invoice(
+            {
+                "amount": hex(1 * 100000000),
+                "currency": "Fibd",
+                "description": description,
+            }
+        )
+
+    def _burst_invoices(self, total, tag):
+        """Create `total` invoices over worker threads; return their payment hashes.
+
+        Every RPC must succeed: any worker exception propagates through
+        future.result() and fails the test.
+        """
+        per_thread = total // self.BURST_THREADS
+        assert per_thread * self.BURST_THREADS == total
 
         def worker(tid):
-            for i in range(self.BURST_PER_THREAD):
-                self._new_invoice(f"burst invoice {tid}-{i}")
+            return [
+                self._new_invoice(f"{tag} {tid}-{i}")["invoice"]["data"]["payment_hash"]
+                for i in range(per_thread)
+            ]
 
-        threads = [
-            threading.Thread(target=worker, args=(t,))
-            for t in range(self.BURST_THREADS)
-        ]
-        for t in threads:
-            t.start()
-        for t in threads:
-            t.join()
-        return self.BURST_THREADS * self.BURST_PER_THREAD
+        with ThreadPoolExecutor(max_workers=self.BURST_THREADS) as pool:
+            futures = [pool.submit(worker, t) for t in range(self.BURST_THREADS)]
+            results = [future.result() for future in futures]
+        hashes = [h for result in results for h in result]
+        assert len(hashes) == total, f"only {len(hashes)}/{total} invoices created"
+        assert len(set(hashes)) == total, "duplicate payment_hash returned"
+        return hashes
 
     def _marker_invoice(self):
-        """One invoice with a known payment hash, used to prove liveness."""
+        """One hash-only invoice with a known payment hash, used to prove liveness."""
         marker_preimage = self.generate_random_preimage()
         marker_hash = sha256_hex(marker_preimage)
         self.fiber1.get_client().new_invoice(
@@ -90,31 +186,15 @@ class TestStoreChangeSubscriptionBurst(FiberTest):
         )
         return marker_hash
 
-    def _new_invoice(self, description):
-        return self.fiber1.get_client().new_invoice(
-            {
-                "amount": hex(1 * 100000000),
-                "currency": "Fibd",
-                "description": description,
-            }
-        )
-
     # TEST-MAP: PR1718-01
     def test_subscription_survives_store_change_burst(self):
         ws, _sub_id = subscribe_store_changes(self.fiber1.rpc_port)
         try:
-            burst_count = self._burst_invoices()
-            # marker: proves the subscription is still alive after the burst
+            burst_hashes = self._burst_invoices(160, "burst invoice")
             marker_hash = self._marker_invoice()
 
-            count, payloads = count_notifications(ws, 30)
-            assert count >= burst_count + 1, (
-                f"only {count} notifications after a burst of {burst_count} + 1 marker; "
-                "subscription died during the burst"
-            )
-            assert any(
-                marker_hash in p for p in payloads
-            ), "marker invoice notification never arrived"
+            events = collect_events(ws, set(burst_hashes) | {marker_hash}, 321)
+            assert_batch_complete(events, burst_hashes, marker_hash)
         finally:
             ws.close()
 
@@ -123,18 +203,19 @@ class TestStoreChangeSubscriptionBurst(FiberTest):
         ws_a, _sub_a = subscribe_store_changes(self.fiber1.rpc_port)
         ws_b, _sub_b = subscribe_store_changes(self.fiber1.rpc_port)
         try:
-            burst_count = self._burst_invoices()
-            # subscriber A goes away mid-stream; B must keep receiving
-            ws_a.close()
-            marker_hash = self._marker_invoice()
+            batch1 = self._burst_invoices(80, "batch1 invoice")
+            # barrier: both subscribers received all of batch 1 before A closes
+            events_a = collect_events(ws_a, set(batch1), 160)
+            assert_batch_complete(events_a, batch1, None)
+            events_b1 = collect_events(ws_b, set(batch1), 160)
+            assert_batch_complete(events_b1, batch1, None)
 
-            count, payloads = count_notifications(ws_b, 30)
-            assert count >= burst_count + 1, (
-                f"surviving subscription got only {count} notifications after "
-                f"a burst of {burst_count} + 1 marker"
-            )
-            assert any(
-                marker_hash in p for p in payloads
-            ), "marker invoice notification never arrived at surviving subscriber"
+            ws_a.close()
+
+            batch2 = self._burst_invoices(80, "batch2 invoice")
+            marker_hash = self._marker_invoice()
+            events_b2 = collect_events(ws_b, set(batch2) | {marker_hash}, 161)
+            # batch-1 leftovers on B are neither counted nor a failure
+            assert_batch_complete(events_b2, batch2, marker_hash)
         finally:
             ws_b.close()
