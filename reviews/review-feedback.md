@@ -17,3 +17,5 @@
 - model: unavailable | cases: PR1728-01 PR1728-02 | feedback: signal 也不需要
 - model: unavailable | cases: PR1728-01 PR1728-02 | feedback: 加个flag 只有true 时才检查`WAITING_ONCHAIN_SETTLEMENT` ，ci上不用检查这个判断
 - model: unavailable | cases: PR1728-01 PR1728-02 | feedback: 还是慢
+- model: unavailable | cases: PR1703-01 PR1703-02 PR1703-03 | feedback: 我确认可以用日志断言不需要压测 我们当前工程是黑盒测试功能
+- model: unavailable | cases: PR1703-01 SPEC-01 SPEC-03 | feedback: 这个标题和测试内容不匹配吧（Spec 标题的「生效」超出黑盒断言范围，应为「被接受并在日志声明开启」）
