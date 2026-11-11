@@ -13,9 +13,22 @@
 - model: unavailable | cases: PR1677-11 | feedback: 路由场景可以复杂一点
 - model: unavailable | cases: PR1677-11 | feedback: 每十分钟改成每分钟
 - model: unavailable | cases: PR1677-09 | feedback: PR1677-09 不需要 可以删
+- model: unavailable | cases: PR1705-01 PR1705-02 | feedback: Pr1705Build 为什么有这个东西，这是要长期回归的测试用例
+- model: unavailable | cases: PR1705-01 PR1705-02 | feedback: 旧版本只考虑仓库有的0.9.1
+- model: unavailable | cases: PR1705-01 PR1705-02 | feedback: evidence 和signal 回归不需要
+- model: unavailable | cases: PR1705-01 PR1705-02 | feedback: 用例名不能包含pr1705
+- model: unavailable | cases: PR1705-01 PR1705-02 | feedback: 文件名不可以包含这个，后期不好复用
 - model: unavailable | cases: PR1728-01 PR1728-02 | feedback: 回归用例不需要 evidence 不需要
 - model: unavailable | cases: PR1728-01 PR1728-02 | feedback: signal 也不需要
 - model: unavailable | cases: PR1728-01 PR1728-02 | feedback: 加个flag 只有true 时才检查`WAITING_ONCHAIN_SETTLEMENT` ，ci上不用检查这个判断
 - model: unavailable | cases: PR1728-01 PR1728-02 | feedback: 还是慢
 - model: unavailable | cases: PR1703-01 PR1703-02 PR1703-03 | feedback: 我确认可以用日志断言不需要压测 我们当前工程是黑盒测试功能
 - model: unavailable | cases: PR1703-01 SPEC-01 SPEC-03 | feedback: 这个标题和测试内容不匹配吧（Spec 标题的「生效」超出黑盒断言范围，应为「被接受并在日志声明开启」）
+
+- model: unavailable | cases: PR1711-02 PR1711-08 / SPEC-02 | feedback: SPEC-02 不就会导致资金一直卡住
+- model: unavailable | cases: PR1711-08 | feedback: 那补充这个用例
+- model: unavailable | cases: PR1711-01～08 | feedback: 08用例先skip 补充其他用例
+- model: unavailable | cases: PR1711-01～07 | feedback: 只用 v0.9.1，04 加 V2 对照（建议）
+- model: unavailable | cases: PR1711-01～08 | feedback: 长期回归用例直接使用仓库 current 配置，移除 PR 专用二进制和端口环境变量，文件名、说明和运行信息按功能命名；既有映射 ID 保持稳定。
+- model: unavailable | cases: PR1711-07 | feedback: 密钥搬移、CLI 备份恢复等底层操作封装到 FiberTest，用例只保留恢复调用和行为断言。
+- model: unavailable | cases: PR1711-01～08 | feedback: 删除 SimpleNamespace 版本包装及无意义的 --version 调用、版本打印和提交号检查。
