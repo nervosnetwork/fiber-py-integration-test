@@ -2,7 +2,7 @@
 
 评审范围：watchtower 用独立的 `DefaultCellCollector` 给 revocation/settlement 交易选手续费 cell，看不到 funding 流程已预留的 cell（`LiveCellsExclusionMap` 在 `CkbChainActor` 内）；funding 也看不到 watchtower 已入池交易花费的 cell（indexer 要等交易所在块上链才把 cell 标记为已花）。两边可能选中同一个 cell。修复后引入进程级 `held_cells` 注册表：funding 每次变更预留都发布，watchtower 发出的每笔 revocation/settlement 输入持有 30 分钟，双方选币前都先锁定这些 cell。
 
-源码版本：[PR #1707](https://github.com/nervosnetwork/fiber/pull/1707)；diff 取自 2026-11-11 GitHub API 快照（`gh pr diff 1707`）。测试仓库分支 `sunchengzhu/pr1708-funding-pool-conflict`；初次评审阶段未修改测试。
+源码版本：[PR #1707](https://github.com/nervosnetwork/fiber/pull/1707)；diff 取自 2026-11-11 GitHub API 快照（`gh pr diff 1707`）。测试仓库分支 `sunchengzhu/v0.10.0-rc2-regression`；初次评审阶段未修改测试。
 
 ## 导读
 

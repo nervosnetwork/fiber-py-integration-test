@@ -2,7 +2,7 @@
 
 评审范围：新增 `fiber.store_sync_writes`（yml）/ `--fiber-store-sync-writes`（CLI）/ `FIBER_STORE_SYNC_WRITES`（环境变量）开关的外部可见行为：开关是否真实生效、默认是否保持关闭、开启后节点功能是否正常。开关的掉电耐久语义本身（断电不丢最后几笔写）单机构造不出，不计入用例表。
 
-源码版本：[PR #1703](https://github.com/nervosnetwork/fiber/pull/1703)；diff 取自 2026-11-10 GitHub API 快照（`gh pr diff 1703`）。测试仓库分支 `sunchengzhu/pr1708-funding-pool-conflict`（自 `v0.10.0` 拉出，承载 rc2 全部待测 PR 的用例）；初次评审阶段未修改测试。
+源码版本：[PR #1703](https://github.com/nervosnetwork/fiber/pull/1703)；diff 取自 2026-11-10 GitHub API 快照（`gh pr diff 1703`）。测试仓库分支 `sunchengzhu/v0.10.0-rc2-regression`（自 `v0.10.0` 拉出，承载 rc2 全部待测 PR 的用例）；初次评审阶段未修改测试。
 
 ## 导读
 

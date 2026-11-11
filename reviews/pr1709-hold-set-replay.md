@@ -2,7 +2,7 @@
 
 评审范围：MPP hold 发票结算中，当某个 TLC 的 fulfill 已排队（对端断连/等待 ack）时，收款方重放 `SettleReceivedHoldTlcSet` 必须仍能重建结算上下文并完成任务，不能丢上下文导致 hold TLC 卡死。单一部分（非 MPP）的 hold 结算重试已由 `PR-1289` 系列用例覆盖；排队 fail 压制本地原像的分支由 `PR1672-03` 覆盖，均不重复。
 
-源码版本：[PR #1709](https://github.com/nervosnetwork/fiber/pull/1709)；diff 取自 2026-11-10 GitHub API 快照（`gh pr diff 1709`）。测试仓库分支 `sunchengzhu/pr1708-funding-pool-conflict`；初次评审阶段未修改测试。
+源码版本：[PR #1709](https://github.com/nervosnetwork/fiber/pull/1709)；diff 取自 2026-11-10 GitHub API 快照（`gh pr diff 1709`）。测试仓库分支 `sunchengzhu/v0.10.0-rc2-regression`；初次评审阶段未修改测试。
 
 ## 导读
 

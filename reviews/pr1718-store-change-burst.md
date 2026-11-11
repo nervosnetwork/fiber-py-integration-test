@@ -2,7 +2,7 @@
 
 评审范围：store 的变更通知通道在突发（>16 条连续变更，转发任务来不及处理）时，旧版订阅方收到 `Lagged` 后**永久断订**——RPC WebSocket 订阅方（`subscribe_store_changes`）和进程内 CCH actor 都从此收不到任何 store 变更。修复后 store 自己的端口按序直投各订阅者信箱，突发多少条都不丢、不断。
 
-源码版本：[PR #1718](https://github.com/nervosnetwork/fiber/pull/1718)；diff 取自 2026-11-11 GitHub API 快照（`gh pr diff 1718`）。测试仓库分支 `sunchengzhu/pr1708-funding-pool-conflict`；初次评审阶段未修改测试。
+源码版本：[PR #1718](https://github.com/nervosnetwork/fiber/pull/1718)；diff 取自 2026-11-11 GitHub API 快照（`gh pr diff 1718`）。测试仓库分支 `sunchengzhu/v0.10.0-rc2-regression`；初次评审阶段未修改测试。
 
 ## 导读
 

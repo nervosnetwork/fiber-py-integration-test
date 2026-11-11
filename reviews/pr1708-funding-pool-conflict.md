@@ -2,7 +2,7 @@
 
 评审范围：funding 交易广播时被 CKB 交易池以 `PoolRejectedRBF`（-1111，池中另一笔交易已花费本交易的某个输入）拒绝后的外部可见行为，以及失败后的重开能力。关账交易（closing）遇池冲突保持原等待行为的分支、-1107 重复广播分支另列，不计入本切片用例表。
 
-源码版本：[PR #1708](https://github.com/nervosnetwork/fiber/pull/1708)；diff 取自 2026-11-10 GitHub API 快照（`gh pr diff 1708`）。本地 `~/project/fiber` 检出为旧版（`873dad25`，不含本 PR），涉及 `abort_funding` 的观察基于该旧版，函数签名与调用关系在 diff 中未变化。测试仓库分支 `sunchengzhu/pr1708-funding-pool-conflict`（自 `v0.10.0` 拉出）；初次评审阶段未修改测试。
+源码版本：[PR #1708](https://github.com/nervosnetwork/fiber/pull/1708)；diff 取自 2026-11-10 GitHub API 快照（`gh pr diff 1708`）。本地 `~/project/fiber` 检出为旧版（`873dad25`，不含本 PR），涉及 `abort_funding` 的观察基于该旧版，函数签名与调用关系在 diff 中未变化。测试仓库分支 `sunchengzhu/v0.10.0-rc2-regression`（自 `v0.10.0` 拉出）；初次评审阶段未修改测试。
 
 ## 导读
 
