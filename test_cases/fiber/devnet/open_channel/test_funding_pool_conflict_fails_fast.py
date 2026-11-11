@@ -19,7 +19,7 @@ from framework.config import DEFAULT_MIN_DEPOSIT_CKB
 CKB = 100000000
 
 
-class TestPr1708FundingPoolConflict(FiberTest):
+class TestFundingPoolConflictFailsFast(FiberTest):
     proxy: CkbRpcProxy
 
     def setup_method(self, method):

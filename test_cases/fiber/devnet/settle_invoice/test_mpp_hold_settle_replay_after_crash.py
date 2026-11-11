@@ -9,7 +9,7 @@ def sha256_hex(preimage_hex):
     return "0x" + hashlib.sha256(raw).hexdigest()
 
 
-class TestPr1709HoldSetReplay(FiberTest):
+class TestMppHoldSettleReplayAfterCrash(FiberTest):
     """
     PR-1709: a fulfill queued while settling a received MPP hold invoice must
     not block the settle replay after the payee restarts.

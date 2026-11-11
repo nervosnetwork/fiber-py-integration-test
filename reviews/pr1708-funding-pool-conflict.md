@@ -2,7 +2,7 @@
 
 评审范围：funding 交易广播时被 CKB 交易池以 `PoolRejectedRBF`（-1111，池中另一笔交易已花费本交易的某个输入）拒绝后的外部可见行为，以及失败后的重开能力。关账交易（closing）遇池冲突保持原等待行为的分支、-1107 重复广播分支另列，不计入本切片用例表。
 
-源码版本：[PR #1708](https://github.com/nervosnetwork/fiber/pull/1708)；diff 取自 2026-11-10 GitHub API 快照（`gh pr diff 1708`）。本地 `~/project/fiber` 检出为旧版（`873dad25`，不含本 PR），涉及 `abort_funding` 的观察基于该旧版，函数签名与调用关系在 diff 中未变化。测试仓库分支 `sunchengzhu/v0.10.0-rc2-regression`（自 `v0.10.0` 拉出）；初次评审阶段未修改测试。
+源码版本：[PR #1708](https://github.com/nervosnetwork/fiber/pull/1708)；diff 取自 2026-11-10 GitHub API 快照（`gh pr diff 1708`）。本地 `~/project/fiber` 检出为旧版（`873dad25`，不含本 PR），涉及 `abort_funding` 的观察基于该旧版，函数签名与调用关系在 diff 中未变化。测试仓库分支 `sunchengzhu/v0.10.0-rc2-regression`（自 `v0.10.0` 拉出）；本文为复审修订（按 PR #122 的 F6 意见清理过时描述与失效路径）。
 
 ## 导读
 
@@ -21,7 +21,7 @@
 
 ## 用例
 
-公共约定：devnet；fiber1、fiber2 都经 `framework/ckb_rpc_proxy.py` 代理连接 CKB 节点（复用 `test_funding_retry.py` 的既有模式），代理按 JSON-RPC 方法注入错误码。失败耗时从 `open_channel` 返回起算，到 pending 记录变为 Closed/FUNDING_ABORTED 为止；「快速」的阈值取 60 秒（旧实现要等 funding 自身超时，PR 实测约 5.5 分钟；rc2 实测 5.0 秒）。
+公共约定：devnet；fiber1、fiber2 都经 `framework/ckb_rpc_proxy.py` 代理连接 CKB 节点（复用 `test_funding_retry.py` 的既有模式），代理按 JSON-RPC 方法注入错误码。失败耗时从 `open_channel` 返回起算，到 pending 记录变为 Closed/FUNDING_ABORTED 为止；「快速」的阈值取 60 秒（旧实现要等 funding 自身超时，PR 实测约 5.5 分钟；rc2 实测 5.0 秒）。耗时：两条用例合计实测约 50 秒。
 
 <!-- TEST-CASES-BEGIN -->
 | 用例 | 场景 | 预期结果 | 防止的问题 | 优先级 |
@@ -53,7 +53,7 @@
 - Testing: required
 
 ### SPEC-02：冲突失败不残留、可重开
-- Condition: 一次 funding 因池冲突失败结束，竞争交易已确认。
+- Condition: 一次 funding 因池冲突（代理注入 -1111）失败结束，且对侧已记录通道中止（选币预留已释放）；代理注入构造下不存在真实的竞争交易。
 - Expected: 同一节点重新发起开通道可正常完成。
 - Observable: 新通道 Ready；旧失败记录不干扰新通道。
 - Basis: 兼容性推断，PR 未单独声明；`abort_funding` 移除 pending 记录与 in-flight 任务（旧版源码观察，diff 未触碰该路径）。
@@ -63,8 +63,8 @@
 ## 本轮状态
 
 - 结构检查：`check_test_design.py --review reviews/pr1708-funding-pool-conflict.md` 退出码 0（2 条用例；SPEC-02 的 inference 与 closing 待评估分支按要求列入待决定）。
-- 映射检查：`scripts/check_test_map.py` 退出码 1；`PR1708-02` 未映射属本阶段预期（G2 只实现首条），孤儿映射 `PMP-01~05`、`SETTLE-01` 为 `v0.10.0` 基线既有问题，不在本切片处理。
-- 自动化进展：`PR1708-01/02` 均已实现于 `test_cases/fiber/devnet/open_channel/test_pr1708_funding_pool_conflict.py` 并映射。执行证据：`PR1708-01` 在 rc2 上 funding 5.0s 内 FUNDING_ABORTED（节点日志含 `conflicts with one in the pool` 与 `Funding transaction failed`），同一用例在 rc1 二进制上反向验证超时失败（复现旧行为）；`PR1708-02` 初次运行发现 fiber1 记录失败后 fiber2 的选币预留释放存在约 200ms 滞后，已加对侧中止记录屏障，两条用例 `2 passed in 50.25s`。
+- 映射检查：`scripts/check_test_map.py` 当前退出码 1——`PR1708-01/02` 均已映射，退出 1 来自基线既有孤儿映射（`PMP-01~05`、`SETTLE-01` 等），不在本切片处理；具体数字以最新运行输出为准。
+- 自动化进展：`PR1708-01/02` 均已实现于 `test_cases/fiber/devnet/open_channel/test_funding_pool_conflict_fails_fast.py`（2026-11-11 由 `test_pr1708_funding_pool_conflict.py` 按功能改名，TEST-MAP ID 不变）并映射。执行证据：`PR1708-01` 在 rc2 上 funding 5.0s 内 FUNDING_ABORTED（节点日志含 `conflicts with one in the pool` 与 `Funding transaction failed`），同一用例在 rc1 二进制上反向验证超时失败（复现旧行为）；`PR1708-02` 初次运行发现 fiber1 记录失败后 fiber2 的选币预留释放存在约 200ms 滞后，已加对侧中止记录屏障，两条用例 `2 passed in 49.22s`。
 - 独立 B 评审：本环境未启用子代理，尚未执行独立 B 评审；已按规范自查（分行核对预期与 diff 依据），但不计为独立评审。是否需要补一轮独立 B 评审，请与用例行一并指示。
 
 ## 验证设计

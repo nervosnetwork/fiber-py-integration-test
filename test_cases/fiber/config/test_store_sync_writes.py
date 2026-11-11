@@ -35,14 +35,12 @@ class TestStoreSyncWrites(FiberTest):
         # 1. 断言两个节点的启动日志都声明开关已生效。
         for fiber in (self.fiber1, self.fiber2):
             log = self._read_fiber_log(fiber)
-            assert "Store sync writes: true" in log, (
-                f"{fiber.tmp_path} 启动日志未声明 Store sync writes: true"
-            )
+            assert (
+                "Store sync writes: true" in log
+            ), f"{fiber.tmp_path} 启动日志未声明 Store sync writes: true"
 
         # 2. 开通道并完成一笔付款。
-        channel_id = self.open_channel(
-            self.fiber1, self.fiber2, 500 * CKB, 100 * CKB
-        )
+        channel_id = self.open_channel(self.fiber1, self.fiber2, 500 * CKB, 100 * CKB)
         self.send_payment(self.fiber1, self.fiber2, 1 * CKB)
 
         # 3. 记录双方余额，重启 fiber1 后核对通道与余额。
@@ -70,12 +68,12 @@ class TestStoreSyncWrites(FiberTest):
             channel_id=channel_id,
         )
         balance1_after, balance2_after = balances()
-        assert balance1_after == balance1_before, (
-            f"fiber1 重启后余额变化：{balance1_before} -> {balance1_after}"
-        )
-        assert balance2_after == balance2_before, (
-            f"fiber2 对端余额变化：{balance2_before} -> {balance2_after}"
-        )
+        assert (
+            balance1_after == balance1_before
+        ), f"fiber1 重启后余额变化：{balance1_before} -> {balance1_after}"
+        assert (
+            balance2_after == balance2_before
+        ), f"fiber2 对端余额变化：{balance2_before} -> {balance2_after}"
 
 
 class TestStoreSyncWritesDefault(FiberTest):
@@ -98,9 +96,9 @@ class TestStoreSyncWritesDefault(FiberTest):
         # 1. 断言两个节点的启动日志都声明开关默认关闭。
         for fiber in (self.fiber1, self.fiber2):
             log = self._read_fiber_log(fiber)
-            assert "Store sync writes: false" in log, (
-                f"{fiber.tmp_path} 启动日志未声明 Store sync writes: false"
-            )
+            assert (
+                "Store sync writes: false" in log
+            ), f"{fiber.tmp_path} 启动日志未声明 Store sync writes: false"
 
         # 2. 开通道并完成一笔付款。
         self.open_channel(self.fiber1, self.fiber2, 500 * CKB, 100 * CKB)
@@ -119,9 +117,9 @@ class TestStoreSyncWritesDefault(FiberTest):
             env={"FIBER_STORE_SYNC_WRITES": "true"},
         )
         log = self._read_fiber_log(fiber3)
-        assert "Store sync writes: true" in log, (
-            f"{fiber3.tmp_path} 启动日志未声明 Store sync writes: true"
-        )
+        assert (
+            "Store sync writes: true" in log
+        ), f"{fiber3.tmp_path} 启动日志未声明 Store sync writes: true"
 
         # 2. fiber3 开通道并完成一笔付款。
         self.open_channel(fiber3, self.fiber2, 500 * CKB, 100 * CKB)

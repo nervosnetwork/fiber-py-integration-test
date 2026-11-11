@@ -13,7 +13,7 @@ def input_outpoints(node, tx_hash):
     }
 
 
-class TestPr1707FundingWatchtowerCells(FiberTest):
+class TestFundingSkipsWatchtowerPoolCells(FiberTest):
     """
     PR-1707: a funding tx must not pick fee cells already spent by a watchtower
     tx that is still in the pool.

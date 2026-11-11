@@ -50,7 +50,7 @@ def count_notifications(ws, deadline_seconds):
     return count, payloads
 
 
-class TestPr1718StoreChangeBurst(FiberTest):
+class TestStoreChangeSubscriptionBurst(FiberTest):
     """
     PR-1718: a burst of store changes must not kill store-change subscriptions.
     """
