@@ -3,7 +3,11 @@ use anyhow::{ensure, Context, Result};
 use ckb_types::{packed::*, prelude::*};
 use fiber_lsp_sdk::{ChainVerifier, OnchainSpendAuthorization, SignerError, VerifiedCell};
 use fiber_lsp_sdk_agent::{Agent, DevChain, FiberRpc, FileSignerStore, HttpFiberRpc};
-use fiber_types::{CommitmentContractFeatures, Hash256};
+#[cfg(feature = "hosted-v2")]
+use fiber_types::ChannelFeatures as CommitmentFeatures;
+#[cfg(not(feature = "hosted-v2"))]
+use fiber_types::CommitmentContractFeatures as CommitmentFeatures;
+use fiber_types::Hash256;
 use serde::Deserialize;
 use serde_json::{json, Value};
 use std::{
@@ -251,8 +255,8 @@ impl Chain {
 fn verify_link(output: &CellOutput, previous: &CellOutput) -> Result<()> {
     let args = output.lock().args().raw_data();
     let old = previous.lock().args().raw_data();
-    CommitmentContractFeatures::from_lock_args(&args).map_err(anyhow::Error::msg)?;
-    CommitmentContractFeatures::from_lock_args(&old).map_err(anyhow::Error::msg)?;
+    CommitmentFeatures::from_lock_args(&args).map_err(anyhow::Error::msg)?;
+    CommitmentFeatures::from_lock_args(&old).map_err(anyhow::Error::msg)?;
     ensure!(
         output.lock().code_hash() == previous.lock().code_hash()
             && output.lock().hash_type() == previous.lock().hash_type()
@@ -396,6 +400,8 @@ pub async fn process(
     let auth = OnchainSpendAuthorization {
         source: record.reference.clone(),
         destination,
+        #[cfg(feature = "hosted-v2")]
+        fee_sponsor_lock: None,
         fee: total,
         additional_inputs: sponsors,
         cell_deps: chain.deps.clone(),
@@ -616,7 +622,10 @@ pub fn diagnostic_selfcheck(value: Value) -> Result<Value> {
         source: fiber_lsp_sdk::CommitmentReference {
             for_remote: true, version: 1, tx_hash: Hash256::from([0u8; 32]),
         },
-        destination, fee: intent["max_fee"].as_u64().context("fee cap")?,
+        destination,
+        #[cfg(feature = "hosted-v2")]
+        fee_sponsor_lock: None,
+        fee: intent["max_fee"].as_u64().context("fee cap")?,
         additional_inputs: vec![OutPoint::default()], cell_deps: vec![CellDep::default()],
     };
     let exported = authorization_export(&probe)?;
@@ -742,6 +751,8 @@ pub async fn diagnose(
     }
     ensure!(total <= max_fee, "diagnostic fee exceeds persisted approval cap");
     let auth = OnchainSpendAuthorization { source:record.reference.clone(),destination,
+        #[cfg(feature = "hosted-v2")]
+        fee_sponsor_lock: None,
         fee:total,additional_inputs:sponsors,cell_deps:chain.deps.clone() };
     // No sign, confirm, poll, nonce mutation, or submission call exists below.
     let result = signer.prepare_onchain(fiber_lsp_sdk::json::onchain_from_rpc(content.clone()),auth.clone(),&scoped).await;
