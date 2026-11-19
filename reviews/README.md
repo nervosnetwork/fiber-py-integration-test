@@ -19,7 +19,7 @@ LusoCryptoLabs 报告的第三项“租户不能取消自己的发票”已补�
 
 订阅过滤20～28的[Gate1](lsp/signing-subscriptions-scope.md#2026-10-28过滤参数补充-gate1)及[Gate2行集/数组兼容/预算](lsp/signing-subscriptions.md#过滤参数-gate2输入断言预算与最小适配04c2064)已获确认，12方法与TEST-MAP已实现。用户进一步授权更新LSP分支后，固定 `84333ee` 独立构建并完成相关3/3及正式1+3共48/48；04缓存准备失败保留历史，详见[最新运行记录](../test_cases/fiber/devnet/lsp/README.md#84333ee-订阅过滤-gate3完成2026-10-29)。同身份多通道严格子集仍是覆盖缺口。
 
-**TIMEOUT-04/05 已按 `505c48fb` 实现。** 04 两轮真实执行通过。05 首轮在中止期间遇到重复列表记录，尚未执行签名重放，已由 Fiber #1762 跟踪。05 随后的独立运行验证了重放拒绝及中止状态稳定。固定 `76307312` 的失败保留为历史证据。[新版判据与执行证据](lsp/channel-signing-deadline.md#开通超时版本边界重审) · [Fiber #1762](https://github.com/nervosnetwork/fiber/issues/1762)
+**TIMEOUT-04/05 已按 `505c48fb` 实现。** 04 两轮真实执行通过。05 的一次完整实跑验证了重放拒绝及中止状态稳定。固定 `76307312` 的失败保留为历史证据。[新版判据与执行证据](lsp/channel-signing-deadline.md#开通超时版本边界重审)
 
 固定 `76307312` 的 `DELIVERY-02` 失败见既有的一致性跟踪记录。
 
