@@ -79,9 +79,7 @@ def test_preflight_rejects_missing_or_mismatched_bundle(tmp_path):
         if key == "revision":
             mutated_bundle = bundle
         with pytest.raises(error_type) as error:
-            runner.preflight(
-                bundle, time.monotonic() + 15, events, time.monotonic()
-            )
+            runner.preflight(bundle, time.monotonic() + 15, events, time.monotonic())
         if target is not None:
             if isinstance(target, str) and target.startswith("bundle/"):
                 target = bundle / target.removeprefix("bundle/")

@@ -256,12 +256,22 @@ def test_sdk_tlc_refund_validation_cases():
             )
             assert len(raw(call["store_before_digest"])) == 32
             assert 0 <= call["elapsed_ms"] < 270_000
-            assert call["chain_calls"], "SDK never reached the controlled chain boundary"
+            assert call[
+                "chain_calls"
+            ], "SDK never reached the controlled chain boundary"
             methods = {c["method"] for c in call["chain_calls"]}
-            assert {"live_cell", "verify_commitment_lineage", "verify_maturity"} <= methods
+            assert {
+                "live_cell",
+                "verify_commitment_lineage",
+                "verify_maturity",
+            } <= methods
             # Witness-binding failures can reject before median_time_ms is queried;
             # positive/residual paths are expected to reach it.
-            if call["name"] in ("positive_before", "positive_after", "wrong_tlc_residual"):
+            if call["name"] in (
+                "positive_before",
+                "positive_after",
+                "wrong_tlc_residual",
+            ):
                 assert "median_time_ms" in methods
         by_name = {c["name"]: c for c in group}
         for name in ("positive_before", "positive_after"):
@@ -277,7 +287,9 @@ def test_sdk_tlc_refund_validation_cases():
         assert index["returned_content"] is None
         assert index["returned_authorization"] is None
         assert index["error"]["variant"] == "InvalidContent"
-        assert index["error"]["reason"] == "commitment validation: wrong TLC signing key"
+        assert (
+            index["error"]["reason"] == "commitment validation: wrong TLC signing key"
+        )
         hlen = baseline["payment_hash_len"]
         _assert_witness_variant(
             baseline,
