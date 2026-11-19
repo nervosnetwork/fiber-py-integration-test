@@ -46,7 +46,7 @@ git checkout-index --all --prefix="$snapshot/"
 ```
 
 - 映射检查沿用项目脚本（仅文档变更也运行）。它检查 ID 关系，不检查复选框、断言语义或测试是否通过。只有用户要求全量自动化且范围与检查器一致时才加 `--require-complete`。若报告孤儿映射或重复 ID，用独立的 HEAD 快照复核同一问题；明确区分历史欠账与本次新增，不要求清理无关文件。
-- 对候选中新增或修改的 Python 文件，在快照内用项目 Python 做 `-m py_compile` 和 CI 对应的 `-m black --check`；只传受影响且仍存在的文件，不运行会改写文件的 `format_code.sh`。其他文件只做相关的解析、链接或配置检查。
+- 对候选中新增或修改的 Python 文件，在快照内用项目 Python 做 `-m py_compile`；只传受影响且仍存在的文件。跳过 Black：不运行 `-m black --check`，也不运行会改写文件的 `format_code.sh`。格式由 CI（`.github/workflows/LintandFormat.yml` 的 `black --check .`）负责，格式差异不作为本次审核的阻断项，也不因未在本地跑 Black 记「待确认」。其他文件只做相关的解析、链接或配置检查。
 - 规范审核默认不启动节点或跑完整套件。若行为结论需要运行证据，先核对是否已有**同一候选版本**的结果；获准时只跑能证明该结论的最小用例。“仅风格／不运行用例”时连 `pytest --collect-only` 也不执行。明确写出未运行项及其是否影响本次结论。
 
 ## 4. 给出提交决定
