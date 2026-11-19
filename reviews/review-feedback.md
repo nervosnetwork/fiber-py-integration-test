@@ -39,3 +39,45 @@
 - model: unavailable | cases: MPP1705-01～14 | feedback: MppFixture 不要依赖具体测试类；通用方法放 framework，场景和变量要易读，避免包装层与重复 review，并将这些约束写入 AGENTS.md。
 - model: unavailable | cases: MPP1705-07～12 | feedback: 耗时过长的用例先在方法上标注 pytest.mark.skip 和原因，不在 fiber.yml 维护排除清单；退款慢测后续复用已有 change_time / restore_time，验证链状态清理和时钟恢复后再启用。
 - model: unavailable | cases: MPP1705-01～14 | feedback: 通道两端、容量/资产、路由和付款操作直接展开在每条用例中，并加网络拓扑注释；公共方法只保留观察、等待、启停和核对，避免隐藏资金操作。以长期可维护、人类易懂的原生回归用例为目标，不写一次性验收脚本。
+
+- model: unavailable | cases: LSP 场景评审流程 | feedback: 现在不是gate1通过了走gate2流程嘛 你看下ai-test-agent
+- model: unavailable | cases: LSP Gate1 分析范围 | feedback: 对 你扩大一下当前gate1的范围吧
+- model: unavailable | cases: LSP Gate1 异常时间与超时预期 | feedback: 我需要知道你异常时间的控制 这个pr有描述吗 然后超时保护你没有预期结果吗
+- model: unavailable | cases: LSP-RETRY-04、LSP-RETRY-05 时间控制 | feedback: 你看下怎么样好点 结合pr和sdk分析一下
+- model: unavailable | cases: LSP 进程重启恢复补充流程 | feedback: 不是从gate1开始的吗
+- model: unavailable | cases: PR #1623 Python 功能测试与上游诊断的范围边界 | feedback: 你怎么会有一个改rust的压力测试场景 而不是聚焦写python的功能测试用例 你怎么不找我确认 ai-test-agent里面有这方面的规定吗
+- model: unavailable | cases: LSP 签名订阅迁移 Gate1 | feedback: 太坑了 这个是他刚刚改的 能不能改造一下我现有的用例 无效的可以删除
+- model: unavailable | cases: LSP 签名订阅命名 | feedback: 现有条目名称带有明显的SSE 要改造一下
+- model: unavailable | cases: LSP 签名订阅 ID 与映射迁移 | feedback: ID 也改为 LSP-SUB-*，同步迁移映射
+- model: unavailable | cases: LSP-SUBSCRIPTION-01～07、10～13 完整前缀选择（侧边对话转达，替换此前 SUB 选择） | feedback: 那还是长一点吧
+- model: unavailable | cases: LSP-WATCHTOWER-02 | feedback: 接受02的分段验证边界，但不能标为原Agent自动恢复已覆盖。
+- model: unavailable | cases: LSP-SUBSCRIPTION-14～19 及签名订阅命名 | feedback: 可以推进 记得把「SSE」相关的名字改一下
+- model: unavailable | cases: LSP-DELIVERY-01～06 Gate2适配方案 | feedback: 再想想有没有更好的方案
+- model: unavailable | cases: PR #1623 LusoCryptoLabs 实测反馈场景 | feedback: 我不是让你根据他测出的失败场景添加用例嘛 你给我干哪去了
+- model: unavailable | cases: LSP 中文测试说明用词 | feedback: 请纠正这个说法 我希望不再出现。后续按实际含义使用“测试环境”“测试辅助代码”或“测试准备逻辑”，不再使用用户本次纠正的直译术语。
+- model: unavailable | cases: LSP 后续提交与测试推进（2026-10-30） | feedback: 按照顺序不断做 中间不必向我确认（即便是gate1、gate2这种） 除非有很高的权限要申请 我现在要休息了 我希望我几个小时后一打开就是你把工作做完并给我汇报
+- model: gpt-6.1-sol | cases: LSP-REFUND-01～03 重复次数与收尾范围（2026-10-30） | feedback: 本次退款以两轮独立通过收尾，不补第3/4轮
+- model: unavailable | cases: LSP 普通补充验证的主会话与门禁（2026-10-30） | feedback: 这个不是分支任务了 补充用例是主任务 你回到这个窗口做吧 继续给我gate1 gate2 gate3这样做下去
+- model: unavailable | cases: LSP 整体缺口盘点与重复评审（2026-10-30） | feedback: 我的妈你这样太浪费我时间了 你先整体看一遍 看下有哪些遗漏 再跟我说下一步做什么吧 你让我无畏的花了时间和token
+- model: unavailable | cases: LSP 测试运行与磁盘清理 | feedback: 我觉得你应该清理你自己产生的临时的产物 避免把磁盘塞满 影响下次测试 我今天凌晨还腾出了20多G呢 一直被你自己用完了 然后你一直找我要磁盘空间 这样无底洞的
+- model: unavailable | cases: PR #1623 核心逻辑覆盖与Gate1范围 | feedback: 你说的是执行进度 我问你的是测试用例实现完整度 有没有包含这个pr核心逻辑的测试 你一直没搞清方向
+- model: unavailable | cases: LSP-DELIVERY-05 | feedback: 经 56c761c 源码与提交 d96dfecb 确认，replay 识别先于 accept_on_channel；同 key 改金额预期改为 existing-key 冲突，金额校验另用不同 TLC/key 覆盖。
+- model: unavailable | cases: LSP-PAYMENT-04 | feedback: SDK 正常记录 revoked commitment；测试改为比较稳定身份字段并允许新增撤销记录，同时在 release 前等待发票 Received，不要求整个 status 文件不变。
+- model: unavailable | cases: LSP-TENANT-QUERY-01 | feedback: 不真实开资金通道的测试没有意义；改为真实 A/B 注册、真实 funding/ChannelReady 通道和真实发票的黑盒场景，不用未注资的 unsigned channel 代替。
+- model: external reviewer | cases: LSP-INVOICE-CANCEL-03 | feedback: 首次失败是测试漏掉 SDK `authorize_cancellation`，SDK 报 `TLC removed without a locally authorized resolution`；补授权及完整 30 秒稳定观察后当前 head 1 passed / 130.57s，不能把它归为上游 TLC 传播缺陷。
+- model: external reviewer | cases: LSP-REFUND-01～03 | feedback: 退款改为自然时间夜间模式，去掉 Lima/VM/GuestClock；主用例在 56c761c 1 passed / 4:12:20，实际分支 T-then-A-sweep；F2 辅助自检仍 skip，不宣称全部退款分支通过。
+- model: external reviewer | cases: LSP-TIMEOUT-13 | feedback: 补 A-win/T-loser 受控竞态用例；A 的关闭确认后 T 必须进入 Closed/UNCOOPERATIVE_REMOTE，关闭哈希等于 A；自然竞态仍不作为普通门禁。
+- model: external PR reviewer | cases: LSP-PAYMENT-05 | feedback: 出站付款必须补 SDK 本地 `authorize_payment`，并按实际 A–T TLC 金额核对；P 的普通收款发票应提供 preimage，不能把缺授权或 hold invoice 不可结算误归为产品 outbound 失败。授权金额按有效 trampoline 上限修为 1,005,000；修复后 P 发票已 Paid，A 付款仍 Inflight，1 xfailed / 143.97s；xfail 仅包住最终产品终态。
+- model: external PR reviewer | cases: LSP-INVOICE-CANCEL-03 | feedback: 取消后要连续观察旧发票/旧付款至少 30 秒不复活，不能只看新付款成功；补完整稳定窗口后 1 passed / 130.57s。
+- model: external PR reviewer | cases: LSP-TIMEOUT-13 | feedback: A-win 时要排除 T 的 `UNCOOPERATIVE_LOCAL`，并在 T 恢复后复查 A 仍为获胜的 `UNCOOPERATIVE_LOCAL`；补断言后 1 passed / 340.32s。
+- model: external PR reviewer | cases: LSP-PAYMENT-05 | feedback: 出站付款还要在 TLC 被接受后完成 SDK 本地 `authorize_fulfillment`，否则 P Paid、A 仍会因缺少本地 resolution 停在 Inflight；补 fulfill 后 1 passed / 95.22s，xfail 已移除。
+- model: external PR reviewer | cases: LSP-FEATURE-01/02 | feedback: feature-off 用例必须按本次启动的子进程句柄清理；Case 01 单独运行也必须用同一二进制执行 lsp 配置拒绝 probe 来证明构建不含 lsp feature；端口冲突不能按端口 kill 无关进程；probe 运行期间要观察是否曾监听 RPC。修复后 2 passed / 102.65s。
+- model: external PR reviewer | cases: LSP-FEATURE-01/02 | feedback: feature-off probe 不能把 stdout/stderr 接 PIPE 后只在退出时读取；日志超过管道容量会把正确拒绝堵成超时。改为写测试专用临时文件，端口观察与退出等待并行不依赖管道；复跑 2 passed / 102.65s。
+- model: unavailable | cases: LSP-REFUND-F2-01～06 快速测试方案与耗时约束 | feedback: 那就先把 F2 改成快速测试，整组控制在 5 分钟内。先把具体方案给我看，不要再启动四小时长测。 方案我会让另一个模型review 你要输出md文档
+- model: external reviewer | cases: LSP-REFUND-F2-01～06 与原 TestTlcRefundAdapter 的范围边界 | feedback: SDK 快测不能直接替代原 F2。快测通过后先保留旧 `TestTlcRefundAdapter`；由用户确认是否重定义 F2；确认后再决定删除旧 skip。来源：docs/analysis/f2-fast-plan-review-2026-11-07.md。
+- model: external reviewer | cases: LSP-REFUND-F2-01～06 | feedback: F2 SDK 快测已实现并通过；旧 TestTlcRefundAdapter 的真实链/adapter 联合资格继续 skip，不能把 SDK 快测外推为 F2 真实链资格或独立 TLC 退款通过；270/275 秒真实边界仍未实测。
+- model: external reviewer | cases: LSP-REFUND-F2-06 | feedback: 外层入口必须能回收 pytest 自检创建的两个独立 PGID；用 `LSP_REFUND_F2_OWNED_PIDS` 登记并在 outer finally/emergency 清理，新增外层登记组测试。
+- model: external reviewer | cases: LSP-REFUND-F2-05 | feedback: 仅缺失目录和错误 kind 不足以证明版本/源码/锁/二进制摘要检查；补齐 g6 manifest 的版本、source、产品锁、helper 源/锁/manifest、binary 六个变异。
+- model: external reviewer | cases: LSP-REFUND-F2-05 | feedback: 摘要变体必须断言具体拒绝来源，不能接受 TimeoutError/OSError 冒充；实际入口同时验证缺失 bundle 和版本变异 bundle。
+- model: external reviewer | cases: LSP-REFUND-F2-06 | feedback: 自检必须使用真实外层 registry，不能 monkeypatch 到临时文件；外层回收测试应使用真实 registry 并调用实际兜底清理，同时登记写入失败要先清理已启动子进程。
+- model: external reviewer | cases: LSP-REFUND-F2-05 | feedback: 五类摘要样本只能接受 `ValueError` 且精确匹配 `SHA256 mismatch: <完整路径>`；缺目录/缺 source 单独接受 `FileNotFoundError`，否则删文件仍会被当成摘要错误通过。

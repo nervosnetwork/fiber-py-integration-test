@@ -1,0 +1,100 @@
+# LSP 手动夜间验证
+
+2026-11-07 当前状态：已改为自然时间模式，在 56c761c 上主退款用例 **1 passed / 4:12:20**，实际分支 `T-then-A-sweep`；F2 SDK 快测 01～06 已通过；原 `TestTlcRefundAdapter` 的真实链/adapter 资格仍明确 skip。历史 843 两轮结果只作为背景，不代表当前 head。
+2026-10-30凌晨已关闭的旧批（历史记录）见完整报告（本地证据：`/Users/sunchengzhu/.codex/worktrees/lsp-reviewed-regressions/fiber-py-integration-test/report/lsp-night-new-84333ee-20261030T030349/RESULT.md`）：退款停在真实epoch成熟资格，正式1+3未运行；接纳03～06通过。该批正式退款为0；成熟预算随后已修正并用于下述新批。下方原入口仍固定04，作为保留历史。
+
+本目录存放自然时间下的 TLC 超时退款长场景及账本辅助代码，与普通 `lsp/` 测试分开。自然版在实现上不修改宿主或 guest 时间，也不需要 Lima/VM；但这不等于可以绕过用户要求的专用 VM 控制入口、身份/资格和时间隔离。该规则冲突仍未解决，见下节。
+
+默认 pytest 收集会排除 `manual_nightly` 用例；显式 `--run-lsp-refund-nightly` 才会运行；自然版需要约 4–6 小时、机器保持唤醒，失败不自动重试。
+
+## 工程整理后的入口边界（2026-11-08）
+
+- 当前自然退款入口：`scripts/lsp_refund_natural_nightly.sh [新输出根]`，固定产品 `56c761c`、bundle `download/fiber/pr-1623-56c761c-refund-natural5` 和自然时间；需显式 `--run-lsp-refund-nightly`，默认 deselect 不变。
+- 当前 F2 快测入口：`scripts/run_lsp_refund_f2_fast.py --bundle <bundle> --output <新目录>`，固定 56c，入口统一 300 秒上限；bundle 必须是 `kind=lsp-refund-f2-fast` 且 manifest/helper 源摘要匹配。
+- 本目录测试需要 `LSP_RUN_ARTIFACTS`；缺失时在启动节点/SDK 前明确失败。业务证据、JUnit、stdout 和退出码放在同一新批根，禁止覆盖旧批。
+- 下方 04 VM 命令、`scripts/lsp_refund_vm*.{py,sh,yaml}` 和 `_vm_time.py` 是**冻结历史入口**：固定 04，只用于解释既有证据，不代表当前自然版可执行；不得只改版本常量后当通用入口，也不得按旧命令自动重启。
+- 不接入 Makefile/CI；标记和开关不替代 VM 身份、资格或时间隔离检查。
+
+### 退款入口与 VM 门禁冲突（未解决）
+
+- 用户规则要求退款长测经专用 VM 控制入口执行，并核验身份、资格和时间隔离；本仓库现有 `scripts/lsp_refund_natural_nightly.sh` 是在宿主直接运行自然时间版本的脚本，不满足该门禁。
+- 本轮**不执行退款长测**，不修改脚本、`manual_nightly` 标记、默认 deselect 或时间/资格规则；不得用“自然时间已实现”或历史自然批结果绕过该限制。
+- 单独阅读本 README 的新会话也应看到：入口存在 ≠ 已获得执行授权；恢复长测前需要用户明确本批方案。
+
+### 夜跑必需输入
+
+| 变量/输入 | 适用入口 | 说明 |
+| --- | --- | --- |
+| `LSP_RUN_ARTIFACTS` | 退款夜跑必需 | 新批证据根；缺失时在启动节点/SDK 前失败 |
+| `LSP_PAYMENT_REPORT_DIR` | 自然退款脚本会设置 | 业务证据根；与 `LSP_RUN_ARTIFACTS` 分开 |
+| `LSP_TEST_REVISION` / `LSP_TEST_BUNDLE` / `LSP_RETEST_REVISION` | 所有夜跑 | 当前自然入口固定 56c 与 `refund-natural5` bundle；bundle 需通过 manifest/driver/chain 摘要校验 |
+| `LSP_REFUND_F2_BUNDLE` 等 `LSP_REFUND_F2_*` | F2 快测 | 由 `scripts/run_lsp_refund_f2_fast.py` 设置，不手工拼接 |
+| 同源 bundle、非 Git 输入 | 所有夜跑 | bundle/venv/`report/`/`tmp/` 等未跟踪；链快照、模板、合约受版本控制，分类见相邻 [lsp README](../lsp/README.md) |
+
+用例与完整执行边界见 [退款评审](../../../../reviews/lsp/tlc-timeout-refund.md)。普通适配工具继续复用相邻 `lsp/`，不在本目录复制产品或框架代码。
+
+**完成状态：** 本轮只完成入口/文档收尾整改，没有执行退款长测、VM 或自然竞态；F2/退款入口是否可获得执行资格仍受上述 VM 冲突约束。
+
+## SDK 快测补充（F2-01～F2-06）
+
+[F2 快测方案与证据](../../../../reviews/lsp/tlc-refund-f2-fast-plan.md)中的六条 SDK/入口快测已实现：两种 witness 格式分别执行正向前置、五项具名负向和恢复后正向，共 14 次真实 SDK `prepare_onchain`；另有入口前置和超时回收检查。
+
+当前整组入口实测 **1.983 秒、4 passed**，使用固定内存链，无节点、VM、调时或自然等待。旧 `TestTlcRefundAdapter` 仍 skip，真实链/adapter 联合资格和独立 TLC 真实退款分支仍未完成；不能把 SDK 快测通过外推为这些路径通过。真实 270/275 秒边界亦未实测。
+
+在指定工作区根目录运行现有首例 bundle；执行不编译、不下载，输出自动创建新目录：
+
+```bash
+venv/bin/python scripts/run_lsp_refund_f2_fast.py \
+  --bundle download/fiber/pr-1623-56c761c-f2-g6 \
+  --output report/lsp-refund-f2-new \
+  --junitxml reports/lsp-refund-f2-new/native-results.xml
+```
+
+如需重新构建，显式准备与五分钟执行分别计时，`--output` 必须为新目录；构建仅使用现有离线缓存，缺依赖直接失败：
+
+```bash
+venv/bin/python scripts/build_lsp_test_binaries.py --refund-f2-only \
+  --source /Users/sunchengzhu/project/fiber-py-integration-test/download/fiber/source-pr-1623-56c761c4 \
+  --revision 56c761c45c271c086b05c8d5ea3e033448f5fdf8 \
+  --target-dir /Users/sunchengzhu/project/fiber/target \
+  --output download/fiber/pr-1623-56c761c-f2-new
+```
+
+快测继续标记 `manual_nightly`，默认排除，不加入日常 CI/Makefile。专用入口选择新快测文件和入口自检文件，并统一控制 300 秒上限；不要用整个 `lsp_nightly/` 目录替代选择器。真实 270/275 秒边界未实测，缩短截止的故障注入只验证收尾分支。
+
+## 自然退款与历史入口
+
+| 文件 | 用途 |
+| --- | --- |
+| `test_tlc_timeout_refund.py` | 含 TLC 适配自检、一个完整退款生命周期（TEST-MAP：LSP-REFUND-01～03） |
+| `_vm_time.py` | 专用 guest 身份、资格、一次时间推进及采样检查 |
+| `_refund_ledger.py` | 退款路径与整数资金守恒断言 |
+
+以下是历史04入口说明，保留用于解释原批次。本843整合树不满足04驱动摘要要求，不能直接用它复现843结果；本轮已结束，不应按下列命令重新启动。历史只读输入检查：
+
+```bash
+bash scripts/lsp_refund_vm_nightly.sh --check
+```
+
+原04环境曾使用以下后台启动命令（历史记录，不是当前执行指令）：
+
+```bash
+bash scripts/lsp_refund_vm_nightly.sh
+```
+
+入口会校验固定 `04c206465b48da85b99aa58e80afe9801a2cb2db`、已有 Lima 2.2.1/镜像摘要及源码，打包当前测试输入，创建新的 `report/lsp-refund-vm-<时间>-<随机串>/`，输出 `pid`、`evidence` 和日志路径。它每次新建基础 VM 并完成 Linux 构建，不复用失败批次、旧输入包或已消费的资格。全局锁拒绝同时启动第二批；失败后停止，不自动重试。旧磁盘、锁、快照与证据保留。
+
+流程为系统准备 → 固定版本构建 → 纯时钟预检 → 旧适配自检 → 含 TLC/真实链资格 → 正常结算聚焦回归 → 正式固定 1+3。各项沿用已确认的硬限，从零全批上限 **411 分钟（6小时51分）**，不是预计耗时；任一环境或产品失败均停止后续批次。产品失败沿既有归因处理，不为得到某个退款分支重跑。
+
+启动命令返回后可关终端；`caffeinate -i` 抑制空闲睡眠，但不能保证合盖、主动睡眠或关机后继续有效。保持机器开机且不合盖。检查输出的本批证据目录：
+
+- `launch.json` / `launch.log`：启动参数、输入摘要和整体日志。
+- `nightly.pid` / `nightly.stage` / `nightly.exit`：实际控制进程、阶段和最终退出码；未结束时没有 exit 文件。
+- `preparation/`：系统与构建日志、构建成功后的 `base.json`。
+- `batch/`：各轮执行、真实退出码与导出证据；`host.jsonl` 和 `commands/` 保留控制命令起止、超时及原始输出。
+
+不要把 `--check`、构建成功、收集成功或环境短检计作退款通过。2026-10-28 已修复隔离初始化并完成一次不调时、不启动产品的短检；纯时钟资格、链/SDK资格及正式退款仍待今晚批次，详见 [运行记录](../lsp/README.md#隔离修复与夜间目录拆分2026-10-28)。
+
+2026-10-30午后已授权843独立补救批：成熟2100s、业务3300s、单实例3960s，准备与全序列共计至21:00绝对截止；规则和证据见退款评审末节。先资格成功再正常对照与正式1+3，原04入口不修改。本行是启动准备记录，不表示退款通过。
+
+用户最终收尾要求：本次退款以两轮独立通过收尾，不补第3/4轮。REFUND-01～03行为和资金断言未改。文中原04固定1+3命令保留为历史，不代表当前待执行任务；本次没有启动自动化。
