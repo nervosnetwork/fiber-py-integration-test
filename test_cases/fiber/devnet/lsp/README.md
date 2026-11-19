@@ -1,10 +1,12 @@
 # Hosted LSP 通道签名集成测试
 
-## 手动 CI：指定提交或跟踪 PR #1623 最新 head
+## 个人 fork 的手动 CI：指定提交或跟踪 PR #1623 最新 head
 
-手动入口工作流为默认 `main` 分支上的 **Fiber LSP 手动回归**；首版仅 `workflow_dispatch`，没有每日执行、push 或 pull_request 自动触发。`fiber_commit` 留空时，启动时从 PR #1623 解析一次最新 head；填写 7～40 位十六进制 commit 时解析为完整 SHA。测试 PR 的实际 head，不使用 GitHub 自动生成的 merge commit。整轮固定该 SHA，不因上游途中更新而切换版本。测试工程自身也固定为入口所引用的已审提交，两个提交均进入计划、日志和报告。
+**上游使用 `make lsp_test` 本地执行普通 LSP 测试。** 下文的手动入口、Actions 页面和归档规则适用于个人 fork `sunchengzhu/fiber-py-integration-test`。上游这批变更提供测试套件和可复用工作流，手动 CI 入口部署在个人 fork。
 
-实现工作流为 `.github/workflows/lsp-ci.yml`，由默认分支的薄入口调用；不能只把实现文件放在 LSP 分支就视为已经启用手动入口。产品构建来自同一干净 checkout，统一生成 FNN、SDK、测试 driver、Delivery wrapper 与无 LSP feature 二进制，传递前后核对 manifest/SHA。运行产物只以 Actions artifact 保存，不进入 Git 提交。
+个人 fork 的默认 `main` 通过 **Fiber LSP 手动回归** 工作流启动，触发方式为 `workflow_dispatch`。`fiber_commit` 留空时，启动时从 PR #1623 解析一次最新 head；填写 7～40 位十六进制 commit 时解析为完整 SHA。整轮固定 PR 实际 head 或指定提交。测试工程自身也固定为入口所引用的已审提交，两个提交均进入计划、日志和报告。[个人 fork 的手动入口](https://github.com/sunchengzhu/fiber-py-integration-test/actions/workflows/fiber-lsp-manual.yml)
+
+入口调用 `.github/workflows/lsp-ci.yml`。这个实现通过 `workflow_call` 运行，按入口指定的完整 SHA 从个人 fork 检出测试工程。产品构建来自同一干净 checkout，统一生成 FNN、SDK、测试 driver、Delivery wrapper 与无 LSP feature 二进制，传递前后核对 manifest/SHA。运行产物以 Actions artifact 保存。
 
 ### 去哪里看执行进度
 
@@ -61,7 +63,7 @@ make lsp_test LSP_ARGS='--delivery-node /absolute/fixed-bundle/lsp-delivery-node
 
 仅显式传入 `--workers 2`，且选择完整的浏览器订阅十条与过滤器十一条，才启用两组并行。每组内部仍串行，其他组、部分方法、`--independent` 与全目录并行计划均拒绝。日常默认和 Makefile/CI 配置不变。
 
-该 2-worker 资格仍只限 `76307312`，新提交与 CI 的实时进度/保留原库选项不进入此试点；手动 CI 全部使用串行 worker。
+该 2-worker 资格仍只限 `76307312`，新提交与 CI 的实时进度/保留原库选项不进入此试点；个人 fork 的手动 CI 使用独立 runner 并行，各组内部仍使用单 worker 串行执行。
 
 ```bash
 python scripts/run_lsp_regression.py --workers 2 \
@@ -250,7 +252,7 @@ venv/bin/python -m pytest -o addopts= -vv -s --tb=short \
   <exact nodeid>
 ```
 
-`-o addopts=` 去掉默认 `report/report.html` 覆盖；JUnit/stdout/退出码由调用方保存在同一新批根目录。`make fiber_test` 和现有 CI 均不包含本目录，不能以其成功证明 LSP 执行过。
+`-o addopts=` 去掉默认 `report/report.html` 覆盖；JUnit/stdout/退出码由调用方保存在同一新批根目录。当时的 `make fiber_test` 和 CI 均未包含本目录，LSP 执行结论以专项回执为准。
 
 ### Delivery 构建与运行入口
 

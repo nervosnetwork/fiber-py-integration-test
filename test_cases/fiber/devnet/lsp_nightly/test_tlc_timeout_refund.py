@@ -45,9 +45,7 @@ class _RefundBase(RefundLedger, _WatchtowerBase):
         # This endpoint only receives FNN traffic. Python and the SDK use other URLs.
         audit_path = require_env_path(
             "LSP_RUN_ARTIFACTS", "to archive this refund batch's chain audit"
-        ) / (
-            method.__name__ + "-fnn-ckb.jsonl"
-        )
+        ) / (method.__name__ + "-fnn-ckb.jsonl")
         assert not audit_path.exists(), audit_path
         self.fnn_chain_audit = ChainAudit(
             self.node.rpcUrl, audit_path, role="fnn", transparent=True
@@ -327,7 +325,12 @@ class _RefundBase(RefundLedger, _WatchtowerBase):
                 time.sleep(max(0, start + 1 - time.monotonic()))
 
     def progress(self, stage, **values):
-        item = {"stage": stage, "monotonic": time.monotonic(), "wall": time.time(), **values}
+        item = {
+            "stage": stage,
+            "monotonic": time.monotonic(),
+            "wall": time.time(),
+            **values,
+        }
         path = Path(os.environ["LSP_RUN_ARTIFACTS"]) / "progress.jsonl"
         with path.open("a") as stream:
             stream.write(json.dumps(item) + "\n")
@@ -339,13 +342,20 @@ class _RefundBase(RefundLedger, _WatchtowerBase):
             log_path = Path(self.a["log"].name)
             print("".join(log_path.read_text().splitlines(True)[-20:]), flush=True)
             sample = self._sample()
-            print("stuck sample:", json.dumps({
-                "payment": sample["payment"]["status"],
-                "invoice": sample["invoice"]["status"],
-                "A": sample["A"]["state"],
-                "T": sample["T"]["state"],
-                "watchtower": sample["watchtower"]["status"]["type"],
-            }, sort_keys=True), flush=True)
+            print(
+                "stuck sample:",
+                json.dumps(
+                    {
+                        "payment": sample["payment"]["status"],
+                        "invoice": sample["invoice"]["status"],
+                        "A": sample["A"]["state"],
+                        "T": sample["T"]["state"],
+                        "watchtower": sample["watchtower"]["status"]["type"],
+                    },
+                    sort_keys=True,
+                ),
+                flush=True,
+            )
         except WatchtowerBudgetExpired as error:
             print(f"stuck diagnostic budget expired: {error}", flush=True)
         except Exception as error:
@@ -729,7 +739,9 @@ class _RefundBase(RefundLedger, _WatchtowerBase):
 
         sample = self._wait(due, ready)
         self.mature_at = time.monotonic()
-        self.progress("mature-indexed", tip=sample["tip"]["number"], median=sample["median"])
+        self.progress(
+            "mature-indexed", tip=sample["tip"]["number"], median=sample["median"]
+        )
         self.record("mature-indexed", sample=sample, work_due=self.mature_at + 480)
 
     def business_complete(self, sample):
@@ -817,7 +829,9 @@ class TestTlcTimeoutRefund(_RefundBase):
 
 
 @pytest.mark.manual_nightly
-@pytest.mark.skip(reason="TLC adapter negative checks are not implemented; main refund path is unaffected")
+@pytest.mark.skip(
+    reason="TLC adapter negative checks are not implemented; main refund path is unaffected"
+)
 class TestTlcRefundAdapter(_RefundBase):
     """Read-only adapter checks; these do not count toward product 1+3."""
 
