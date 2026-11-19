@@ -2,23 +2,18 @@
 
 ## 导读
 
-本轮（2026-11-12）的处理方案已由用户确认：开通超时及其后的旧签名处理保留为旧版本失败记录，等待 LSP 同步新版安全握手后再调整用例。本轮只收尾评审文档，自动化和原始失败证据保持原样，不重跑测试。
-
-旧流程先收钱包签名、再等待通道签名；rc2 则先完成并保存可恢复承诺，再把未签名交易交给钱包，钱包签名提交后不再仅因超时丢弃状态。两种握手顺序和安全条件不同，不能把旧断言直接翻转，也不能用“仍 pending”证明新策略正确。
-
-当前证据固定为 LSP `76307312e8de518c9a32074e6d16867c04de4f86`；只读对照 rc2 `7aa1d5de724fb28b8ddfc663f5da792ff48f1ee9` 及其已包含的安全改动 `f5b9dd1c927951f53783a12cec650db6a6f976c7`。rc2 仅作源码和策略对照，本轮没有以其运行 Hosted/SDK 用例。
+本次仅重审开通阶段的两条用例，固定 Fiber #1623 的 `505c48fbe01fe22504f99bde085d8ebda2c53018`。钱包的有效注资签名交出后，即便当前链上查不到注资交易，签过的交易仍可能被对端广播并确认。FNN 先完成初始承诺握手，将可用于单方退出的本地承诺持久化，再接受钱包注资签名。若此后只因为时间到了就丢掉通道状态，原注资一旦确认，用户可能失去安全退出所需的承诺。因此新版在钱包提交后保留开通状态。另一笔真实确认的交易花掉原注资必需输入后，原注资才失去确认的可能，FNN 到达跟踪深度后即可自动中止未确认的开通。[外部注资公开规则][external-funding] · [提交与持久化顺序][submit-funding] · [清理修复 #1747][funding-fix]
 
 ## 需要你决定
 
-无新的处理方案需要用户确认。已确认的处理如下；表内和 SPEC-02 中的“待确认”保留给后续需要开发明确的产品规则。
+两条新版判据及 TIMEOUT-04 的首例实现均已确认。TIMEOUT-05 在自己的 devnet 中重建同一中止前提，随后验证已应用签名的迟到重放。
 
-- `LSP-TIMEOUT-04`：保留 `76307312` 的旧预期、原生失败及全部证据作为历史基线；不将其直接改为通过、跳过或 xfail，也不据此要求开发补上可能不安全的中止计时器。钱包签名交出后是否还应自动中止，由开发明确。
-- `LSP-TIMEOUT-05`：保留原生失败，明确失败发生在等待中止的前提阶段，未执行到晚到签名提交，不视作第二个独立签名缺陷。
-- 后续调整条件：等待 LSP 同步新版安全握手，再基于届时的完整提交和可达故障点重新评审 04/05，之后才考虑自动化改写。本轮不新增 ID、不调整自动化、不重跑测试；`DELIVERY-02` 继续跟踪产品修复。
+- `LSP-TIMEOUT-04` 验证同一次开通的两个阶段。超过普通期限且原输入仍可用时保持待开。原输入被另一笔交易确认花费后自动中止。
+- `LSP-TIMEOUT-05` 在上述合法中止后，原样重放开通时已获真实 `Applied` 的通道签名，验证迟到的重放被拒绝。新版在接受钱包签名前已要求这一轮承诺签名完成，因此本行的证据范围是**已应用签名的迟到重放**。如需保留旧用例的“未应用签名首次晚到”，应另行评审钱包尚未提交时合法中止的路径。
 
 ## 用例
 
-04/05 按已确认方案保留旧版本场景、历史约束和待开发明确的安全适用性；其余既有行逐字保留。04/05 的场景限定 `76307312`；两个 `[x]` 仅表示旧自动化仍有对应 `TEST-MAP`，不表示已同步新版预期、已经通过或 rc2 已有端到端覆盖。A 为真实 SDK 管理的租户，T 为公共 LSP；钱包注资签名与开通通道签名是两种不同提交。时间从原通道 `created_at` 起算，普通期限为 180 秒；至 240 秒的上限是旧测试的观察余量，不是产品 SLA。
+A 是真实 SDK 管理的 Hosted 租户，T 是公共 LSP，W 是持有原输入的测试钱包。每条在独立 devnet 中运行，05 先独立重建 04 的合法中止前提。表中 `[x]` 表示存在 `TEST-MAP`。04、05 在固定 `505c48fb` 上执行新版场景。`76307312` 入口保留各自的历史行为。其余用例继续沿用原评审版本。
 
 <!-- TEST-CASES-BEGIN -->
 | 用例 | 场景 | 预期结果 | 防止的问题 | 优先级 |
@@ -26,8 +21,8 @@
 | `LSP-TIMEOUT-01` | - [x] A–T 进入外部注资等待后一直不提交钱包签名，直到越过配置的外部注资期限；随后用 `list_channels(only_pending=true)` 查询双方开通失败记录，并核对链上输入 | 双方都出现该通道的失败条目，状态为 `Closed` 且带 `FUNDING_ABORTED` 标志；没有任何注资交易上链；原未签注资交易的每个输入仍是可用 live cell | 超期不中止、只在单侧生效，或中止时钱包资金已经被带上链 | P0 |
 | `LSP-TIMEOUT-02` | - [x] 在 01 的中止终态上，用保存的原未签注资交易补签并提交，再查询开通记录、通道数量与链上 | 提交被拒绝；失败条目保持同一条 `Closed` 与 `FUNDING_ABORTED`，不出现新的待开记录或新通道；原输入仍未被花费 | 晚到钱包提交把已放弃的通道重新激活，或让同一笔资金对应两个通道 | P0 |
 | `LSP-TIMEOUT-03` | - [x] 钱包在外部注资期限内提交有效注资交易，之后的通道签名一直暂缓到越过原外部注资期限、但未越过普通开通期限；再放行签名并等待开通完成 | 原通道没有被中止，仍在合法开通过程中；放行后双方达到 `ChannelReady`，`channel_outpoint` 指向本次那笔已确认注资，没有重新注资或重开通道 | 旧的外部注资计时器误杀已完成钱包提交的流程，或“没有中止但流程其实已坏”被当成通过 | P1 |
-| `LSP-TIMEOUT-04` | - [x] 固定 `76307312`，在外部钱包的有效注资签名提交成功后，扣住原通道尚未应用的开通签名，保持节点与链健康并越过从创建起算的 180 秒普通开通期限 | 待确认：是否继续保留旧中止契约——创建后 180 秒至 240 秒内双方出现 `Closed/FUNDING_ABORTED` 失败条目，观察时原注资交易为 `unknown`、受控输入为 `live`；这些链上观察不证明已释放的钱包签名失效或中止普遍安全 | 把旧计时器缺口、签名提交后的安全策略和有限链上观察混为一谈 | P0 |
-| `LSP-TIMEOUT-05` | - [x] 固定 `76307312`，保存原通道尚未应用的真实开通签名，仅在同一通道确已进入经确认合法的 `Closed/FUNDING_ABORTED` 终态后提交，比较提交前后的开通记录、通道数量与原输入 | 待确认：旧中止契约适用时，该签名被真实 FNN 拒绝且不返回 `Applied`，不产生新承诺或复活通道，失败记录、通道数量及输入状态不变；未取得合法中止前提时，不认定已验证晚到拒签或发现签名复活缺陷 | 把等待中止失败误报为晚到签名处理缺陷，或在仍有效的通道上强套拒签要求 | P1 |
+| `LSP-TIMEOUT-04` | - [x] 固定 `505c48fb`，真实完成 A–T 初始承诺，隔离原注资广播并在期限内成功提交钱包签名。越过 180 秒普通期限后在真实 CKB devnet 确认另一笔交易花费原注资的同一输入 | 输入仍可用且原注资未确认时保持待开。冲突交易确认并满足跟踪深度后，A 自动将原通道记为 `Closed/FUNDING_ABORTED`，失败详情指向确认的输入花费，原通道退出活动列表、原注资未上链 | 钱包已交签名后被普通期限提前中止，或输入确认失效后一直挂起 | P0 |
+| `LSP-TIMEOUT-05` | - [x] 固定 `505c48fb`，保存同 A、同通道在开通时已获 `Applied` 的真实签名请求，待该通道因 04 的确认输入花费被中止且状态清理后，用同一有效租户授权直连 FNN 原样重放 | 返回该通道已清理的 JSON-RPC 业务错误，无 `Applied` 或 `AlreadyApplied`。失败历史、活动通道及待开记录保持不变，无新签名请求、承诺广播或链上资金副作用 | 晚到重放得到成功回执、复活被中止的通道或推进承诺 | P1 |
 | `LSP-TIMEOUT-06` | - [x] 测试代码对照：hold 发票与真实 SDK 授权就绪，T 注入 expiry 为注入时刻加 22～25 秒的 TLC 并到达检查点 A；放行承载 TLC 的承诺签名到达检查点 B；再放行被扣住的撤销签名直到 ACK 往返完成 | 检查点 A：发票为 `Open`、待签请求出现、目标 TLC 在 A 的 TLC 列表中。检查点 B：最新已签承诺含目标 TLC 且 SDK 记录该版本完整签署，**发票仍为 `Open`**。继续放行后：发票变为 `Received`，且不再有待签请求。短期限测试代码与三段状态转移都真实可达 | 测试代码不可用导致后续失败行假通过，或把“承诺已签”误当成“发票已 `Received`” | P1 |
 | `LSP-TIMEOUT-07` | - [x] 从检查点 B 扣住撤销签名，等到超过 D 加 1 秒再直连 FNN 提交这份签名 | 提交发生在 T 发出承诺签名后 30 秒以内；该签名不被首次应用，不返回 `Applied`，承诺号不推进、不产生新的承诺交易；A 最终进入截止保护并等待承诺确认，允许周期维护先于这次提交触发；链上关闭交易与 A 侧保存的承诺哈希一致 | 晚到签名仍能首次应用并继续原更新、节点不启动保护，或把对端无响应强关算成签名截止保护；也防止把“必须由本次提交触发”写成断言 | P0 |
 | `LSP-TIMEOUT-08` | - [x] A–T 就绪后暂停本条矿工，停在检查点 A 并扣住新通道签名；在 D 前绑定双方承诺并启用广播隔离，待 A 被真实 CKB 接受且 T 的竞争广播实际被拦后恢复挖块；确认关闭后提交原扣留签名 | A 在 D 后 15 秒内无新提交、无手动关闭地启动保护并广播不含目标 TLC 的旧完整承诺；首次真实转发起 60 秒内确认并花费原注资，A 记录本地强关；待签清除，晚到提交被真实 FNN 拒绝，随后 5 秒无请求复活、承诺推进或新承诺广播；未知交易或隔离前提不成立均失败 | 自动保护依赖客户端再提交、确认错误承诺、把对端关闭冒充 A 保护，或请求清理后仍能复活更新 | P0 |
@@ -39,42 +34,77 @@
 
 ## 开通超时版本边界重审
 
-### 两个固定版本不能共用同一个故障点
-
-| 对照项 | LSP `76307312` | rc2 `7aa1d5de` |
+| 阶段 | `76307312` 的历史用例 | `505c48fb` 的正式评审依据 |
 | --- | --- | --- |
-| 钱包提交与承诺握手顺序 | 当前旧用例能先完成钱包提交，再扣住首次开通通道签名 | 返回钱包未签名交易前，双方承诺签名已交换且完整本地承诺已持久化；提交钱包签名时必须已有可恢复承诺 |
-| 提交后的超时判断 | `SigningCommitment` 仍可进入旧超时中止分支；适用期限改为普通期限，但提交路径没补排检查 | 已提交签名时明确禁止超时中止，保留可能上链交易的退出/恢复状态；不是补排旧普通期限检查 |
-| 对旧自动化的含义 | 保留原失败与旧检查点，不因 rc2 改规则而记为通过 | 不能把扣住首次通道签名的旧准备直接搬过来，否则可能拿不到钱包待签交易；不能只把 `FUNDING_ABORTED` 改成“未中止” |
-| 晚到签名的前提 | 旧行必须先取得同一通道的真实合法中止，才有“旧请求不能复活”的判据 | 超过普通期限不再自动产生该中止前提，不能默认旧通道签名已经过期，也不能直接保证它应首次应用 |
+| 初始承诺与钱包提交 | 用例能先提交钱包签名、再扣留尚未应用的开通签名 | Hosted SDK 可以先取得未签 proposal 来核验注资内容并完成承诺。实际提交钱包签名时，双方承诺握手须完成且本地承诺已持久化 |
+| 钱包提交成功后 | 原用例等待 180 秒普通期限后中止，至 240 秒一直未取得中止 | 普通期限、手工 abandon 和对端的中止消息都不能使仍可能上链的已签注资被提前丢弃 |
+| 合法中止 | 历史运行未取得前提，05 从未实际提交旧通道签名 | 冲突交易确认花费原注资输入，跟踪器达到深度，A 自动保留失败记录并移除原通道状态；05 再重放一份已证实有效的签名 |
 
-原始依据：[763 安装钱包签名及提交](https://github.com/nervosnetwork/fiber/blob/76307312e8de518c9a32074e6d16867c04de4f86/crates/fiber-lib/src/fiber/channel.rs#L4102-L4219)、[763 处理旧检查](https://github.com/nervosnetwork/fiber/blob/76307312e8de518c9a32074e6d16867c04de4f86/crates/fiber-lib/src/fiber/channel.rs#L4470-L4498)、[763 启动调度](https://github.com/nervosnetwork/fiber/blob/76307312e8de518c9a32074e6d16867c04de4f86/crates/fiber-lib/src/fiber/channel.rs#L5372-L5383)、[rc2 提交与持久化顺序](https://github.com/nervosnetwork/fiber/blob/7aa1d5de724fb28b8ddfc663f5da792ff48f1ee9/crates/fiber-lib/src/fiber/channel.rs#L4402-L4477)、[rc2 返回交易前的承诺握手](https://github.com/nervosnetwork/fiber/blob/7aa1d5de724fb28b8ddfc663f5da792ff48f1ee9/crates/fiber-lib/src/fiber/channel.rs#L4517-L4554)、[rc2 超时保护](https://github.com/nervosnetwork/fiber/blob/7aa1d5de724fb28b8ddfc663f5da792ff48f1ee9/crates/fiber-lib/src/fiber/channel.rs#L11741-L11786)。这些是已读源码，不是本轮执行结果；继续采用旧中止契约的安全性尚待确认。
+源码对照见 [763 的注资提交](https://github.com/nervosnetwork/fiber/blob/76307312e8de518c9a32074e6d16867c04de4f86/crates/fiber-lib/src/fiber/channel.rs#L4102-L4219)、[763 的超时检查](https://github.com/nervosnetwork/fiber/blob/76307312e8de518c9a32074e6d16867c04de4f86/crates/fiber-lib/src/fiber/channel.rs#L4470-L4498)、[rc2 的安全握手](https://github.com/nervosnetwork/fiber/blob/7aa1d5de724fb28b8ddfc663f5da792ff48f1ee9/crates/fiber-lib/src/fiber/channel.rs#L4402-L4477)、[505c48fb 的超时保护][funding-timeout]及[输入花费导致中止][funding-stop]。若原注资先确认，保留本地承诺用于退出是另一条路径。
 
-### 本轮验证设计与证明边界
+### 新版验证设计与判定边界
 
-- **预期依据**：旧 180 秒中止及合法中止后拒签来自原已评审要求和 #1674 的历史报告，不以当前一次失败生成新契约；rc2 的持久化/保留规则来自上述安全改动。`can_abort_funding_on_timeout()` 的返回值只能解释实现，不能独立证明丢弃已释放签名状态是安全的。
-- **实际入口与新观察**：未来若继续验证旧流程，仍用真实 Hosted/SDK 开通、外部钱包 `submit_signed_funding_tx`、真实待签请求及 `submit_channel_signature`；从双方新鲜 RPC 结果判断状态/失败记录和原通道数量，从独立 CKB RPC 查询原交易与每个受控输入。用同一通道 ID、原 funding hash 和保存的原签名绑定观察，不以缓存截图或客户端超时替代 FNN 拒绝。
-- **时间和归因**：180 秒是从创建起算的普通期限，60 秒是旧测试容差；05 仅在真实中止后提交保存的签名。04 未取得终态时，不运行或虚构 05 的晚到操作；原生 JUnit 仍按实际失败保存，另明确失败发生在前提阶段，不新增一项“签名复活”结论。本轮不修改等待实现或结果分类代码。
-- **链上与资金边界**：`unknown` 只证明被查询节点此时不知道原交易，`live` 只证明此时输入未花费；不能证明其他参与方从未拿到签名、以后永远不能广播，或永久资金损失。旧用例的这些断言不能独立证明新策略要求的可恢复承诺已经持久化。
-- **真实层次**：现有映射是 `76307312` 的真实节点/SDK/链路径；本轮只读其历史证据和版本源码。rc2 的六个原生 Rust 用例只读用于理解 TxAbort/abandon 保留、原 funding 提前确认后强关及重启重发，不替代 Hosted SDK 黑盒资格或本轮执行。
-- **迁移前提与未覆盖边界**：不将故障前移至未提交钱包签名阶段来“修复”两行，那会转用外部期限并重复 01/02；03 仅观察旧外部检查、不覆盖越过普通期限。也不换成普通内部注资后仍声称沿用真实 Hosted SDK 签名层。rc2 的新故障点要在 LSP 同步握手后单独证明可达，本轮不批准恢复、强关或额外的新用例。
-- **明确排除**：用户追问的“输入已被另一笔确认交易花费而旧通道仍 pending”是独立清理策略问题，当前没有开发回复，既不塞进这两行，也不据约六分钟观察认定永久无法清理。`DELIVERY-02` 继续跟踪产品一致性修复，本轮不改其预期、实现或失败材料。
+- **真实入口。** 用固定版本 FNN、真实 SDK 和钱包提交 RPC 完成初始承诺与钱包提交，保留原 channel ID、funding hash、所有输入 outpoint、签名结果和时间。钱包提交须在配置的外部注资期限内、且在通道创建后第 180 秒前成功。提交后当场读取原 ID 的待开状态、所有原输入仍可用的链查询，并保存在第 180 秒前取得的一次完整样本。适配前的用例在未完成初始承诺时提交钱包签名，被 FNN 拒绝。Delivery 借助隔离工作树内的 V2 驱动和开通顺序适配验证了正常开通。
+- **仅隔离原注资写入。** Hosted A–T 直接在同一 FNN 内交换消息，外部 `disconnect_peer` 无法断开这段内部链路。方案在独立 devnet 的 CKB RPC 入口按原注资 hash 拦住 `send_transaction`，两侧共用该入口。记录原请求并立即返回带专用标记的测试拒绝，例如 `-32099 / LSP_TEST_ORIGINAL_FUNDING_BLOCKED`。该请求留在代理，不送往 CKB，拒绝回执仅证明拦截有效。其他请求及所有链读原样转发。测试钱包提交冲突交易及独立验链直连真实 CKB。拦截从签名提交前开始持续到归档。实际广播拦截必须可核验，真实链上原注资始终未进入池或确认。冲突交易提交前，把捕获的完整原注资交易直连 CKB 做一次 `test_tx_pool_accept`，确认这份交易具备入池资格。该接口只验证交易，原交易仍保持在池外。该方案验证受控的原注资未送达，不推断真实对端掉线的行为。[Hosted 内部连接][hosted-connection] · [内部消息发送][internal-peer] · [公开断连入口][disconnect-peer]
+- **链上事实先于 FNN 中止。** 原输入所属交易已确认。冲突交易 hash 必须不同，真实规范链区块内的交易输入必须包含同一 outpoint。自转必须显式选定该输入，避免钱包自动选币花费其他 cell。采集区块号和哈希、冲突交易原始输入、原输入失活、原注资未确认及其 funding cell 未生成。等待期间推进挖块并连续采样。该提交跟踪深度为 4，计算基准是跟踪器首次观察到输入失活的链尖，晚于冲突交易入块时会相应顺延。记录透明代理上的真实链尖、原注资、目标输入和父交易读请求及响应。短暂停本条矿工，让冲突先在池中可查，取得覆盖一次跟踪轮询的池内样本后恢复挖块。冲突入块后先在同一链尖取得输入已失活的样本，逐块推进，至少覆盖一个未满深度的负向观测，再给跟踪器足够的链尖增量及最后一次完整轮询。记录实际轮询周期，默认 4 秒。只能以原始读序列关联跟踪器观察，无法绑定某次轮询时报告已观察的深度区间。单次 `get_live_cell` 返回失活或池拒绝不足以取得中止前提。[输入检查][watched-input] · [深度计算][tracing-depth] · [固定深度][tracing-constant]
+- **时间与判定。** 建议环境及开通准备上限 240 秒。提交钱包后采样正常待开状态，跨过创建后 180 秒普通期限，继续观察到第 190 秒再提交冲突交易。提交冲突交易后至首次独立读到规范链确认最多 60 秒，从首次确认开始另给 60 秒推进区块及跟踪轮询，预算从固定起点算，单次查询有界。确认区块按计划推进。从冲突确认后观测到的一次完整跟踪轮询的链尖保守起算至少四个后续块，再留一次完整轮询的时间。跟踪器是否实际发起读取是诊断项，开通及真实链条件齐备且链推进和预留时间充分，收不到清理结果仍按产品断言失败。05 在中止后拒签观察 5 秒，轮询间隔最多 1 秒。每条总业务预算上限分别为 550、555 秒，另外保留独立清理预算。以上为回归观察预算。准备或链资格失败须保留证据单列。
+- **拒绝与副作用。** 用同一未过期、有通道写权限的 A token，保留初次 `Applied` 的真实请求及回执。原样提交同一 `channel_id`、`request_id`、部分签名及原有的 `next_material`。要求真实 FNN 返回可归因到该通道已清理的业务错误，传输、授权、格式错误及 `AlreadyApplied` 均不能通过。用中止后、重放前的快照作为比较基线。允许签名状态查询明确报原通道不存在。失败历史条目的承诺哈希可以为空，以状态、活动通道和待开记录、签名通知和广播日志验证没有新副作用。[签名 RPC][signature-rpc] · [拒绝路由][signature-routing] · [终态清理][terminal-cleanup] · [失败历史合成][failed-history]
+- **覆盖边界。** 04 取证范围是 A 侧失败历史、活动开通消失与链上实际输入花费。T 侧记录可留作诊断，尤其是受广播隔离影响的先行失败，无需和 A 在同一时刻中止。05 仅在同一通道的 04 前提成立才提交；任何缺少该前提的结果只记录准备或中止失败。两条用例各自的实际执行与证据见下方回执。
+
+[external-funding]: https://github.com/nervosnetwork/fiber/blob/505c48fbe01fe22504f99bde085d8ebda2c53018/docs/external-funding.md#L33-L44
+[submit-funding]: https://github.com/nervosnetwork/fiber/blob/505c48fbe01fe22504f99bde085d8ebda2c53018/crates/fiber-lib/src/fiber/channel.rs#L3992-L4063
+[funding-fix]: https://github.com/nervosnetwork/fiber/pull/1747
+[funding-timeout]: https://github.com/nervosnetwork/fiber/blob/505c48fbe01fe22504f99bde085d8ebda2c53018/crates/fiber-lib/src/fiber/channel.rs#L10334-L10355
+[funding-stop]: https://github.com/nervosnetwork/fiber/blob/505c48fbe01fe22504f99bde085d8ebda2c53018/crates/fiber-lib/src/fiber/channel.rs#L4245-L4303
+[watched-input]: https://github.com/nervosnetwork/fiber/blob/505c48fbe01fe22504f99bde085d8ebda2c53018/crates/fiber-lib/src/ckb/tx_tracing_actor.rs#L411-L537
+[tracing-depth]: https://github.com/nervosnetwork/fiber/blob/505c48fbe01fe22504f99bde085d8ebda2c53018/crates/fiber-lib/src/ckb/tx_tracing_actor.rs#L337-L379
+[tracing-constant]: https://github.com/nervosnetwork/fiber/blob/505c48fbe01fe22504f99bde085d8ebda2c53018/crates/fiber-lib/src/fiber/network.rs#L152
+[hosted-connection]: https://github.com/nervosnetwork/fiber/blob/505c48fbe01fe22504f99bde085d8ebda2c53018/crates/fiber-lib/src/lsp/runtime.rs#L190-L254
+[internal-peer]: https://github.com/nervosnetwork/fiber/blob/505c48fbe01fe22504f99bde085d8ebda2c53018/crates/fiber-lib/src/fiber/network.rs#L8766-L8789
+[disconnect-peer]: https://github.com/nervosnetwork/fiber/blob/505c48fbe01fe22504f99bde085d8ebda2c53018/crates/fiber-lib/src/fiber/network.rs#L6803-L6823
+[signature-rpc]: https://github.com/nervosnetwork/fiber/blob/505c48fbe01fe22504f99bde085d8ebda2c53018/crates/fiber-lib/src/rpc/channel.rs#L810-L855
+[signature-routing]: https://github.com/nervosnetwork/fiber/blob/505c48fbe01fe22504f99bde085d8ebda2c53018/crates/fiber-lib/src/fiber/network.rs#L3726-L3746
+[terminal-cleanup]: https://github.com/nervosnetwork/fiber/blob/505c48fbe01fe22504f99bde085d8ebda2c53018/crates/fiber-lib/src/fiber/network.rs#L9339-L9386
+[failed-history]: https://github.com/nervosnetwork/fiber/blob/505c48fbe01fe22504f99bde085d8ebda2c53018/crates/fiber-lib/src/rpc/channel.rs#L588-L668
 
 ### 既有原始证据保持原样
 
 [并行 CI 43195577194](https://github.com/sunchengzhu/fiber-py-integration-test/actions/runs/43195577194) 固定上述 `76307312`，全目录 98 条中 95 通过、3 条失败。04 对应 deadline `job-007`，05 对应 `job-003`，两者均为原生退出 1，失败为 `opening was not aborted within 240s: None`；05 尚未执行晚到提交。该结果不因本轮重审变为通过或 xfail，也不将两次方法失败当成两个独立根因。
 
-本地保护根为 `/Users/sunchengzhu/project/fiber-py-integration-test/local-evidence/lsp-ci-parallel-763-20261112/`：轻量原生结果见 `artifacts/lsp-results-deadline/deadline/entry/job-007/` 与 `job-003/`；完整原始日志/状态见 `artifacts/lsp-evidence-deadline/deadline/`，包含 `runtime.tar.gz`、逐文件清单及回收记录。原[独立归档审计](/Users/sunchengzhu/project/fiber-py-integration-test/local-evidence/lsp-ci-parallel-763-20261112/independent-deadline-audit.json)及本轮前的源码核对记录 `status-review-20261112/timeout-status-audit.json` 保留。本轮不移动、覆盖或删除这些原件；所有结论沿用原记录，不新增一次运行。
+原始 JUnit、节点日志、运行归档与逐文件清单保存在本地 `local-evidence/lsp-ci-parallel-763-20261112/`。
 
-### 本轮静态核对与独立复核
+### 新版适配前的历史结果
 
-自审确认全文件仍为 12 个唯一用例 ID，只有 04/05 两行实质修改，其余 10 行逐字保留；`test_cases/`、`framework/`、运行入口和历史失败原件未改。技能中的 `check_test_design.py --root <本工作树> --review reviews/lsp/channel-signing-deadline.md` 退出 0，明确列出两行与 SPEC-02 的待确认事项；项目 `python3 scripts/check_test_map.py` 退出 1，六个既有孤儿映射及完整输出与原基准一致，没有新增映射问题；`git diff --check` 退出 0。原始静态输出保存在 `/Users/sunchengzhu/project/fiber-py-integration-test/local-evidence/lsp-timeout0405-review-20261112/`，这些检查不代表业务测试运行或通过。
+适配前，旧用例在 `505c48fb` 上提交钱包签名时均被拒绝，因为初始承诺尚未完成。两轮均退出 1，未进入 240 秒等待，05 也未执行重放。原始记录见本地 `local-evidence/lsp-505c48f-known-failures/`。该目录还保留了采用模拟链的上游 Rust 注资测试结果。
 
-独立设计复核由新子会话 `timeout0405_design_audit` 完成（不继承父会话历史，按限定范围只读原始源码、原始 JUnit 和本稿）。复核确认版本边界、旧检查点不可照搬、05 的前提归因和有限链查询的证明边界；发现的旧“本批新增 12”空节已改为历史批次说明，回看后无阻断项。用户随后明确确认了保留旧失败、等待 LSP 同步新版再调整的处理方案，本轮评审文档据此收尾。独立复核和用户确认均不代表 rc2/Hosted 已执行验证，也不放行自动化改写或重跑测试。
+### TIMEOUT-04 首例实现回执
+
+TIMEOUT-04 在固定版本的真实 FNN、SDK 和 CKB 0.202.0 上单独执行两轮，均为 1 passed、退出 0。钱包签名成功提交，越过 180 秒后通道仍待开且输入仍可花费。冲突交易确认花费同一输入，跟踪满足深度后出现 `Closed/FUNDING_ABORTED`，终态无原注资输出。两轮原始结果保存于本地 `local-evidence/lsp-timeout04-505c48f-implementation/`。
+
+
+加强时序断言后，用两轮原始日志离线核对第 4 块处完整轮询严格早于首次观察到 `Closed`。两个轮询的结束时间分别早于首次关闭查询的起点下界至少 233 毫秒和 314 毫秒。首轮下界由上一次待开采样和原代码等待间隔推得，第二轮使用实际请求时间。离线记录保存于本地 `local-evidence/lsp-timeout04-505c48f-offline-order-aV5sGn/`。直接执行 pytest 时，每轮证据写入新的 `report/lsp-funding-input-spent/run-*/<方法名>/`。回归入口沿用显式指定的证据目录。
+
+### TIMEOUT-05 已应用签名的迟到重放
+
+05 独立启动真实 FNN、Hosted SDK 与 CKB devnet。钱包签名前保存 SDK 已收到 `Applied` 的原始请求和回执，原通道因确认的输入花费中止后，先用同一租户查询签名状态，确认该通道已清理，再直连 FNN 提交一次原请求。比对实际发送的完整 JSON-RPC 请求及授权头摘要。预期 HTTP 200，JSON-RPC 仅返回 `-32000` 及包含目标通道完整 ID 的 `not found` 错误。
+
+以重放前的完整失败条目、活动通道、SDK 签名通知和 CKB 状态为基线。从收到拒绝起至少观察 5 秒，每次采样间隔至多 1 秒。SDK 的接收与投递记录分别比较，CKB 代理在上游回包前即计入广播尝试。原注资的周期性重播始终由同一哈希隔离；冲突交易仍须位于同一规范区块、同一原输入仍已花费。
+
+首轮在发送迟到签名前结束（退出 1），未取得重放验证结果。
+
+第二轮在独立环境通过，退出 0。越过普通开通期限后仍观察到待开状态，冲突交易达到跟踪深度后观察到 `Closed/FUNDING_ABORTED`。同一租户原样重放已获 `Applied` 的签名，FNN 返回 HTTP 200 和 JSON-RPC `-32000`，明确指出该通道不存在。
+
+拒绝后的 24 次完整采样覆盖 5.016 秒，最大采样间隔为 0.230 秒。失败条目、SDK 签名订阅和链上状态保持稳定，活动通道为零，无新增签名请求或承诺广播。36 项离线检查通过，涵盖资格与错误归因、时序、链上副作用和证据保留。两轮原始结果和离线检查记录保存于本地 `local-evidence/lsp-timeout05-505c48f-implementation/`。
+
+### 2026-11-12 历史静态核对与独立复核
+
+历史文档核对覆盖 12 个用例 ID。相对当时的基线，映射检查仍报六个既有孤儿映射。原始检查记录保存于本地 `local-evidence/lsp-timeout0405-review-20261112/`。
+
+历史独立复核确认版本边界、05 的前提归因和有限链查询的证明范围。当时的处理决定是保留旧版失败，等 LSP 同步新版后重新评审。
 
 ## 既有评审依据与历史
 
-下面除标明本轮重审的 SPEC-02 与 04/05 步骤外，均保留历史设计和执行材料；其中“本批／本轮”指当时对应批次，不表示产品安全规则已明确或已执行新版测试。
+下面除 SPEC-02、开通阶段对应测试树和 04/05 步骤外，保留各自历史设计和执行材料。其中“本批／本轮”指当时对应批次。
 本文既有范围：区域图第三组“超时保护与结果一致性”。同一租户 A 与公共 LSP T 的私有通道在两种计时下越过截止：开通阶段（外部钱包注资期限、普通开通期限）和通道就绪后的支付签名安全截止 D。包含晚到提交、无人提交时自动保护，以及不交出 preimage 时可观察到的结果。
 
 本文既有范围不含：Hosted 侧链上取回与付款最终余额、费用核对；SDK 对过期请求的拒签（见“本批不覆盖的缺口”）。
@@ -96,7 +126,7 @@
 
 ## Spec
 
-本轮只重审 SPEC-02 的版本与安全适用性，其他 Spec 的既有要求保留；历史新增行 12 使用 SPEC-09。
+本轮更新 SPEC-02 的安全退出和终态保护规则，其他 Spec 继续沿用各自版本。历史新增行 12 使用 SPEC-09。
 
 ### SPEC-01：外部注资期限及晚到钱包提交（原有行为）
 Condition: 通道等待外部钱包注资，或钱包已在外部期限内提交。
@@ -106,12 +136,13 @@ Basis: [原 Gate1 的开通分支](channel-signing-deadline-scope.md#两条业�
 Source: explicit
 Testing: required
 
-### SPEC-02：固定旧版本的开通期限与旧请求处理（本轮重审）
-- Condition: 固定 `76307312` 的外部注资流程，钱包已成功提交签名，首次开通通道签名仍被测试扣留；这只是旧检查点，不预设它可以安全丢弃。
-- Expected: 已确认保留原中止/拒签约束及失败记录作为 `76307312` 的历史基线；是否继续把“普通期限后中止、合法中止后拒绝旧签名”作为产品要求仍待开发明确。等待 LSP 同步新版后重新评审，不反转为“仍 pending 即通过”，也不将旧约束提升为 rc2 的安全契约。
-- Observable: 双方开通状态/失败条目、同一通道 ID、实际提交结果、通道数量，以及原注资交易和输入的实时链查询；中止前提失败与晚到提交的结果分别记录。
-- Basis: [763 提交路径](https://github.com/nervosnetwork/fiber/blob/76307312e8de518c9a32074e6d16867c04de4f86/crates/fiber-lib/src/fiber/channel.rs#L4102-L4219)、[763 超时判断](https://github.com/nervosnetwork/fiber/blob/76307312e8de518c9a32074e6d16867c04de4f86/crates/fiber-lib/src/fiber/channel.rs#L11859-L11902)、[#1674 原报告及 rc2 追问](https://github.com/nervosnetwork/fiber/issues/1674#issuecomment-6801175210)，结合下文 rc2 握手/恢复状态保护对旧契约提出安全复核。
-- Source: inference
+### SPEC-02：已提交外部注资的安全退出与终态保护
+
+- Condition: 固定 `505c48fb`，同一 Hosted 通道初始承诺完成、钱包签名已被接纳，原注资尚未确认。
+- Expected: 原注资仍可确认时保留开通及退出状态。确认的冲突交易花费原输入且达到跟踪深度后，A 自动中止并保留该通道的失败历史，后续原通道签名重放返回通道已清理的业务错误且无副作用。
+- Observable: 钱包提交回执、超过普通期限前后同通道状态、真实 CKB 区块与精确输入、同通道 `Closed/FUNDING_ABORTED` 及失败详情、原签名的前后回执和重放前后状态。
+- Basis: [外部注资公开规则][external-funding]、[输入花费清理修复][funding-fix]、[签名提交路由][signature-routing]及[终态清理][terminal-cleanup]。
+- Source: explicit
 - Testing: required
 
 ### SPEC-03：支付签名检查点对照（原有行为）
@@ -179,10 +210,10 @@ Testing: required
   - 未交钱包签名到期中止：LSP-TIMEOUT-01 [primary] -> SPEC-01
   - 中止后晚到钱包提交不复活：LSP-TIMEOUT-02 [primary] -> SPEC-01
   - 及时钱包提交后的旧检查不误中止：LSP-TIMEOUT-03 [primary] -> SPEC-01
-  - 固定旧版本的普通期限与安全适用性
-    - 钱包签名已交后的旧中止契约及有限链上观察：LSP-TIMEOUT-04 [primary] -> SPEC-02
-    - 仅在真实合法中止上检查未应用旧签名不复活：LSP-TIMEOUT-05 [primary] -> SPEC-02
-  - rc2/未来 LSP 的迁移边界 [pending] — 需先迁入安全握手并证明新的可达故障点，不沿用“钱包已交、首次通道签名尚未完成”的旧前提；本轮不生成替代用例
+  - 已提交后的安全保留与真实链清理
+    - 过普通期限仍待开，同一输入确认被花费后自动中止：LSP-TIMEOUT-04 [primary] -> SPEC-02
+    - 合法中止并清理后，拒绝已应用过的原签名重放：LSP-TIMEOUT-05 [primary] -> SPEC-02
+
 - 通道就绪后的签名保护
   - 原检查点/晚到提交/发票行为（本轮不改）
     - A、B 到 Received 的真实对照：LSP-TIMEOUT-06 [primary] -> SPEC-03
@@ -291,7 +322,7 @@ Gate3 按已确认范围实现 12 的单条 Python 测试与映射（本行改�
 
 2026-10-23 Gate2 文档复核：按用户最新要求由 **GPT 6.1 sol** 独立只读复核，未触发 Daybreak。已修正“缺恢复日志”与“未恢复”归类的优先级歧义，并明确索引 `io_index` 的精确输入核对；最终无阻断项，与已批准 Gate1 无实质冲突。该结论仅针对设计，不是运行结果。
 
-Gate2 当轮检查（历史记录）：`python3 scripts/check_test_map.py` 退出 1，仍报既有 PMP/SETTLE 孤儿映射和历史 report overlay 重复 ID，新增 12 当时保持未映射；`python3 /Users/sunchengzhu/project/ai-test-agent/scripts/check_test_design.py --root /Users/sunchengzhu/project/fiber-py-integration-test --review reviews/lsp/channel-signing-deadline.md` 识别 11 条、退出 1，仅报既有重复 ID，SPEC-09 已链接到新行。`git diff --check`、三份文档的新增链接/锚点与空白检查、原 10 行逐字不变检查均退出 0。固定源码 HEAD 为上述 SHA 且工作区干净；当轮未启动节点或执行用例，未修改自动化、产品、驱动或 TEST-MAP。用户随后已通过 Gate2，当前 Gate3 结果另记，不覆盖此历史检查。
+Gate2 当轮检查（历史记录）：`python3 scripts/check_test_map.py` 退出 1，仍报既有 PMP/SETTLE 孤儿映射和历史 report overlay 重复 ID，新增 12 当时保持未映射；`python3 <ai-test-agent>/scripts/check_test_design.py --root . --review reviews/lsp/channel-signing-deadline.md` 识别 11 条、退出 1，仅报既有重复 ID，SPEC-09 已链接到新行。`git diff --check`、三份文档的新增链接/锚点与空白检查、原 10 行逐字不变检查均退出 0。固定源码 HEAD 为上述 SHA 且工作区干净；当轮未启动节点或执行用例，未修改自动化、产品、驱动或 TEST-MAP。用户随后已通过 Gate2，当前 Gate3 结果另记，不覆盖此历史检查。
 
 ## 08/10 的隔离条件、预算与共同断言
 
@@ -333,7 +364,7 @@ Gate3 修正了 CKB RPC 的状态表达：固定 0.202.0 随包官方文档（�
 ## 共同前提与时间控制
 
 各场景使用独立环境：一条 A–T 私有通道（双方各 500 CKB），真实 SDK 进程与真实 token 始终不变。不引入 MPP、UDT、并发支付、租户驱逐、重启和存储损坏。
-下表保留其余原用例的准备依据；08/10 的停矿、广播隔离、22 秒 TLC 和全部等待按上方专节，10 的发票在创建时为 180 秒，其余原行的参数不变。12 独立采用其专节的持续挖块、250 ms 查询响应窗口、600 秒发票和完整恢复预算，不继承这里的 90 秒参数或 08/10 的广播隔离。
+04/05 按上方新版验证设计及下方两条专节执行。下表保留其余原用例的准备依据；08/10 的停矿、广播隔离、22 秒 TLC 和全部等待按上方专节，10 的发票在创建时为 180 秒，其余原行的参数不变。12 独立采用其专节的持续挖块、250 ms 查询响应窗口、600 秒发票和完整恢复预算，不继承这里的 90 秒参数或 08/10 的广播隔离。
 
 | 控制项 | 本批具体约束 |
 | --- | --- |
@@ -354,7 +385,7 @@ Gate3 修正了 CKB RPC 的状态表达：固定 0.202.0 随包官方文档（�
 
 ## 场景展开
 
-以下保留原有十行的操作顺序；本批新增 12 的完整步骤及断言已在上方专节展开，Gate3 已接入映射。
+04/05 给出新版评审步骤。其他场景沿用原有操作顺序，12 的完整步骤及断言见上方专节。
 
 ### LSP-TIMEOUT-01：外部注资超期必须中止
 
@@ -374,21 +405,19 @@ Gate3 修正了 CKB RPC 的状态表达：固定 0.202.0 随包官方文档（�
 2. 等到越过原外部注资期限（配置 60 秒）、但仍在普通开通期限（配置 180 秒）内，确认通道没有被中止。
 3. 放行签名与后续转换，等待双方 `ChannelReady`，核对 `channel_outpoint` 与本次注资交易一致。
 
-### LSP-TIMEOUT-04：保留旧版本的普通开通期限失败记录
+### LSP-TIMEOUT-04：确认注资输入被花费后自动中止
 
-本节仅解释 `76307312` 的历史步骤及失败，不是本轮待执行指令；等待 LSP 同步新版后再调整，安全适用性由开发明确。
+1. 用真实 SDK 完成 A–T 初始承诺握手，保存 A 可恢复的完整本地承诺、原未签注资交易、目标输入和 channel ID。启动按原注资 hash 匹配的广播隔离，W 在外部注资期限内且早于创建后第 180 秒提交有效钱包签名，以成功回执绑定 funding hash，记录真实广播拦截。
+2. 逐次读真实 CKB 和 A 的开通状态，至少在第 180 秒前和第 190 秒各保存一次完整样本。持续到通道创建后第 190 秒，原注资未入池或确认，所有原注资输入仍为 live，A 仍待开并无失败条目。选定输入须属于 W 且来自已确认交易。随后由 W 给测试钱包发一笔输入明确包含该 outpoint 的有效自转，记录不同的交易哈希和原始 RPC 回执。
+3. 在真实 CKB 查询该自转的规范链确认区块与精确输入，核对原输入失活、原注资仍未确认。按跟踪深度推进区块，继续查询 A。确认资金可用期内没有提前中止。达到确认条件后，A 在预算内自动将原 ID 记为 `Closed/FUNDING_ABORTED`，失败详情归因于另一笔确认交易花费了注资输入，原 ID 退出活动列表。冲突交易哈希由独立链证据绑定。整个过程中无手工中止或强关，也没有由原注资生成的 funding cell。
+4. 保存签名提交、隔离与真实链记录、A 侧开通状态和链尖样本。若原注资抢先入池或确认、隔离未取得或冲突交易未确认，记录场景前提未满足。链前提满足后仍未收敛则按产品回归失败。
 
-1. 保存同一通道 ID、创建时间、原注资交易与输入；钱包提交有效签名后，扣住该旧流程尚未应用的开通通道签名，不把该状态直接称为可安全中止。
-2. 旧自动化等待创建后 180 秒并给至 240 秒的观察余量，尝试从双方新查询中取得失败条目及 `FUNDING_ABORTED`。该前提未取得的原始失败保持不变，不将其改成新策略通过。
-3. 查询原交易与输入，记录当时的 `unknown/live`；不把有限查询扩展为“所有参与方永远不能广播”或“已证明安全丢弃恢复状态”。
+### LSP-TIMEOUT-05：合法中止后拒绝迟到的原签名
 
-### LSP-TIMEOUT-05：保留旧版本中止前提未满足的失败记录
-
-本节仅保留旧设计的后续判断；本轮原始失败没有执行到步骤 2，不证明晚到签名存在独立缺陷。等待 LSP 同步新版后，再确认是否还有合法、可达的对应场景。
-
-1. 先确认旧中止契约适用，且原通道真实到达其合法 `Closed/FUNDING_ABORTED` 终态；此前保存的真实通道签名仍未应用。没有取得终态时不假造/删除状态来制造前提，也不声称已经验证晚到拒签。
-2. 通过真实 FNN 接口提交这份保存的签名，确认请求被拒绝、不返回 `Applied`，且没有新的承诺交易；代理断线或传输超时不能替代 FNN 拒绝。
-3. 比较原通道失败记录、通道数量及受控输入，确认没有复活或副作用。rc2 中普通期限不自动产生此中止前提，不能据此要求拒绝仍有效的通道请求，也不能直接把本例改成“迟到签名必然成功”。
+1. 独立复用上述真实开通和链上中止前提。初始开通时由测试代理原样传递真实 SDK 的通道签名，记录 FNN 的 `Applied` 回执和完整业务参数，保存 A 身份及原 channel/request ID。随后照常完成钱包提交。
+2. 确认同一 A、同一原 ID 已因该输入花费中止、活动通道已清理，在 A 调用 `list_channels(only_pending=true)` 读取失败历史，再查活动/待开集合及签名状态，保存为重放前基线并绑定真实链证据。原签名准备资料需与首次成功请求逐字段一致。
+3. 用仍有效的同一 A 授权，直连真实 FNN 的 `submit_channel_signature` 送出保存的同一请求。确认 JSON-RPC 返回目标通道已清理的业务拒绝，无成功结果。若只收到 SDK 本地拒绝、认证或格式错误、HTTP 故障或超时，记录为未验证业务拒绝。
+4. 连续记录重放前后的同租户签名事件，并观察至少 5 秒。相同的失败记录及活动/待开通道集合不变，原 ID 无可用签名状态、无再次出现的待签请求或新承诺广播。冲突交易保持确认、原输入保持已花费，原注资仍未上链。原样保留历史与重放回执。
 
 ### LSP-TIMEOUT-06：测试代码对照，证明三段转移都可达
 

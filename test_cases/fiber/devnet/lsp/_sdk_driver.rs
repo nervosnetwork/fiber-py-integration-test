@@ -6,7 +6,7 @@ use ckb_types::{core::TransactionBuilder, packed::*, prelude::*};
 use clap::Parser;
 use fiber_lsp_sdk::{
     ChannelSigningContent, CloseAuthorization, CommitmentParameters, Musig2SignableContent,
-    OpeningNetwork, PaymentAuthorization,
+    OpeningNetwork, PaymentAuthorization, RecoveryRecord,
 };
 use fiber_lsp_sdk_agent::{Agent, AgentConfig, EventStream, FiberRpc, FileSignerStore, HttpFiberRpc};
 use fiber_types::{ChannelActorData, Hash256};
@@ -225,13 +225,17 @@ fn opening() -> Result<()> {
     let deps = value["funding_dep_count"]
         .as_u64()
         .context("funding deps")? as usize;
+    #[cfg(feature = "hosted-v2")]
+    let lock_args_len = fiber_types::ChannelFeatures::LOCK_ARGS_LEN;
+    #[cfg(not(feature = "hosted-v2"))]
+    let lock_args_len = state.commitment_contract_features.lock_args_len();
     let parameters = CommitmentParameters {
         remote_funding_key: state.local_channel_public_keys.funding_pubkey,
         remote_settlement_key: state.local_channel_public_keys.tlc_base_key,
         remote_shutdown_script: state.local_shutdown_script.clone(),
         commitment_fee: transaction_size(
             lock.clone().as_builder()
-                .args(vec![0u8; state.commitment_contract_features.lock_args_len()].pack())
+                .args(vec![0u8; lock_args_len].pack())
                 .build(),
             None, deps,
         ),
@@ -254,6 +258,43 @@ fn opening() -> Result<()> {
         "remote_shutdown_script": ckb_jsonrpc_types::Script::from(state.local_shutdown_script)})
     );
     Ok(())
+}
+
+fn settlement_witness(record: &RecoveryRecord) -> Result<(usize, Vec<u8>)> {
+    let args = record
+        .transaction
+        .raw()
+        .outputs()
+        .get(0)
+        .context("output")?
+        .lock()
+        .args()
+        .raw_data();
+    let settlement = &record.settlement;
+    #[cfg(feature = "hosted-v2")]
+    {
+        fiber_types::ChannelFeatures::from_lock_args(&args).map_err(anyhow::Error::msg)?;
+        let witness = fiber_types::settlement_data_to_witness(
+            &settlement.data,
+            record.reference.for_remote,
+            settlement.local_settlement_key,
+            settlement.remote_settlement_key,
+        );
+        Ok((fiber_types::ChannelFeatures::PAYMENT_HASH_LEN, witness))
+    }
+    #[cfg(not(feature = "hosted-v2"))]
+    {
+        let features = fiber_types::CommitmentContractFeatures::from_lock_args(&args)
+            .map_err(anyhow::Error::msg)?;
+        let witness = fiber_types::settlement_data_to_witness(
+            &settlement.data,
+            record.reference.for_remote,
+            features,
+            settlement.local_settlement_key,
+            settlement.remote_settlement_key,
+        );
+        Ok((features.payment_hash_len(), witness))
+    }
 }
 
 #[derive(Deserialize)]
@@ -308,6 +349,11 @@ async fn control(
         .as_str()
         .context("channel id")?
         .parse()?;
+    #[cfg(feature = "hosted-v2")]
+    if operation == "wait-opening-commitment" {
+        agent.wait_for_opening_commitment(channel).await?;
+        return Ok(json!({"verified": true}));
+    }
     if operation == "watchtower-authorize" {
         agent
             .authorize(fiber_lsp_sdk_agent::FixtureAuthorization::Watchtower {
@@ -416,13 +462,7 @@ async fn control(
         "watchtower-tlc-records" => {
             let mut result = vec![];
             for r in signer.recovery_records().await? {
-                let features = fiber_types::CommitmentContractFeatures::from_lock_args(
-                    &r.transaction.raw().outputs().get(0).context("output")?.lock().args().raw_data()
-                ).map_err(anyhow::Error::msg)?;
-                let hlen = features.payment_hash_len();
-                let witness = fiber_types::settlement_data_to_witness(
-                    &r.settlement.data, r.reference.for_remote, features,
-                    r.settlement.local_settlement_key, r.settlement.remote_settlement_key);
+                let (hlen, witness) = settlement_witness(&r)?;
                 let tlc_len = 65 + hlen;
                 let mut tlcs = vec![];
                 for (index, t) in r.settlement.data.tlcs.iter().enumerate() {
@@ -465,6 +505,7 @@ async fn control(
                     r.settlement.data.tlcs.is_empty(),
                     "watchtower fixture requires no TLCs"
                 );
+                let (_, witness) = settlement_witness(&r)?;
                 result.push(json!({
                     "reference":r.reference, "complete":r.complete_signature.is_some(),
                     "transaction":ckb_jsonrpc_types::Transaction::from(r.transaction.clone()),
@@ -472,7 +513,7 @@ async fn control(
                     "remote_amount":r.settlement.data.remote_amount.to_string(),
                     "local_key":format!("0x{}",hex::encode(r.settlement.local_settlement_key.serialize())),
                     "remote_key":format!("0x{}",hex::encode(r.settlement.remote_settlement_key.serialize())),
-                    "witness":format!("0x{}", hex::encode(fiber_types::settlement_data_to_witness(&r.settlement.data, r.reference.for_remote, fiber_types::CommitmentContractFeatures::from_lock_args(&r.transaction.raw().outputs().get(0).context("output")?.lock().args().raw_data()).map_err(anyhow::Error::msg)?, r.settlement.local_settlement_key, r.settlement.remote_settlement_key))),
+                    "witness":format!("0x{}", hex::encode(witness)),
                 }));
             }
             return Ok(json!(result));

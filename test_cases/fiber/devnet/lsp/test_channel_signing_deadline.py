@@ -27,6 +27,20 @@ from test_cases.fiber.devnet.lsp._commitment_broadcast_gate import (
     REMOTE_ERROR,
 )
 from test_cases.fiber.devnet.lsp._competing_close_observer import CompetingCloseObserver
+from test_cases.fiber.devnet.lsp._funding_spend_gate import (
+    FundingSpendGate,
+    find_funding_trace_poll,
+    require_funding_trace_before_close,
+)
+from test_cases.fiber.devnet.lsp._aborted_opening import (
+    aborted_opening_snapshot,
+    replay_activity,
+)
+from test_cases.fiber.devnet.lsp._opening_replay import (
+    assert_channel_gone,
+    direct_tenant_rpc,
+    opening_applied_receipt,
+)
 
 # These two never send the wallet funding signature, so setup stops before any
 # channel signature request exists.
@@ -40,6 +54,12 @@ ISOLATED_CLOSE_TESTS = {
     "test_remote_side_recovers_after_local_force_close",
 }
 RECOVERY_TEST = "test_checkpoint_b_loser_recovers_remote_close"
+
+FUNDING_SPEND_REVISION = "505c48fbe01fe22504f99bde085d8ebda2c53018"
+FUNDING_SPEND_TEST = "test_opening_signature_timeout_aborts_before_broadcast"
+OPENING_REPLAY_TEST = "test_late_channel_signature_after_abort"
+FUNDING_TRACING_DEPTH = 4
+FUNDING_TRACING_POLL_SECONDS = 4
 
 
 class _RecoveryBudgetExpired(BaseException):
@@ -139,6 +159,17 @@ def _raw_transaction_hash(tx):
     )
 
 
+def _funding_spend_evidence_directory(method_name):
+    root = os.environ.get("LSP_DEADLINE_ARTIFACTS")
+    if root is None:
+        local_root = Path("report/lsp-funding-input-spent")
+        local_root.mkdir(parents=True, exist_ok=True)
+        root = tempfile.mkdtemp(prefix="run-", dir=local_root)
+    directory = Path(root) / method_name
+    directory.mkdir(parents=True, exist_ok=False)
+    return directory
+
+
 class TestChannelSigningDeadline(ChannelSigningTestBase):
     # Save signatures without converting this deliberate checkpoint into subscription
     # reconnect failures and exponential backoff. Python submits the real result.
@@ -157,6 +188,27 @@ class TestChannelSigningDeadline(ChannelSigningTestBase):
 
     def setup_method(self, method):
         self.broadcast_gate = None
+        self.funding_spend_gate = None
+        if REVISION == FUNDING_SPEND_REVISION and method.__name__ in {
+            FUNDING_SPEND_TEST,
+            OPENING_REPLAY_TEST,
+        }:
+            self.funding_spend_evidence = _funding_spend_evidence_directory(
+                method.__name__
+            )
+            self.funding_spend_gate = FundingSpendGate(
+                self.node.rpcUrl,
+                self.funding_spend_evidence / "ckb-proxy.jsonl",
+                _raw_transaction_hash,
+            )
+            self.addCleanup(self.funding_spend_gate.close)
+            self.funding_spend_setup_until = time.monotonic() + 240
+            self.complete_opening_before_wallet = True
+            self.submit_external_funding = False
+            self.start_fiber_config = {
+                **self.start_fiber_config,
+                "ckb_rpc_url": self.funding_spend_gate.url,
+            }
         if method.__name__ == RECOVERY_TEST:
             root = os.environ.get("LSP_RECOVERY_ARTIFACTS")
             self.recovery_directory = (
@@ -194,7 +246,11 @@ class TestChannelSigningDeadline(ChannelSigningTestBase):
         try:
             super().setup_method(method)
         except BaseException:
-            if self.broadcast_gate is not None or method.__name__ == RECOVERY_TEST:
+            if (
+                self.funding_spend_gate is not None
+                or self.broadcast_gate is not None
+                or method.__name__ == RECOVERY_TEST
+            ):
                 self.doCleanups()
             raise
 
@@ -1445,8 +1501,380 @@ class TestChannelSigningDeadline(ChannelSigningTestBase):
         self._finish_opening()
         assert time.time() - created < self.opening_window_seconds
 
+    def _record_funding_spend(self, stage, **fields):
+        row = {"stage": stage, "monotonic": time.monotonic(), **fields}
+        with (self.funding_spend_evidence / "observations.jsonl").open("a") as stream:
+            stream.write(json.dumps(row) + "\n")
+
+    def _funding_spend_sample(self, funding_hash, inputs, until):
+        started = time.monotonic()
+        ckb = self.node.rpcUrl
+        pending = self._isolated_rpc(
+            self.client, "list_channels", [{"only_pending": True}], until
+        )["channels"]
+        channel_observed_at = time.monotonic()
+        matches = [row for row in pending if row["channel_id"] == self.channel_id]
+        if len(matches) != 1:
+            # Pytest truncates assertion reprs. Preserve both views if the RPC
+            # races with the transition from live state to opening history.
+            self._record_funding_spend(
+                "opening_record_count_mismatch",
+                channel_id=self.channel_id,
+                channel_observed_at=channel_observed_at,
+                pending=pending,
+            )
+        assert len(matches) == 1, ("missing or duplicate opening record", pending)
+        original = self._isolated_rpc(ckb, "get_transaction", [funding_hash], until)
+        assert original is None or original["tx_status"]["status"] == "unknown", (
+            "original funding reached real CKB",
+            original,
+        )
+        cells = [
+            self._isolated_rpc(ckb, "get_live_cell", [point, False], until)
+            for point in inputs
+        ]
+        tip = self._isolated_rpc(ckb, "get_tip_block_number", [], until)
+        assert self.tenant["agent"].poll() is None
+        assert not self.funding_spend_gate.errors, self.funding_spend_gate.errors
+        sample = {
+            "started": started,
+            "channel_observed_at": channel_observed_at,
+            "channel": matches[0],
+            "original": original,
+            "cells": cells,
+            "tip": tip,
+        }
+        self._record_funding_spend("sample", **sample)
+        return sample
+
+    def _assert_funding_opening_pending(self, sample):
+        channel = sample["channel"]
+        assert channel["state"]["state_name"] in {
+            "NegotiatingFunding",
+            "CollaboratingFundingTx",
+            "SigningCommitment",
+            "AwaitingTxSignatures",
+            "AwaitingChannelReady",
+        }, channel
+        assert not channel["failure_detail"], channel
+
+    def _wait_funding_trace_poll(self, funding_hash, point, tip, spent, until):
+        since = time.monotonic()
+        while time.monotonic() < until:
+            reads = find_funding_trace_poll(
+                self.funding_spend_gate.read_events(),
+                funding_hash,
+                point,
+                tip,
+                spent=spent,
+                since=since,
+            )
+            if reads:
+                self._record_funding_spend(
+                    "tracer_poll", tip=tip, spent=spent, reads=reads
+                )
+                return
+            time.sleep(max(0, min(0.15, until - time.monotonic())))
+        raise AssertionError(
+            f"funding tracer did not complete its poll at {tip}, spent={spent}"
+        )
+
+    def _sign_funding_transaction(self, unsigned, until):
+        return self._isolated_rpc(
+            self.fiber2.client,
+            "sign_external_funding_tx",
+            [
+                {
+                    "unsigned_funding_tx": unsigned,
+                    "private_key": self.tenant["private_key"],
+                }
+            ],
+            until,
+        )["signed_funding_tx"]
+
+    def _funding_conflict(self, unsigned, point, wallet_output, until):
+        # Explicitly consume the selected wallet outpoint. The normal wallet
+        # transfer helper selects its own inputs, so is unsuitable here.
+        capacity = int(wallet_output["capacity"], 16)
+        return self._sign_funding_transaction(
+            {
+                "version": "0x0",
+                "cell_deps": unsigned["cell_deps"],
+                "header_deps": [],
+                "inputs": [{"since": "0x0", "previous_output": point}],
+                "outputs": [{**wallet_output, "capacity": hex(capacity - 10_000)}],
+                "outputs_data": ["0x"],
+                "witnesses": ["0x10000000100000001000000010000000"],
+            },
+            until,
+        )
+
     # TEST-MAP: LSP-TIMEOUT-04
     def test_opening_signature_timeout_aborts_before_broadcast(self):
+        """
+        1. 完成初始承诺，在期限内提交钱包注资签名，隔离原注资交易。
+        2. 越过 180 秒，确认原输入可用且通道仍待开。
+        3. 真实 CKB 确认另一交易花费同一输入，验证跟踪深度达标后自动中止。
+        """
+        if self.funding_spend_gate is None:
+            self._legacy_opening_signature_timeout()
+            return
+        opening = self._prepare_traceable_opening()
+        self._abort_opening_on_confirmed_spend(*opening)
+
+    def _prepare_traceable_opening(self):
+        # 1. 完成初始承诺，在期限内提交钱包注资签名，隔离原注资交易。
+        unsigned = self.tenant["opened"]["unsigned_funding_tx"]
+        funding_hash = _raw_transaction_hash(unsigned)
+        self.funding_spend_gate.arm(funding_hash)
+        assert self.signer_control(self.tenant, "wait-opening-commitment") == {
+            "verified": True
+        }
+        return unsigned, funding_hash
+
+    def _abort_opening_on_confirmed_spend(self, unsigned, funding_hash):
+        ckb = self.node.rpcUrl
+        until = self.funding_spend_setup_until
+        inputs = [entry["previous_output"] for entry in unsigned["inputs"]]
+        opening = self._channel(self.client)
+        created_at = int(opening["created_at"], 16) / 1000
+        created = time.monotonic() + created_at - time.time()
+        funded = self._isolated_rpc(
+            self.client,
+            "submit_signed_funding_tx",
+            [
+                {
+                    "channel_id": self.channel_id,
+                    "signed_funding_tx": self._sign_funding_transaction(
+                        unsigned, until
+                    ),
+                }
+            ],
+            until,
+        )
+        submitted = time.monotonic()
+        assert (
+            submitted
+            < created + self.fiber_config_extra["external_funding_timeout_seconds"]
+        )
+        assert submitted < created + self.opening_window_seconds
+        assert funded["funding_tx_hash"] == funding_hash, funded
+        assert funded["channel_id"] == self.channel_id, funded
+        self._record_funding_spend(
+            "wallet_submitted",
+            reply=funded,
+            original=unsigned,
+            created_at=created_at,
+            created_monotonic=created,
+            submitted=submitted,
+        )
+        while not self.funding_spend_gate.blocked:
+            time.sleep(min(0.1, self._remaining(until)))
+        complete = self.funding_spend_gate.blocked[0]
+        assert _raw_transaction_hash(complete) == funding_hash
+        pool_check = self._isolated_rpc(ckb, "test_tx_pool_accept", [complete], until)
+        assert pool_check is not None
+        self._record_funding_spend("isolated_funding_can_enter_pool", result=pool_check)
+
+        # 2. 越过 180 秒，确认原输入可用且通道仍待开。
+        first = self._funding_spend_sample(funding_hash, inputs, until)
+        assert time.monotonic() < created + self.opening_window_seconds
+        wallets = [
+            (point, cell["cell"]["output"])
+            for point, cell in zip(inputs, first["cells"])
+            if cell["status"] == "live"
+            and cell["cell"]["output"]["lock"] == self.tenant["shutdown_script"]
+            and cell["cell"]["output"]["type"] is None
+        ]
+        assert wallets, first
+        point, output = wallets[0]
+        parent = self._isolated_rpc(ckb, "get_transaction", [point["tx_hash"]], until)
+        assert parent["tx_status"]["status"] == "committed", parent
+        conflict = self._funding_conflict(unsigned, point, output, until)
+        conflict_hash = _raw_transaction_hash(conflict)
+        assert conflict_hash != funding_hash
+        across = created + self.opening_window_seconds + 10
+        sample = first
+        while True:
+            self._assert_funding_opening_pending(sample)
+            assert all(cell["status"] == "live" for cell in sample["cells"]), sample
+            if time.monotonic() >= across:
+                break
+            time.sleep(max(0, min(0.75, across - time.monotonic())))
+            sample = self._funding_spend_sample(funding_hash, inputs, across + 5)
+        sample = self._funding_spend_sample(funding_hash, inputs, across + 5)
+        assert sample["started"] >= across
+        self._assert_funding_opening_pending(sample)
+        assert all(cell["status"] == "live" for cell in sample["cells"]), sample
+        assert int(sample["tip"], 16) > int(first["tip"], 16), (first, sample)
+        self._record_funding_spend(
+            "past_opening_deadline", age=time.monotonic() - created, sample=sample
+        )
+        print(
+            "Original funding pending with live inputs past 190s",
+            flush=True,
+        )
+
+        # 3. 真实 CKB 确认另一交易花费同一输入，验证跟踪深度达标后自动中止。
+        commit_until = time.monotonic() + 60
+        self._stop_owned_miner(commit_until)
+        assert (
+            self._isolated_rpc(ckb, "send_transaction", [conflict], commit_until)
+            == conflict_hash
+        )
+        pool_tx = self._isolated_rpc(
+            ckb, "get_transaction", [conflict_hash], commit_until
+        )
+        assert pool_tx["tx_status"]["status"] in {"pending", "proposed"}, pool_tx
+        pool = self._funding_spend_sample(funding_hash, inputs, commit_until)
+        self._record_funding_spend("conflict_in_pool", transaction=pool_tx, sample=pool)
+        self._wait_funding_trace_poll(
+            funding_hash,
+            point,
+            pool["tip"],
+            False,
+            min(commit_until, time.monotonic() + 3 * FUNDING_TRACING_POLL_SECONDS),
+        )
+        pool = self._funding_spend_sample(funding_hash, inputs, commit_until)
+        self._assert_funding_opening_pending(pool)
+        assert all(cell["status"] == "live" for cell in pool["cells"]), pool
+
+        while pool_tx["tx_status"]["status"] != "committed":
+            with self._recovery_budget(commit_until, 12):
+                self.Miner.miner_with_version(self.node, "0x0")
+            pool_tx = self._isolated_rpc(
+                ckb, "get_transaction", [conflict_hash], commit_until
+            )
+            assert pool_tx["tx_status"]["status"] in {
+                "pending",
+                "proposed",
+                "committed",
+            }, pool_tx
+        confirmed = time.monotonic()
+        until = confirmed + 60
+        status = pool_tx["tx_status"]
+        height = int(status["block_number"], 16)
+        block = self._isolated_rpc(ckb, "get_block_by_number", [hex(height)], until)
+        assert block["header"]["hash"] == status["block_hash"]
+        chain_txs = [tx for tx in block["transactions"] if tx["hash"] == conflict_hash]
+        assert len(chain_txs) == 1, chain_txs
+        assert [entry["previous_output"] for entry in chain_txs[0]["inputs"]] == [point]
+        self._record_funding_spend(
+            "conflict_committed",
+            transaction=pool_tx,
+            header=block["header"],
+            input=point,
+        )
+        anchored = self._funding_spend_sample(funding_hash, inputs, until)
+        assert int(anchored["tip"], 16) == height, anchored
+        self._assert_funding_opening_pending(anchored)
+        spent = anchored["cells"][inputs.index(point)]
+        assert spent["status"] != "live" and spent["cell"] is None, spent
+        self._wait_funding_trace_poll(
+            funding_hash,
+            point,
+            anchored["tip"],
+            True,
+            min(until, confirmed + 3 * FUNDING_TRACING_POLL_SECONDS),
+        )
+        for depth in range(1, FUNDING_TRACING_DEPTH):
+            with self._recovery_budget(until, 12):
+                self.Miner.miner_with_version(self.node, "0x0")
+            sample = self._funding_spend_sample(funding_hash, inputs, until)
+            assert int(sample["tip"], 16) == height + depth, sample
+            self._assert_funding_opening_pending(sample)
+        self._wait_funding_trace_poll(
+            funding_hash,
+            point,
+            sample["tip"],
+            True,
+            min(until, time.monotonic() + 3 * FUNDING_TRACING_POLL_SECONDS),
+        )
+        self._assert_funding_opening_pending(
+            self._funding_spend_sample(funding_hash, inputs, until)
+        )
+
+        final_tip = hex(height + FUNDING_TRACING_DEPTH)
+        final_mining_started = time.monotonic()
+        self._record_funding_spend(
+            "mining_final_block", tip=final_tip, since=final_mining_started
+        )
+        with self._recovery_budget(until, 12):
+            self.Miner.miner_with_version(self.node, "0x0")
+        while True:
+            sample = self._funding_spend_sample(funding_hash, inputs, until)
+            assert sample["tip"] == final_tip, sample
+            if sample["channel"]["state"]["state_name"] == "Closed":
+                break
+            self._assert_funding_opening_pending(sample)
+            time.sleep(min(0.25, self._remaining(until)))
+        # Do not wait for another poll after Closed: only a poll already completed
+        # before the first Closed list_channels reply can justify the ordering.
+        first_closed_at = sample["channel_observed_at"]
+        reads = require_funding_trace_before_close(
+            self.funding_spend_gate.read_events(),
+            funding_hash,
+            point,
+            final_tip,
+            since=final_mining_started,
+            closed_at=first_closed_at,
+        )
+        self._record_funding_spend(
+            "tracer_poll",
+            tip=final_tip,
+            spent=True,
+            reads=reads,
+            first_closed_at=first_closed_at,
+        )
+        entry = sample["channel"]
+        self._assert_funding_aborted(entry)
+        assert (
+            "funding input spent by another committed transaction"
+            in entry["failure_detail"].lower()
+        ), entry
+        active = self._isolated_rpc(self.client, "list_channels", [{}], until)[
+            "channels"
+        ]
+        assert all(row["channel_id"] != self.channel_id for row in active), active
+        assert (
+            entry["channel_outpoint"] is None
+            and entry["shutdown_transaction_hash"] is None
+        ), entry
+        funding_cell = self._isolated_rpc(
+            ckb,
+            "get_live_cell",
+            [{"tx_hash": funding_hash, "index": "0x0"}, False],
+            until,
+        )
+        assert (
+            funding_cell["status"] != "live" and funding_cell["cell"] is None
+        ), funding_cell
+        final_input = sample["cells"][inputs.index(point)]
+        assert (
+            final_input["status"] != "live" and final_input["cell"] is None
+        ), final_input
+        final_conflict = self._isolated_rpc(
+            ckb, "get_transaction", [conflict_hash], until
+        )
+        assert final_conflict["tx_status"] == status, final_conflict
+        assert (
+            self._isolated_rpc(ckb, "get_block_hash", [hex(height)], until)
+            == status["block_hash"]
+        ), final_conflict
+        self._record_funding_spend(
+            "automatic_abort",
+            sample=sample,
+            active=active,
+            funding_cell=funding_cell,
+            conflict=final_conflict,
+        )
+        print(
+            f"Automatic funding abort after {FUNDING_TRACING_DEPTH} blocks",
+            flush=True,
+        )
+        return point, conflict_hash, status, entry
+
+    def _legacy_opening_signature_timeout(self):
         unsigned = self.tenant["opened"]["unsigned_funding_tx"]
         created = int(self._channel(self.client)["created_at"], 16) / 1000
         assert self._status()["type"] == "SignatureRequired"
@@ -1464,6 +1892,92 @@ class TestChannelSigningDeadline(ChannelSigningTestBase):
 
     # TEST-MAP: LSP-TIMEOUT-05
     def test_late_channel_signature_after_abort(self):
+        """
+        1. 保存同一租户在开通时已获 Applied 的真实签名，用独立链确认输入花费直至通道中止。
+        2. 核实原通道已清理，再用该租户原样重放一次，要求真实 FNN 明确拒绝。
+        3. 拒绝后持续观察至少 5 秒，失败历史、通道、签名通知和链上资金均保持稳定。
+        """
+        if self.funding_spend_gate is None:
+            self._legacy_late_channel_signature_after_abort()
+            return
+
+        # 1. 在钱包提交前绑定并保存 Applied 请求，沿用 04 的完整链上中止判据。
+        unsigned, funding_hash = self._prepare_traceable_opening()
+        applied = opening_applied_receipt(
+            self.gate.audit_snapshot(),
+            self.channel_id,
+            self.client.other_params["Authorization"],
+            time.monotonic(),
+        )
+        self._record_funding_spend(
+            "opening_signature_applied",
+            tenant_id=self.tenant["status"]["tenant_id"],
+            receipt=applied,
+        )
+        point, conflict_hash, conflict_status, aborted = (
+            self._abort_opening_on_confirmed_spend(unsigned, funding_hash)
+        )
+        request_id = applied["params"]["request_id"]
+
+        # 2. 先取已清理的稳定基线，再由 A 直连 FNN，逐字段重放一次原请求。
+        def snapshot(until):
+            status = direct_tenant_rpc(
+                self.client,
+                {
+                    "jsonrpc": "2.0",
+                    "id": 81,
+                    "method": "get_channel_signing_status",
+                    "params": [{"channel_id": self.channel_id}],
+                },
+                self._remaining(until),
+            )
+            self._record_funding_spend("replay_signing_status", receipt=status)
+            assert_channel_gone(status, self.channel_id)
+            return {
+                "state": aborted_opening_snapshot(
+                    self, funding_hash, point, conflict_hash, conflict_status, until
+                ),
+                "activity": replay_activity(
+                    self, self.channel_id, request_id, funding_hash
+                ),
+            }
+
+        until = time.monotonic() + 15
+        baseline = snapshot(until)
+        self._record_funding_spend("before_opening_replay", **baseline)
+        assert baseline["state"]["pending"] == [aborted], baseline
+        attempt = direct_tenant_rpc(
+            self.client, applied["payload"], self._remaining(until)
+        )
+        self._record_funding_spend("opening_replay_reply", receipt=attempt)
+        assert attempt["request"] == applied["payload"], attempt
+        assert (
+            attempt["authorization_sha256"]
+            == applied["headers"]["authorization_sha256"]
+        )
+        assert_channel_gone(attempt, self.channel_id)
+
+        # 3. 全时段保留原始查询；每次对同一基线断言，末次采样在 5 秒窗外开始。
+        rejected_at = attempt["finished"]
+        previous = rejected_at
+        while True:
+            started = time.monotonic()
+            current = snapshot(until)
+            finished = time.monotonic()
+            self._record_funding_spend(
+                "after_opening_replay", started=started, finished=finished, **current
+            )
+            assert finished - previous <= 1, (
+                "replay sampling gap",
+                finished - previous,
+            )
+            assert current == baseline, (baseline, current)
+            if started >= rejected_at + 5:
+                break
+            previous = finished
+            time.sleep(min(0.2, self._remaining(until)))
+
+    def _legacy_late_channel_signature_after_abort(self):
         self._wait_abort(timeout=240)
         with self.gate.lock:
             submission = copy.deepcopy(self.gate.submission)

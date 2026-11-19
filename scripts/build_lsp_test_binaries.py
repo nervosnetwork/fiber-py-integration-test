@@ -13,6 +13,7 @@ import subprocess
 import time
 
 REVISION = "76307312e8de518c9a32074e6d16867c04de4f86"
+HOSTED_V2_REVISION = "505c48fbe01fe22504f99bde085d8ebda2c53018"
 ROOT = Path(__file__).resolve().parents[1]
 F2_REVISION = "56c761c45c271c086b05c8d5ea3e033448f5fdf8"
 
@@ -446,6 +447,7 @@ def main():
         (driver_build / "Cargo.toml").write_text(
             '[package]\nname = "lsp-integration-driver"\nversion = "0.1.0"\nedition = "2021"\n'
             '[workspace]\n[[bin]]\nname = "lsp-integration-driver"\npath = "main.rs"\n'
+            "[features]\nhosted-v2 = []\n"
             "[dependencies]\n" + dependencies + "\n"
             'anyhow = "1.0"\nclap = { version = "4.5", features = ["derive"] }\n'
             'biscuit-auth = "=6.0.0"\n'
@@ -486,6 +488,8 @@ def main():
             "--manifest-path",
             str(driver_build / "Cargo.toml"),
         ]
+        if revision == HOSTED_V2_REVISION:
+            driver_command.extend(("--features", "hosted-v2"))
         subprocess.run(
             driver_command,
             cwd=source,
@@ -559,6 +563,8 @@ def main():
                 (driver_build / "Cargo.lock").read_bytes()
             ).hexdigest(),
         }
+        if revision == HOSTED_V2_REVISION:
+            driver_manifest["driver_build_command"] = driver_command
     manifest = {
         "revision": args.revision,
         "cargo_lock_sha256": hashlib.sha256(

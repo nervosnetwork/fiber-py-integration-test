@@ -16,8 +16,44 @@ import pytest
 import framework.config as framework_config
 import test_cases.fiber.devnet.lsp._hosted_tenant_fixture as hosted_fixture
 import test_cases.fiber.devnet.lsp._lsp_test as lsp_test
+import test_cases.fiber.devnet.lsp.test_channel_signing_deadline as deadline
 import test_cases.fiber.devnet.lsp.test_hosted_outbound_payment as payment05
 import test_cases.fiber.devnet.lsp.test_payment_authorization_recovery as payment04
+
+
+def test_timeout04_default_evidence_is_fresh_each_run(tmp_path, monkeypatch):
+    monkeypatch.chdir(tmp_path)
+    monkeypatch.delenv("LSP_DEADLINE_ARTIFACTS", raising=False)
+    case_name = deadline.FUNDING_SPEND_TEST
+
+    first = deadline._funding_spend_evidence_directory(case_name)
+    original = first / "observations.jsonl"
+    original.write_bytes(b"first run\n")
+    second = deadline._funding_spend_evidence_directory(case_name)
+
+    assert first != second
+    assert first.name == second.name == case_name
+    assert (
+        first.parent.parent.resolve()
+        == second.parent.parent.resolve()
+        == tmp_path / "report" / "lsp-funding-input-spent"
+    )
+    assert second.is_dir() and not (second / original.name).exists()
+    assert original.read_bytes() == b"first run\n"
+
+
+def test_timeout04_explicit_evidence_root_refuses_overwrite(tmp_path, monkeypatch):
+    root = tmp_path / "job-000" / "deadline"
+    monkeypatch.setenv("LSP_DEADLINE_ARTIFACTS", str(root))
+    case_name = deadline.FUNDING_SPEND_TEST
+    case_dir = deadline._funding_spend_evidence_directory(case_name)
+    assert case_dir == root / case_name
+    original = case_dir / "ckb-proxy.jsonl"
+    original.write_bytes(b"original\n")
+
+    with pytest.raises(FileExistsError):
+        deadline._funding_spend_evidence_directory(case_name)
+    assert original.read_bytes() == b"original\n"
 
 
 class _FakeFiber:

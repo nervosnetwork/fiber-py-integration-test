@@ -404,6 +404,7 @@ class LspTestBase(SigningEnvironment, FiberTest):
     lsp_config_extra = {}
     # Deadline suites that hold the wallet funding submission keep this false.
     submit_external_funding = True
+    complete_opening_before_wallet = False
     # Keep the pre-merge binary selection local to this suite.
     fiber_version = SimpleNamespace(
         fiber_config_path=FiberConfigPath.CURRENT_DEV.fiber_config_path,
@@ -790,6 +791,8 @@ class LspTestBase(SigningEnvironment, FiberTest):
             status_file = directory / "status.json"
             gate = self.gate_class(self.fiber1.client.url)
             self.addCleanup(gate.close)
+            if self.complete_opening_before_wallet:
+                gate.release()
             subscription_proxy = SubscriptionProxy(self.ws_url)
             self.addCleanup(subscription_proxy.close)
             # Hold a new subscribe before the SDK can recover from a deliberately
