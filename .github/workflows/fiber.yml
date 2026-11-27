@@ -18,7 +18,7 @@ on:
         default: 'https://github.com/nervosnetwork/fiber.git'
       GitBranch:
         description: 'fiber -git branch or tag'
-        default: 'develop'
+        default: 'v0.11.0-rc1'
   schedule:
     - cron: '0 0 */7 * *'
 
@@ -49,7 +49,7 @@ jobs:
         run: make prepare
         env:
           GitUrl: '${{ github.event.inputs.GitUrl }}'
-          GitBranch: ${{ github.event.inputs.GitBranch || 'develop' }}
+          GitBranch: ${{ github.event.inputs.GitBranch || 'v0.11.0-rc1' }}
 
       - name: Build shared devnet clock library
         shell: bash
@@ -442,7 +442,7 @@ jobs:
           cd ../
         env:
           GitUrl: '${{ github.event.inputs.GitUrl }}'
-          GitBranch: ${{ github.event.inputs.GitBranch || 'develop' }}
+          GitBranch: ${{ github.event.inputs.GitBranch || 'v0.11.0-rc1' }}
       - name: Run fiber_test_demo
         run: |
            make fiber_test_demo FIBER_TEST_DEMO="test_cases/fiber/devnet/wasm"
