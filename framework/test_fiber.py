@@ -86,6 +86,16 @@ class FiberConfigPath(Enum):
         "download/fiber/0.9.1/fnn",
     )
 
+    V0100_DEV = (
+        "/source/fiber/dev_config_3.yml.j2",
+        "download/fiber/0.10.0/fnn",
+    )
+
+    V0101_DEV = (
+        "/source/fiber/dev_config_3.yml.j2",
+        "download/fiber/0.10.1/fnn",
+    )
+
     # Pre-PR-1628 build (2026-08-06, e6cb7ac). Used by the MuSig2 nonce-reuse
     # wire PoC: after PR 1628 the stock victim no longer emits the reciprocal
     # empty CommitmentSigned that carries signature A.
