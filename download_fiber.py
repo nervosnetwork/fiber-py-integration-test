@@ -20,7 +20,9 @@ versions = [
     "0.8.1",
     "0.9.0",
     "0.9.1",
+    "0.10.0",  # Last operator binary for the legacy store in the upgrade tests.
     "0.10.1",
+    "0.11.0-rc1",
 ]
 
 DOWNLOAD_DIR = "download/fiber"

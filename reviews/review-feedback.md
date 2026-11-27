@@ -39,3 +39,15 @@
 - model: unavailable | cases: MPP1705-01～14 | feedback: MppFixture 不要依赖具体测试类；通用方法放 framework，场景和变量要易读，避免包装层与重复 review，并将这些约束写入 AGENTS.md。
 - model: unavailable | cases: MPP1705-07～12 | feedback: 耗时过长的用例先在方法上标注 pytest.mark.skip 和原因，不在 fiber.yml 维护排除清单；退款慢测后续复用已有 change_time / restore_time，验证链状态清理和时钟恢复后再启用。
 - model: unavailable | cases: MPP1705-01～14 | feedback: 通道两端、容量/资产、路由和付款操作直接展开在每条用例中，并加网络拓扑注释；公共方法只保留观察、等待、启停和核对，避免隐藏资金操作。以长期可维护、人类易懂的原生回归用例为目标，不写一次性验收脚本。
+- model: unavailable | cases: CDE-01 | feedback: 调整 `TestCommitmentDelayEpoch::test_remote_shutdown`、`TestCommitmentDelayEpoch::test_self_shutdown` 目前对方会拒绝导致卧房一直卡在{"jsonrpc": "2.0", "id": 42, "result": {"channels": [{"channel_id": "0xf7320a2025f2577c0d620561c10b27d9aa4b7135de32b511e45a589cfb45f8a6", "is_public": true, "is_acceptor": false, "is_one_way": false, "channel_outpoint": null, "pubkey": "037ca626d4c254fd078441a80b86195315954987f8e36e0b6a30118fca334a5c9d", "funding_udt_type_script": null, "state": {"state_name": "NegotiatingFunding", "state_flags": "OUR_INIT_SENT\|INIT_SENT"}, "local_balance": "0x14f46b0400", "offered_tlc_balance": "0x0", "remote_balance": "0x0", "received_tlc_balance": "0x0", "pending_tlcs": [], "latest_commitment_transaction_hash": null, "created_at": "0x1a2136825a4", "enabled": true, "tlc_expiry_delta": "0x36ee800", "tlc_fee_proportional_millionths": "0x3e8", "shutdown_transaction_hash": null, "failure_detail": null}]}} 是预期行为
+- model: unavailable | cases: CDE-01 | feedback: 应该算bug ，提个英文issue 吧
+- model: unavailable | cases: CDE-01 | feedback: 验证开通失败，不再等 ChannelReady 或执行强关
+- model: unavailable | cases: CI 45609893489 中因旧库升级失败的 22 个用例 | feedback: 把涉及到旧库升级失败的用例都skip
+- model: unavailable | cases: V091MIX-01 | feedback: 编写的用例需要支持debug=True 模式，方便用户调试
+- model: unavailable | cases: V091MIX-01 | feedback: 没必要独立目录，统一在tmp下，我用debug 模式，是想不清理环境，方便继续定位问题 也能操作之前的阶段
+- model: unavailable | cases: V091MIX-02 | feedback: 不用让原交易上链，就切换V0100_DEV，然后能shutdown的channel shutdown就行，之后就关闭V0100_DEV ，尝试启动节点，先不写用例 和我一起调试
+- model: unavailable | cases: V091MIX-01 V091MIX-02 V091MIX-03 V091MIX-04 V091MIX-05 V091MIX-06 | feedback: 合并成一个用例就行
+- model: unavailable | cases: V091MIX-01 | feedback: 再补充启动当前节点报 Close these channels and finish pending settlement/delivery with the old binary, then retry this upgrade. No records or database version were changed.\ 然后把这些v1的channel都drop-v1-channel关掉后 ，能正常启动,v
+- model: unavailable | cases: V091MIX-01 | feedback: 查询v2的channel 是存在的，然后生成epoch，把v2强制shutdown的channel 在链上结算，剩下一个channel 可以正常发交易
+- model: unavailable | cases: V091MIX-01 | feedback: current 节点要能结算之前0.10.1在链上的tlc
+- model: unavailable | cases: V091MIX-01 | feedback: 确认按收款方路径修正：旧版 C 强关含 100 CKB 持单的通道并确认后保持离线，由新版 A 凭原像领取；本金返还不算通过。调试入口不参与常规收集，归档前备份按次隔离。

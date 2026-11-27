@@ -1,9 +1,50 @@
 """CKB 链上通道结算观察：精确消费关系、领取原像与逐所有者净额。"""
 
+import hashlib
 import time
 
-from framework.helper.fiber_ops import get_channel, wait_for_result
-from framework.helper.settlement_witness import SettlementWitness
+from framework.config import DEFAULT_MIN_DEPOSIT_CKB
+from framework.helper.fiber_ops import (
+    calculate_payment_hash,
+    get_channel,
+    wait_for_result,
+)
+from framework.helper.settlement_witness import CKB, SettlementWitness
+
+
+def unpack_channel_outpoint(packed):
+    """Convert the packed Fiber RPC outpoint to CKB RPC's hash + little-endian index."""
+    raw = bytes.fromhex(packed.removeprefix("0x"))
+    assert len(raw) == 36, packed
+    return {
+        "tx_hash": "0x" + raw[:32].hex(),
+        "index": hex(int.from_bytes(raw[32:], "little")),
+    }
+
+
+def commitment_hash_without_deps(packed):
+    """按 Fiber RPC 的口径对原承诺取哈希：广播才补 cell deps，其他字段不能变。"""
+
+    def fields(raw):
+        assert int.from_bytes(raw[:4], "little") == len(raw)
+        first = int.from_bytes(raw[4:8], "little")
+        offsets = [
+            int.from_bytes(raw[i : i + 4], "little") for i in range(4, first, 4)
+        ] + [len(raw)]
+        return [raw[a:b] for a, b in zip(offsets, offsets[1:])]
+
+    raw_fields = fields(fields(bytes.fromhex(packed[2:]))[0])
+    assert len(raw_fields) == 6
+    raw_fields[1] = bytes(4)
+    offset, offsets = 28, []
+    for value in raw_fields:
+        offsets.append(offset.to_bytes(4, "little"))
+        offset += len(value)
+    raw = offset.to_bytes(4, "little") + b"".join(offsets + raw_fields)
+    return (
+        "0x"
+        + hashlib.blake2b(raw, digest_size=32, person=b"ckb-default-hash").hexdigest()
+    )
 
 
 class ChannelSettlement:
@@ -13,27 +54,33 @@ class ChannelSettlement:
         self.ckb = ckb_client
         self.commitment_lock_code_hash = commitment_lock_code_hash
 
-    def snapshot_channel(self, left, right, channel_id, *, commitment_delay_epoch):
+    def snapshot_channel(self, left, right, channel_id, *, commitment_delay_epoch=None):
         """只读取已开通通道的两端余额和 funding；不创建通道或发起付款。"""
         before = [get_channel(f, channel_id) for f in (left, right)]
-        raw = bytes.fromhex(before[0]["channel_outpoint"][2:])
-        assert len(raw) == 36
         return dict(
             left=left,
             right=right,
             channel_id=channel_id,
             before=before,
             commitment_delay_epoch=commitment_delay_epoch,
-            funding={
-                "tx_hash": "0x" + raw[:32].hex(),
-                "index": hex(int.from_bytes(raw[32:], "little")),
-            },
+            funding=unpack_channel_outpoint(before[0]["channel_outpoint"]),
         )
 
     def get_output(self, outpoint):
         return self.ckb.get_transaction(outpoint["tx_hash"])["transaction"]["outputs"][
             int(outpoint["index"], 16)
         ]
+
+    @staticmethod
+    def closed_channel_waits_onchain(fiber, channel_id):
+        """只判断仍可查询的原 Closed 通道；记录缺失或非 Closed 均不是结清。"""
+        try:
+            state = get_channel(fiber, channel_id)["state"]
+        except StopIteration:
+            raise AssertionError(f"未返回原通道 {channel_id}") from None
+        assert state["state_name"] == "Closed", (channel_id, state)
+        flags = state["state_flags"].split("|")
+        return any(flag.strip() == "WAITING_ONCHAIN_SETTLEMENT" for flag in flags)
 
     def find_spending_transaction(self, outpoint):
         """同 lock 的交易只是候选；必须实际消费给定 outpoint 且已确认。"""
@@ -63,7 +110,7 @@ class ChannelSettlement:
                 return None
             cursor = page["last_cursor"]
 
-    def net_amounts(self, tx, previous, locks):
+    def net_amounts(self, tx, previous, locks, asset=None):
         """按所有者扣除额外手续费输入，分别返回净到账与整笔交易手续费。"""
         inputs = [self.get_output(i["previous_output"]) for i in tx["inputs"]]
         fee = sum(int(c["capacity"], 16) for c in inputs) - sum(
@@ -83,7 +130,7 @@ class ChannelSettlement:
             ),
         ):
             for cell in cells:
-                assert cell["type"] is None, cell
+                assert cell["type"] is None or cell["type"] == asset, cell
                 if (
                     sign == 1
                     and cell["lock"]["code_hash"] == self.commitment_lock_code_hash
@@ -93,9 +140,10 @@ class ChannelSettlement:
                 net[locks.index(cell["lock"])] += sign * int(cell["capacity"], 16)
         return net, fee
 
-    def track_commitment(self, funding_outpoint, owner_locks):
+    def track_commitment(self, funding_outpoint, owner_locks, *, asset=None):
         """从 funding 的已确认强关交易开始跟踪，不把强关本身当作领取。"""
         funding = self.get_output(funding_outpoint)
+        assert funding["type"] == asset, funding
         tx = wait_for_result(
             "指定 funding 强关交易确认",
             lambda: self.find_spending_transaction(funding_outpoint),
@@ -106,32 +154,33 @@ class ChannelSettlement:
             if o["lock"]["code_hash"] == self.commitment_lock_code_hash
         ]
         assert len(locked) == 1, tx
-        net, fee = self.net_amounts(tx, funding_outpoint, owner_locks)
+        net, fee = self.net_amounts(tx, funding_outpoint, owner_locks, asset)
         # 编码来自公开 commitment 的版本字节，而不是尝试解析直到成功。
         args = bytes.fromhex(tx["outputs"][locked[0]]["lock"]["args"][2:])
         assert len(args) in (57, 58)
         version = "v1" if len(args) == 58 and args[-1] == 1 else "legacy"
         chain = dict(
             locks=owner_locks,
+            asset=asset,
             net=net,
             fee=fee,
             claimed=False,
+            timed_out=False,
             done=False,
             version=version,
             seen=False,
             funding=int(funding["capacity"], 16),
             outpoint={"tx_hash": tx["hash"], "index": hex(locked[0])},
+            spends=[],
         )
         return chain
 
-    def advance(self, chain, payment_hash, amount, preimage, *, allow_claim=True):
-        """前进一个已确认消费，核对原 TLC、原像、收款归属和资金守恒。"""
-        if chain["done"]:
-            return True
+    def _next_confirmed_spend(self, chain):
+        """记录当前承诺输出的真实消费及净到账；未消费时不推进 outpoint。"""
         previous = chain["outpoint"]
         tx = self.find_spending_transaction(previous)
         if tx is None:
-            return False
+            return None
         index = next(
             i
             for i, inp in enumerate(tx["inputs"])
@@ -140,20 +189,8 @@ class ChannelSettlement:
         witness = SettlementWitness.from_hex(
             tx["witnesses"][index], version=chain["version"]
         )
-        if not chain["seen"]:
-            witness.assert_pending_tlcs([(payment_hash, amount)])
-            chain["seen"] = True
-        for unlock in witness.unlocks:
-            if unlock.preimage is not None:
-                assert allow_claim and unlock.preimage == bytes.fromhex(preimage[2:])
-                assert unlock.unlock_type < len(witness.tlcs)
-                tlc = witness.tlcs[unlock.unlock_type]
-                expected_hash = bytes.fromhex(payment_hash[2:])[: len(tlc.payment_hash)]
-                assert (tlc.payment_hash, tlc.amount) == (expected_hash, amount)
-                chain["claimed"] = True
-        if not allow_claim:
-            assert all(u.preimage is None for u in witness.unlocks)
-        net, fee = self.net_amounts(tx, previous, chain["locks"])
+        net, fee = self.net_amounts(tx, previous, chain["locks"], chain.get("asset"))
+        chain["spends"].append((previous, tx, witness, fee))
         chain["net"] = [a + b for a, b in zip(chain["net"], net)]
         chain["fee"] += fee
         locked = [
@@ -168,7 +205,58 @@ class ChannelSettlement:
             chain["outpoint"] = {"tx_hash": tx["hash"], "index": hex(locked[0])}
         else:
             chain["done"] = True
+        return witness
+
+    def advance(self, chain, payment_hash, amount, preimage, *, allow_claim=True):
+        """前进一个已确认消费，核对原 TLC、原像、收款归属和资金守恒。"""
+        if chain["done"]:
+            return True
+        witness = self._next_confirmed_spend(chain)
+        if witness is None:
+            return False
+        if not chain["seen"]:
+            witness.assert_pending_tlcs(
+                [] if payment_hash is None else [(payment_hash, amount)]
+            )
+            chain["seen"] = True
+        for unlock in witness.unlocks:
+            # 0xfe/0xff 领取一方余额，不是目标 TLC 的退款证据。
+            if unlock.unlock_type in (0xFE, 0xFF):
+                assert unlock.preimage is None, unlock
+                continue
+            assert unlock.unlock_type < len(witness.tlcs), unlock
+            assert payment_hash is not None, "无 TLC 的通道出现了 TLC 解锁"
+            tlc = witness.tlcs[unlock.unlock_type]
+            expected_hash = bytes.fromhex(payment_hash[2:])[: len(tlc.payment_hash)]
+            assert (tlc.payment_hash, tlc.amount) == (expected_hash, amount)
+            if unlock.preimage is None:
+                chain["timed_out"] = True
+            else:
+                assert allow_claim and unlock.preimage == bytes.fromhex(preimage[2:])
+                chain["claimed"] = True
         return chain["done"]
+
+    def settlement_fees_by_owner(self, chain):
+        """按各消费的付费输入归属矿工费；末笔领款方收到扣掉承诺交易费的余款。"""
+        assert chain["done"] and chain["spends"]
+        locks = chain["locks"]
+        fees = [0, 0]
+        for previous, tx, _, fee in chain["spends"]:
+            payees = {
+                locks.index(o["lock"]) for o in tx["outputs"] if o["lock"] in locks
+            }
+            funders = {
+                locks.index(self.get_output(i["previous_output"])["lock"])
+                for i in tx["inputs"]
+                if i["previous_output"] != previous
+            }
+            payers = funders or payees
+            assert len(payers) == 1, (tx["hash"], payers)
+            fees[next(iter(payers))] += fee
+        commitment_fee = chain["fee"] - sum(fees)
+        assert len(payees) == 1 and commitment_fee >= 0
+        fees[next(iter(payees))] += commitment_fee
+        return fees
 
     def wait(
         self, chain, payment_hash, amount, preimage, *, until_claim=False, timeout=1800
@@ -183,6 +271,62 @@ class ChannelSettlement:
             self.ckb.generate_epochs("0x1", wait_time=0)
             time.sleep(3)
         raise AssertionError(f"准确消费链未完成: {chain}")
+
+    def wait_direct_timeout_refund(
+        self, edge, chain, payment_hash, preimage, *, now_s=time.time
+    ):
+        """用节点业务时钟判断到期，实际等待仍由单调时钟限时；返回对端待领输出和容量。"""
+        assert chain["version"] == "v1", "直接退款场景需要完整付款哈希的 CKB 通道"
+        sender_principal, receiver_principal = [
+            int(row["local_balance"], 16) + DEFAULT_MIN_DEPOSIT_CKB
+            for row in edge["before"]
+        ]
+        assert sender_principal + receiver_principal == chain["funding"]
+        commitment_fee = chain["fee"]
+        expiry = max(int(t["expiry"], 16) / 1000 for t in edge["tlcs"])
+        deadline = time.monotonic() + max(0, expiry - now_s()) + 1800
+        while time.monotonic() < deadline:
+            self.advance(chain, payment_hash, edge["sent"], preimage, allow_claim=False)
+            assert not chain["done"], f"收款方离线时原承诺已无待领输出: {chain}"
+            sender_net = sender_principal - (chain["fee"] - commitment_fee)
+            if chain["timed_out"] and chain["net"] == [sender_net, 0]:
+                assert chain["seen"] and not chain["claimed"]
+                assert 0 <= chain["fee"] < CKB // 100
+                return chain["outpoint"], receiver_principal - commitment_fee
+            self.ckb.generate_epochs("0x1", wait_time=0)
+            remaining = expiry - now_s()
+            time.sleep(min(30, remaining) if remaining > 0 else 5)
+        raise AssertionError(
+            f"{payment_hash}: TLC 到期后 1800 秒内未确认全额退款: {chain}"
+        )
+
+    def assert_receiver_balance_pending(self, edge, outpoint, capacity):
+        """对照指定输出和付款方原通道，独立核对未领取的余额与等待标志。"""
+        live = self.ckb.get_live_cell(outpoint["index"], outpoint["tx_hash"], False)
+        assert live["status"] == "live", (outpoint, live)
+        assert int(live["cell"]["output"]["capacity"], 16) == capacity, live
+        assert self.closed_channel_waits_onchain(
+            edge["left"], edge["channel_id"]
+        ), edge["channel_id"]
+
+    def wait_refunded_channel_close(
+        self, edge, chain, payment_hash, preimage, receiver_capacity
+    ):
+        """收款方恢复后，先核对同一承诺的最终到账，再等原通道清除等待标志。"""
+        sender_net, fees_before_receiver = chain["net"][0], chain["fee"]
+        self.wait(chain, payment_hash, edge["sent"], preimage, timeout=1800)
+        assert chain["done"] and chain["timed_out"] and not chain["claimed"], chain
+        receiver_fee = chain["fee"] - fees_before_receiver
+        assert chain["net"] == [sender_net, receiver_capacity - receiver_fee], chain
+        assert sum(chain["net"]) + chain["fee"] == chain["funding"]
+        assert 0 <= chain["fee"] < CKB // 100
+        wait_for_result(
+            f"原通道 {edge['channel_id']} 已关闭且不再等待链上结算",
+            lambda: not self.closed_channel_waits_onchain(
+                edge["left"], edge["channel_id"]
+            ),
+            timeout=660,
+        )
 
     def record_committed_tlcs(self, edge, payment_hash):
         def read():
@@ -271,3 +415,28 @@ class ChannelSettlement:
                 == int(edge["before"][i]["remote_balance"], 16) - delta
             )
         return True
+
+    def invoice_payment_is_settled(
+        self, edge, invoice_address, payment_hash, preimage, algorithm
+    ):
+        """每次重查付款方、开票方和该通道账本；不发款、不结算、也不在此重试。"""
+        query = {"payment_hash": payment_hash}
+        payment = edge["left"].get_client().get_payment(query)
+        assert payment["payment_hash"] == payment_hash, payment
+        assert payment["status"] != "Failed", f"新付款被判失败: {payment}"
+        if payment["status"] != "Success":
+            return False
+        assert payment["payment_preimage"] == preimage and not payment.get(
+            "failed_error"
+        ), payment
+        assert (
+            calculate_payment_hash(payment["payment_preimage"], algorithm)
+            == payment_hash
+        )
+        invoice = edge["right"].get_client().get_invoice(query)
+        assert invoice["invoice_address"] == invoice_address, invoice
+        assert invoice["invoice"]["data"]["payment_hash"] == payment_hash, invoice
+        assert int(invoice["invoice"]["amount"], 16) == edge["sent"], invoice
+        return invoice["status"] == "Paid" and self.payment_is_settled(
+            edge, payment_hash
+        )

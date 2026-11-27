@@ -18,12 +18,16 @@ on:
         default: 'https://github.com/nervosnetwork/fiber.git'
       GitBranch:
         description: 'fiber -git branch or tag'
-        default: 'v0.10.1'
+        default: 'v0.11.0-rc1'
   schedule:
     - cron: '0 0 */7 * *'
 
 permissions:
   contents: read
+
+env:
+  # Only clock-enabled tests load this library into their devnet processes.
+  FIBER_TEST_FAKETIME_LIB: ${{ github.workspace }}/download/libfaketime/libfaketime.so.1
 
 jobs:
   prepare:
@@ -45,8 +49,21 @@ jobs:
         run: make prepare
         env:
           GitUrl: '${{ github.event.inputs.GitUrl }}'
-          GitBranch: ${{ github.event.inputs.GitBranch || 'v0.10.1' }}
+          GitBranch: ${{ github.event.inputs.GitBranch || 'v0.11.0-rc1' }}
 
+      - name: Build shared devnet clock library
+        shell: bash
+        run: |
+          set -euo pipefail
+          # With jemalloc, probing unavailable glibc symbols in libfaketime's
+          # lazy initializer re-enters malloc. Keep the compatible build flags.
+          src="$RUNNER_TEMP/libfaketime"
+          git clone --quiet https://github.com/wolfcw/libfaketime.git "$src"
+          git -C "$src" checkout --quiet e8d8c8531d824722f23e4e4d6ba6bd85c023f8d5
+          sed -i 's/ -DFAKE_INTERNAL_CALLS//; s/ -DFAKE_TIMERS//' "$src/src/Makefile"
+          sed -i -E 's/dlsym\(RTLD_NEXT, "(__clock_gettime64|clock_gettime64)"\)/NULL/' "$src/src/libfaketime.c"
+          make -C "$src/src" libfaketime.so.1
+          install -Dm755 "$src/src/libfaketime.so.1" "$FIBER_TEST_FAKETIME_LIB"
 
       - name: Tar backup
         run: |
@@ -425,7 +442,7 @@ jobs:
           cd ../
         env:
           GitUrl: '${{ github.event.inputs.GitUrl }}'
-          GitBranch: ${{ github.event.inputs.GitBranch || 'v0.10.1' }}
+          GitBranch: ${{ github.event.inputs.GitBranch || 'v0.11.0-rc1' }}
       - name: Run fiber_test_demo
         run: |
            make fiber_test_demo FIBER_TEST_DEMO="test_cases/fiber/devnet/wasm"
@@ -544,7 +561,7 @@ jobs:
         if: failure()
         uses: actions/upload-artifact@v4
         with:
-          name: jfoa-fiber_test_send_payment_debug_mixed-reports-${{ runner.os }}
+          name: jfoa-fiber_test_cch-reports-${{ runner.os }}
           path: ./report
 
   fiber_test_trampoline_routing_one_way:
@@ -817,4 +834,70 @@ jobs:
         uses: actions/upload-artifact@v4
         with:
           name: jfoa-proxy-tor-reports-${{ runner.os }}
+          path: ./report
+
+
+  fiber_test_fake_time:
+    needs: prepare
+    strategy:
+      fail-fast: false
+      matrix:
+        os: [ubuntu-22.04]
+    runs-on: ${{ matrix.os }}
+
+    steps:
+      - uses: actions/checkout@v3
+      - name: Set up Python 3.12
+        uses: actions/setup-python@v3
+        with:
+          python-version: "3.12"
+
+      - name: Install dependencies
+        run: |
+          python -m pip install --upgrade pip
+          if [ -f requirements.txt ]; then pip install -r requirements.txt; fi
+
+      - name: Install macOS clock library
+        if: runner.os == 'macOS'
+        shell: bash
+        run: |
+          set -euo pipefail
+          brew install libfaketime
+          prefix="$(brew --prefix libfaketime)"
+          # Homebrew's opt path is a symlink; macOS find -P does not descend into it.
+          library="$prefix/lib/faketime/libfaketime.1.dylib"
+          if [[ ! -f "$library" ]]; then
+            library=$(find -H "$prefix" -name 'libfaketime.1.dylib' -print -quit)
+          fi
+          test -n "${library:-}"
+          test -f "$library"
+          echo "FIBER_TEST_FAKETIME_LIB=$library" >> "$GITHUB_ENV"
+
+      - name: Download prepare backup
+        if: runner.os == 'Linux'
+        uses: actions/download-artifact@v4
+        with:
+          name: prepare-backup-${{ runner.os }}
+          path: ./
+
+      - name: Extract tarball and restore permissions
+        if: runner.os == 'Linux'
+        run: tar -xzf prepare-backup.tar.gz
+
+      - name: Run clock framework tests
+        run: python -m pytest test_cases/framework/test_cluster_clock.py -q
+
+      - name: Run fake-time devnet tests
+        if: runner.os == 'Linux'
+        run: python -m pytest test_cases/fiber/devnet/fake_time -q
+
+      - name: Run macOS library smoke test
+        if: runner.os == 'macOS'
+        run: python -m pytest test_cases/fiber/devnet/fake_time/test_live_clock.py -q
+
+      - name: Publish reports
+        if: failure()
+        uses: actions/upload-artifact@v4
+        with:
+          name: fake-time-reports-${{ runner.os }}
           path: ./report
