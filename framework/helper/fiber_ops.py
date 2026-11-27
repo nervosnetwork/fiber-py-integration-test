@@ -104,6 +104,17 @@ def assert_upstream_payment(
     return rows, payment
 
 
+class FiberExitedBeforeRpc(RuntimeError):
+    """进程先于 RPC 就绪退出；与端口超时、启动命令错误分开。"""
+
+    def __init__(self, port, returncode, log_tail):
+        self.returncode = returncode
+        super().__init__(
+            f"Fiber exited before RPC port {port} opened (exit code {returncode})."
+            f"\n--- node.log tail ---\n{log_tail}"
+        )
+
+
 def start_with_confirm(
     fiber,
     confirm="y",
@@ -151,10 +162,8 @@ def start_with_confirm(
 
         exit_code = proc.poll()
         if exit_code is not None:
-            raise RuntimeError(
-                f"Fiber exited before RPC port {fiber.rpc_port} opened "
-                f"(exit code {exit_code}).\n--- node.log tail ---\n"
-                f"{log_path.read_text(errors="replace")[-4000:]}"
+            raise FiberExitedBeforeRpc(
+                fiber.rpc_port, exit_code, log_path.read_text(errors="replace")[-4000:]
             )
         time.sleep(0.3)
 

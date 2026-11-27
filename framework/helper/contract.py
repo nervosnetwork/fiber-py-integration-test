@@ -353,55 +353,56 @@ def invoke_ckb_contract(
         "tx_hash": contract_out_point_tx_hash,
         "index": hex(contract_out_point_tx_index),
     }
-    # tx file init
-    tmp_tx_file = "/tmp/demo.json"
-    tx_init(tmp_tx_file, api_url)
-    tx_add_multisig_config(account_address, tmp_tx_file, api_url)
-    # add input
-    heads = set()
-    for i in range(len(input_cell_out_points)):
-        input_cell_out_point = input_cell_out_points[i]
-        tx_add_input(
-            input_cell_out_point["tx_hash"],
-            input_cell_out_point["index"],
-            tmp_tx_file,
-            api_url,
-        )
-        transaction = RPCClient(api_url).get_transaction(
-            input_cell_out_point["tx_hash"]
-        )
+    # Each devnet builds and signs only its own transaction file.
+    with TemporaryDirectory(prefix="ckb-invoke-") as directory:
+        tmp_tx_file = f"{directory}/transaction.json"
+        tx_init(tmp_tx_file, api_url)
+        tx_add_multisig_config(account_address, tmp_tx_file, api_url)
+        # add input
+        heads = set()
+        for i in range(len(input_cell_out_points)):
+            input_cell_out_point = input_cell_out_points[i]
+            tx_add_input(
+                input_cell_out_point["tx_hash"],
+                input_cell_out_point["index"],
+                tmp_tx_file,
+                api_url,
+            )
+            transaction = RPCClient(api_url).get_transaction(
+                input_cell_out_point["tx_hash"]
+            )
+            heads.add(transaction["tx_status"]["block_hash"])
+        transaction = RPCClient(api_url).get_transaction(contract_out_point_tx_hash)
         heads.add(transaction["tx_status"]["block_hash"])
-    transaction = RPCClient(api_url).get_transaction(contract_out_point_tx_hash)
-    heads.add(transaction["tx_status"]["block_hash"])
-    for head in heads:
-        print("add header:", head)
-        tx_add_header_dep(head, tmp_tx_file)
-    # add output
-    for output_cell in output_cells:
-        tx_add_output(
-            output_cell,
-            data,
-            tmp_tx_file,
-        )
-        data = "0x"
-    # add dep
-    for cell_dep_tmp in cell_deps:
-        tx_add_cell_dep(cell_dep_tmp["tx_hash"], cell_dep_tmp["index"], tmp_tx_file)
-    tx_add_cell_dep(cell_dep["tx_hash"], cell_dep["index"], tmp_tx_file)
+        for head in heads:
+            print("add header:", head)
+            tx_add_header_dep(head, tmp_tx_file)
+        # add output
+        for output_cell in output_cells:
+            tx_add_output(
+                output_cell,
+                data,
+                tmp_tx_file,
+            )
+            data = "0x"
+        # add dep
+        for cell_dep_tmp in cell_deps:
+            tx_add_cell_dep(cell_dep_tmp["tx_hash"], cell_dep_tmp["index"], tmp_tx_file)
+        tx_add_cell_dep(cell_dep["tx_hash"], cell_dep["index"], tmp_tx_file)
 
-    # sign
-    sign_data = tx_sign_inputs(account_private, tmp_tx_file, api_url)
-    tx_add_signature(
-        sign_data[0]["lock-arg"], sign_data[0]["signature"], tmp_tx_file, api_url
-    )
-    tx_info(tmp_tx_file, api_url)
-    for i in range(len(input_cells)):
-        cell = RPCClient(api_url).get_live_cell(
-            hex(input_cells[i]["index"]), input_cells[i]["tx_hash"], True
+        # sign
+        sign_data = tx_sign_inputs(account_private, tmp_tx_file, api_url)
+        tx_add_signature(
+            sign_data[0]["lock-arg"], sign_data[0]["signature"], tmp_tx_file, api_url
         )
+        tx_info(tmp_tx_file, api_url)
+        for i in range(len(input_cells)):
+            cell = RPCClient(api_url).get_live_cell(
+                hex(input_cells[i]["index"]), input_cells[i]["tx_hash"], True
+            )
 
-    # send tx return hash
-    return tx_send(tmp_tx_file, api_url).strip()
+        # send tx return hash
+        return tx_send(tmp_tx_file, api_url).strip()
 
 
 def build_invoke_ckb_contract(

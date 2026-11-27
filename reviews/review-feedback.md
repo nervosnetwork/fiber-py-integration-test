@@ -43,3 +43,11 @@
 - model: unavailable | cases: CDE-01 | feedback: 应该算bug ，提个英文issue 吧
 - model: unavailable | cases: CDE-01 | feedback: 验证开通失败，不再等 ChannelReady 或执行强关
 - model: unavailable | cases: CI 45609893489 中因旧库升级失败的 22 个用例 | feedback: 把涉及到旧库升级失败的用例都skip
+- model: unavailable | cases: V091MIX-01 | feedback: 编写的用例需要支持debug=True 模式，方便用户调试
+- model: unavailable | cases: V091MIX-01 | feedback: 没必要独立目录，统一在tmp下，我用debug 模式，是想不清理环境，方便继续定位问题 也能操作之前的阶段
+- model: unavailable | cases: V091MIX-02 | feedback: 不用让原交易上链，就切换V0100_DEV，然后能shutdown的channel shutdown就行，之后就关闭V0100_DEV ，尝试启动节点，先不写用例 和我一起调试
+- model: unavailable | cases: V091MIX-01 V091MIX-02 V091MIX-03 V091MIX-04 V091MIX-05 V091MIX-06 | feedback: 合并成一个用例就行
+- model: unavailable | cases: V091MIX-01 | feedback: 再补充启动当前节点报 Close these channels and finish pending settlement/delivery with the old binary, then retry this upgrade. No records or database version were changed.\ 然后把这些v1的channel都drop-v1-channel关掉后 ，能正常启动,v
+- model: unavailable | cases: V091MIX-01 | feedback: 查询v2的channel 是存在的，然后生成epoch，把v2强制shutdown的channel 在链上结算，剩下一个channel 可以正常发交易
+- model: unavailable | cases: V091MIX-01 | feedback: current 节点要能结算之前0.10.1在链上的tlc
+- model: unavailable | cases: V091MIX-01 | feedback: 确认按收款方路径修正：旧版 C 强关含 100 CKB 持单的通道并确认后保持离线，由新版 A 凭原像领取；本金返还不算通过。调试入口不参与常规收集，归档前备份按次隔离。

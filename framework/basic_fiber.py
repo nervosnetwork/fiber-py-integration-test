@@ -101,7 +101,10 @@ class FiberTest(CkbTest):
             cls.ckb_p2p_port,
         )
         cls.node.virtual_clock = cls.cluster_clock
+        cls._setup_ckb()
 
+    @classmethod
+    def _setup_ckb(cls):
         if cls.debug:
             if check_port(cls.ckb_rpc_port):
                 cls.logger.debug("=====不是第一次启动=====")
@@ -287,6 +290,8 @@ class FiberTest(CkbTest):
         config=None,
         fiber_version=FiberConfigPath.CURRENT_DEV,
         env=None,
+        *,
+        startup_timeout=300,
     ):
         if self.debug:
             self.logger.debug("=================start  mock fiber ==================")
@@ -320,7 +325,7 @@ class FiberTest(CkbTest):
         if self.cluster_clock is not None:
             self.cluster_clock.apply_to_env(fiber.extra_env)
         fiber.prepare(update_config=update_config)
-        fiber.start(fnn_log_level=self.fnn_log_level)
+        fiber.start(fnn_log_level=self.fnn_log_level, timeout=startup_timeout)
         return fiber
 
     def restore_fiber_from_backup(

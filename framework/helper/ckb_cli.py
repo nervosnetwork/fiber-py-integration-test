@@ -1,5 +1,8 @@
 import json
+import os
 import re
+import subprocess
+from tempfile import NamedTemporaryFile
 
 import yaml
 
@@ -106,6 +109,19 @@ def wallet_get_live_cells(ckb_address, api_url="http://127.0.0.1:8114"):
     return json.loads(run_command(cmd))
 
 
+def _cli_with_private_key(key, *args, api_url=None):
+    """每次 CLI 调用独占一个临时密钥文件，避免并行节点误用别人的测试账户。"""
+    with NamedTemporaryFile(mode="w", prefix="fiber-ckb-key-") as key_file:
+        print(key, file=key_file, flush=True)
+        env = None if api_url is None else {**os.environ, "API_URL": api_url}
+        return subprocess.check_output(
+            ["./ckb-cli", *args, "--privkey-path", key_file.name],
+            cwd=os.path.join(get_project_root(), "source"),
+            env=env,
+            text=True,
+        )
+
+
 def wallet_transfer_by_private_key(
     private_key,
     to_ckb_address,
@@ -113,30 +129,20 @@ def wallet_transfer_by_private_key(
     api_url="http://127.0.0.1:8114",
     fee_rate="1000",
 ):
-    """
-    MacBook-Pro-4 0.111.0 % MacBook-Pro-4 0.111.0 % export API_URL=http://127.0.0.1:8115 &&  echo
-    0xd00c06bfd800d27397002dca6fb0993d5ba6399b4238b2f29ee9deb97593d2bc > /tmp/tmp.data && ./ckb-cli wallet transfer --
-    privkey-path address1.data --to-address
-     ckt1qzda0cr08m85hc8jlnfp3zer7xulejywt49kt2rr0vthywaa50xwsq28phxutezqvjgfv5q38gn5kwek4m9km3cmajeqs  --capacity 88
-     --fee-rate 1511 --skip-check-to-address && rm /tmp/tmp.data
-
-    0x451eb73e98d835ade44eab8125153af09e3d36807162417cb6a9f584b58bfd2e
-
-    :param private_key:
-    :param to_ckb_address:
-    :param capacity:
-    :return:
-
-    Args:
-        api_url: default ckb rpc url
-        fee_rate: default tx fee
-    """
-    cmd = (
-        f"export API_URL={api_url} &&  echo {private_key} > /tmp/tmp.data && {cli_path} wallet transfer "
-        f"--privkey-path /tmp/tmp.data --to-address  {to_ckb_address}  --capacity {capacity}  --fee-rate {fee_rate} --skip-check-to-address "
-        f" && rm /tmp/tmp.data"
-    )
-    return run_command(cmd).replace("\n", "")
+    """转账一次，返回实际提交的交易哈希。"""
+    return _cli_with_private_key(
+        private_key,
+        "wallet",
+        "transfer",
+        "--to-address",
+        to_ckb_address,
+        "--capacity",
+        str(capacity),
+        "--fee-rate",
+        str(fee_rate),
+        "--skip-check-to-address",
+        api_url=api_url,
+    ).strip()
 
 
 def version():
@@ -241,42 +247,12 @@ def deploy_apply_txs(tx_info_path, api_url="http://127.0.0.1:8114"):
 
 
 def util_key_info_by_private_key(account_private):
-    """
-    MacBook-Pro-4 0.111.0 % echo 0xd00c06bfd800d27397002dca6fb0993d5ba6399b4238b2f29ee9deb97593d2bc >
-    tmp.data && ./ckb-cli util key-info --privkey-path tmp.data --output-format json && rm tmp.data
-
-    Put this config in < ckb.toml >:
-
-    [block_assembler]
-    code_hash = "0x9bd7e06f3ecf4be0f2fcd2188b23f1b9fcc88e5d4b65a8637b17723bbda3cce8"
-    hash_type = "type"
-    args = "0xc8328aabcd9b9e8e64fbc566c4385c3bdeb219d7"
-    message = "0x"
-
-    {
-      "address": {
-        "mainnet": "ckb1qzda0cr08m85hc8jlnfp3zer7xulejywt49kt2rr0vthywaa50xwsqwgx292hnvmn68xf779vmzrshpmm6epn4cp2rpz9",
-        "testnet": "ckt1qzda0cr08m85hc8jlnfp3zer7xulejywt49kt2rr0vthywaa50xwsqwgx292hnvmn68xf779vmzrshpmm6epn4c0cgwga"
-      },
-      "address(deprecated)": {
-        "mainnet": "ckb1qyqvsv5240xeh85wvnau2eky8pwrhh4jr8ts6f6daz",
-        "testnet": "ckt1qyqvsv5240xeh85wvnau2eky8pwrhh4jr8ts8vyj37"
-      },
-      "lock_arg": "0xc8328aabcd9b9e8e64fbc566c4385c3bdeb219d7",
-      "lock_hash": "0x32e555f3ff8e135cece1351a6a2971518392c1e30375c1e006ad0ce8eac07947",
-      "old-testnet-address": "ckt1q9gry5zgeqeg427dnw0gue8mc4nvgwzu800tyxwh7kdvf8",
-      "pubkey": "03fe6c6d09d1a0f70255cddf25c5ed57d41b5c08822ae710dc10f8c88290e0acdf"
-    }
-    :param account_private:  private key
-    :return: json for account msg
-    """
-    # echo 0xd00c06bfd800d27397002dca6fb0993d5ba6399b4238b2f29ee9deb97593d2bc > tmp.data && ./ckb-cli util key-info
-    # --privkey-path tmp.data --output-format json && rm tmp.data
-    cmd = (
-        f"echo {account_private} > /tmp/tmp.data && {cli_path} util key-info --privkey-path /tmp/tmp.data "
-        f"--output-format json"
+    """由指定测试密钥取得地址、公钥与锁信息。"""
+    return json.loads(
+        _cli_with_private_key(
+            account_private, "util", "key-info", "--output-format", "json"
+        )
     )
-    return json.loads(run_command(cmd))
 
 
 def tx_init(tx_file, api_url="http://127.0.0.1:8114"):
@@ -320,11 +296,18 @@ def tx_sign_inputs(account_private, tx_file, api_url="http://127.0.0.1:8114"):
         signature: 0x0c44c12638277ffa6eafeac55cd918932f1cdbcfd4df413c11e8fb5
         b48f41ba22f738bad494e63d78c2bf2a4e0f4676db1d48d37f3d872d28bac70b2ef5a567a01
     """
-    cmd = (
-        f"export API_URL={api_url} && echo {account_private} > /tmp/account.demo && {cli_path} tx sign-inputs "
-        f"--privkey-path /tmp/account.demo --tx-file {tx_file} --output-format json && rm /tmp/account.demo"
+    return json.loads(
+        _cli_with_private_key(
+            account_private,
+            "tx",
+            "sign-inputs",
+            "--tx-file",
+            str(tx_file),
+            "--output-format",
+            "json",
+            api_url=api_url,
+        )
     )
-    return json.loads(run_command(cmd))
 
 
 def tx_add_signature(lock_arg, signature, tx_file, api_url="http://127.0.0.1:8114"):

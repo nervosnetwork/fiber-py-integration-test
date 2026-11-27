@@ -1,5 +1,6 @@
 """CKB 链上通道结算观察：精确消费关系、领取原像与逐所有者净额。"""
 
+import hashlib
 import time
 
 from framework.config import DEFAULT_MIN_DEPOSIT_CKB
@@ -11,6 +12,41 @@ from framework.helper.fiber_ops import (
 from framework.helper.settlement_witness import CKB, SettlementWitness
 
 
+def unpack_channel_outpoint(packed):
+    """Convert the packed Fiber RPC outpoint to CKB RPC's hash + little-endian index."""
+    raw = bytes.fromhex(packed.removeprefix("0x"))
+    assert len(raw) == 36, packed
+    return {
+        "tx_hash": "0x" + raw[:32].hex(),
+        "index": hex(int.from_bytes(raw[32:], "little")),
+    }
+
+
+def commitment_hash_without_deps(packed):
+    """按 Fiber RPC 的口径对原承诺取哈希：广播才补 cell deps，其他字段不能变。"""
+
+    def fields(raw):
+        assert int.from_bytes(raw[:4], "little") == len(raw)
+        first = int.from_bytes(raw[4:8], "little")
+        offsets = [
+            int.from_bytes(raw[i : i + 4], "little") for i in range(4, first, 4)
+        ] + [len(raw)]
+        return [raw[a:b] for a, b in zip(offsets, offsets[1:])]
+
+    raw_fields = fields(fields(bytes.fromhex(packed[2:]))[0])
+    assert len(raw_fields) == 6
+    raw_fields[1] = bytes(4)
+    offset, offsets = 28, []
+    for value in raw_fields:
+        offsets.append(offset.to_bytes(4, "little"))
+        offset += len(value)
+    raw = offset.to_bytes(4, "little") + b"".join(offsets + raw_fields)
+    return (
+        "0x"
+        + hashlib.blake2b(raw, digest_size=32, person=b"ckb-default-hash").hexdigest()
+    )
+
+
 class ChannelSettlement:
     """通过公开 RPC 检查原通道和原 TLC，不管理节点或重新发起付款。"""
 
@@ -18,21 +54,16 @@ class ChannelSettlement:
         self.ckb = ckb_client
         self.commitment_lock_code_hash = commitment_lock_code_hash
 
-    def snapshot_channel(self, left, right, channel_id, *, commitment_delay_epoch):
+    def snapshot_channel(self, left, right, channel_id, *, commitment_delay_epoch=None):
         """只读取已开通通道的两端余额和 funding；不创建通道或发起付款。"""
         before = [get_channel(f, channel_id) for f in (left, right)]
-        raw = bytes.fromhex(before[0]["channel_outpoint"][2:])
-        assert len(raw) == 36
         return dict(
             left=left,
             right=right,
             channel_id=channel_id,
             before=before,
             commitment_delay_epoch=commitment_delay_epoch,
-            funding={
-                "tx_hash": "0x" + raw[:32].hex(),
-                "index": hex(int.from_bytes(raw[32:], "little")),
-            },
+            funding=unpack_channel_outpoint(before[0]["channel_outpoint"]),
         )
 
     def get_output(self, outpoint):
@@ -79,7 +110,7 @@ class ChannelSettlement:
                 return None
             cursor = page["last_cursor"]
 
-    def net_amounts(self, tx, previous, locks):
+    def net_amounts(self, tx, previous, locks, asset=None):
         """按所有者扣除额外手续费输入，分别返回净到账与整笔交易手续费。"""
         inputs = [self.get_output(i["previous_output"]) for i in tx["inputs"]]
         fee = sum(int(c["capacity"], 16) for c in inputs) - sum(
@@ -99,7 +130,7 @@ class ChannelSettlement:
             ),
         ):
             for cell in cells:
-                assert cell["type"] is None, cell
+                assert cell["type"] is None or cell["type"] == asset, cell
                 if (
                     sign == 1
                     and cell["lock"]["code_hash"] == self.commitment_lock_code_hash
@@ -109,9 +140,10 @@ class ChannelSettlement:
                 net[locks.index(cell["lock"])] += sign * int(cell["capacity"], 16)
         return net, fee
 
-    def track_commitment(self, funding_outpoint, owner_locks):
+    def track_commitment(self, funding_outpoint, owner_locks, *, asset=None):
         """从 funding 的已确认强关交易开始跟踪，不把强关本身当作领取。"""
         funding = self.get_output(funding_outpoint)
+        assert funding["type"] == asset, funding
         tx = wait_for_result(
             "指定 funding 强关交易确认",
             lambda: self.find_spending_transaction(funding_outpoint),
@@ -122,13 +154,14 @@ class ChannelSettlement:
             if o["lock"]["code_hash"] == self.commitment_lock_code_hash
         ]
         assert len(locked) == 1, tx
-        net, fee = self.net_amounts(tx, funding_outpoint, owner_locks)
+        net, fee = self.net_amounts(tx, funding_outpoint, owner_locks, asset)
         # 编码来自公开 commitment 的版本字节，而不是尝试解析直到成功。
         args = bytes.fromhex(tx["outputs"][locked[0]]["lock"]["args"][2:])
         assert len(args) in (57, 58)
         version = "v1" if len(args) == 58 and args[-1] == 1 else "legacy"
         chain = dict(
             locks=owner_locks,
+            asset=asset,
             net=net,
             fee=fee,
             claimed=False,
@@ -138,17 +171,16 @@ class ChannelSettlement:
             seen=False,
             funding=int(funding["capacity"], 16),
             outpoint={"tx_hash": tx["hash"], "index": hex(locked[0])},
+            spends=[],
         )
         return chain
 
-    def advance(self, chain, payment_hash, amount, preimage, *, allow_claim=True):
-        """前进一个已确认消费，核对原 TLC、原像、收款归属和资金守恒。"""
-        if chain["done"]:
-            return True
+    def _next_confirmed_spend(self, chain):
+        """记录当前承诺输出的真实消费及净到账；未消费时不推进 outpoint。"""
         previous = chain["outpoint"]
         tx = self.find_spending_transaction(previous)
         if tx is None:
-            return False
+            return None
         index = next(
             i
             for i, inp in enumerate(tx["inputs"])
@@ -157,24 +189,8 @@ class ChannelSettlement:
         witness = SettlementWitness.from_hex(
             tx["witnesses"][index], version=chain["version"]
         )
-        if not chain["seen"]:
-            witness.assert_pending_tlcs([(payment_hash, amount)])
-            chain["seen"] = True
-        for unlock in witness.unlocks:
-            # 0xfe/0xff 领取一方余额，不是目标 TLC 的退款证据。
-            if unlock.unlock_type in (0xFE, 0xFF):
-                assert unlock.preimage is None, unlock
-                continue
-            assert unlock.unlock_type < len(witness.tlcs), unlock
-            tlc = witness.tlcs[unlock.unlock_type]
-            expected_hash = bytes.fromhex(payment_hash[2:])[: len(tlc.payment_hash)]
-            assert (tlc.payment_hash, tlc.amount) == (expected_hash, amount)
-            if unlock.preimage is None:
-                chain["timed_out"] = True
-            else:
-                assert allow_claim and unlock.preimage == bytes.fromhex(preimage[2:])
-                chain["claimed"] = True
-        net, fee = self.net_amounts(tx, previous, chain["locks"])
+        net, fee = self.net_amounts(tx, previous, chain["locks"], chain.get("asset"))
+        chain["spends"].append((previous, tx, witness, fee))
         chain["net"] = [a + b for a, b in zip(chain["net"], net)]
         chain["fee"] += fee
         locked = [
@@ -189,7 +205,58 @@ class ChannelSettlement:
             chain["outpoint"] = {"tx_hash": tx["hash"], "index": hex(locked[0])}
         else:
             chain["done"] = True
+        return witness
+
+    def advance(self, chain, payment_hash, amount, preimage, *, allow_claim=True):
+        """前进一个已确认消费，核对原 TLC、原像、收款归属和资金守恒。"""
+        if chain["done"]:
+            return True
+        witness = self._next_confirmed_spend(chain)
+        if witness is None:
+            return False
+        if not chain["seen"]:
+            witness.assert_pending_tlcs(
+                [] if payment_hash is None else [(payment_hash, amount)]
+            )
+            chain["seen"] = True
+        for unlock in witness.unlocks:
+            # 0xfe/0xff 领取一方余额，不是目标 TLC 的退款证据。
+            if unlock.unlock_type in (0xFE, 0xFF):
+                assert unlock.preimage is None, unlock
+                continue
+            assert unlock.unlock_type < len(witness.tlcs), unlock
+            assert payment_hash is not None, "无 TLC 的通道出现了 TLC 解锁"
+            tlc = witness.tlcs[unlock.unlock_type]
+            expected_hash = bytes.fromhex(payment_hash[2:])[: len(tlc.payment_hash)]
+            assert (tlc.payment_hash, tlc.amount) == (expected_hash, amount)
+            if unlock.preimage is None:
+                chain["timed_out"] = True
+            else:
+                assert allow_claim and unlock.preimage == bytes.fromhex(preimage[2:])
+                chain["claimed"] = True
         return chain["done"]
+
+    def settlement_fees_by_owner(self, chain):
+        """按各消费的付费输入归属矿工费；末笔领款方收到扣掉承诺交易费的余款。"""
+        assert chain["done"] and chain["spends"]
+        locks = chain["locks"]
+        fees = [0, 0]
+        for previous, tx, _, fee in chain["spends"]:
+            payees = {
+                locks.index(o["lock"]) for o in tx["outputs"] if o["lock"] in locks
+            }
+            funders = {
+                locks.index(self.get_output(i["previous_output"])["lock"])
+                for i in tx["inputs"]
+                if i["previous_output"] != previous
+            }
+            payers = funders or payees
+            assert len(payers) == 1, (tx["hash"], payers)
+            fees[next(iter(payers))] += fee
+        commitment_fee = chain["fee"] - sum(fees)
+        assert len(payees) == 1 and commitment_fee >= 0
+        fees[next(iter(payees))] += commitment_fee
+        return fees
 
     def wait(
         self, chain, payment_hash, amount, preimage, *, until_claim=False, timeout=1800
